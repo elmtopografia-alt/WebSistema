@@ -1,0 +1,71 @@
+.vscode
+admin_criar_demo.php
+alterar_status copy.php
+alterar_status.php
+atualizar_status.php
+bloqueio_demo.php
+cadastrar.php
+cadastrar_demo copy.php
+cadastrar_demo.php
+calculos copy.js
+calculos.js
+composer.json
+composer.lock
+composer.phar
+composer-setup.php
+criar_proposta copy.php
+criar_proposta.php
+db copy.php
+db.php
+entrar_demo.php
+esqueci_senha.php
+excluir_proposta.php
+Gera_numero_Proposta.php
+gerar_documento copy.php
+gerar_documento.php
+Gerar_numero_Proposta.php
+gerenciar copy.php
+gerenciar.php
+gerenciar_empresa copy.php
+gerenciar_empresa.php
+img
+index copy.php
+index.php
+inicio.php
+limpeza_demo.php
+lista arquivos.bat
+listar_propostas copy.php
+listar_propostas.php
+listar_resumos copy.php
+listar_resumos.php
+login copy.php
+login.php
+login_demo copy.php
+login_demo.php
+login_prod.php
+logout.php
+modelos
+nomes.txt
+novo_demo.php
+processa_cadastro copy.php
+processa_cadastro.php
+processa_demo copy.php
+processa_demo.php
+processa_demo_login.php
+processa_login.php
+reparar_banco.php
+resumos.php
+router copy.php
+router.php
+salvar_proposta copy.php
+salvar_proposta.php
+setup copy.php
+setup.php
+teste_card.html
+teste_demo.php
+teste_frente.html
+valida_demo.php
+vendor
+ver.php
+ver_ultima_proposta.php
+versao.php

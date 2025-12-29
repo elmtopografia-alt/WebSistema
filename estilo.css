@@ -1,0 +1,41 @@
+/* Layout Base */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex; /* Cria uma estrutura de colunas */
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Barra Lateral (Sidebar) - Perfeito para Notebook */
+.sidebar {
+    width: 250px;
+    background-color: #1a2a3a;
+    color: white;
+    padding: 20px;
+    flex-shrink: 0; /* Impede a barra de "encolher" no PC */
+}
+
+/* Área Principal */
+.conteudo-principal {
+    flex-grow: 1; /* Ocupa o restante da tela */
+    padding: 30px;
+}
+
+/* Cards de Proposta (O visual que você quer) */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: 1000px; /* Não deixa o formulário ficar largo demais no PC */
+    margin: 0 auto; /* Centraliza no monitor grande */
+}
+
+/* Grid de Formulário (Dois campos por linha no PC) */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Divide em 2 colunas iguais */
+    gap: 20px;
+}
