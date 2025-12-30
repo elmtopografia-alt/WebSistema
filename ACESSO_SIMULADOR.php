@@ -484,7 +484,7 @@
             }
         }
 
-        // Inicializa na Home
+        // Inicializa na  Home
         router('home');
 
     </script>

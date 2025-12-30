@@ -7,7 +7,7 @@ session_start();
 require_once 'config.php';
 require_once 'db.php';
 
-// 1. Segurança: Verifica se está logado e se é ADMIN
+// 1.. Segurança: Verifica se está logado e se é ADMIN
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['perfil']) || $_SESSION['perfil'] !== 'admin') {
     // Se não for admin, mata o processo
     die("<div style='color:red; font-weight:bold; font-family:sans-serif; text-align:center; margin-top:50px;'>⛔ ACESSO NEGADO.<br>Esta ferramenta é exclusiva para Administradores.</div>");
