@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Propostas - ELM</title>
+    
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body {
+            background-color: #f4f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* Título da Página */
+        h1 {
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 24px;
+        }
+
+        /* --- A ESTANTE (GRID) --- */
+        /* Aqui é a mágica que coloca um ao lado do outro */
+        .grid-propostas {
+            display: flex;             /* Transforma em linha */
+            flex-wrap: wrap;           /* Se não couber, quebra para linha de baixo */
+            gap: 20px;                 /* Espaço entre os cartões */
+            justify-content: center;   /* Centraliza tudo na tela */
+            max-width: 1200px;         /* Largura máxima da estante */
+            margin: 0 auto;            /* Centraliza a estante na página */
+        }
+
+        /* --- O CARTÃO (Igual ao anterior) --- */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e6e7e9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 300px;              /* Um pouco menor para caber 3 na tela */
+            display: flex;             /* Para organizar o botão no final */
+            flex-direction: column;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 16px; /* Ajustei um pouco o tamanho */
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1; /* Faz o corpo esticar se precisar */
+        }
+
+        .rotulo {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .dado-cliente {
+            font-size: 15px;
+            color: #334155;
+            margin-top: 0;
+            margin-bottom: 15px;
+            line-height: 1.4; /* Melhora leitura de nomes longos */
+        }
+
+        .valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .btn-app {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s;
+            text-decoration: none; /* Caso use tag <a> no futuro */
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-app:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Minhas Propostas Recentes</h1>
+
+    <div class="grid-propostas">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Proposta #2025/115</h3>
+            </div>
+            <div class="card-body">
+                <p class="rotulo">CLIENTE</p>
+                <p class="dado-cliente">Construtora Exemplo LTDA</p>
+                <p class="rotulo">SERVIÇO</p>
+                <p class="dado-cliente">Levantamento Planialtimétrico</p>
+                <p class="rotulo">VALOR</p>
+                <p class="valor">R$ 4.500,00</p>
+                <button class="btn-app">Gerar PDF</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Proposta #2025/116</h3>
+            </div>
+            <div class="card-body">
+                <p class="rotulo">CLIENTE</p>
+                <p class="dado-cliente">Fazenda Santa Fé</p>
+                <p class="rotulo">SERVIÇO</p>
+                <p class="dado-cliente">Georreferenciamento de Imóvel Rural</p>
+                <p class="rotulo">VALOR</p>
+                <p class="valor">R$ 12.800,00</p>
+                <button class="btn-app">Gerar PDF</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Proposta #2025/117</h3>
+            </div>
+            <div class="card-body">
+                <p class="rotulo">CLIENTE</p>
+                <p class="dado-cliente">Sr. João da Silva</p>
+                <p class="rotulo">SERVIÇO</p>
+                <p class="dado-cliente">Desmembramento de Lote Urbano</p>
+                <p class="rotulo">VALOR</p>
+                <p class="valor">R$ 1.200,00</p>
+                <button class="btn-app">Gerar PDF</button>
+            </div>
+        </div>
+
+    </div> 
+    </body>
+</html>

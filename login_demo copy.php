@@ -1,6 +1,6 @@
 <?php
 // Nome do Arquivo: login_demo.php
-// Função: Login Demo. Permite salvar senha para facilitar os 5 dias de teste.
+// Função: Login Demo (Código Limpo: Apenas Hash).
 
 session_start();
 require_once 'config.php';
@@ -20,14 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("SELECT id_usuario, usuario, senha, nome_completo, tipo_perfil, validade_acesso FROM Usuarios WHERE usuario = ? LIMIT 1");
         $stmt->bind_param('s', $usuario);
         $stmt->execute();
-        $user = $stmt->get_result()->fetch_assoc();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
 
+        // VERIFICAÇÃO DIRETA (HASH)
         if ($user && password_verify($senha, $user['senha'])) {
             $hoje = new DateTime();
             $val = new DateTime($user['validade_acesso']);
+            
             if ($hoje > $val) {
                 $erro = "Teste expirado. <a href='contratar.php'>Contratar</a>.";
             } else {
+                // SUCESSO!
                 session_regenerate_id(true);
                 $_SESSION['usuario_id']    = $user['id_usuario'];
                 $_SESSION['usuario_nome']  = $user['nome_completo'];
@@ -54,20 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>body{background:#0d6efd;display:flex;align-items:center;justify-content:center;height:100vh}</style>
 </head>
 <body>
-    <div class="card border-0 shadow-lg" style="width:400px">
+    <div class="card border-0 shadow" style="width:400px">
         <div class="card-body p-4 bg-white rounded">
             <h4 class="text-primary text-center fw-bold mb-3">Ambiente de Teste</h4>
             <?php if($sucesso): ?><div class="alert alert-success py-1 small text-center"><?php echo $sucesso; ?></div><?php endif; ?>
             <?php if($erro): ?><div class="alert alert-warning py-1 small text-center"><?php echo $erro; ?></div><?php endif; ?>
             
-            <form method="POST">
+            <form method="POST" autocomplete="off">
                 <div class="mb-3">
-                    <label class="fw-bold small">E-mail</label>
-                    <input type="text" name="usuario" class="form-control bg-light" required autocomplete="username">
+                    <label class="fw-bold small">E-MAIL</label>
+                    <input type="email" name="usuario" class="form-control bg-light" required autocomplete="off">
                 </div>
                 <div class="mb-3">
-                    <label class="fw-bold small">Senha</label>
-                    <input type="password" name="senha" class="form-control bg-light" required autocomplete="current-password">
+                    <label class="fw-bold small">SENHA</label>
+                    <input type="password" name="senha" class="form-control bg-light" required autocomplete="new-password">
                 </div>
                 <button class="btn btn-primary w-100 fw-bold shadow-sm">ACESSAR DEMO</button>
             </form>

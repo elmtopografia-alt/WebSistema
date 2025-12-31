@@ -1,6 +1,6 @@
 <?php
 // Nome do Arquivo: contratar.php
-// Função: Tela de Planos com DESTAQUE PARA PIX no plano mensal.
+// Função: Tela de Planos com LINKS REAIS DO MERCADO PAGO RESTAURADOS.
 
 session_start();
 require_once 'config.php';
@@ -12,15 +12,16 @@ require_once 'config.php';
 // Preço Base Mensal (R$ 30,00)
 $preco_base = 30.00; 
 
-// --- SEUS LINKS REAIS ---
+// --- SEUS LINKS REAIS (Resgatados do Histórico) ---
 
-// 1. Link de ASSINATURA (Cartão/Recorrência)
+// 1. Link de ASSINATURA (Recorrência Mensal)
 $link_mensal_assinatura = "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=6b8610a74e9e4f66aed94c9bd7a957af";
 
-// 2. Link de PAGAMENTO ÚNICO R$ 30,00 (PIX Avulso) - GERE E COLE AQUI
-$link_mensal_pix        = "https://mpago.la/2JrbxWt";
+// 2. Link de PAGAMENTO ÚNICO R$ 30,00 (PIX Avulso)
+// *** ATENÇÃO: Você precisa gerar um "Link de Pagamento" de R$ 30,00 no MP e colar aqui ***
+$link_mensal_pix = "https://mpago.la/2JrbxWt"; 
 
-// 3. Links dos Planos Longos (Pagamento Único)
+// 3. Links dos Planos Longos (Pagamento Único - Checkout Pro)
 $link_trimestral = "https://mpago.la/2BV5xy6";
 $link_semestral  = "https://mpago.la/2MjigKn";
 $link_anual      = "https://mpago.la/1CuvPFA";
@@ -30,7 +31,7 @@ $whatsapp_comercial = "5531999999999";
 $link_zap = "https://api.whatsapp.com/send?phone=$whatsapp_comercial&text=Tenho%20duvidas%20sobre%20os%20planos";
 
 // =============================================================
-// 2. MOTOR DE CÁLCULO
+// 2. MOTOR DE CÁLCULO E FORMATAÇÃO
 // =============================================================
 
 function reais($valor) {
@@ -59,7 +60,7 @@ $total_anu = $mensal_anu * 12;
         .header-compact { text-align: center; padding: 40px 10px 30px; }
         .header-compact h2 { font-weight: 800; color: #2c3e50; font-size: 2rem; }
         
-        .card-plan { border: 1px solid #e0e0e0; border-radius: 10px; background: white; transition: all 0.2s; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .card-plan { border: 1px solid #e0e0e0; border-radius: 10px; background: white; transition: all 0.2s; height: 100%; position: relative; overflow: hidden; }
         .card-plan:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #bdc3c7; }
         
         .plan-title { font-size: 1.1rem; font-weight: bold; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; }
@@ -74,13 +75,13 @@ $total_anu = $mensal_anu * 12;
 
         .btn-plan { width: 100%; font-weight: bold; padding: 10px; border-radius: 6px; }
         
-        /* Área de Botões do Mensal */
-        .monthly-actions { margin-top: auto; }
-        .separator { display: flex; align-items: center; text-align: center; color: #aaa; font-size: 0.8rem; margin: 8px 0; }
-        .separator::before, .separator::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
-        .separator:not(:empty)::before { margin-right: .25em; }
-        .separator:not(:empty)::after { margin-left: .25em; }
-
+        /* Link PIX Realçado */
+        .pix-link { 
+            font-size: 0.95rem; font-weight: 700; text-decoration: none; color: #0d6efd; 
+            display: block; margin-top: 15px; border-top: 1px solid #eee; padding-top: 12px; transition: all 0.2s;
+        }
+        .pix-link:hover { text-decoration: none; color: #0043a8; background-color: #f0f8ff; border-radius: 5px; }
+        .pix-link i { font-size: 1.1rem; vertical-align: text-bottom; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -97,7 +98,7 @@ $total_anu = $mensal_anu * 12;
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3 justify-content-center">
             
-            <!-- 1. MENSAL (HÍBRIDO COM DESTAQUE PIX) -->
+            <!-- 1. MENSAL (HÍBRIDO) -->
             <div class="col">
                 <div class="card-plan p-3 text-center">
                     <div class="plan-title">Mensal</div>
@@ -105,21 +106,17 @@ $total_anu = $mensal_anu * 12;
                         <span class="price-currency">R$</span>
                         <span class="price-value"><?php echo reais($mensal_base); ?></span>
                     </div>
-                    <div class="total-billed">Sem fidelidade</div>
+                    <div class="total-billed">Cobrança Automática</div>
                     
-                    <div class="monthly-actions">
-                        <!-- Botão PIX (Verde Chama Atenção) -->
-                        <a href="<?php echo $link_mensal_pix; ?>" class="btn btn-plan btn-success text-white mb-2">
-                            <i class="bi bi-qr-code-scan"></i> Pagar com PIX
-                        </a>
+                    <!-- Botão Principal: Assinatura (Cartão) -->
+                    <a href="<?php echo $link_mensal_assinatura; ?>" class="btn btn-plan btn-outline-primary" title="Melhor opção para não esquecer de pagar">
+                        Assinar (Cartão)
+                    </a>
 
-                        <div class="separator">OU</div>
-
-                        <!-- Botão Assinatura (Azul Suave) -->
-                        <a href="<?php echo $link_mensal_assinatura; ?>" class="btn btn-plan btn-outline-primary btn-sm">
-                            <i class="bi bi-credit-card"></i> Assinatura (Cartão)
-                        </a>
-                    </div>
+                    <!-- Opção Secundária: PIX Avulso -->
+                    <a href="<?php echo $link_mensal_pix; ?>" class="pix-link">
+                        <i class="bi bi-qr-code"></i> Prefere PIX? Pague 30 dias
+                    </a>
                 </div>
             </div>
 
@@ -135,9 +132,7 @@ $total_anu = $mensal_anu * 12;
                     <div class="total-billed">Total: R$ <?php echo reais($total_tri); ?></div>
                     <div class="small text-success fw-bold mb-2">5% de Desconto</div>
                     
-                    <div class="mt-auto">
-                        <a href="<?php echo $link_trimestral; ?>" class="btn btn-plan btn-primary">Assinar</a>
-                    </div>
+                    <a href="<?php echo $link_trimestral; ?>" class="btn btn-plan btn-primary">Assinar</a>
                 </div>
             </div>
 
@@ -153,9 +148,7 @@ $total_anu = $mensal_anu * 12;
                     <div class="total-billed">Total: R$ <?php echo reais($total_sem); ?></div>
                     <div class="small text-success fw-bold mb-2">10% de Desconto</div>
                     
-                    <div class="mt-auto">
-                        <a href="<?php echo $link_semestral; ?>" class="btn btn-plan btn-primary">Assinar</a>
-                    </div>
+                    <a href="<?php echo $link_semestral; ?>" class="btn btn-plan btn-primary">Assinar</a>
                 </div>
             </div>
 
@@ -172,9 +165,7 @@ $total_anu = $mensal_anu * 12;
                     <div class="total-billed text-dark fw-bold">Total: R$ <?php echo reais($total_anu); ?></div>
                     <div class="small text-success fw-bold mb-2">20% OFF (Melhor Valor)</div>
                     
-                    <div class="mt-auto">
-                        <a href="<?php echo $link_anual; ?>" class="btn btn-plan btn-success text-white shadow-sm">Assinar Agora</a>
-                    </div>
+                    <a href="<?php echo $link_anual; ?>" class="btn btn-plan btn-success text-white shadow-sm">Assinar Agora</a>
                 </div>
             </div>
 

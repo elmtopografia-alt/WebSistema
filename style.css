@@ -1,0 +1,56 @@
+/* ARQUIVO: assets/css/style.css */
+
+/* Fontes Padrão */
+body {
+  font-family: "Open Sans", sans-serif;
+  color: #444444;
+}
+
+a {
+  color: #4154f1;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #717ff5;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Nunito", sans-serif;
+}
+
+/* Card Style do NiceAdmin */
+.card {
+  margin-bottom: 30px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+}
+
+.card-title {
+  padding: 20px 0 15px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #012970;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Botões do NiceAdmin */
+.btn-primary {
+    background-color: #4154f1 !important;
+    border-color: #4154f1 !important;
+}
+.btn-primary:hover {
+    background-color: #2a3ecc !important;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 30px 20px !important;
+    }
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
