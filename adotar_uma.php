@@ -1,5 +1,5 @@
 <?php
-// Nome do Arquivo: adotar_uma.php
+// Nome dos Arquivo: adotar_uma.php
 // Função: Ferramenta de apoio para transferir UMA proposta específica para o usuário logado.
 
 session_start();

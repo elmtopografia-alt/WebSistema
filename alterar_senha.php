@@ -1,5 +1,5 @@
 <?php
-// Nome do Arquivo: alterar_senha.php
+// O Nome do Arquivo: alterar_senha.php
 // Função: Alteração com Checklist Visual de Segurança.
 
 session_start();
