@@ -1,0 +1,48 @@
+* Onboarding Page Stylesheet
+*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 480px;
+    margin: 80px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+h1 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px;
+    background: #28a745;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #218838;
+}
