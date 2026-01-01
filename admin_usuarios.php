@@ -1,5 +1,5 @@
 <?php
-// Nome do Arquivo: admin_usuarios.php
+// Nome do Arquivo e: admin_usuarios.php
 // Função: Gestão de Clientes. Atualização: Inclui Checklist Visual de Senha Forte no formulário.
 
 session_start();
