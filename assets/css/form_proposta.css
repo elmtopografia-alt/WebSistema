@@ -1,0 +1,177 @@
+/* assets/css/form_proposta.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-page: #f0f2f5;
+    --bg-card: #ffffff;
+    --primary: #4154f1;
+    --primary-hover: #2a3ecc;
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    background-color: var(--bg-page);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
+    padding-bottom: 60px;
+}
+
+/* Header Styling */
+.page-header {
+    background: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-title {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-title i {
+    color: var(--primary);
+}
+
+/* Form Sections as Cards */
+.form-section {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.3s ease;
+}
+
+.form-section:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.section-title {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs & Selects */
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    background-color: #f8fafc;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(65, 84, 241, 0.15);
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Buttons */
+.btn-cancel {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #e2e6ea;
+    color: var(--text-dark);
+}
+
+.btn-add-item {
+    border-radius: 50px;
+    padding: 5px 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Total Box */
+.total-box {
+    background: linear-gradient(135deg, #f6f9ff 0%, #eef2f5 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #dce7f1;
+}
+
+.total-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+.total-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Footer Actions */
+.form-actions {
+    background: white;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Adjust container to not hide behind fixed footer */
+.container {
+    padding-bottom: 80px;
+}

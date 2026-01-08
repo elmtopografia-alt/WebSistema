@@ -1,0 +1,303 @@
+/* landing_dark.css */
+:root {
+    --primary: #00f2fe;
+    --secondary: #4facfe;
+    --bg: #0a0b10;
+    --glass: rgba(255, 255, 255, 0.05);
+    --text-main: #ffffff;
+    --text-muted: #888888;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    /* Background removed for slider */
+    color: var(--text-main);
+    /* Grid de Topografia */
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Navbar Lateral/Esquerda Inovadora */
+header {
+    position: fixed;
+    top: 30px;
+    left: 5%;
+    right: 5%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    padding: 15px 25px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass);
+}
+
+.nav-access {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    display: inline-block;
+    /* Essential for padding and positioning */
+    padding: 10px 22px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-cliente {
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-teste {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #000;
+}
+
+/* Estilo "Peça um acesso" com linhas paralelas dinâmicas */
+.btn-acesso {
+    color: var(--primary);
+    position: relative;
+    padding-bottom: 15px !important;
+    /* Garante espaço extra */
+    display: inline-block;
+}
+
+.btn-acesso::before,
+.btn-acesso::after {
+    content: '';
+    position: absolute;
+    height: 3px;
+    /* Linhas mais grossas */
+    background-color: var(--primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Linha 1: Superior esquerda */
+.btn-acesso::before {
+    width: 50%;
+    left: 0;
+    bottom: 8px;
+    opacity: 0.8;
+}
+
+/* Linha 2: Inferior direita */
+.btn-acesso::after {
+    width: 50%;
+    right: 0;
+    bottom: 3px;
+    opacity: 1;
+}
+
+/* Efeito Hover: As linhas se expandem e cruzam */
+.btn-acesso:hover::before {
+    width: 80%;
+    left: 20%;
+}
+
+.btn-acesso:hover::after {
+    width: 80%;
+    right: 20%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);
+}
+
+/* Hero Section */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 15% 50px;
+    /* Added top padding to account for fixed header */
+}
+
+.badge {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--primary);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero span {
+    color: var(--primary);
+    -webkit-text-fill-color: var(--primary);
+}
+
+/* Card Flutuante de Proposta */
+.proposal-card {
+    margin-top: 50px;
+    background: var(--glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    backdrop-filter: blur(20px);
+    animation: float 6s ease-in-out infinite;
+    max-width: 90%;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #00ff88;
+}
+
+/* Footer Adaptation */
+footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem 0;
+    text-align: center;
+    margin-top: 50px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+.copyright {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav-access {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .proposal-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .proposal-card>div {
+        text-align: center !important;
+    }
+}
+
+/* Slider Styles */
+.slider-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out, transform 6s ease-in-out;
+    transform: scale(1);
+}
+
+.slide.active {
+    opacity: 1;
+    transform: scale(1.05);
+    /* Subtle zoom effect */
+}
+
+.slider-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(10, 11, 16, 0.7), rgba(10, 11, 16, 0.4), rgba(10, 11, 16, 0.8));
+    z-index: 1;
+}

@@ -8,7 +8,21 @@ require_once 'config.php';
 require_once 'db.php';
 
 // 1. Segurança
-if (!isset($_SESSION['usuario_id']) || $_SESSION['perfil'] !== 'admin') {
+// 1. Segurança
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+// Bloqueia se for DEMO (apenas leitura/não acessa) ou se não for Admin/Produção
+if ($_SESSION['ambiente'] === 'demo') {
+    header("Location: painel.php");
+    exit;
+}
+
+// Se for Produção, permite. Se for Admin, permite.
+// O código original bloqueava tudo que não fosse admin.
+if ($_SESSION['perfil'] !== 'admin' && $_SESSION['ambiente'] !== 'producao') {
     header("Location: index.php");
     exit;
 }
@@ -202,7 +216,9 @@ $arquivos_demo = listarArquivos('modelos_demo');
                     <li class="nav-item"><button class="nav-link" id="equip-tab" data-bs-toggle="tab" data-bs-target="#equip">Equipamentos</button></li>
                     <li class="nav-item"><button class="nav-link" id="serv-tab" data-bs-toggle="tab" data-bs-target="#serv">Serviços</button></li>
                     <li class="nav-item"><button class="nav-link text-primary" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs">Modelos Word</button></li>
+                    <?php if($_SESSION['perfil'] === 'admin'): ?>
                     <li class="nav-item"><button class="nav-link text-danger" id="sys-tab" data-bs-toggle="tab" data-bs-target="#sys">Sistema</button></li>
+                    <?php endif; ?>
                 </ul>
             </div>
             <div class="card-body">
@@ -382,6 +398,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                         </div>
                     </div>
                     
+                    <?php if($_SESSION['perfil'] === 'admin'): ?>
                     <div class="tab-pane fade" id="sys">
                         <div class="alert alert-danger text-center mt-3">
                             <h4><i class="bi bi-exclamation-triangle-fill"></i> ZONA DE PERIGO</h4>
@@ -392,6 +409,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                             </form>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                 </div>
             </div>

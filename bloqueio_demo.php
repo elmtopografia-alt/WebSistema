@@ -32,10 +32,13 @@ session_start();
             </ul>
 
             <div class="d-grid gap-2">
-                <a href="https://wa.me/5531999999999?text=Ola,%20quero%20contratar%20o%20Gera%20Proposta" class="btn btn-success btn-lg">
-                    Falar com Comercial no WhatsApp 🚀
+                <a href="contratar.php" class="btn btn-primary btn-lg fw-bold">
+                    <i class="bi bi-cart-check-fill"></i> Ver Planos e Contratar
                 </a>
-                <a href="login.php" class="btn btn-outline-secondary mt-2">Voltar para Login</a>
+                <a href="https://wa.me/5531999999999?text=Ola,%20quero%20contratar%20o%20Gera%20Proposta" class="btn btn-outline-success">
+                    <i class="bi bi-whatsapp"></i> Falar com Comercial
+                </a>
+                <a href="logout.php" class="btn btn-link text-muted mt-2">Sair / Trocar Conta</a>
             </div>
             
             <p class="text-muted mt-3 small">Seus dados de teste serão mantidos por mais 4 dias antes da exclusão definitiva.</p>

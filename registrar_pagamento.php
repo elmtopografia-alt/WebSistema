@@ -72,12 +72,14 @@ try {
             (id_pagamento, numero_recibo, emissor_nome, emissor_cnpj)
             VALUES (?, ?, ?, ?)";
 
+    require_once 'config_empresa.php';
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $id_pagamento,
         $numero_recibo,
-        'ELM Serviços Topográficos Ltda',
-        'CNPJ_DA_ELM'
+        EMPRESA_NOME,
+        EMPRESA_CNPJ
     ]);
 
     // ==============================

@@ -6,8 +6,11 @@ require_once 'vendor/autoload.php';
 require_once 'db.php';
 
 session_start();
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
+
+// Limpa qualquer output anterior
+if (ob_get_length()) ob_clean();
 
 if (!isset($_GET['id'])) { die("ID da proposta não fornecido."); }
 $id_proposta = intval($_GET['id']);
@@ -101,6 +104,22 @@ try {
 
     // 5. PREENCHIMENTO DO PHPWORD
     $template = new \PhpOffice\PhpWord\TemplateProcessor($caminhoArquivo);
+
+    // LOGO DA EMPRESA
+    $caminhoLogo = '';
+    if (!empty($emp['logo_caminho'])) {
+        $caminhoLogo = __DIR__ . '/' . $emp['logo_caminho'];
+    }
+
+    if (!empty($caminhoLogo) && is_file($caminhoLogo)) {
+        try { 
+            $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); 
+        } catch (Exception $eImg) { 
+            $template->setValue('logo_empresa', ''); 
+        }
+    } else { 
+        $template->setValue('logo_empresa', ''); 
+    }
 
     // Mapeamento Geral
     $v_final = $proposta['valor_final_proposta'];

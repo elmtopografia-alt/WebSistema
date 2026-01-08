@@ -48,34 +48,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Acesso Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>body{background:#0d6efd;display:flex;align-items:center;justify-content:center;height:100vh}</style>
+    <title>Acesso Demo</title>
+    <link rel="stylesheet" href="assets/css/login.css">
 </head>
 <body>
-    <div class="card border-0 shadow-lg" style="width:400px">
-        <div class="card-body p-4 bg-white rounded">
-            <h4 class="text-primary text-center fw-bold mb-3">Ambiente de Teste</h4>
-            <?php if($sucesso): ?><div class="alert alert-success py-1 small text-center"><?php echo $sucesso; ?></div><?php endif; ?>
-            <?php if($erro): ?><div class="alert alert-warning py-1 small text-center"><?php echo $erro; ?></div><?php endif; ?>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Ambiente de Teste</h1>
+                <p>Acesse sua conta demo</p>
+            </div>
+
+            <?php if($sucesso): ?>
+                <div class="alert alert-success"><?php echo $sucesso; ?></div>
+            <?php endif; ?>
+            
+            <?php if($erro): ?>
+                <div class="alert alert-danger"><?php echo $erro; ?></div>
+            <?php endif; ?>
             
             <form method="POST">
-                <div class="mb-3">
-                    <label class="fw-bold small">E-mail</label>
-                    <input type="text" name="usuario" class="form-control bg-light" required autocomplete="username">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="text" name="usuario" class="form-control" required autocomplete="username" placeholder="Seu e-mail">
                 </div>
-                <div class="mb-3">
-                    <label class="fw-bold small">Senha</label>
-                    <input type="password" name="senha" class="form-control bg-light" required autocomplete="current-password">
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" name="senha" class="form-control" required autocomplete="current-password" placeholder="Sua senha">
                 </div>
-                <button class="btn btn-primary w-100 fw-bold shadow-sm">ACESSAR DEMO</button>
+                <button class="btn-login">ACESSAR DEMO</button>
             </form>
             
-            <div class="text-center mt-3 border-top pt-2">
-                <a href="criar_conta_demo.php" class="fw-bold text-decoration-none">Criar Conta Grátis</a>
+            <div class="links">
+                <a href="criar_conta_demo.php">Criar Conta Grátis</a>
+                <br><br>
+                <a href="index.php" style="color: #888;">Voltar ao site</a>
             </div>
-            <div class="text-center mt-2"><a href="index.php" class="text-muted small text-decoration-none">Voltar ao site</a></div>
         </div>
     </div>
 </body>

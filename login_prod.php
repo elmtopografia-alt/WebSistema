@@ -90,24 +90,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Área do Cliente</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>body{background:#198754;display:flex;align-items:center;justify-content:center;height:100vh}</style>
+    <title>Área do Cliente</title>
+    <link rel="stylesheet" href="assets/css/login.css">
 </head>
 <body>
-    <div class="card border-0 shadow" style="width:400px">
-        <div class="card-body p-4">
-            <h4 class="text-success text-center fw-bold mb-3">Área do Cliente</h4>
-            <?php if($erro): ?><div class="alert alert-danger py-2 small text-center"><?php echo $erro; ?></div><?php endif; ?>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Área do Cliente</h1>
+                <p>Acesse sua conta</p>
+            </div>
+
+            <?php if($erro): ?>
+                <div class="alert alert-danger"><?php echo $erro; ?></div>
+            <?php endif; ?>
             
             <form method="POST">
-                <div class="mb-3"><label class="fw-bold small">USUÁRIO</label><input type="text" name="usuario" class="form-control" required autofocus></div>
-                <div class="mb-3"><label class="fw-bold small">SENHA</label><input type="password" name="senha" class="form-control" required></div>
-                <button class="btn btn-success w-100 fw-bold">ENTRAR</button>
+                <div class="form-group">
+                    <label>USUÁRIO</label>
+                    <input type="text" name="usuario" class="form-control" required autofocus placeholder="Seu usuário">
+                </div>
+                <div class="form-group">
+                    <label>SENHA</label>
+                    <input type="password" name="senha" class="form-control" required placeholder="Sua senha">
+                </div>
+                <button class="btn-login">ENTRAR</button>
             </form>
             
-            <div class="text-center mt-3"><a href="index.php" class="text-decoration-none text-muted small">&larr; Voltar ao Site</a></div>
+            <div class="links">
+                <a href="index.php">&larr; Voltar ao Site</a>
+            </div>
         </div>
     </div>
 </body>

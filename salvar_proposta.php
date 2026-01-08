@@ -88,6 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
+        // Verificação de Integridade do POST
+        if (!isset($_POST['form_complete'])) {
+            throw new Exception("Erro de transmissão: O formulário não foi recebido completamente. Tente novamente.");
+        }
         if ($is_demo) {
             $hoje = date('Y-m-d');
             $stmtL = $conn->prepare("SELECT COUNT(*) as qtd FROM Propostas WHERE id_criador = ? AND DATE(data_criacao) = ?");
@@ -240,17 +244,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template = new \PhpOffice\PhpWord\TemplateProcessor($pastaBase . $arquivoModeloNome);
         
         // Logo
-        $caminhoLogo = isset($emp['logo_caminho']) ? __DIR__ . '/' . $emp['logo_caminho'] : '';
-        if (!empty($caminhoLogo) && file_exists($caminhoLogo)) {
-            try { $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); } catch (Exception $eImg) { $template->setValue('logo_empresa', ''); }
-        } else { $template->setValue('logo_empresa', ''); }
+        // Logo
+        $caminhoLogo = '';
+        if (!empty($emp['logo_caminho'])) {
+            $caminhoLogo = __DIR__ . '/' . $emp['logo_caminho'];
+        }
+        
+        if (!empty($caminhoLogo) && is_file($caminhoLogo)) {
+            try { 
+                $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); 
+            } catch (Exception $eImg) { 
+                $template->setValue('logo_empresa', ''); 
+            }
+        } else { 
+            $template->setValue('logo_empresa', ''); 
+        }
 
         // Variáveis
         $template->setValue('numero_proposta', $num_proposta);
         $template->setValue('Cidade', $emp['Cidade']);
         $template->setValue('DExrenso', dataExtenso(date('Y-m-d')));
         $template->setValue('nome_cliente_salvo', $cliente_info['nome_cliente']);
-        $template->setValue('Empresa', $emp['Empresa']);
+        $template->setValue('Empresa', htmlspecialchars($emp['Empresa']));
         $template->setValue('ValorProposta', number_format($final, 2, ',', '.'));
         $template->setValue('ValorExtenso', $extenso);
         $template->setValue('CNPJ', $emp['CNPJ']); $template->setValue('empresa_proponente_nome', $emp['Empresa']);
@@ -270,11 +285,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template->setValue('email_salvo', $cliente_info['email']); $template->setValue('telefone_salvo', $cliente_info['telefone']);
         $template->setValue('celular_salvo', $cliente_info['celular']); $template->setValue('whatsapp_salvo', $cliente_info['whatsapp']);
 
-        $nomeEmpresaLimpo = limparStr($emp['Empresa']);
-        $partesNum = explode('-', $num_proposta);
-        $seq = end($partesNum); 
-        $anoProp = (count($partesNum) >= 3) ? $partesNum[1] : date('Y');
-        $nomeArquivoDownload = $nomeEmpresaLimpo . '-' . $anoProp . '-' . $seq . '.docx';
+        $nomeEmpresaLimpo = limparStr(explode(' ', trim($emp['Empresa']))[0]);
+        $nomeClienteLimpo = limparStr(explode(' ', trim($cliente_info['nome_cliente']))[0]);
+        $nomeServicoLimpo = limparStr($serv_info['nome']);
+        
+        $nomeArquivoDownload = $nomeEmpresaLimpo . '-' . $nomeClienteLimpo . '-' . $nomeServicoLimpo . '-' . $num_proposta . '.docx';
 
         $template->saveAs($pastaSaida . $nomeArquivoDownload);
         

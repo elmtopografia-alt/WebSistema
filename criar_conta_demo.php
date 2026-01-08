@@ -73,91 +73,230 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Criar Conta Demo | SGT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/landing_dark.css">
     <style>
-        body { background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; }
-        .card-cadastro { max-width: 500px; width: 95%; border-radius: 15px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-        
-        /* Lista de requisitos de senha */
-        .password-rules { font-size: 0.85rem; background-color: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6; margin-top: 5px; }
-        .rule-item { display: flex; align-items: center; margin-bottom: 2px; color: #6c757d; transition: all 0.3s; }
-        .rule-item i { margin-right: 8px; font-size: 1rem; }
-        .rule-item.valid { color: #198754; font-weight: bold; }
-        .rule-item.invalid { color: #dc3545; }
+        /* Overrides específicos para o formulário no tema Dark */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card-cadastro {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: float 6s ease-in-out infinite; /* Sutil movimento */
+        }
+
+        h3 {
+            color: var(--primary);
+            margin-top: 0;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .input-icon {
+            padding: 12px 15px;
+            color: #888;
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 12px 10px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .password-rules {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .rule-item.valid { color: #00ff88; }
+        .rule-item.invalid { color: #ff4444; }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .links a:hover { color: var(--primary); }
+
+        .alert-danger {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card card-cadastro p-4 bg-white">
-        <div class="text-center mb-4">
-            <h3 class="fw-bold text-primary">Solicitar Teste Grátis</h3>
-            <p class="text-muted small">Preencha os dados para gerar seu acesso imediato.</p>
-        </div>
+    <div class="card-cadastro">
+        <h3>Quase lá! 🚀</h3>
+        <p class="subtitle">
+            Para <strong>acessar e editar</strong> o modelo de proposta, precisamos criar seu acesso seguro.<br>
+            É rápido, gratuito e sem compromisso.
+        </p>
 
         <?php if($erro): ?>
-            <div class="alert alert-danger text-center small py-2">
-                <i class="bi bi-exclamation-triangle-fill me-1"></i> <?php echo $erro; ?>
+            <div class="alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i> <?php echo $erro; ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST" id="formCadastro" novalidate>
-            
-            <div class="mb-3">
-                <label class="form-label text-secondary fw-bold small">NOME COMPLETO</label>
+        <form method="POST" id="formCadastro" novalidate autocomplete="off">
+            <!-- Fake fields to trick browser autofill -->
+            <input type="text" style="display:none">
+            <input type="password" style="display:none">
+
+            <div class="form-group">
+                <label>Nome Completo</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
-                    <input type="text" name="nome" class="form-control border-start-0 ps-0" required placeholder="Ex: João Silva">
+                    <div class="input-icon"><i class="bi bi-person"></i></div>
+                    <input type="text" name="nome" required placeholder="Digite seu nome" autocomplete="new-password">
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label text-secondary fw-bold small">SEU MELHOR E-MAIL</label>
+            <div class="form-group">
+                <label>Seu Melhor E-mail</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
-                    <input type="email" name="email" class="form-control border-start-0 ps-0" required placeholder="joao@email.com">
+                    <div class="input-icon"><i class="bi bi-envelope"></i></div>
+                    <input type="email" name="email" required placeholder="seu@email.com" autocomplete="new-password">
                 </div>
             </div>
 
-            <div class="mb-2">
-                <label class="form-label text-secondary fw-bold small">CRIE SUA SENHA</label>
+            <div class="form-group">
+                <label>Crie uma Senha Forte</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
-                    <input type="password" name="senha" id="senhaInput" class="form-control border-start-0 ps-0" required placeholder="Digite sua senha...">
-                    <button class="btn btn-outline-secondary border-start-0 border" type="button" onclick="toggleSenha()">
+                    <div class="input-icon"><i class="bi bi-lock"></i></div>
+                    <input type="password" name="senha" id="senhaInput" required placeholder="Mínimo 8 caracteres..." autocomplete="new-password">
+                    <div class="input-icon" style="cursor: pointer;" onclick="toggleSenha()">
                         <i class="bi bi-eye" id="eyeIcon"></i>
-                    </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- PAINEL DE REGRAS (Feedback Visual) -->
-            <div class="password-rules mb-4">
-                <div class="fw-bold text-dark mb-2 small">A senha deve conter:</div>
+            <div class="password-rules">
+                <div style="margin-bottom: 8px; font-weight: bold; color: #ccc;">Sua senha precisa ter:</div>
                 <div class="rule-item" id="rule-length"><i class="bi bi-circle"></i> Mínimo 8 caracteres</div>
-                <div class="rule-item" id="rule-upper"><i class="bi bi-circle"></i> Uma letra Maiúscula (A-Z)</div>
-                <div class="rule-item" id="rule-number"><i class="bi bi-circle"></i> Um Número (0-9)</div>
+                <div class="rule-item" id="rule-upper"><i class="bi bi-circle"></i> Uma letra Maiúscula</div>
+                <div class="rule-item" id="rule-number"><i class="bi bi-circle"></i> Um Número</div>
                 <div class="rule-item" id="rule-symbol"><i class="bi bi-circle"></i> Um Símbolo (@ # $ %)</div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 fw-bold btn-lg shadow-sm" id="btnSubmit">
-                CRIAR CONTA
+            <button type="submit" class="btn-submit" id="btnSubmit">
+                Liberar Meu Acesso
             </button>
         </form>
 
-        <div class="text-center mt-3 pt-3 border-top">
-            <a href="login_demo.php" class="text-decoration-none text-muted small">Já tenho senha, quero entrar</a>
-        </div>
-        <div class="text-center mt-2">
-            <a href="index.php" class="text-decoration-none text-muted small">&larr; Voltar ao Início</a>
+        <div class="links">
+            <a href="login_demo.php">Já tenho conta, quero entrar</a><br><br>
+            <a href="index.php">&larr; Voltar ao Início</a>
         </div>
     </div>
 
-    <!-- Scripts de Validação em Tempo Real -->
     <script>
         const senhaInput = document.getElementById('senhaInput');
-        const btnSubmit = document.getElementById('btnSubmit');
-
-        // Regras (Elementos)
+        
+        // Regras
         const rules = {
             length: document.getElementById('rule-length'),
             upper: document.getElementById('rule-upper'),
@@ -165,7 +304,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             symbol: document.getElementById('rule-symbol')
         };
 
-        // Função para mostrar/ocultar senha
         function toggleSenha() {
             const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
             senhaInput.setAttribute('type', type);
@@ -173,51 +311,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('eyeIcon').classList.toggle('bi-eye-slash');
         }
 
-        // Validação ao digitar
         senhaInput.addEventListener('input', function() {
             const val = senhaInput.value;
-            let validCount = 0;
-
-            // 1. Tamanho
-            if (val.length >= 8) { setValid('length'); validCount++; } else { setInvalid('length'); }
             
-            // 2. Maiúscula
-            if (/[A-Z]/.test(val)) { setValid('upper'); validCount++; } else { setInvalid('upper'); }
-            
-            // 3. Número
-            if (/[0-9]/.test(val)) { setValid('number'); validCount++; } else { setInvalid('number'); }
-            
-            // 4. Símbolo (Caracteres especiais comuns)
-            if (/[\W_]/.test(val)) { setValid('symbol'); validCount++; } else { setInvalid('symbol'); }
-
-            // Se tudo válido, libera botão (opcional, mas bom pra UX)
-            /*
-            if (validCount === 4) {
-                btnSubmit.classList.remove('disabled');
-            } else {
-                btnSubmit.classList.add('disabled');
-            }
-            */
+            // Validações
+            updateRule('length', val.length >= 8);
+            updateRule('upper', /[A-Z]/.test(val));
+            updateRule('number', /[0-9]/.test(val));
+            updateRule('symbol', /[\W_]/.test(val));
         });
 
-        function setValid(rule) {
-            rules[rule].classList.remove('invalid');
-            rules[rule].classList.add('valid');
-            rules[rule].querySelector('i').className = 'bi bi-check-circle-fill';
+        function updateRule(rule, isValid) {
+            const el = rules[rule];
+            const icon = el.querySelector('i');
+            
+            if (isValid) {
+                el.classList.add('valid');
+                el.classList.remove('invalid');
+                icon.className = 'bi bi-check-circle-fill';
+            } else {
+                el.classList.remove('valid');
+                el.classList.add('invalid'); // Opcional
+                icon.className = 'bi bi-circle';
+            }
         }
 
-        function setInvalid(rule) {
-            rules[rule].classList.remove('valid');
-            rules[rule].classList.add('invalid'); // Opcional: deixar vermelho ou voltar ao neutro
-            rules[rule].querySelector('i').className = 'bi bi-circle'; // Neutro
-        }
-
-        // Bloqueio no Submit (Garantia Final)
         document.getElementById('formCadastro').addEventListener('submit', function(e) {
             const val = senhaInput.value;
             if (val.length < 8 || !/[A-Z]/.test(val) || !/[0-9]/.test(val) || !/[\W_]/.test(val)) {
-                e.preventDefault(); // Impede o envio
-                alert('Sua senha é muito fraca!\n\nPor favor, siga todas as regras listadas abaixo do campo de senha.');
+                e.preventDefault();
+                alert('Por favor, fortaleça sua senha seguindo as regras abaixo.');
                 senhaInput.focus();
             }
         });

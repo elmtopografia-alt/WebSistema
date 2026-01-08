@@ -5,7 +5,7 @@
 session_start();
 
 // 1. Descobre para onde mandar
-$destino = 'login.php'; // Padrão (Clientes)
+$destino = 'index.php'; // Padrão (Landing Page)
 
 if (isset($_SESSION['origem_login'])) {
     if ($_SESSION['origem_login'] === 'admin') {

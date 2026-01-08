@@ -107,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
+        // Verificação de Integridade do POST
+        if (!isset($_POST['form_complete'])) {
+            throw new Exception("Erro de transmissão: O formulário não foi recebido completamente. Tente novamente.");
+        }
         // ID da Proposta Original (Vem do hidden input do editar_proposta.php)
         $id_proposta_original = intval($_POST['id_proposta_original'] ?? 0);
         if (!$id_proposta_original) throw new Exception("ID da proposta original não identificado.");
@@ -277,10 +281,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $template = new \PhpOffice\PhpWord\TemplateProcessor($pastaBase . $arquivoModeloNome);
             
             // Logo
-            $caminhoLogo = isset($emp['logo_caminho']) ? __DIR__ . '/' . $emp['logo_caminho'] : '';
-            if (!empty($caminhoLogo) && file_exists($caminhoLogo)) {
-                try { $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); } catch (Exception $eImg) { $template->setValue('logo_empresa', ''); }
-            } else { $template->setValue('logo_empresa', ''); }
+            $caminhoLogo = '';
+            if (!empty($emp['logo_caminho'])) {
+                $caminhoLogo = __DIR__ . '/' . $emp['logo_caminho'];
+            }
+
+            if (!empty($caminhoLogo) && is_file($caminhoLogo)) {
+                try { 
+                    $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); 
+                } catch (Exception $eImg) { 
+                    $template->setValue('logo_empresa', ''); 
+                }
+            } else { 
+                $template->setValue('logo_empresa', ''); 
+            }
 
             // Variáveis
             $template->setValue('numero_proposta', $num_proposta);
@@ -307,8 +321,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $template->setValue('email_salvo', $cliente_info['email']); $template->setValue('telefone_salvo', $cliente_info['telefone']);
             $template->setValue('celular_salvo', $cliente_info['celular']); $template->setValue('whatsapp_salvo', $cliente_info['whatsapp']);
 
-            $nomeEmpresaLimpo = limparStr($emp['Empresa']);
-            $nomeArquivoDownload = $nomeEmpresaLimpo . '-' . $num_proposta . '.docx';
+            $nomeEmpresaLimpo = limparStr(explode(' ', trim($emp['Empresa']))[0]);
+            $nomeClienteLimpo = limparStr(explode(' ', trim($cliente_info['nome_cliente']))[0]);
+            $nomeServicoLimpo = limparStr($serv_info['nome']);
+            
+            $nomeArquivoDownload = $nomeEmpresaLimpo . '-' . $nomeClienteLimpo . '-' . $nomeServicoLimpo . '-' . $num_proposta . '.docx';
 
             $template->saveAs($pastaSaida . $nomeArquivoDownload);
             
