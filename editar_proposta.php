@@ -103,8 +103,7 @@ if(preg_match('/([\d\.,]+)\s*(.*)/', $prop['area_obra'], $matches)) {
         .cost-total { font-weight: 700; color: var(--primary-dark); min-width: 100px; text-align: right; }
         .btn-add-item { border-style: dashed; border-width: 2px; width: 100%; margin-top: 1rem; }
         .wizard-footer { padding: 1.5rem 2rem; border-top: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
-        .live-preview { position: fixed; bottom: 2rem; right: 2rem; background: #1e293b; color: white; padding: 1rem 1.5rem; border-radius: 50px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); z-index: 100; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
-        .live-preview .value { color: #4ade80; font-size: 1.1rem; }
+
     </style>
 </head>
 <body>
@@ -128,7 +127,7 @@ if(preg_match('/([\d\.,]+)\s*(.*)/', $prop['area_obra'], $matches)) {
             <div class="step-indicator" id="ind-4"><div class="step-number">4</div> Fechamento</div>
         </div>
 
-        <form action="salvar_edicao_proposta.php" method="POST" id="form-proposta" class="d-flex flex-column flex-grow-1">
+        <form action="salvar_edicao_proposta.php" method="POST" id="form-proposta" class="d-flex flex-column flex-grow-1" novalidate>
             <input type="hidden" name="id_proposta_original" value="<?= $id_proposta ?>">
             
             <div class="wizard-content">
@@ -442,11 +441,7 @@ if(preg_match('/([\d\.,]+)\s*(.*)/', $prop['area_obra'], $matches)) {
 
     </div>
 
-    <!-- Live Preview -->
-    <div class="live-preview">
-        <span>Total Estimado:</span>
-        <span class="value" id="live-total">R$ 0,00</span>
-    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -515,6 +510,14 @@ if(preg_match('/([\d\.,]+)\s*(.*)/', $prop['area_obra'], $matches)) {
 
             $('#btn-prev').click(function() {
                 if(currentStep > 1) showStep(currentStep - 1);
+            });
+
+            // Submit Handler
+            $('#btn-finish').click(function(e) {
+                e.preventDefault();
+                var btn = $(this);
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Salvando...');
+                $('#form-proposta').submit();
             });
 
             // Inicializar Listeners para Itens Existentes

@@ -279,27 +279,7 @@ try {
             align-items: center;
         }
 
-        /* Live Preview Widget */
-        .live-preview {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: #1e293b;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-weight: 600;
-        }
-        
-        .live-preview .value {
-            color: #4ade80;
-            font-size: 1.1rem;
-        }
+
 
     </style>
 </head>
@@ -318,7 +298,7 @@ try {
         </div>
     </nav>
 
-    <form action="salvar_proposta.php" method="POST" id="form-proposta">
+    <form action="salvar_proposta.php" method="POST" id="form-proposta" novalidate>
         <div class="wizard-container">
             
             <!-- Progress Header -->
@@ -597,11 +577,7 @@ try {
 
     </form>
 
-    <!-- Live Preview Widget -->
-    <div class="live-preview">
-        <span>Total Estimado:</span>
-        <span class="value" id="live-total">R$ 0,00</span>
-    </div>
+
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -675,6 +651,14 @@ try {
 
             $('#btn-prev').click(function() {
                 if(currentStep > 1) showStep(currentStep - 1);
+            });
+
+            // Submit Handler
+            $('#btn-finish').click(function(e) {
+                e.preventDefault();
+                var btn = $(this);
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Gerando...');
+                $('#form-proposta').submit();
             });
         });
     </script>

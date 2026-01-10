@@ -18,7 +18,7 @@ if (isset($_SESSION['usuario_id'])) {
 $erro_login = '';
 $modal_aberto = false;
 
-// Lógica de Login (Trazida do login_prod.php)
+// Lógica de Login (Teste de Upload FTP - 21)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = filter_input(INPUT_POST, 'usuario', FILTER_SANITIZE_SPECIAL_CHARS);
     $senha   = $_POST['senha'];
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             header("Location: painel.php");
                             exit;
                         }
-                    }
+
                 } else {
                     $erro_login = "Senha incorreta.";
                     $modal_aberto = true;
@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span
                             class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
                     </a>
-                    <a href="#video" class="hover:text-brand-accent transition-colors relative group">
+                    <a href="#video" onclick="scrollToVideoAndPlay()" class="hover:text-brand-accent transition-colors relative group">
                         Apresentação
                         <span
                             class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 class="block py-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5"
                 onclick="toggleMobileMenu()">Recursos</a>
             <a href="#video" class="block py-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5"
-                onclick="toggleMobileMenu()">Apresentação</a>
+                onclick="toggleMobileMenu(); scrollToVideoAndPlay()">Apresentação</a>
             <a href="#planos" class="block py-3 hover:bg-white/5 rounded-lg transition-colors"
                 onclick="toggleMobileMenu()">Planos</a>
             <button onclick="toggleLoginModal(); toggleMobileMenu()"
@@ -324,12 +324,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <!-- Botão CTA principal - Abóbora -->
-                        <button onclick="toggleDemoModal()"
+                        <button onclick="scrollToVideoAndPlay()"
                             class="px-8 py-4 bg-gradient-to-r from-brand-accent to-brand-action text-white font-bold rounded-xl shadow-lg shadow-orange-600/30 hover:shadow-orange-500/50 transform hover:scale-105 transition-all flex items-center justify-center gap-2 border border-orange-400/20">
                             <i class="ph ph-play-circle text-xl"></i>
                             Ver Demonstração
                         </button>
-                        <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531999999999'"
+                        <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531971875928'"
                             class="px-8 py-4 glass-panel text-white font-semibold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 border border-white/10">
                             <i class="ph ph-whatsapp-logo text-xl text-green-400"></i>
                             Falar com Consultor
@@ -369,29 +369,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
-                        <!-- Container do Video -->
-                        <div
-                            class="aspect-video bg-black/60 rounded-b-xl overflow-hidden relative group cursor-pointer">
-                            <!-- Imagem Placeholder do Sistema -->
-                            <div
-                                class="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-dark flex items-center justify-center">
+                        <!-- Container do Video / Carousel Inline -->
+                        <div class="aspect-video bg-black/60 rounded-b-xl overflow-hidden relative group">
+                            
+                            <!-- Carousel Track (Slides) -->
+                            <div id="carousel-track" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
+                                <img src="assets/img/slider/slide1.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 1">
+                                <img src="assets/img/slider/slide2.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 2">
+                                <img src="assets/img/slider/slide3.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 3">
+                            </div>
+
+                            <!-- Controls (Hidden by default, shown when active) -->
+                            <div id="carousel-controls" class="opacity-0 transition-opacity duration-300">
+                                <button onclick="prevSlide()" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-2 rounded-full backdrop-blur-sm transition-all">
+                                    <i class="ph ph-caret-left text-xl"></i>
+                                </button>
+                                <button onclick="nextSlide()" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-2 rounded-full backdrop-blur-sm transition-all">
+                                    <i class="ph ph-caret-right text-xl"></i>
+                                </button>
+                                <!-- Indicators -->
+                                <div class="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                    <button onclick="goToSlide(0)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"></button>
+                                    <button onclick="goToSlide(1)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                                    <button onclick="goToSlide(2)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                                </div>
+                            </div>
+
+                            <!-- Cover / Placeholder (Click to Start) -->
+                            <div id="video-cover" onclick="startPresentation()"
+                                class="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-dark flex items-center justify-center cursor-pointer z-30 transition-opacity duration-500">
                                 <div class="text-center p-4">
                                     <div
                                         class="w-16 h-16 sm:w-20 sm:h-20 bg-brand-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border border-brand-accent/50 group-hover:scale-110 transition-transform shadow-[0_0_30px_rgba(255,117,24,0.3)]">
                                         <i class="ph ph-play-fill text-3xl sm:text-4xl text-brand-accent pl-1"></i>
                                     </div>
-                                    <p class="text-xs sm:text-sm font-medium text-slate-300">Assista ao Tour do Sistema
-                                    </p>
+                                    <p class="text-xs sm:text-sm font-medium text-slate-300">Assista ao Tour do Sistema</p>
+                                </div>
+                                <!-- Elementos flutuantes decorativos -->
+                                <div
+                                    class="absolute bottom-4 left-4 glass-panel px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-2 sm:gap-3 animate-pulse-slow border border-green-500/30">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
+                                    <span class="text-[10px] sm:text-xs font-bold text-white">Banco de Dados Conectado</span>
                                 </div>
                             </div>
 
-                            <!-- Elementos flutuantes decorativos -->
-                            <div
-                                class="absolute bottom-4 left-4 glass-panel px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-2 sm:gap-3 animate-pulse-slow border border-green-500/30">
-                                <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
-                                <span class="text-[10px] sm:text-xs font-bold text-white">Banco de Dados
-                                    Conectado</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -447,7 +468,181 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </section>
 
-    </main>
+        <!-- Plans Section -->
+        <section id="planos" class="py-20 relative z-10 scroll-mt-32">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+                        Escolha o Plano <span class="text-brand-accent">Ideal</span>
+                    </h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto">
+                        Desbloqueie o potencial máximo do seu negócio com nossos planos flexíveis.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    
+                    <!-- Plano Mensal -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-slate-300 uppercase tracking-wider">Mensal</h3>
+                            <div class="flex items-baseline gap-1 mt-2">
+                                <span class="text-sm text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">30,00</span>
+                                <span class="text-sm text-slate-400">/mês</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Sem fidelidade</p>
+                        </div>
+
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Acesso Completo
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Multi-Plataforma
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Suporte Básico
+                            </li>
+                        </ul>
+
+                        <div class="space-y-3">
+                            <a href="https://mpago.la/2JrbxWt" target="_blank" 
+                               class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+                                <i class="ph ph-qr-code"></i> Pagar com PIX
+                            </a>
+                            
+                            <div class="flex items-center gap-2 text-xs text-slate-500 justify-center">
+                                <span class="w-full h-px bg-white/10"></span>
+                                OU
+                                <span class="w-full h-px bg-white/10"></span>
+                            </div>
+
+                            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=6b8610a74e9e4f66aed94c9bd7a957af" target="_blank"
+                               class="w-full py-2.5 border border-brand-primary hover:bg-brand-primary/30 text-blue-200 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="ph ph-credit-card"></i> Assinatura (Cartão)
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Plano Trimestral -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
+                        <div class="absolute -top-3 right-4 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+                            5% OFF
+                        </div>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-blue-400 uppercase tracking-wider">Trimestral</h3>
+                            <div class="flex items-baseline gap-1 mt-2">
+                                <span class="text-sm text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">28,50</span>
+                                <span class="text-sm text-slate-400">/mês</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Cobrado R$ 85,50 a cada 3 meses</p>
+                        </div>
+
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Tudo do Mensal
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Desconto de 5%
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Renovação Manual
+                            </li>
+                        </ul>
+
+                        <a href="https://mpago.la/2BV5xy6" target="_blank"
+                           class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-900/20 mt-auto text-center">
+                            Assinar Trimestral
+                        </a>
+                    </div>
+
+                    <!-- Plano Semestral -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
+                        <div class="absolute -top-3 right-4 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+                            10% OFF
+                        </div>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-blue-300 uppercase tracking-wider">Semestral</h3>
+                            <div class="flex items-baseline gap-1 mt-2">
+                                <span class="text-sm text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">27,00</span>
+                                <span class="text-sm text-slate-400">/mês</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Cobrado R$ 162,00 a cada 6 meses</p>
+                        </div>
+
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Tudo do Mensal
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Desconto de 10%
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-blue-400"></i> Prioridade no Suporte
+                            </li>
+                        </ul>
+
+                        <a href="https://mpago.la/2MjigKn" target="_blank"
+                           class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-900/20 mt-auto text-center">
+                            Assinar Semestral
+                        </a>
+                    </div>
+
+                    <!-- Plano Anual -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col relative border border-brand-accent/30 bg-brand-accent/5 transform hover:-translate-y-2 transition-all duration-300 shadow-xl shadow-brand-accent/10">
+                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-brand-accent to-orange-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-orange-500/30">
+                            MELHOR ESCOLHA
+                        </div>
+                        <div class="mb-4 pt-2">
+                            <h3 class="text-lg font-bold text-brand-accent uppercase tracking-wider">Anual</h3>
+                            <div class="flex items-baseline gap-1 mt-2">
+                                <span class="text-sm text-slate-400">R$</span>
+                                <span class="text-5xl font-bold text-white">24,00</span>
+                                <span class="text-sm text-slate-400">/mês</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Cobrado R$ 288,00 anualmente</p>
+                        </div>
+
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-slate-200">
+                                <i class="ph ph-check-circle text-brand-accent"></i> <strong>20% de Desconto</strong>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Acesso Vitalício aos Dados
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Suporte VIP 24/7
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300">
+                                <i class="ph ph-check-circle text-brand-accent"></i> Backup Diário
+                            </li>
+                        </ul>
+
+                        <a href="https://mpago.la/1CuvPFA" target="_blank"
+                           class="w-full py-4 bg-gradient-to-r from-brand-accent to-brand-action hover:to-orange-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-500/30 mt-auto flex items-center justify-center gap-2">
+                            <i class="ph ph-star-fill text-yellow-300"></i> Assinar Agora
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="mt-12 text-center">
+                    <p class="text-slate-400 text-sm mb-4">
+                        <i class="ph ph-lock-key text-green-400"></i> Pagamento 100% seguro via Mercado Pago. Ativação imediata.
+                    </p>
+                    <a href="https://api.whatsapp.com/send?phone=5531971875928&text=Tenho%20duvidas%20sobre%20os%20planos" target="_blank" 
+                       class="inline-flex items-center gap-2 text-brand-accent hover:text-white transition-colors text-sm font-semibold">
+                        <i class="ph ph-whatsapp-logo text-lg"></i>
+                        Falar com Consultor
+                    </a>
+                </div>
+
+            </div>
+        </section>
 
     <footer class="border-t border-white/5 bg-black/40 backdrop-blur-sm py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
@@ -522,55 +717,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Demo Modal (Carousel) -->
-    <div id="demo-modal" class="fixed inset-0 z-[70] hidden">
-        <div class="absolute inset-0 bg-brand-dark/90 backdrop-blur-md" onclick="toggleDemoModal()"></div>
-        
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl p-4">
-            <div class="glass-panel bg-brand-surface rounded-2xl p-2 border border-brand-primary shadow-2xl relative overflow-hidden">
-                
-                <button onclick="toggleDemoModal()" class="absolute top-4 right-4 z-10 bg-black/50 rounded-full p-2 text-white hover:text-brand-accent transition-colors">
-                    <i class="ph ph-x text-xl"></i>
-                </button>
-
-                <!-- 16:9 Aspect Ratio Container -->
-                <div class="relative w-full pt-[56.25%] bg-black rounded-xl overflow-hidden group">
-                    
-                    <!-- Slides -->
-                    <div id="carousel-track" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
-                        <img src="assets/img/slider/slide1.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 1">
-                        <img src="assets/img/slider/slide2.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 2">
-                        <img src="assets/img/slider/slide3.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 3">
-                    </div>
-
-                    <!-- Controls -->
-                    <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-3 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100">
-                        <i class="ph ph-caret-left text-2xl"></i>
-                    </button>
-                    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-3 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100">
-                        <i class="ph ph-caret-right text-2xl"></i>
-                    </button>
-
-                    <!-- Indicators -->
-                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        <button onclick="goToSlide(0)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"></button>
-                        <button onclick="goToSlide(1)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
-                        <button onclick="goToSlide(2)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
-                    </div>
-                </div>
-
-                <div class="p-6 text-center">
-                    <h3 class="text-2xl font-bold text-white mb-2">Tour do Sistema</h3>
-                    <p class="text-slate-400 mb-6">Veja como é simples criar propostas profissionais.</p>
-                    <a href="criar_conta_demo.php" class="inline-flex items-center gap-2 px-8 py-3 bg-brand-accent hover:bg-brand-action text-white font-bold rounded-lg transition-colors shadow-lg shadow-orange-500/20">
-                        <i class="ph ph-rocket-launch text-xl"></i>
-                        Criar Conta Grátis Agora
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Carousel Logic
         let currentSlide = 0;
@@ -578,6 +724,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let slideInterval;
         const track = document.getElementById('carousel-track');
         const indicators = document.querySelectorAll('.indicator');
+        const cover = document.getElementById('video-cover');
+        const controls = document.getElementById('carousel-controls');
+        let isPlaying = false;
 
         function updateCarousel() {
             track.style.transform = `translateX(-${currentSlide * 100}%)`;
@@ -609,7 +758,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function startSlideShow() {
-            // Moderate speed: 5000ms (5 seconds)
+            if (slideInterval) clearInterval(slideInterval);
             slideInterval = setInterval(nextSlide, 5000);
         }
 
@@ -622,20 +771,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             startSlideShow();
         }
 
-        function toggleDemoModal() {
-            const modal = document.getElementById('demo-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
+        // Nova Função: Iniciar Apresentação Inline
+        function startPresentation() {
+            // Esconde a capa
+            cover.style.opacity = '0';
+            cover.style.pointerEvents = 'none';
+            
+            // Mostra controles
+            controls.classList.remove('opacity-0');
+            
+            // Inicia Slides
+            if (!isPlaying) {
+                isPlaying = true;
                 startSlideShow();
-                // Animation
-                setTimeout(() => {
-                    modal.querySelector('.glass-panel').classList.add('scale-100', 'opacity-100');
-                    modal.querySelector('.glass-panel').classList.remove('scale-95', 'opacity-0');
-                }, 10);
-            } else {
-                modal.classList.add('hidden');
-                stopSlideShow();
             }
+        }
+
+        // Função para scrollar e dar play (usada pelos botões)
+        function scrollToVideoAndPlay() {
+            const videoSection = document.getElementById('video');
+            videoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Pequeno delay para esperar o scroll
+            setTimeout(() => {
+                startPresentation();
+            }, 800);
         }
 
         // Lógica do Modal

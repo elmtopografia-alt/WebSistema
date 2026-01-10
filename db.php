@@ -10,6 +10,9 @@
 
 require_once __DIR__ . '/config.php';
 
+// Ativa relatório de erros estrito do MySQLi
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 class Database {
 
     private static $connProd = null;

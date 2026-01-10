@@ -49,27 +49,8 @@ define('DB_DEMO_USER', 'proposta');
 define('DB_DEMO_PASS', 'Qtamaqmde5202@');
 
 // ==========================================================
-// FUNÇÃO DE CONEXÃO (ÚNICO PONTO PDO)
+// FIM DAS CONFIGURAÇÕES
 // ==========================================================
-function conectarBanco(string $ambiente = 'prod'): PDO
-{
-    if ($ambiente === 'demo') {
-        $host = DB_DEMO_HOST;
-        $db   = DB_DEMO_NAME;
-        $user = DB_DEMO_USER;
-        $pass = DB_DEMO_PASS;
-    } else {
-        $host = DB_PROD_HOST;
-        $db   = DB_PROD_NAME;
-        $user = DB_PROD_USER;
-        $pass = DB_PROD_PASS;
-    }
+// Este arquivo não deve conter lógica de conexão.
+// Use db.php para obter a conexão com o banco.
 
-    $dsn = "mysql:host={$host};dbname={$db};charset=utf8mb4";
-
-    return new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
-}
