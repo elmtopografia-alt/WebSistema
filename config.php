@@ -30,6 +30,7 @@ if (ENVIRONMENT === 'development') {
 // TIMEZONE / LOCALE
 // ==========================================================
 date_default_timezone_set('america/sao_paulo');
+setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
 mb_internal_encoding('utf-8');
 
 // ==========================================================
