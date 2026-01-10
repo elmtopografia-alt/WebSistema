@@ -374,9 +374,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             <!-- Carousel Track (Slides) -->
                             <div id="carousel-track" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
-                                <img src="assets/img/slider/slide1.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 1">
-                                <img src="assets/img/slider/slide2.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 2">
-                                <img src="assets/img/slider/slide3.jpg" class="w-full h-full object-cover flex-shrink-0" alt="Slide 3">
+                                <img src="assets/img/slider/slide1.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 1">
+                                <img src="assets/img/slider/slide2.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 2">
+                                <img src="assets/img/slider/slide3.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 3">
                             </div>
 
                             <!-- Controls (Hidden by default, shown when active) -->
