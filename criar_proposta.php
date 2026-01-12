@@ -289,7 +289,7 @@ try {
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid px-4">
             <a class="navbar-brand d-flex align-items-center" href="painel.php">
-                <i class="bi bi-grid-fill me-2 text-primary"></i> SGT 
+                <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" style="height: 40px;">
                 <?php if(isset($_SESSION['ambiente']) && $_SESSION['ambiente'] == 'demo'): ?><span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">DEMO</span><?php endif; ?>
             </a>
             <div class="ms-auto">
@@ -297,6 +297,10 @@ try {
             </div>
         </div>
     </nav>
+
+    <div class="container mt-4" style="max-width: 1000px;">
+        <h2 class="fw-bold mb-0">NOVA PROPOSTA</h2>
+    </div>
 
     <form action="salvar_proposta.php" method="POST" id="form-proposta" novalidate>
         <div class="wizard-container">

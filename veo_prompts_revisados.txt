@@ -1,0 +1,115 @@
+═══════════════════════════════════════════════════════════════
+🎬 PROMPTS REVISADOS - GOOGLE VEO 3.1 - SGT PROPOSTAS
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE: Estes prompts foram OTIMIZADOS para evitar:
+   - Locutor/apresentador (Veo não gera pessoas bem)
+   - Elementos fora de contexto
+   - Gráficos sem sentido
+
+✅ FOCO: Apenas as telas/slides com animações sutis
+
+═══════════════════════════════════════════════════════════════
+🎬 PROMPT 1: TELA DE ABERTURA (Duração: 3 segundos)
+═══════════════════════════════════════════════════════════════
+
+Close-up shot of a modern digital screen displaying a professional landing page. Center of frame shows bold text "Gestão de Prosperidade" in elegant blue typography. Below it, a high-quality photograph of a surveyor with a drone in a green field. SGT Propostas logo in top corner. Clean white background, professional blue accents. Gentle zoom-in movement toward the screen. No people in foreground. Corporate aesthetic, 16:9, high quality, professional presentation style.
+
+CONFIGURAÇÃO:
+- Duração: 3 segundos
+- Aspect Ratio: 16:9
+- Movimento: Zoom suave
+
+═══════════════════════════════════════════════════════════════
+📊 PROMPT 2: DASHBOARD ANALÍTICO (Duração: 3 segundos)
+═══════════════════════════════════════════════════════════════
+
+Full screen view of a modern business dashboard interface. Clean digital display showing colorful bar charts with upward trends in blue and green colors. Three distinct graphs side by side showing growth metrics. Professional UI design with clear labels and numbers. Smooth subtle animation of bars growing upward. White background, blue and green accent colors. No people visible. Camera slowly pans right across the dashboard. Corporate business intelligence style, 16:9, high quality, clean modern interface.
+
+CONFIGURAÇÃO:
+- Duração: 3 segundos
+- Aspect Ratio: 16:9
+- Movimento: Pan horizontal suave
+
+═══════════════════════════════════════════════════════════════
+💰 PROMPT 3: TABELA FINANCEIRA (Duração: 2 segundos)
+═══════════════════════════════════════════════════════════════
+
+Close-up of a professional financial spreadsheet displayed on screen. Clean table layout with 5-6 rows showing monetary values with R$ symbol. Green highlighted cells indicating positive results. Professional grid layout with clear numbers and currency formatting. Subtle highlight animation moving down the rows. White background, green accents for profits. No people visible. Camera static, focused on the table. Corporate financial report aesthetic, 16:9, high quality, spreadsheet style.
+
+CONFIGURAÇÃO:
+- Duração: 2 segundos
+- Aspect Ratio: 16:9
+- Movimento: Estático com highlight animado
+
+═══════════════════════════════════════════════════════════════
+🎯 ALTERNATIVA: USAR IMAGENS REAIS
+═══════════════════════════════════════════════════════════════
+
+Se os prompts ainda não gerarem resultados satisfatórios, RECOMENDO:
+
+1. ✅ Criar as 3 imagens dos slides (posso gerar para você)
+2. ✅ Fazer upload na biblioteca do VideoFX
+3. ✅ Usar modo "Image-to-Video" com prompts simples:
+   
+   Prompt para Image-to-Video:
+   "Gentle zoom in, professional corporate video style, smooth camera movement"
+
+VANTAGENS:
+- Controle total sobre o conteúdo visual
+- Branding consistente (logo SGT, cores corretas)
+- Dados reais do seu sistema
+- Resultado mais profissional
+
+═══════════════════════════════════════════════════════════════
+🎤 NARRAÇÃO (Separada do vídeo)
+═══════════════════════════════════════════════════════════════
+
+O áudio deve ser gerado SEPARADAMENTE e adicionado na edição:
+
+TEXTO:
+"Olá! Cansado de fazer propostas no papel? Transforme orçamentos em lucro real. O SGT organiza tudo e garante contratos fechados!"
+
+FERRAMENTAS:
+- ElevenLabs: https://elevenlabs.io/ (Recomendado)
+- Google TTS: https://cloud.google.com/text-to-speech
+- Gravar você mesmo com microfone de qualidade
+
+CONFIGURAÇÃO:
+- Idioma: Português (Brasil)
+- Voz: Masculina, grave, profissional
+- Tom: Confiante, vendedor, jornalístico
+
+═══════════════════════════════════════════════════════════════
+🎞️ EDIÇÃO FINAL (CapCut ou DaVinci Resolve)
+═══════════════════════════════════════════════════════════════
+
+TIMELINE:
+0.0s - 2.5s: Vídeo 1 (Abertura)
+2.5s - 3.0s: Transição Fade
+3.0s - 5.5s: Vídeo 2 (Dashboard)
+5.5s - 6.0s: Transição Fade
+6.0s - 8.0s: Vídeo 3 (Financeiro)
+
+ÁUDIO:
+0.0s - 2.5s: "Olá! Cansado de fazer propostas no papel?"
+3.0s - 5.5s: "Transforme orçamentos em lucro real. O SGT organiza tudo"
+6.0s - 8.0s: "e garante contratos fechados!"
+
+═══════════════════════════════════════════════════════════════
+✅ PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════
+
+OPÇÃO A - Tentar novamente com prompts revisados:
+[ ] Copiar Prompt 1 revisado → Gerar no Veo
+[ ] Copiar Prompt 2 revisado → Gerar no Veo
+[ ] Copiar Prompt 3 revisado → Gerar no Veo
+
+OPÇÃO B - Usar imagens reais (RECOMENDADO):
+[ ] Solicitar geração das 3 imagens dos slides
+[ ] Fazer upload na biblioteca do VideoFX
+[ ] Usar modo Image-to-Video com movimento suave
+[ ] Gerar narração no ElevenLabs
+[ ] Editar tudo no CapCut
+
+═══════════════════════════════════════════════════════════════

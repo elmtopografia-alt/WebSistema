@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════════════════
+🎬 PROMPTS PARA GOOGLE VEO 3.1 - SGT PROPOSTAS
+═══════════════════════════════════════════════════════════════
+
+📋 INSTRUÇÕES:
+1. Acesse: https://aistudio.google.com/
+2. Copie cada prompt abaixo (um de cada vez)
+3. Cole no Google AI Studio / Veo 3.1
+4. Configure: Duração conforme indicado, Aspect Ratio 16:9
+5. Clique em "Generate"
+
+═══════════════════════════════════════════════════════════════
+🎬 PROMPT 1: TELA DE ABERTURA (Duração: 3 segundos)
+═══════════════════════════════════════════════════════════════
+
+A professional corporate video opening shot. Modern landing page displayed on a large electronic screen. The screen shows the title "Gestão de Prosperidade" in bold, elegant typography. Below the title, there's a high-quality image of a professional surveyor/topographer operating a drone in an outdoor field. The SGT Propostas logo is visible in the corner. Clean, modern design with a blue and white color scheme. Smooth, subtle zoom-in camera movement. Professional lighting, corporate aesthetic, 16:9 format, high quality, cinematic.
+
+═══════════════════════════════════════════════════════════════
+📊 PROMPT 2: DASHBOARD ANALÍTICO (Duração: 3 segundos)
+═══════════════════════════════════════════════════════════════
+
+A vibrant, modern business dashboard displayed on a large screen. Colorful animated charts and graphs showing upward trends and positive performance metrics. Multiple data visualizations including line graphs, bar charts, and KPI indicators. Dynamic visual elements with smooth animations. Professional color palette with blues, greens, and oranges. Clean, modern UI design. Camera slowly pans across the dashboard. Corporate environment, professional lighting, 16:9 format, high quality, business intelligence aesthetic.
+
+═══════════════════════════════════════════════════════════════
+💰 PROMPT 3: RESULTADOS FINANCEIROS (Duração: 2 segundos)
+═══════════════════════════════════════════════════════════════
+
+A detailed financial table displayed on a professional screen. Clean spreadsheet-style layout showing monetary values in Brazilian Real (R$). Multiple rows with financial data, profit margins, and contract values. Professional color coding with green highlights for positive results. Modern, clean design. Subtle highlighting animation drawing attention to key numbers. Corporate aesthetic, professional lighting, 16:9 format, high quality, financial report style.
+
+═══════════════════════════════════════════════════════════════
+🎤 TEXTO PARA NARRAÇÃO (ElevenLabs ou Google TTS)
+═══════════════════════════════════════════════════════════════
+
+Olá! Cansado de fazer propostas no papel? Transforme orçamentos em lucro real. O SGT organiza tudo e garante contratos fechados!
+
+Configuração de Voz:
+- Idioma: Português (Brasil)
+- Gênero: Masculino
+- Tom: Grave/Profundo
+- Estilo: Locutor de TV / Jornalístico
+- Emoção: Confiante, vendedor
+
+═══════════════════════════════════════════════════════════════
+⏱️ TIMELINE DE SINCRONIZAÇÃO
+═══════════════════════════════════════════════════════════════
+
+0.0s - 2.5s: Vídeo 1 + "Olá! Cansado de fazer propostas no papel?"
+2.5s - 3.0s: Transição Fade (0.5s)
+3.0s - 5.5s: Vídeo 2 + "Transforme orçamentos em lucro real. O SGT organiza tudo"
+5.5s - 6.0s: Transição Fade (0.5s)
+6.0s - 8.0s: Vídeo 3 + "e garante contratos fechados!"
+
+═══════════════════════════════════════════════════════════════
+🔗 LINKS ÚTEIS
+═══════════════════════════════════════════════════════════════
+
+Google AI Studio: https://aistudio.google.com/
+ElevenLabs (Narração): https://elevenlabs.io/
+CapCut (Edição): https://www.capcut.com/
+Música Corporativa: https://pixabay.com/music/
+
+═══════════════════════════════════════════════════════════════
+✅ CHECKLIST DE PRODUÇÃO
+═══════════════════════════════════════════════════════════════
+
+[ ] Gerar Vídeo 1 no Veo 3.1
+[ ] Gerar Vídeo 2 no Veo 3.1
+[ ] Gerar Vídeo 3 no Veo 3.1
+[ ] Gerar áudio da narração (ElevenLabs)
+[ ] Baixar música de fundo corporativa (opcional)
+[ ] Importar tudo no CapCut/DaVinci
+[ ] Adicionar transições fade (0.5s)
+[ ] Sincronizar áudio com vídeos
+[ ] Adicionar música de fundo (volume baixo)
+[ ] Exportar vídeo final (MP4, 1920x1080, 30fps)
+
+═══════════════════════════════════════════════════════════════

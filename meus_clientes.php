@@ -57,8 +57,7 @@ try {
     <nav class="navbar navbar-expand-lg navbar-custom px-4 shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="painel.php">
-                <i class="bi bi-grid-fill me-2"></i>
-                <div>SGT <span class="<?php echo $is_demo ? 'env-badge-demo' : 'env-badge-prod'; ?> ms-2"><?php echo $is_demo ? 'DEMO' : 'PRODUÇÃO'; ?></span></div>
+                <img src="assets/img/logo_sgt.png" alt="SGT" style="height: 40px;">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon text-white"><i class="bi bi-list"></i></span></button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">

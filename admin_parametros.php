@@ -22,9 +22,19 @@ if ($_SESSION['ambiente'] === 'demo') {
 
 // Se for Produção, permite. Se for Admin, permite.
 // O código original bloqueava tudo que não fosse admin.
-if ($_SESSION['perfil'] !== 'admin' && $_SESSION['ambiente'] !== 'producao') {
-    header("Location: index.php");
-    exit;
+// Se for Produção, permite. Se for Admin, permite.
+// O código original bloqueava tudo que não fosse admin.
+// NOVA LÓGICA: Se não for admin, mostra tela de solicitação.
+$is_admin = ($_SESSION['perfil'] === 'admin');
+
+function renderRestrictedBanner($item) {
+    $msg = urlencode("Olá, preciso adicionar $item no sistema (SGT).");
+    echo '<div class="text-center p-3 bg-white rounded border border-dashed">';
+    echo '<i class="bi bi-shield-lock fs-1 text-secondary"></i>';
+    echo '<p class="small text-muted mt-2 fw-bold">Acesso Restrito</p>';
+    echo '<p class="small text-muted mb-3">Para adicionar novos itens, solicite ao administrador.</p>';
+    echo '<a href="https://api.whatsapp.com/send?phone=5531971875928&text='.$msg.'" target="_blank" class="btn btn-success btn-sm w-100 shadow-sm"><i class="bi bi-whatsapp me-1"></i> Solicitar via WhatsApp</a>';
+    echo '</div>';
 }
 
 $conn = Database::getProd();
@@ -228,12 +238,14 @@ $arquivos_demo = listarArquivos('modelos_demo');
                     <div class="tab-pane fade show active" id="func">
                         <div class="row">
                             <div class="col-md-4 border-end">
+                                <?php if($is_admin): ?>
                                 <form method="POST">
                                     <input type="hidden" name="acao" value="add_funcao">
                                     <div class="mb-3"><label>Nome</label><input type="text" name="nome" class="form-control" required></div>
                                     <div class="mb-3"><label>Salário</label><input type="number" step="0.01" name="salario" class="form-control" required></div>
                                     <button class="btn btn-primary w-100">Salvar</button>
                                 </form>
+                                <?php else: renderRestrictedBanner('uma nova Função'); endif; ?>
                             </div>
                             <div class="col-md-8 card-table">
                                 <table class="table table-striped align-middle">
@@ -244,6 +256,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                             <td><?php echo $f['nome']; ?></td>
                                             <td>R$ <?php echo number_format($f['salario_base_default'], 2, ',', '.'); ?></td>
                                             <td class="text-end">
+                                                <?php if($is_admin): ?>
                                                 <button class="btn btn-sm btn-outline-warning me-1 btn-edit-funcao" 
                                                     data-id="<?php echo $f['id_funcao']; ?>" 
                                                     data-nome="<?php echo $f['nome']; ?>" 
@@ -255,6 +268,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                                     <input type="hidden" name="id" value="<?php echo $f['id_funcao']; ?>">
                                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                                 </form>
+                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -268,12 +282,14 @@ $arquivos_demo = listarArquivos('modelos_demo');
                     <div class="tab-pane fade" id="precos">
                         <div class="row">
                             <div class="col-md-4 border-end">
+                                <?php if($is_admin): ?>
                                 <form method="POST">
                                     <input type="hidden" name="acao" value="add_tipo_locacao">
                                     <div class="mb-3"><label>Categoria</label><input type="text" name="nome" class="form-control" required></div>
                                     <div class="mb-3"><label>Valor Padrão</label><input type="number" step="0.01" name="valor" class="form-control" required></div>
                                     <button class="btn btn-primary w-100">Salvar</button>
                                 </form>
+                                <?php else: renderRestrictedBanner('uma nova Categoria'); endif; ?>
                             </div>
                             <div class="col-md-8 card-table">
                                 <table class="table table-striped align-middle">
@@ -284,11 +300,13 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                             <td><?php echo $t['nome']; ?></td>
                                             <td>R$ <?php echo number_format($t['valor_mensal_default'], 2, ',', '.'); ?></td>
                                             <td class="text-end">
+                                                <?php if($is_admin): ?>
                                                 <button class="btn btn-sm btn-outline-warning me-1 btn-edit-tipo" 
                                                     data-id="<?php echo $t['id_locacao']; ?>" 
                                                     data-nome="<?php echo $t['nome']; ?>" 
                                                     data-valor="<?php echo $t['valor_mensal_default']; ?>" 
                                                     data-bs-toggle="modal" data-bs-target="#modalEditTipoLocacao"><i class="bi bi-pencil"></i></button>
+                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -302,6 +320,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                     <div class="tab-pane fade" id="equip">
                         <div class="row">
                             <div class="col-md-4 border-end">
+                                <?php if($is_admin): ?>
                                 <form method="POST">
                                     <input type="hidden" name="acao" value="add_marca">
                                     <div class="mb-3">
@@ -313,6 +332,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                     <div class="mb-3"><label>Modelo</label><input type="text" name="nome" class="form-control" required></div>
                                     <button class="btn btn-primary w-100">Salvar</button>
                                 </form>
+                                <?php else: renderRestrictedBanner('um novo Equipamento'); endif; ?>
                             </div>
                             <div class="col-md-8 card-table">
                                 <table class="table table-striped align-middle">
@@ -323,6 +343,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                             <td><span class="badge bg-secondary"><?php echo $m['tipo']; ?></span></td>
                                             <td><?php echo $m['nome_marca']; ?></td>
                                             <td class="text-end">
+                                                <?php if($is_admin): ?>
                                                 <button class="btn btn-sm btn-outline-warning me-1 btn-edit-marca" 
                                                     data-id="<?php echo $m['id_marca']; ?>" 
                                                     data-nome="<?php echo $m['nome_marca']; ?>" 
@@ -334,6 +355,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                                     <input type="hidden" name="id" value="<?php echo $m['id_marca']; ?>">
                                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                                 </form>
+                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -347,12 +369,14 @@ $arquivos_demo = listarArquivos('modelos_demo');
                     <div class="tab-pane fade" id="serv">
                         <div class="row">
                             <div class="col-md-4 border-end">
+                                <?php if($is_admin): ?>
                                 <form method="POST">
                                     <input type="hidden" name="acao" value="add_servico">
                                     <div class="mb-3"><label>Nome</label><input type="text" name="nome" class="form-control" required></div>
                                     <div class="mb-3"><label>Descrição</label><textarea name="descricao" class="form-control" rows="3"></textarea></div>
                                     <button class="btn btn-primary w-100">Salvar</button>
                                 </form>
+                                <?php else: renderRestrictedBanner('um novo Serviço'); endif; ?>
                             </div>
                             <div class="col-md-8 card-table">
                                 <table class="table table-striped align-middle">
@@ -363,6 +387,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                             <td class="fw-bold"><?php echo $s['nome']; ?></td>
                                             <td class="small text-muted"><?php echo substr($s['descricao'], 0, 40); ?>...</td>
                                             <td class="text-end">
+                                                <?php if($is_admin): ?>
                                                 <button class="btn btn-sm btn-outline-warning me-1 btn-edit-servico" 
                                                     data-id="<?php echo $s['id_servico']; ?>" 
                                                     data-nome="<?php echo $s['nome']; ?>" 
@@ -374,6 +399,7 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                                     <input type="hidden" name="id" value="<?php echo $s['id_servico']; ?>">
                                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                                 </form>
+                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -389,11 +415,13 @@ $arquivos_demo = listarArquivos('modelos_demo');
                         <div class="row">
                             <div class="col-md-4 border-end">
                                 <h6 class="fw-bold mb-3">Upload Modelo</h6>
+                                <?php if($is_admin): ?>
                                 <form method="POST" enctype="multipart/form-data"><input type="hidden" name="acao" value="upload_modelo"><div class="mb-2"><label>Destino</label><select name="ambiente_destino" class="form-select"><option value="prod">Produção</option><option value="demo">Demo</option></select></div><div class="mb-3"><input type="file" name="arquivo_docx" class="form-control" accept=".docx" required></div><button class="btn btn-success w-100">Enviar</button></form>
+                                <?php else: renderRestrictedBanner('um novo Modelo'); endif; ?>
                             </div>
                             <div class="col-md-8">
                                 <h6 class="text-success">Modelos Produção</h6>
-                                <ul class="list-group small mb-3"><?php foreach($arquivos_prod as $a): ?><li class="list-group-item d-flex justify-content-between"><span><?php echo $a; ?></span><form method="POST" onsubmit="return confirm('Apagar?');" style="display:inline"><input type="hidden" name="acao" value="del_modelo"><input type="hidden" name="ambiente_origem" value="prod"><input type="hidden" name="nome_arquivo" value="<?php echo $a; ?>"><button class="btn btn-sm text-danger p-0"><i class="bi bi-trash"></i></button></form></li><?php endforeach; ?></ul>
+                                <ul class="list-group small mb-3"><?php foreach($arquivos_prod as $a): ?><li class="list-group-item d-flex justify-content-between"><span><?php echo $a; ?></span><?php if($is_admin): ?><form method="POST" onsubmit="return confirm('Apagar?');" style="display:inline"><input type="hidden" name="acao" value="del_modelo"><input type="hidden" name="ambiente_origem" value="prod"><input type="hidden" name="nome_arquivo" value="<?php echo $a; ?>"><button class="btn btn-sm text-danger p-0"><i class="bi bi-trash"></i></button></form><?php endif; ?></li><?php endforeach; ?></ul>
                             </div>
                         </div>
                     </div>

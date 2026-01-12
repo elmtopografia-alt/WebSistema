@@ -18,6 +18,11 @@ $id_usuario = $_SESSION['usuario_id'] ?? $_SESSION['id_criador'] ?? 1;
 $nome_usuario = $_SESSION['usuario_nome'] ?? 'Usuário';
 $ambiente = $_SESSION['ambiente'] ?? 'producao';
 
+// Lógica para Menu
+$is_demo = ($ambiente === 'demo');
+$modo_suporte = isset($_SESSION['admin_original_id']);
+$primeiro_nome = explode(' ', trim($nome_usuario))[0];
+
 // =========================================================================
 // 2. MOTOR DE ATUALIZAÇÃO (Recebe o clique do botão)
 // =========================================================================
@@ -115,14 +120,44 @@ try {
 
     <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 mb-4 sticky-top">
         <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold text-dark d-flex align-items-center" href="#">
-                <i class="bi bi-grid-fill me-2 text-primary"></i> SGT 
-                <?php if($ambiente == 'demo'): ?><span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">DEMO</span><?php endif; ?>
+            <a class="navbar-brand fw-bold text-dark d-flex align-items-center" href="painel.php">
+                <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" style="height: 40px;">
+                <?php if($is_demo): ?><span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">DEMO</span><?php endif; ?>
             </a>
-            <div class="ms-auto d-flex align-items-center gap-3">
-                <span class="text-muted small d-none d-md-inline">Olá, <strong><?= htmlspecialchars($nome_usuario) ?></strong></span>
-                <a href="criar_proposta.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
-                <a href="logout.php" class="btn btn-sm btn-outline-danger">Sair</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item"><a href="minha_empresa.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-gear-fill"></i> Empresa</a></li>
+                    <li class="nav-item"><a href="meus_clientes.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-people-fill"></i> Clientes</a></li>
+                    <li class="nav-item"><a href="admin_parametros.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-list-check"></i> Cadastro</a></li>
+                    
+                    <?php if($is_demo): ?>
+                        <li class="nav-item"><a href="contratar.php" class="btn btn-success btn-sm fw-bold shadow-sm text-white">CONTRATAR</a></li>
+                    <?php endif; ?>
+
+                    <?php if(!$is_demo && !$modo_suporte && isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
+                        <li class="nav-item"><a href="admin_usuarios.php" class="btn btn-warning btn-sm fw-bold text-dark">Admin</a></li>
+                    <?php endif; ?>
+
+                    <li class="nav-item ms-2">
+                        <a href="criar_proposta.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
+                    </li>
+
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link dropdown-toggle text-dark fw-bold d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle fs-5 me-1 text-secondary"></i> <?= htmlspecialchars($primeiro_nome) ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="alterar_senha.php"><i class="bi bi-key-fill me-2 text-primary"></i> Alterar Senha</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -199,7 +234,12 @@ try {
                                 </div>
                             </td>
 
-                            <td class="text-end fw-bold text-dark">R$ <?= number_format($row['valor_final_proposta'], 2, ',', '.'); ?></td>
+                            <td class="text-end fw-bold text-dark">
+                                <div>R$ <?= number_format($row['valor_final_proposta'], 2, ',', '.'); ?></div>
+                                <a href="relatorio_proposta.php?id=<?= $id ?>" class="btn btn-outline-secondary btn-sm border-0 mt-1" title="Ver Relatório Financeiro">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Relatório
+                                </a>
+                            </td>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>

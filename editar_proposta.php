@@ -110,13 +110,17 @@ if(preg_match('/([\d\.,]+)\s*(.*)/', $prop['area_obra'], $matches)) {
 
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid px-4">
-            <a class="navbar-brand" href="painel.php"><i class="bi bi-grid-fill me-2"></i> SGT Premium</a>
+            <a class="navbar-brand" href="painel.php"><img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" style="height: 40px;"></a>
             <div class="ms-auto d-flex gap-2">
                 <span class="badge bg-warning text-dark align-self-center">Editando Proposta #<?= $prop['numero_proposta'] ?></span>
                 <a href="painel.php" class="btn btn-outline-secondary btn-sm">Cancelar</a>
             </div>
         </div>
     </nav>
+
+    <div class="container mt-4" style="max-width: 1000px;">
+        <h2 class="fw-bold mb-0">EDITAR PROPOSTA</h2>
+    </div>
 
     <div class="wizard-container">
         <!-- Progress -->

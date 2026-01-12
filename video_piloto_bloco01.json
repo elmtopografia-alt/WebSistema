@@ -1,0 +1,103 @@
+{
+    "video": {
+        "titulo": "SGT Propostas - Bloco 01",
+        "duracao_total": "8s",
+        "objetivo": "Primeiro vídeo piloto do SGT Propostas"
+    },
+    "audio": {
+        "configuracao_voz": {
+            "genero": "Masculino",
+            "tom": "Grave",
+            "estilo": "Locutor de TV / Jornalístico",
+            "caracteristicas": [
+                "Confiante",
+                "Brasileiro",
+                "Autoridade"
+            ],
+            "emocao": "Segura e vendedora"
+        },
+        "narracao": {
+            "texto": "Olá! Cansado de fazer propostas no papel? Transforme orçamentos em lucro real. O SGT organiza tudo e garante contratos fechados!",
+            "palavras_total": 21,
+            "tempo_estimado": "8s",
+            "estrutura": {
+                "saudacao": "Olá!",
+                "dor": "Cansado de fazer propostas no papel?",
+                "solucao": "Transforme orçamentos em lucro real. O SGT organiza tudo e garante contratos fechados!"
+            }
+        }
+    },
+    "visual": {
+        "descricao": "Telão atrás do apresentador com sequência de slides",
+        "tipo": "Lousa Eletrônica",
+        "slides": [
+            {
+                "ordem": 1,
+                "tempo_inicio": "0s",
+                "tempo_fim": "2.5s",
+                "duracao": "2.5s",
+                "titulo": "Tela de Abertura",
+                "descricao": "Landing Page com o título 'Gestão de Prosperidade' e topógrafo com drone",
+                "elementos": [
+                    "Título: Gestão de Prosperidade",
+                    "Imagem: Topógrafo operando drone",
+                    "Branding: Logo SGT Propostas"
+                ]
+            },
+            {
+                "ordem": 2,
+                "tempo_inicio": "3s",
+                "tempo_fim": "5.5s",
+                "duracao": "2.5s",
+                "titulo": "Dashboard Analítico",
+                "descricao": "Dashboard colorido com gráficos de evolução",
+                "elementos": [
+                    "Gráficos coloridos de performance",
+                    "Indicadores de evolução",
+                    "Métricas visuais dinâmicas"
+                ]
+            },
+            {
+                "ordem": 3,
+                "tempo_inicio": "6s",
+                "tempo_fim": "8s",
+                "duracao": "2s",
+                "titulo": "Resultados Financeiros",
+                "descricao": "Tabela financeira detalhada com valores em R$",
+                "elementos": [
+                    "Tabela de valores financeiros",
+                    "Valores em Real (R$)",
+                    "Demonstração de lucros e contratos"
+                ]
+            }
+        ]
+    },
+    "timeline": {
+        "0s-2.5s": {
+            "visual": "Slide 1 - Tela de Abertura",
+            "audio": "Início da narração: 'Transforme orçamentos em lucro real.'"
+        },
+        "3s-5.5s": {
+            "visual": "Slide 2 - Dashboard Colorido",
+            "audio": "Continuação: 'O SGT organiza sua empresa'"
+        },
+        "6s-8s": {
+            "visual": "Slide 3 - Tabela Financeira",
+            "audio": "Finalização: 'e garante contratos fechados.'"
+        }
+    },
+    "especificacoes_tecnicas": {
+        "formato_video": "16:9",
+        "resolucao_sugerida": "1920x1080",
+        "fps": 30,
+        "transicoes": "Fade suave entre slides (0.5s)",
+        "background_music": "Opcional - música corporativa sutil"
+    },
+    "notas_producao": [
+        "Sincronizar narração com transições de slides",
+        "Manter ritmo dinâmico e profissional",
+        "Destacar valores em R$ no último slide",
+        "Garantir legibilidade de todos os textos",
+        "Usar cores da identidade visual SGT"
+    ]
+}

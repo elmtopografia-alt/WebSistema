@@ -146,29 +146,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <style>
-        /* Efeitos de Vidro (Glassmorphism) */
+        /* Efeitos de Vidro (Glassmorphism) - Otimizado para Projeção */
         .glass-panel {
-            background: rgba(10, 46, 92, 0.4);
+            background: rgba(10, 46, 92, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
         .glass-card {
-            background: rgba(19, 47, 76, 0.4);
+            background: rgba(19, 47, 76, 0.6);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             transition: all 0.3s ease;
         }
 
         .glass-card:hover {
-            background: rgba(10, 46, 92, 0.7);
-            /* Borda Abóbora ao passar o mouse */
-            border-color: rgba(255, 117, 24, 0.5);
+            background: rgba(10, 46, 92, 0.85);
+            border-color: rgba(255, 117, 24, 0.6);
             transform: translateY(-5px);
-            /* Sombra Laranja */
-            box-shadow: 0 10px 30px -10px rgba(255, 117, 24, 0.2);
+            box-shadow: 0 12px 35px -10px rgba(255, 117, 24, 0.3);
         }
 
         /* Canvas de fundo - Gradiente Azul Profissional */
@@ -184,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Scrollbar personalizada */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
 
         ::-webkit-scrollbar-track {
@@ -193,18 +191,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         ::-webkit-scrollbar-thumb {
             background: #1e40af;
-            border-radius: 4px;
+            border-radius: 5px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: #FF7518;
-            /* Hover Abóbora */
+        }
+
+        /* Destaque SGT-Propostas */
+        .brand-highlight {
+            font-size: 1.15em;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(255, 117, 24, 0.4);
         }
     </style>
 </head>
 
 <body
-    class="text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
+    class="text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark text-base md:text-lg">
 
     <!-- Fundo Animado (Antigravity) -->
     <canvas id="antigravity-canvas"></canvas>
@@ -217,16 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Logo Ajustado -->
                 <div class="flex items-center gap-3 cursor-pointer select-none" onclick="window.scrollTo(0,0)">
-                    <div
-                        class="bg-gradient-to-br from-brand-primary to-brand-dark p-2 rounded-lg border border-brand-accent/30 shadow-lg shadow-brand-accent/10">
-                        <i class="ph ph-cube-transparent text-3xl text-brand-accent"></i>
-                    </div>
-                    <!-- Layout Vertical do Logo -->
-                    <div class="flex flex-col justify-center items-start leading-none">
-                        <span class="font-display font-bold text-2xl text-white tracking-wide">SGT</span>
-                        <span
-                            class="font-display font-medium text-xs text-brand-accent tracking-[0.2em] uppercase mt-0.5">Propostas</span>
-                    </div>
+                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT Propostas" class="h-12">
                 </div>
 
                 <!-- Menu Desktop - Centralizado e Uniforme -->
@@ -302,47 +298,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10">
 
                 <!-- Texto Hero -->
-                <div class="space-y-8 animate-float text-center lg:text-left">
+                <div class="space-y-10 animate-float text-center lg:text-left">
                     <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-400/30 bg-blue-900/20 text-blue-300 text-xs font-semibold tracking-wide uppercase">
-                        <span class="w-2 h-2 rounded-full bg-brand-glow animate-pulse"></span>
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-400/40 bg-blue-900/30 text-blue-200 text-sm font-semibold tracking-wide uppercase">
+                        <span class="w-2.5 h-2.5 rounded-full bg-brand-glow animate-pulse"></span>
                         Sistema SaaS 4.0
                     </div>
 
-                    <h1 class="font-display text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight">
-                        Gestão de <br>
-                        <!-- Gradiente alterado para Abóbora -> Laranja Claro -->
-                        <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-orange-300">Prosperidade</span>
-                        & Propostas
+                    <h1 class="font-display text-5xl sm:text-6xl lg:text-8xl font-bold text-white leading-tight">
+                        <span class="brand-highlight text-transparent bg-clip-text bg-gradient-to-r from-brand-accent via-orange-400 to-orange-300">SGT-Propostas</span>
+                        <br>
+                        <span class="text-4xl sm:text-5xl lg:text-6xl">Gestão de Prosperidade</span>
                     </h1>
 
-                    <p class="text-base sm:text-lg text-slate-300 max-w-xl mx-auto lg:mx-0">
+                    <p class="text-lg sm:text-xl lg:text-2xl text-slate-200 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                         A solução definitiva para transformar leads em contratos fechados. Integrado ao MySQL, seguro e
-                        acessível em qualquer dispositivo. O futuro do seu negócio começa aqui.
+                        acessível em qualquer dispositivo.
                     </p>
 
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
                         <!-- Botão CTA principal - Abóbora -->
                         <button onclick="scrollToVideoAndPlay()"
-                            class="px-8 py-4 bg-gradient-to-r from-brand-accent to-brand-action text-white font-bold rounded-xl shadow-lg shadow-orange-600/30 hover:shadow-orange-500/50 transform hover:scale-105 transition-all flex items-center justify-center gap-2 border border-orange-400/20">
-                            <i class="ph ph-play-circle text-xl"></i>
+                            class="px-10 py-5 text-lg bg-gradient-to-r from-brand-accent to-brand-action text-white font-bold rounded-xl shadow-lg shadow-orange-600/40 hover:shadow-orange-500/60 transform hover:scale-105 transition-all flex items-center justify-center gap-3 border border-orange-400/30">
+                            <i class="ph ph-play-circle text-2xl"></i>
                             Ver Demonstração
                         </button>
                         <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531971875928'"
-                            class="px-8 py-4 glass-panel text-white font-semibold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 border border-white/10">
-                            <i class="ph ph-whatsapp-logo text-xl text-green-400"></i>
+                            class="px-10 py-5 text-lg glass-panel text-white font-semibold rounded-xl hover:bg-white/15 transition-all flex items-center justify-center gap-3 border border-white/15">
+                            <i class="ph ph-whatsapp-logo text-2xl text-green-400"></i>
                             Falar com Consultor
                         </button>
                     </div>
 
                     <!-- Indicadores de Tecnologia -->
                     <div
-                        class="pt-8 border-t border-white/10 flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 text-slate-400 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 text-sm sm:text-base">
-                        <div class="flex items-center gap-2"><i class="ph ph-database text-brand-glow"></i> MySQL</div>
-                        <div class="flex items-center gap-2"><i class="ph ph-code text-brand-accent"></i> HTML5/PHP
+                        class="pt-10 border-t border-white/10 flex flex-wrap justify-center lg:justify-start gap-6 sm:gap-8 text-slate-300 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 text-base sm:text-lg">
+                        <div class="flex items-center gap-2"><i class="ph ph-database text-brand-glow text-xl"></i> MySQL</div>
+                        <div class="flex items-center gap-2"><i class="ph ph-code text-brand-accent text-xl"></i> HTML5/PHP
                         </div>
-                        <div class="flex items-center gap-2"><i class="ph ph-shield-check text-green-400"></i> SSL
+                        <div class="flex items-center gap-2"><i class="ph ph-shield-check text-green-400 text-xl"></i> SSL
                             Seguro</div>
                     </div>
                 </div>
@@ -374,24 +368,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             <!-- Carousel Track (Slides) -->
                             <div id="carousel-track" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
-                                <img src="assets/img/slider/slide1.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 1">
-                                <img src="assets/img/slider/slide2.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 2">
-                                <img src="assets/img/slider/slide3.png" class="w-full h-full object-cover flex-shrink-0" alt="Slide 3">
+                                <img src="assets/img/slider/carousel_dashboard_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Dashboard - Visão Geral">
+                                <img src="assets/img/slider/carousel_financeiro_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Relatório Financeiro">
+                                <img src="assets/img/slider/carousel_proposta_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Formulário de Proposta">
+                                <img src="assets/img/slider/carousel_detalhado_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Dashboard Detalhado">
                             </div>
 
                             <!-- Controls (Hidden by default, shown when active) -->
                             <div id="carousel-controls" class="opacity-0 transition-opacity duration-300">
-                                <button onclick="prevSlide()" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-2 rounded-full backdrop-blur-sm transition-all">
-                                    <i class="ph ph-caret-left text-xl"></i>
+                                <button onclick="prevSlide()" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-brand-accent/90 text-white p-3 rounded-full backdrop-blur-sm transition-all">
+                                    <i class="ph ph-caret-left text-2xl"></i>
                                 </button>
-                                <button onclick="nextSlide()" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-brand-accent/80 text-white p-2 rounded-full backdrop-blur-sm transition-all">
-                                    <i class="ph ph-caret-right text-xl"></i>
+                                <button onclick="nextSlide()" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-brand-accent/90 text-white p-3 rounded-full backdrop-blur-sm transition-all">
+                                    <i class="ph ph-caret-right text-2xl"></i>
                                 </button>
                                 <!-- Indicators -->
                                 <div class="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                    <button onclick="goToSlide(0)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"></button>
-                                    <button onclick="goToSlide(1)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
-                                    <button onclick="goToSlide(2)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                                    <button onclick="goToSlide(0)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"></button>
+                                    <button onclick="goToSlide(1)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                                    <button onclick="goToSlide(2)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                                    <button onclick="goToSlide(3)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
                                 </div>
                             </div>
 
@@ -420,17 +416,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </section>
 
         <!-- Features Cards -->
-        <section id="funcionalidades" class="py-20 relative z-10">
+        <section id="funcionalidades" class="py-24 relative z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-3 gap-8">
+                <div class="grid md:grid-cols-3 gap-10">
                     <!-- Card 1 -->
-                    <div class="glass-card p-8 rounded-2xl transition-all duration-300">
+                    <div class="glass-card p-10 rounded-2xl transition-all duration-300">
                         <div
-                            class="w-14 h-14 bg-brand-glow/10 rounded-xl flex items-center justify-center mb-6 text-brand-glow border border-brand-glow/20">
-                            <i class="ph ph-device-mobile-camera text-3xl"></i>
+                            class="w-16 h-16 bg-brand-glow/10 rounded-xl flex items-center justify-center mb-6 text-brand-glow border border-brand-glow/20">
+                            <i class="ph ph-device-mobile-camera text-4xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-3">Multi-Plataforma</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">
+                        <h3 class="text-2xl font-bold text-white mb-4">Multi-Plataforma</h3>
+                        <p class="text-slate-200 text-base leading-relaxed">
                             Acesse suas propostas via PC, Notebook, Tablet ou Celular. Layout 100% responsivo que
                             acompanha você.
                         </p>
@@ -438,29 +434,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- Card 2 -->
                     <div
-                        class="glass-card p-8 rounded-2xl transition-all duration-300 border-brand-accent/20 bg-brand-accent/5 relative overflow-hidden">
+                        class="glass-card p-10 rounded-2xl transition-all duration-300 border-brand-accent/20 bg-brand-accent/5 relative overflow-hidden">
                         <!-- Glow extra no card principal -->
                         <div class="absolute -right-10 -top-10 w-20 h-20 bg-brand-accent/20 blur-2xl rounded-full">
                         </div>
 
                         <div
-                            class="w-14 h-14 bg-brand-accent/10 rounded-xl flex items-center justify-center mb-6 text-brand-accent border border-brand-accent/20">
-                            <i class="ph ph-chart-line-up text-3xl"></i>
+                            class="w-16 h-16 bg-brand-accent/10 rounded-xl flex items-center justify-center mb-6 text-brand-accent border border-brand-accent/20">
+                            <i class="ph ph-chart-line-up text-4xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-3">Prosperidade em Vendas</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">
+                        <h3 class="text-2xl font-bold text-white mb-4">Prosperidade em Vendas</h3>
+                        <p class="text-slate-200 text-base leading-relaxed">
                             Ferramentas focadas em conversão. Dashboards intuitivos que mostram onde está o dinheiro.
                         </p>
                     </div>
 
                     <!-- Card 3 -->
-                    <div class="glass-card p-8 rounded-2xl transition-all duration-300">
+                    <div class="glass-card p-10 rounded-2xl transition-all duration-300">
                         <div
-                            class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-400 border border-blue-500/20">
-                            <i class="ph ph-cloud-check text-3xl"></i>
+                            class="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-400 border border-blue-500/20">
+                            <i class="ph ph-cloud-check text-4xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-3">Cloud SaaS Seguro</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">
+                        <h3 class="text-2xl font-bold text-white mb-4">Cloud SaaS Seguro</h3>
+                        <p class="text-slate-200 text-base leading-relaxed">
                             Seus dados MySQL blindados na nuvem. Backups automáticos e acesso rápido de qualquer lugar.
                         </p>
                     </div>
@@ -720,7 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         // Carousel Logic
         let currentSlide = 0;
-        const totalSlides = 3;
+        const totalSlides = 4;
         let slideInterval;
         const track = document.getElementById('carousel-track');
         const indicators = document.querySelectorAll('.indicator');
@@ -759,7 +755,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function startSlideShow() {
             if (slideInterval) clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000);
+            slideInterval = setInterval(nextSlide, 7000);
         }
 
         function stopSlideShow() {

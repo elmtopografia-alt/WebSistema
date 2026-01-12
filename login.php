@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="login-container">
     <div class="login-card">
         <div class="login-header">
-            <h1><?php echo defined('SITE_NAME') ? SITE_NAME : 'SGT'; ?></h1>
+            <h1><img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT Propostas" style="height: 60px; margin-bottom: 10px;"></h1>
             <p>Acesso Administrativo</p>
         </div>
 

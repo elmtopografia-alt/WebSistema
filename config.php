@@ -18,6 +18,19 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
 // ==========================================================
 define('ENVIRONMENT', 'production'); // development | production
 
+// Define URL Base automaticamente
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'];
+$script = $_SERVER['SCRIPT_NAME'];
+$path = dirname($script);
+// Remove barras invertidas no Windows e garante barra final correta
+$path = str_replace('\\', '/', $path);
+$base = "$protocol://$host$path";
+// Remove barra final se existir para padronizar
+$base = rtrim($base, '/');
+
+define('BASE_URL', $base);
+
 if (ENVIRONMENT === 'development') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
