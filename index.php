@@ -323,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="ph ph-play-circle text-2xl"></i>
                             Ver Demonstração
                         </button>
-                        <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531971875928'"
+                        <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531971875928&text=Falar%20com%20um%20Consultor!'"
                             class="px-10 py-5 text-lg glass-panel text-white font-semibold rounded-xl hover:bg-white/15 transition-all flex items-center justify-center gap-3 border border-white/15">
                             <i class="ph ph-whatsapp-logo text-2xl text-green-400"></i>
                             Falar com Consultor
@@ -374,8 +374,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <img src="assets/img/slider/carousel_detalhado_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Dashboard Detalhado">
                             </div>
 
+
                             <!-- Controls (Hidden by default, shown when active) -->
-                            <div id="carousel-controls" class="opacity-0 transition-opacity duration-300">
+                            <div id="carousel-controls" class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <button onclick="prevSlide()" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-brand-accent/90 text-white p-3 rounded-full backdrop-blur-sm transition-all">
                                     <i class="ph ph-caret-left text-2xl"></i>
                                 </button>
@@ -391,29 +392,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </div>
 
-                            <!-- Cover / Placeholder (Click to Start) -->
-                            <div id="video-cover" onclick="startPresentation()"
-                                class="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-dark flex items-center justify-center cursor-pointer z-30 transition-opacity duration-500">
-                                <div class="text-center p-4">
-                                    <div
-                                        class="w-16 h-16 sm:w-20 sm:h-20 bg-brand-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border border-brand-accent/50 group-hover:scale-110 transition-transform shadow-[0_0_30px_rgba(255,117,24,0.3)]">
-                                        <i class="ph ph-play-fill text-3xl sm:text-4xl text-brand-accent pl-1"></i>
-                                    </div>
-                                    <p class="text-xs sm:text-sm font-medium text-slate-300">Assista ao Tour do Sistema</p>
-                                </div>
-                                <!-- Elementos flutuantes decorativos -->
-                                <div
-                                    class="absolute bottom-4 left-4 glass-panel px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-2 sm:gap-3 animate-pulse-slow border border-green-500/30">
-                                    <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
-                                    <span class="text-[10px] sm:text-xs font-bold text-white">Banco de Dados Conectado</span>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        
+        <!-- FIM CAROUSEL -->
 
         <!-- Features Cards -->
         <section id="funcionalidades" class="py-24 relative z-10">
@@ -463,6 +448,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </section>
+
 
         <!-- Plans Section -->
         <section id="planos" class="py-20 relative z-10 scroll-mt-32">
@@ -630,7 +616,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p class="text-slate-400 text-sm mb-4">
                         <i class="ph ph-lock-key text-green-400"></i> Pagamento 100% seguro via Mercado Pago. Ativação imediata.
                     </p>
-                    <a href="https://api.whatsapp.com/send?phone=5531971875928&text=Tenho%20duvidas%20sobre%20os%20planos" target="_blank" 
+                    <a href="https://api.whatsapp.com/send?phone=5531971875928&text=Falar%20com%20um%20Consultor!" target="_blank" 
                        class="inline-flex items-center gap-2 text-brand-accent hover:text-white transition-colors text-sm font-semibold">
                         <i class="ph ph-whatsapp-logo text-lg"></i>
                         Falar com Consultor
@@ -720,8 +706,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let slideInterval;
         const track = document.getElementById('carousel-track');
         const indicators = document.querySelectorAll('.indicator');
-        const cover = document.getElementById('video-cover');
-        const controls = document.getElementById('carousel-controls');
         let isPlaying = false;
 
         function updateCarousel() {
@@ -755,11 +739,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function startSlideShow() {
             if (slideInterval) clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 7000);
+            slideInterval = setInterval(nextSlide, 5000); // 5 segundos por slide
+            isPlaying = true;
         }
 
         function stopSlideShow() {
             clearInterval(slideInterval);
+            isPlaying = false;
         }
 
         function resetInterval() {
@@ -767,31 +753,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             startSlideShow();
         }
 
-        // Nova Função: Iniciar Apresentação Inline
-        function startPresentation() {
-            // Esconde a capa
-            cover.style.opacity = '0';
-            cover.style.pointerEvents = 'none';
-            
-            // Mostra controles
-            controls.classList.remove('opacity-0');
-            
-            // Inicia Slides
-            if (!isPlaying) {
-                isPlaying = true;
-                startSlideShow();
-            }
-        }
+        // Auto-start Carousel immediately
+        document.addEventListener('DOMContentLoaded', () => {
+            startSlideShow();
+        });
 
-        // Função para scrollar e dar play (usada pelos botões)
+        // Pause on hover (opcional, boa prática UX)
+        track.addEventListener('mouseenter', stopSlideShow);
+        track.addEventListener('mouseleave', startSlideShow);
+
+        // Função para scrollar (usada pelos botões)
         function scrollToVideoAndPlay() {
             const videoSection = document.getElementById('video');
             videoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Pequeno delay para esperar o scroll
-            setTimeout(() => {
-                startPresentation();
-            }, 800);
         }
 
         // Lógica do Modal

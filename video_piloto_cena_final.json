@@ -1,0 +1,35 @@
+[
+    {
+        "description": "Cinematic shot in a modern auditorium. The presenter finishes his speech with high energy. As he points to the screen/link, the camera smoothly pulls back (dolly out) revealing the audience standing up and some members walking towards him to shake hands. The screen displays 'Experiência Premium'.",
+        "style": "ultra-realistic, cinematic, professional, corporate realism",
+        "camera": "medium shot on presenter transitioning to wide shot with dolly out, dynamic movement",
+        "lighting": "cinematic lighting, spotlight on presenter, soft illumination on audience",
+        "environment": "modern professional auditorium, digital board with 'Premium' offer",
+        "elements": [
+            "presenter",
+            "digital board",
+            "audience interaction",
+            "handshake",
+            "whiteboard_promo_final.png"
+        ],
+        "motion": "presenter speaks, camera pulls back, audience stands up, interaction",
+        "ending": "fade out or cut to logo while handshaking",
+        "voice": {
+            "text": "Transforme sua gestão com o SGT. Clique no link e teste 5 dias agora. O futuro é hoje!",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "35 years old",
+            "accent": "neutral Brazilian",
+            "tone": "confident, energetic, inviting, fast-paced"
+        },
+        "text": "Experiência Premium: 5 dias de cortesia",
+        "keywords": [
+            "cinematic",
+            "realistic",
+            "call to action",
+            "interaction",
+            "closing"
+        ],
+        "duration": "8 seconds"
+    }
+]

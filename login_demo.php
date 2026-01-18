@@ -26,7 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hoje = new DateTime();
             $val = new DateTime($user['validade_acesso']);
             if ($hoje > $val) {
-                $erro = "Teste expirado. <a href='contratar.php'>Contratar</a>.";
+            if ($hoje > $val) {
+                $erro = "
+                    <strong>Seu período de teste acabou!</strong><br>
+                    Seus dados estão agendados para exclusão.<br>
+                    <a href='contratar.php' class='btn btn-warning btn-sm mt-2 w-100 fw-bold'>SALVAR MEUS DADOS AGORA</a>
+                ";
             } else {
                 session_regenerate_id(true);
                 $_SESSION['usuario_id']    = $user['id_usuario'];

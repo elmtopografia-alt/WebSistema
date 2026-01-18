@@ -13,7 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tipo_alerta = "danger";
     } else {
         // Conecta ao banco DEMO (Proposta)
-        $conn = new mysqli('proposta.mysql.dbaas.com.br', 'proposta', 'Qtamaqmde5202@', 'proposta');
+        require_once 'config.php';
+        require_once 'db.php';
+        require_once 'GerenciadorEmail.php';
+
+        $conn = Database::getDemo();
 
         if ($conn->connect_error) {
             $msg = "Erro de conexão. Tente mais tarde.";
@@ -30,19 +34,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Prepara o E-mail
                 $assunto = "Recuperacao de Acesso - Demo Gera Proposta";
-                $corpo = "Ola, " . $dados['nome_completo'] . "!\n\n";
-                $corpo .= "Voce solicitou a recuperacao de seus dados de acesso ao ambiente de demonstracao.\n\n";
-                $corpo .= "--------------------------------\n";
-                $corpo .= "Usuario/Email: " . $dados['usuario'] . "\n";
-                $corpo .= "Senha: " . $dados['senha'] . "\n";
-                $corpo .= "Link: http://seu-site-aqui.com/login.php\n";
-                $corpo .= "--------------------------------\n\n";
-                $corpo .= "Atenciosamente,\nEquipe Gera Proposta";
+                
+                // Corpo HTML
+                $corpoHTML = "
+                    <h2>Olá, {$dados['nome_completo']}!</h2>
+                    <p>Você solicitou a recuperação de seus dados de acesso ao ambiente de demonstração.</p>
+                    <hr>
+                    <p><strong>Usuário/Email:</strong> {$dados['usuario']}</p>
+                    <p><strong>Senha:</strong> {$dados['senha']}</p>
+                    <p><strong>Link:</strong> <a href='" . BASE_URL . "/login.php'>" . BASE_URL . "/login.php</a></p>
+                    <hr>
+                    <p>Atenciosamente,<br>Equipe Gera Proposta</p>
+                ";
 
-                $headers = "From: nao-responda@seu-site-aqui.com";
-
-                // Tenta enviar
-                if (mail($email, $assunto, $corpo, $headers)) {
+                // Tenta enviar usando GerenciadorEmail
+                if (GerenciadorEmail::enviar($email, $dados['nome_completo'], $assunto, $corpoHTML)) {
                     $msg = "Seus dados foram enviados para <strong>$email</strong>. Verifique sua caixa de entrada e SPAM.";
                     $tipo_alerta = "success";
                 } else {
@@ -54,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $msg = "Este e-mail não consta em nossa base de demonstração.";
                 $tipo_alerta = "danger";
             }
-            $conn->close();
+            // $conn->close(); // Database class manages connection
         }
     }
 }

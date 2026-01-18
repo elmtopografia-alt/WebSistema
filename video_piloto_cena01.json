@@ -1,0 +1,34 @@
+[
+  {
+    "description": "Continuous cinematic shot inside a modern auditorium, starting already in motion, smoothly touring the space and naturally framing a confident presenter who is already speaking while interacting with a digital board.",
+    "style": "ultra-realistic, cinematic, professional, corporate realism",
+    "camera": "smooth continuous camera movement, gentle tour, natural framing, subtle push-in at the end, no cuts",
+    "lighting": "soft cinematic lighting, balanced key light on presenter, ambient auditorium light",
+    "environment": "modern professional auditorium with clean architecture, neutral colors, digital board",
+    "elements": [
+      "presenter",
+      "Apple tablet",
+      "digital board",
+      "lapel microphone",
+      "auditorium"
+    ],
+    "motion": "camera starts in motion, presenter gestures naturally, image appears on board, slow push-in",
+    "ending": "camera ends closer framing presenter and board together, still in motion",
+    "voice": {
+      "text": "Você perde horas calculando orçamentos de topografia e ainda erra na margem de lucro?",
+      "language": "pt-BR",
+      "gender": "male",
+      "age": "35 years old",
+      "accent": "neutral Brazilian",
+      "tone": "confident, natural, professional"
+    },
+    "text": "none",
+    "keywords": [
+      "cinematic",
+      "realistic",
+      "continuous shot",
+      "no text",
+      "no subtitles"
+    ]
+  }
+]

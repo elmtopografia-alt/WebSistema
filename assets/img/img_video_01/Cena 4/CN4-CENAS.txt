@@ -1,0 +1,35 @@
+🔒 AGENTE NORMATIVO GLOBAL — FLOW VEO 3.1
+Aplicável a todas as cenas, sem exceção
+
+DIRETRIZES TÉCNICAS E DE COMPORTAMENTO (OBRIGATÓRIO):
+1) FORMATO DE VÍDEO: Widescreen 16:9 (Horizontal). NUNCA gerar em 9:16.
+2) PERMANÊNCIA DO APRESENTADOR: O apresentador deve estar visível no palco desde o primeiro frame até o último.
+3) ESTABILIDADE DA LOUSA: A lousa e o conteúdo nela exibido DEVEM permanecer estáticos e visíveis durante toda a cena. O conteúdo só muda no corte para a próxima cena.
+4) AÇÃO FINAL: Em todas as cenas, o encerramento deve mostrar o apresentador clicando no tablet e mantendo contato visual com a plateia.
+5) POSICIONAMENTO: O apresentador sempre no palco, interagindo com lousa e plateia. Nunca fora do palco.
+AMBIENTE (FIXO):
+Auditório corporativo fechado, bem iluminado, moderno e profissional. Palco frontal elevado com 3 metros de largura. Plateia de 50 profissionais sentados em fileiras organizadas, distribuídos em semicírculo. Lousa eletrônica LED de 3x2 metros fixada na parede de fundo do palco, lado direito. Piso do palco em madeira clara, paredes em tom neutro cinza-claro. Iluminação principal difusa vinda do teto. Nenhuma alteração estrutural do espaço ao longo do vídeo.
+REGRA DE MOVIMENTO DE CÂMERA:
+O cenário é completamente estático. Somente a câmera se movimenta. Todos os movimentos são suaves, fluidos e cinematográficos (dolly, pan, tilt, zoom). Proibidos cortes bruscos, jump cuts ou transições artificiais entre takes da mesma cena. TRANSIÇÃO ENTRE CENAS: Quando o apresentador toca o tablet próximo ao fim de uma cena, a câmera MANTÉM o enquadramento atual até o corte. A cena seguinte INICIA com nova posição de câmera já estabelecida, mostrando o apresentador em nova posição do palco e nova imagem já visível na lousa.
+APRESENTADOR (PERSONA FIXA):
+Homem brasileiro, 35-40 anos, altura média 1,75m, físico atlético, cabelo curto escuro penteado para trás, barba bem aparada. Veste terno azul-marinho slim fit, camisa branca, sem gravata, sapatos sociais pretos. VOZ: Tom grave, ritmo moderado (150 palavras/min), dicção clara e pausada. Transmite confiança técnica de consultor experiente. Usa tablet Apple iPad Pro prateado e microfone de lapela discreto preto. Alterna contato visual entre plateia (70%) e lousa (30%).
+PLATEIA (COMPORTAMENTO DINÂMICO):
+50 profissionais (60% homens, 40% mulheres, idades 28-55 anos). Vestuário corporativo casual. Reações sutis e naturais, progressão emocional ao longo do vídeo: curiosidade (CN1-2) → interesse (CN3-4) → aprovação (CN5-6) → celebração (CN7-8).
+LOUSA ELETRÔNICA:
+Tela LED 3x2m fixada 50cm acima do nível do palco, lado direito do fundo. Conteúdo muda NO CORTE entre cenas. Quando em foco, recebe iluminação complementar suave (spot LED branco 3000K, 30% intensidade).
+ILUMINAÇÃO:
+Iluminação base: 4 painéis LED difusos no teto (5600K, CRI 95+). Iluminação destaque lousa: Spot LED direcionável (3000K). Temperatura de cor geral neutra-fria (5000-5600K) para ambiente corporativo.
+CONTINUIDADE:
+Mesmo ambiente, apresentador e plateia em todas as cenas. Vídeo único contínuo onde apenas enquadramentos e conteúdos mudam entre blocos temáticos.
+
+📹 CENA 4 (24s – 32s)
+A PRECIFICAÇÃO INTELIGENTE
+Prompt Veo 2 (Português do Brasil):
+Cena cinematográfica em auditório corporativo moderno. Ambiente: mesmo auditório, mesmo apresentador (homem terno azul-marinho), mesma plateia de 50 profissionais. POSIÇÃO INICIAL: Apresentador está no centro-direita do palco. Lousa eletrônica já exibe tabela "COMPOSIÇÃO DE CUSTOS" com linhas detalhadas (Salários destacado em negrito, Estadias, Locações, Administrativos) e valores sendo calculados em tempo real com números animados. CÂMERA: Plano médio frontal, apresentador centralizado no quadro com lousa visível atrás. Movimento suave de pan seguindo apresentador conforme ele se desloca. AÇÃO (0-6s): Apresentador inicia fala no primeiro frame, olha brevemente para câmera e depois direciona-se naturalmente à lousa. Voz grave, tom firme, direto e objetivo: "O SGT, em tempo real calcula custos: salariais, estadias, locações e administrativos. Chega de prejuízo!". Enquanto fala, aponta energicamente para item "Salários" na tabela, depois gesticula abrangendo toda composição de custos. Plateia acompanha atentamente, alguns fazem expressão de "entendi" (acenam afirmativamente). MOVIMENTO (6-30s): Apresentador segue andando em direção ao lado esquerdo do palco mantendo discurso ativo com contato visual com plateia. Câmera acompanha movimento em pan suave. TRANSIÇÃO (30-32s): Apresentador para no lado esquerdo, clica no tablet com gesto claro e intencional, continua olhando tablet como se procurando algo. CORTE LIMPO aos 32s. Iluminação difusa 5600K, spot 3000K destacando tabela na lousa. Fotografia corporativa premium, 24fps.
+Timing:
+
+0-6s: Fala do apresentador (15 palavras)
+6-30s: Deslocamento pelo palco + interação com plateia
+30-32s: Clique no tablet
+
+Conteúdo da Lousa: Tabela "Composição de Custos" com valores em tempo real

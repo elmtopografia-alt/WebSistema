@@ -78,7 +78,6 @@ try {
     }
 
     // B. Lista de Propostas
-    // B. Lista de Propostas
     $sqlLista = "SELECT p.*, c.nome_cliente 
                  FROM Propostas p 
                  LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
@@ -100,144 +99,334 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGT | Painel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Exo 2', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#001e3c',
+                            primary: '#0a2e5c',
+                            surface: '#132f4c',
+                            accent: '#FF7518',   // Abóbora Vibrante
+                            action: '#EA580C',
+                            glow: '#4fc3f7',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .header-painel { background-color: #1e293b; color: white; padding: 25px 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
-        .card-kpi { background: white; border: none; border-radius: 12px; padding: 24px; height: 100%; position: relative; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.03); transition: transform 0.2s; }
-        .card-kpi:hover { transform: translateY(-4px); }
-        .icon-sq { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 18px; color: white; flex-shrink: 0; }
-        .bg-icon-yellow { background-color: #ffc107; } .bg-icon-blue { background-color: #0d6efd; } .bg-icon-green { background-color: #198754; } .bg-icon-red { background-color: #dc3545; }
-        .kpi-value { font-size: 2rem; font-weight: 700; margin-bottom: 2px; line-height: 1; color: #212529; }
-        .kpi-label { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .table-custom th { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; }
-        .table-custom td { font-size: 0.9rem; color: #334155; vertical-align: middle; padding: 12px 20px; border-bottom: 1px solid #f1f5f9; }
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(10, 46, 92, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .glass-card {
+            background: rgba(19, 47, 76, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(10, 46, 92, 0.85);
+            border-color: rgba(255, 117, 24, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px -10px rgba(255, 117, 24, 0.3);
+        }
+        
+        /* Background */
+        body {
+            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            min-height: 100vh;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #001224; }
+        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF7518; }
+        
+        /* Dropdown custom */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
     </style>
 </head>
-<body>
+<body class="text-slate-200 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark">
 
-    <nav class="navbar navbar-expand-lg bg-white shadow-sm py-2 mb-4 sticky-top">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold text-dark d-flex align-items-center" href="painel.php">
-                <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" style="height: 40px;">
-                <?php if($is_demo): ?><span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">DEMO</span><?php endif; ?>
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center gap-2">
-                    <li class="nav-item"><a href="minha_empresa.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-gear-fill"></i> Empresa</a></li>
-                    <li class="nav-item"><a href="meus_clientes.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-people-fill"></i> Clientes</a></li>
-                    <li class="nav-item"><a href="admin_parametros.php" class="btn btn-outline-secondary btn-sm fw-bold border-0"><i class="bi bi-list-check"></i> Cadastro</a></li>
-                    
+    <!-- Navbar -->
+    <nav class="w-full glass-panel sticky top-0 z-50 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-4">
+                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-10">
                     <?php if($is_demo): ?>
-                        <li class="nav-item"><a href="contratar.php" class="btn btn-success btn-sm fw-bold shadow-sm text-white">CONTRATAR</a></li>
+                        <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold border border-yellow-500/30 uppercase tracking-wider">DEMO</span>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Menu Desktop -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="minha_empresa.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-gear"></i> Empresa
+                    </a>
+                    <a href="meus_clientes.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-users"></i> Clientes
+                    </a>
+                    <a href="admin_parametros.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-list-checks"></i> Cadastro
+                    </a>
+
+                    <?php if($is_demo): ?>
+                        <a href="contratar.php" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20 uppercase tracking-wider">
+                            Contratar
+                        </a>
                     <?php endif; ?>
 
                     <?php if(!$is_demo && !$modo_suporte && isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
-                        <li class="nav-item"><a href="admin_usuarios.php" class="btn btn-warning btn-sm fw-bold text-dark">Admin</a></li>
+                        <a href="admin_usuarios.php" class="px-3 py-1.5 bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-600/30 transition-colors">
+                            Admin
+                        </a>
                     <?php endif; ?>
 
-                    <li class="nav-item ms-2">
-                        <a href="criar_proposta.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
-                    </li>
+                    <a href="criar_proposta.php" class="px-4 py-2 bg-brand-accent hover:bg-brand-action text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-brand-accent/20 flex items-center gap-2">
+                        <i class="ph ph-plus-bold"></i> Nova Proposta
+                    </a>
 
-                    <li class="nav-item dropdown ms-2">
-                        <a class="nav-link dropdown-toggle text-dark fw-bold d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle fs-5 me-1 text-secondary"></i> <?= htmlspecialchars($primeiro_nome) ?>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><a class="dropdown-item" href="alterar_senha.php"><i class="bi bi-key-fill me-2 text-primary"></i> Alterar Senha</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a></li>
-                        </ul>
-                    </li>
-                </ul>
+                    <!-- User Dropdown -->
+                    <div class="relative group ml-2">
+                        <button class="flex items-center gap-2 text-white font-medium hover:text-brand-accent transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-brand-surface border border-white/10 flex items-center justify-center text-brand-accent">
+                                <i class="ph ph-user"></i>
+                            </div>
+                            <span><?= htmlspecialchars($primeiro_nome) ?></span>
+                            <i class="ph ph-caret-down text-xs text-slate-500"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
+                            <div class="py-1">
+                                <a href="alterar_senha.php" class="block px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white">
+                                    <i class="ph ph-key mr-2"></i> Alterar Senha
+                                </a>
+                                <div class="h-px bg-white/10 my-1"></div>
+                                <a href="logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                                    <i class="ph ph-sign-out mr-2"></i> Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid px-4">
+    <!-- Aviso Demo -->
+    <?php if($is_demo && isset($_SESSION['validade_demo'])): 
+        $hoje = new DateTime();
+        $validade = new DateTime($_SESSION['validade_demo']);
+        $diff = $hoje->diff($validade);
+        $diasRestantes = $diff->invert ? 0 : $diff->days;
         
-        <div class="header-painel">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-bar-chart-line-fill me-3 fs-3 text-warning"></i>
-                <div><h4 class="mb-0 fw-bold">Evolução Comercial</h4><small class="opacity-75">Visão Geral</small></div>
+        $corAlerta = ($diasRestantes <= 1) ? 'border-red-500/50 bg-red-500/10 text-red-200' : 'border-yellow-500/50 bg-yellow-500/10 text-yellow-200';
+        $textoAlerta = ($diasRestantes <= 1) ? "⚠️ SEU TESTE ACABA EM BREVE! Seus dados serão apagados em menos de 24h." : "⏳ Restam $diasRestantes dias de teste.";
+    ?>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="glass-panel rounded-xl p-4 border <?= $corAlerta ?> flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <strong class="block sm:inline"><?= $textoAlerta ?></strong>
+                <span class="text-sm opacity-80 hidden sm:inline ml-2">Contrate agora para manter seu acesso.</span>
             </div>
-            <div class="d-none d-md-block text-end"><small class="d-block opacity-50 text-uppercase">Hoje</small><span class="fw-bold fs-5"><?php echo date('d/m/Y'); ?></span></div>
+            <a href="contratar.php" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-colors uppercase tracking-wider border border-white/20">
+                Contratar Agora
+            </a>
         </div>
+    </div>
+    <?php endif; ?>
 
-        <div class="row g-4 mb-4">
-            <div class="col-xl-3 col-md-6"><div class="card-kpi d-flex flex-row align-items-center"><div class="icon-sq bg-icon-yellow"><i class="bi bi-file-text"></i></div><div><div class="kpi-label">Propostas Elaboradas</div><div class="kpi-value"><?= $kpi['elaborada'] ?></div><div class="kpi-sub text-warning">Rascunhos</div></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card-kpi d-flex flex-row align-items-center"><div class="icon-sq bg-icon-blue"><i class="bi bi-send-fill"></i></div><div><div class="kpi-label">Propostas Enviadas</div><div class="kpi-value"><?= $kpi['enviada'] ?></div><div class="kpi-sub text-primary">Aguardando</div></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card-kpi d-flex flex-row align-items-center"><div class="icon-sq bg-icon-green"><i class="bi bi-check-lg"></i></div><div><div class="kpi-label">Propostas Aceitas</div><div class="kpi-value"><?= $kpi['aprovada'] ?></div><div class="kpi-sub text-success fw-bold">Sucesso!</div></div></div></div>
-            <div class="col-xl-3 col-md-6"><div class="card-kpi d-flex flex-row align-items-center"><div class="icon-sq bg-icon-red"><i class="bi bi-x-lg"></i></div><div><div class="kpi-label">Propostas Canceladas</div><div class="kpi-value"><?= $kpi['cancelada'] ?></div><div class="kpi-sub text-danger">Perdidas</div></div></div></div>
-        </div>
-
-        <!-- Novo Dashboard (Gemini 3) -->
-        <?php include 'dashboard_include.php'; ?>
-
-        <div class="card shadow-sm border-0 mb-5 mt-4">
-            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="m-0 fw-bold text-dark">Últimas Propostas</h6>
-                <div class="d-flex gap-2">
-                    <input type="text" id="filtroTabela" class="form-control form-control-sm" placeholder="🔍 Buscar..." style="width: 200px;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Page -->
+        <div class="glass-panel rounded-2xl p-6 mb-8 flex justify-between items-center bg-brand-surface/50">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-accent/10 flex items-center justify-center text-brand-accent border border-brand-accent/20">
+                    <i class="ph ph-chart-line-up text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-2xl font-bold text-white">Evolução Comercial</h1>
+                    <p class="text-sm text-slate-400">Visão Geral do seu Negócio</p>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover table-custom mb-0" id="tabelaPrincipal">
+            <div class="hidden md:block text-right">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Hoje</span>
+                <div class="font-display text-xl font-bold text-white"><?php echo date('d/m/Y'); ?></div>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Elaboradas -->
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 border border-yellow-500/20 group-hover:scale-110 transition-transform">
+                    <i class="ph ph-file-text text-3xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Elaboradas</p>
+                    <h3 class="font-display text-3xl font-bold text-white"><?= $kpi['elaborada'] ?></h3>
+                    <p class="text-xs text-yellow-500/80">Rascunhos</p>
+                </div>
+            </div>
+
+            <!-- Enviadas -->
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4 group">
+                <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 group-hover:scale-110 transition-transform">
+                    <i class="ph ph-paper-plane-tilt text-3xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Enviadas</p>
+                    <h3 class="font-display text-3xl font-bold text-white"><?= $kpi['enviada'] ?></h3>
+                    <p class="text-xs text-blue-400/80">Aguardando</p>
+                </div>
+            </div>
+
+            <!-- Aprovadas -->
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4 group border-green-500/20 bg-green-500/5">
+                <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400 border border-green-500/20 group-hover:scale-110 transition-transform">
+                    <i class="ph ph-check-circle text-3xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-green-400/80 uppercase font-bold tracking-wider">Aprovadas</p>
+                    <h3 class="font-display text-3xl font-bold text-white"><?= $kpi['aprovada'] ?></h3>
+                    <p class="text-xs text-green-400 font-bold">Sucesso!</p>
+                </div>
+            </div>
+
+            <!-- Canceladas -->
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4 group border-red-500/20">
+                <div class="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400 border border-red-500/20 group-hover:scale-110 transition-transform">
+                    <i class="ph ph-x-circle text-3xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Canceladas</p>
+                    <h3 class="font-display text-3xl font-bold text-white"><?= $kpi['cancelada'] ?></h3>
+                    <p class="text-xs text-red-400/80">Perdidas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Include Wrapper -->
+        <div class="mb-8">
+            <?php include 'dashboard_include.php'; ?>
+        </div>
+
+        <!-- Tabela de Propostas -->
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-list-dashes text-brand-accent"></i> Últimas Propostas
+                </h2>
+                <div class="relative w-full md:w-64">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" id="filtroTabela" 
+                           class="w-full bg-black/20 border border-white/10 rounded-lg py-2 pl-10 text-sm text-white focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all placeholder-slate-600"
+                           placeholder="Buscar proposta...">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="tabelaPrincipal">
                     <thead>
-                        <tr>
-                            <th class="ps-4">Data</th>
-                            <th>Número</th>
-                            <th>Cliente</th>
-                            <th>Status (Clique para Alterar)</th>
-                            <th class="text-end">Valor</th>
+                        <tr class="bg-white/5 text-xs text-slate-400 uppercase tracking-wider border-b border-white/5">
+                            <th class="px-6 py-4 font-semibold">Data</th>
+                            <th class="px-6 py-4 font-semibold">Número</th>
+                            <th class="px-6 py-4 font-semibold">Cliente</th>
+                            <th class="px-6 py-4 font-semibold">Status</th>
+                            <th class="px-6 py-4 font-semibold text-right">Valor</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-white/5 text-sm">
                         <?php while($row = $resultLista->fetch_assoc()): 
                              $id = $row['id_proposta'];
-                             // Define cor do botão
                              $st = mb_strtolower($row['status']);
-                             $corBtn = 'btn-warning text-dark';
-                             if(strpos($st, 'aprov')!==false) $corBtn = 'btn-success';
-                             elseif(strpos($st, 'envia')!==false) $corBtn = 'btn-primary';
-                             elseif(strpos($st, 'cancel')!==false) $corBtn = 'btn-danger';
+                             
+                             // Cores do Status
+                             $statusClass = 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+                             if(strpos($st, 'aprov')!==false) $statusClass = 'bg-green-500/10 text-green-400 border-green-500/20';
+                             elseif(strpos($st, 'envia')!==false) $statusClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                             elseif(strpos($st, 'cancel')!==false) $statusClass = 'bg-red-500/10 text-red-400 border-red-500/20';
                         ?>
-                        <tr>
-                            <td class="ps-4 fw-bold text-secondary"><?= date('d/m/Y', strtotime($row['data_criacao'])); ?></td>
-                            <td><div class="fw-bold text-dark"><?= $row['numero_proposta']; ?></div></td>
-                            <td><div class="fw-bold text-secondary"><?= htmlspecialchars($row['nome_cliente_salvo']); ?></div></td>
-                            
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn <?= $corBtn ?> btn-sm dropdown-toggle fw-bold shadow-sm" 
-                                            type="button" 
-                                            data-bs-toggle="dropdown"
-                                            id="btn-<?= $id ?>"
-                                            style="width: 140px; border-radius: 20px;">
-                                        <?= $row['status'] ?>
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4 text-slate-400 font-mono">
+                                <?= date('d/m/Y', strtotime($row['data_criacao'])); ?>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-white">
+                                <?= $row['numero_proposta']; ?>
+                            </td>
+                            <td class="px-6 py-4 text-slate-300">
+                                <?= htmlspecialchars($row['nome_cliente_salvo']); ?>
+                            </td>
+                            <td class="px-6 py-4">
+                                <!-- Custom Dropdown Trigger -->
+                                <div class="relative inline-block text-left dropdown-container">
+                                    <button type="button" 
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wider transition-all <?= $statusClass ?> hover:brightness-110"
+                                            onclick="toggleDropdown(<?= $id ?>)"
+                                            id="btn-<?= $id ?>">
+                                        <span id="label-<?= $id ?>"><?= $row['status'] ?></span>
+                                        <i class="ph ph-caret-down"></i>
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="trocarStatus(<?= $id ?>, 'Em Elaboração')">🟡 Em Elaboração</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="trocarStatus(<?= $id ?>, 'Enviada')">🔵 Enviada</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="trocarStatus(<?= $id ?>, 'Aprovada')">🟢 Aprovada</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="trocarStatus(<?= $id ?>, 'Cancelada')">🔴 Cancelada</a></li>
-                                    </ul>
+                                    
+                                    <!-- Dropdown Menu -->
+                                    <div id="dropdown-<?= $id ?>" class="hidden absolute left-0 mt-2 w-40 glass-panel rounded-xl shadow-xl z-50 overflow-hidden">
+                                        <div class="py-1">
+                                            <a href="#" onclick="trocarStatus(<?= $id ?>, 'Em Elaboração'); return false;" class="block px-4 py-2 text-xs text-yellow-500 hover:bg-white/5 font-bold">🟡 Em Elaboração</a>
+                                            <a href="#" onclick="trocarStatus(<?= $id ?>, 'Enviada'); return false;" class="block px-4 py-2 text-xs text-blue-400 hover:bg-white/5 font-bold">🔵 Enviada</a>
+                                            <a href="#" onclick="trocarStatus(<?= $id ?>, 'Aprovada'); return false;" class="block px-4 py-2 text-xs text-green-400 hover:bg-white/5 font-bold">🟢 Aprovada</a>
+                                            <div class="h-px bg-white/10 my-1"></div>
+                                            <a href="#" onclick="trocarStatus(<?= $id ?>, 'Cancelada'); return false;" class="block px-4 py-2 text-xs text-red-400 hover:bg-white/5 font-bold">🔴 Cancelada</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
-
-                            <td class="text-end fw-bold text-dark">
-                                <div>R$ <?= number_format($row['valor_final_proposta'], 2, ',', '.'); ?></div>
-                                <a href="relatorio_proposta.php?id=<?= $id ?>" class="btn btn-outline-secondary btn-sm border-0 mt-1" title="Ver Relatório Financeiro">
-                                    <i class="bi bi-file-earmark-spreadsheet"></i> Relatório
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-bold text-white mb-1">R$ <?= number_format($row['valor_final_proposta'], 2, ',', '.'); ?></div>
+                                <a href="editar_proposta.php?id=<?= $id ?>" class="inline-flex items-center gap-1 text-xs text-yellow-500 hover:text-white transition-colors mr-3">
+                                    <i class="ph ph-pencil-simple"></i> Editar
+                                </a>
+                                <a href="relatorio_proposta.php?id=<?= $id ?>" class="inline-flex items-center gap-1 text-xs text-brand-accent hover:text-white transition-colors">
+                                    <i class="ph ph-file-text"></i> Relatório
                                 </a>
                             </td>
                         </tr>
@@ -249,14 +438,57 @@ try {
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Modal Novidades (Dark Mode) -->
+    <div id="modalNovidades" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg p-4">
+            <div class="glass-panel bg-brand-surface rounded-2xl border border-brand-primary shadow-2xl overflow-hidden">
+                <div class="bg-brand-primary/50 p-4 flex justify-between items-center border-b border-white/10">
+                    <h5 class="font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-sparkle text-yellow-400"></i> Novidades da Versão <span id="novidadeVersao"></span>
+                    </h5>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="ph ph-x text-lg"></i></button>
+                </div>
+                <div class="p-6">
+                    <h4 id="novidadeTitulo" class="font-bold text-xl text-white mb-3"></h4>
+                    <div id="novidadeDescricao" class="text-slate-300 text-sm leading-relaxed"></div>
+                </div>
+                <div class="p-4 bg-black/20 text-right">
+                    <button onclick="closeModal()" class="px-6 py-2 bg-brand-accent hover:bg-brand-action text-white font-bold rounded-lg transition-colors shadow-lg">
+                        Entendi, vamos lá!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Dropdown Logic
+        function toggleDropdown(id) {
+            // Fecha outros
+            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                if (el.id !== 'dropdown-' + id) el.classList.add('hidden');
+            });
+            
+            const dropdown = document.getElementById('dropdown-' + id);
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Fecha dropdowns ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+            }
+        });
+
+        // AJAX Status Change
         function trocarStatus(id, novoStatus) {
-            let btn = document.getElementById('btn-' + id);
-            let textoAntigo = btn.innerText;
-            btn.innerText = '...';
-            btn.classList.add('disabled');
+            const btn = document.getElementById('btn-' + id);
+            const label = document.getElementById('label-' + id);
+            const originalText = label.innerText;
+            
+            label.innerText = '...';
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
             document.body.style.cursor = 'wait';
 
             let dados = new FormData();
@@ -271,20 +503,20 @@ try {
                     window.location.reload(); 
                 } else {
                     alert('Erro: ' + res.msg);
-                    btn.innerText = textoAntigo;
-                    btn.classList.remove('disabled');
+                    label.innerText = originalText;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             })
             .catch(e => {
                 console.error(e);
                 alert('Erro de conexão.');
-                btn.innerText = textoAntigo;
-                btn.classList.remove('disabled');
+                label.innerText = originalText;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             })
             .finally(() => document.body.style.cursor = 'default');
         }
 
-        // Filtro de Busca
+        // Search Filter
         const filtro = document.getElementById('filtroTabela');
         if(filtro){
             filtro.addEventListener('keyup', function() {
@@ -296,6 +528,27 @@ try {
                 });
             });
         }
+
+        // Modal Logic
+        function closeModal() {
+            document.getElementById('modalNovidades').classList.add('hidden');
+        }
+
+        // Check Novidades
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('api_check_novidades.php')
+                .then(r => r.json())
+                .then(res => {
+                    if (res.tem_novidade) {
+                        document.getElementById('novidadeVersao').innerText = res.versao;
+                        document.getElementById('novidadeTitulo').innerText = res.titulo;
+                        document.getElementById('novidadeDescricao').innerHTML = res.descricao;
+                        document.getElementById('modalNovidades').classList.remove('hidden');
+
+                        fetch('api_check_novidades.php', { method: 'POST', body: new URLSearchParams({acao: 'marcar_lida', versao: res.versao}) });
+                    }
+                });
+        });
     </script>
 </body>
 </html>

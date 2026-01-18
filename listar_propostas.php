@@ -27,6 +27,7 @@ $res = $conn->query("SELECT * FROM Propostas WHERE id_criador = $uid ORDER BY id
                         <td>R$ <?= number_format($row['valor_final_proposta'], 2, ',', '.') ?></td>
                         <td><?= $row['status'] ?></td>
                         <td>
+                            <a href="editar_proposta.php?id=<?= $row['id_proposta'] ?>" class="btn btn-sm btn-warning">Editar</a>
                             <a href="gerar_documento.php?id=<?= $row['id_proposta'] ?>" class="btn btn-sm btn-primary">Word</a>
                             <a href="atualizar_status.php?id=<?= $row['id_proposta'] ?>&status=Aprovada" class="btn btn-sm btn-success">Aprovar</a>
                             <a href="excluir_proposta.php?id=<?= $row['id_proposta'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Excluir?')">X</a>

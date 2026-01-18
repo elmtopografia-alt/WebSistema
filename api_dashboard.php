@@ -53,20 +53,23 @@ if ($acao == 'detalhes') {
             $val = number_format($row['valor_final_proposta'], 2, ',', '.');
             
             echo "<tr>
+                    <td>{$row['numero_proposta']}</td>
+                    <td>{$row['nome_cliente_salvo']}</td>
+                    <td class='{$corValor}'>R$ {$val}</td>
+                    <td>{$row['data_fmt']}</td>
+                    <td>{$row['status']}</td>
                     <td>
-                        <strong class='text-primary'>#{$row['numero_proposta']}</strong><br>
-                        <span class='text-dark fw-bold'>{$row['nome_cliente_salvo']}</span>
-                    </td>
-                    <td class='align-middle'>{$row['data_fmt']}</td>
-                    <td class='align-middle text-end fw-bold $corValor'>R$ {$val}</td>
-                    <td class='align-middle text-end'>
-                        <a href='editar_proposta.php?id={$row['id_proposta']}' class='btn btn-sm btn-outline-secondary' title='Ver Detalhes'><i class='fas fa-eye'></i></a>
+                        <a href='editar_proposta.php?id={$row['id_proposta']}' class='text-primary' target='_blank'>
+                            <i class='bx bx-edit'></i> Abrir
+                        </a>
                     </td>
                   </tr>";
         }
     } else {
-        echo "<tr><td colspan='4' class='text-center text-muted py-3'>Nenhuma proposta encontrada neste período.</td></tr>";
+        echo "<tr><td colspan='6' class='text-center py-3'>Nenhum registro encontrado nesta categoria.</td></tr>";
     }
+    
+    // Fecha conexão e encerra
     exit;
 }
 // ---------------------------------------------------------

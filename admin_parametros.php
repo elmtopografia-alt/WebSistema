@@ -1,13 +1,11 @@
 <?php
 // Nome do Arquivo: admin_parametros.php
 // Função: Painel de Cadastros Auxiliares (Completo).
-// Correção: Botões de Editar visíveis e código formatado.
 
 session_start();
 require_once 'config.php';
 require_once 'db.php';
 
-// 1. Segurança
 // 1. Segurança
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
@@ -20,20 +18,16 @@ if ($_SESSION['ambiente'] === 'demo') {
     exit;
 }
 
-// Se for Produção, permite. Se for Admin, permite.
-// O código original bloqueava tudo que não fosse admin.
-// Se for Produção, permite. Se for Admin, permite.
-// O código original bloqueava tudo que não fosse admin.
-// NOVA LÓGICA: Se não for admin, mostra tela de solicitação.
 $is_admin = ($_SESSION['perfil'] === 'admin');
 
 function renderRestrictedBanner($item) {
     $msg = urlencode("Olá, preciso adicionar $item no sistema (SGT).");
-    echo '<div class="text-center p-3 bg-white rounded border border-dashed">';
-    echo '<i class="bi bi-shield-lock fs-1 text-secondary"></i>';
-    echo '<p class="small text-muted mt-2 fw-bold">Acesso Restrito</p>';
-    echo '<p class="small text-muted mb-3">Para adicionar novos itens, solicite ao administrador.</p>';
-    echo '<a href="https://api.whatsapp.com/send?phone=5531971875928&text='.$msg.'" target="_blank" class="btn btn-success btn-sm w-100 shadow-sm"><i class="bi bi-whatsapp me-1"></i> Solicitar via WhatsApp</a>';
+    echo '<div class="glass-panel rounded-xl p-6 text-center border border-dashed border-slate-600">';
+    echo '<i class="ph ph-lock-key text-4xl text-slate-500 mb-2 block"></i>';
+    echo '<p class="text-sm font-bold text-slate-300 mb-1">Acesso Restrito</p>';
+    echo '<p class="text-xs text-slate-500 mb-4">Para adicionar novos itens, solicite ao administrador.</p>';
+    echo '<a href="https://api.whatsapp.com/send?phone=5531971875928&text='.$msg.'" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20">';
+    echo '<i class="ph ph-whatsapp-logo text-lg"></i> Solicitar via WhatsApp</a>';
     echo '</div>';
 }
 
@@ -191,283 +185,437 @@ $arquivos_demo = listarArquivos('modelos_demo');
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parâmetros | Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Exo 2', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#001e3c',
+                            primary: '#0a2e5c',
+                            surface: '#132f4c',
+                            accent: '#FF7518',
+                            action: '#EA580C',
+                            glow: '#4fc3f7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { background-color: #f8f9fa; }
-        .nav-tabs .nav-link { color: #495057; font-weight: 600; }
-        .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; }
-        .card-table { max-height: 600px; overflow-y: auto; }
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(10, 46, 92, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .glass-modal {
+            background: rgba(10, 30, 60, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Background */
+        body {
+            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            min-height: 100vh;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #001224; }
+        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF7518; }
     </style>
 </head>
-<body>
+<body class="text-slate-200 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark">
 
-    <nav class="navbar navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="painel.php"><i class="bi bi-arrow-left me-2"></i>Voltar ao Painel</a>
-            <span class="navbar-text text-white">Cadastros Auxiliares</span>
-        </div>
-    </nav>
+    <!-- Navbar -->
+    <nav class="w-full glass-panel sticky top-0 z-50 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-4">
+                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-10">
+                </div>
 
-    <div class="container pb-5">
-        <?php if($msg): ?>
-            <div class="alert alert-<?php echo $msg_tipo; ?> alert-dismissible fade show">
-                <?php echo $msg; ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white">
-                <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
-                    <li class="nav-item"><button class="nav-link active" id="func-tab" data-bs-toggle="tab" data-bs-target="#func">Funções</button></li>
-                    <li class="nav-item"><button class="nav-link" id="precos-tab" data-bs-toggle="tab" data-bs-target="#precos">Preços Base</button></li>
-                    <li class="nav-item"><button class="nav-link" id="equip-tab" data-bs-toggle="tab" data-bs-target="#equip">Equipamentos</button></li>
-                    <li class="nav-item"><button class="nav-link" id="serv-tab" data-bs-toggle="tab" data-bs-target="#serv">Serviços</button></li>
-                    <li class="nav-item"><button class="nav-link text-primary" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs">Modelos Word</button></li>
-                    <?php if($_SESSION['perfil'] === 'admin'): ?>
-                    <li class="nav-item"><button class="nav-link text-danger" id="sys-tab" data-bs-toggle="tab" data-bs-target="#sys">Sistema</button></li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content">
-                    
-                    <!-- 1. FUNÇÕES -->
-                    <div class="tab-pane fade show active" id="func">
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <?php if($is_admin): ?>
-                                <form method="POST">
-                                    <input type="hidden" name="acao" value="add_funcao">
-                                    <div class="mb-3"><label>Nome</label><input type="text" name="nome" class="form-control" required></div>
-                                    <div class="mb-3"><label>Salário</label><input type="number" step="0.01" name="salario" class="form-control" required></div>
-                                    <button class="btn btn-primary w-100">Salvar</button>
-                                </form>
-                                <?php else: renderRestrictedBanner('uma nova Função'); endif; ?>
-                            </div>
-                            <div class="col-md-8 card-table">
-                                <table class="table table-striped align-middle">
-                                    <thead><tr><th>Cargo</th><th>Salário</th><th class="text-end">Ações</th></tr></thead>
-                                    <tbody>
-                                        <?php foreach($funcoes as $f): ?>
-                                        <tr>
-                                            <td><?php echo $f['nome']; ?></td>
-                                            <td>R$ <?php echo number_format($f['salario_base_default'], 2, ',', '.'); ?></td>
-                                            <td class="text-end">
-                                                <?php if($is_admin): ?>
-                                                <button class="btn btn-sm btn-outline-warning me-1 btn-edit-funcao" 
-                                                    data-id="<?php echo $f['id_funcao']; ?>" 
-                                                    data-nome="<?php echo $f['nome']; ?>" 
-                                                    data-salario="<?php echo $f['salario_base_default']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#modalEditFuncao"><i class="bi bi-pencil"></i></button>
-                                                
-                                                <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
-                                                    <input type="hidden" name="acao" value="del_funcao">
-                                                    <input type="hidden" name="id" value="<?php echo $f['id_funcao']; ?>">
-                                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. PREÇOS BASE -->
-                    <div class="tab-pane fade" id="precos">
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <?php if($is_admin): ?>
-                                <form method="POST">
-                                    <input type="hidden" name="acao" value="add_tipo_locacao">
-                                    <div class="mb-3"><label>Categoria</label><input type="text" name="nome" class="form-control" required></div>
-                                    <div class="mb-3"><label>Valor Padrão</label><input type="number" step="0.01" name="valor" class="form-control" required></div>
-                                    <button class="btn btn-primary w-100">Salvar</button>
-                                </form>
-                                <?php else: renderRestrictedBanner('uma nova Categoria'); endif; ?>
-                            </div>
-                            <div class="col-md-8 card-table">
-                                <table class="table table-striped align-middle">
-                                    <thead><tr><th>Categoria</th><th>Valor</th><th class="text-end">Ações</th></tr></thead>
-                                    <tbody>
-                                        <?php foreach($tipos_loc_array as $t): ?>
-                                        <tr>
-                                            <td><?php echo $t['nome']; ?></td>
-                                            <td>R$ <?php echo number_format($t['valor_mensal_default'], 2, ',', '.'); ?></td>
-                                            <td class="text-end">
-                                                <?php if($is_admin): ?>
-                                                <button class="btn btn-sm btn-outline-warning me-1 btn-edit-tipo" 
-                                                    data-id="<?php echo $t['id_locacao']; ?>" 
-                                                    data-nome="<?php echo $t['nome']; ?>" 
-                                                    data-valor="<?php echo $t['valor_mensal_default']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#modalEditTipoLocacao"><i class="bi bi-pencil"></i></button>
-                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 3. EQUIPAMENTOS -->
-                    <div class="tab-pane fade" id="equip">
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <?php if($is_admin): ?>
-                                <form method="POST">
-                                    <input type="hidden" name="acao" value="add_marca">
-                                    <div class="mb-3">
-                                        <label>Categoria</label>
-                                        <select name="id_locacao" class="form-select" required>
-                                            <?php foreach($tipos_loc_array as $t): ?><option value="<?php echo $t['id_locacao']; ?>"><?php echo $t['nome']; ?></option><?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3"><label>Modelo</label><input type="text" name="nome" class="form-control" required></div>
-                                    <button class="btn btn-primary w-100">Salvar</button>
-                                </form>
-                                <?php else: renderRestrictedBanner('um novo Equipamento'); endif; ?>
-                            </div>
-                            <div class="col-md-8 card-table">
-                                <table class="table table-striped align-middle">
-                                    <thead><tr><th>Categoria</th><th>Modelo</th><th class="text-end">Ações</th></tr></thead>
-                                    <tbody>
-                                        <?php foreach($marcas as $m): ?>
-                                        <tr>
-                                            <td><span class="badge bg-secondary"><?php echo $m['tipo']; ?></span></td>
-                                            <td><?php echo $m['nome_marca']; ?></td>
-                                            <td class="text-end">
-                                                <?php if($is_admin): ?>
-                                                <button class="btn btn-sm btn-outline-warning me-1 btn-edit-marca" 
-                                                    data-id="<?php echo $m['id_marca']; ?>" 
-                                                    data-nome="<?php echo $m['nome_marca']; ?>" 
-                                                    data-locacao="<?php echo $m['id_locacao']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#modalEditMarca"><i class="bi bi-pencil"></i></button>
-                                                
-                                                <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
-                                                    <input type="hidden" name="acao" value="del_marca">
-                                                    <input type="hidden" name="id" value="<?php echo $m['id_marca']; ?>">
-                                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 4. SERVIÇOS -->
-                    <div class="tab-pane fade" id="serv">
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <?php if($is_admin): ?>
-                                <form method="POST">
-                                    <input type="hidden" name="acao" value="add_servico">
-                                    <div class="mb-3"><label>Nome</label><input type="text" name="nome" class="form-control" required></div>
-                                    <div class="mb-3"><label>Descrição</label><textarea name="descricao" class="form-control" rows="3"></textarea></div>
-                                    <button class="btn btn-primary w-100">Salvar</button>
-                                </form>
-                                <?php else: renderRestrictedBanner('um novo Serviço'); endif; ?>
-                            </div>
-                            <div class="col-md-8 card-table">
-                                <table class="table table-striped align-middle">
-                                    <thead><tr><th>Serviço</th><th>Descrição</th><th class="text-end">Ações</th></tr></thead>
-                                    <tbody>
-                                        <?php foreach($servicos as $s): ?>
-                                        <tr>
-                                            <td class="fw-bold"><?php echo $s['nome']; ?></td>
-                                            <td class="small text-muted"><?php echo substr($s['descricao'], 0, 40); ?>...</td>
-                                            <td class="text-end">
-                                                <?php if($is_admin): ?>
-                                                <button class="btn btn-sm btn-outline-warning me-1 btn-edit-servico" 
-                                                    data-id="<?php echo $s['id_servico']; ?>" 
-                                                    data-nome="<?php echo $s['nome']; ?>" 
-                                                    data-descricao="<?php echo $s['descricao']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#modalEditServico"><i class="bi bi-pencil"></i></button>
-                                                
-                                                <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
-                                                    <input type="hidden" name="acao" value="del_servico">
-                                                    <input type="hidden" name="id" value="<?php echo $s['id_servico']; ?>">
-                                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                                <?php else: echo '<span class="badge bg-light text-secondary"><i class="bi bi-lock"></i></span>'; endif; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 5. ARQUIVOS E SISTEMA -->
-                    <div class="tab-pane fade" id="docs">
-                        <!-- Conteúdo de Docs mantido igual (já funciona) -->
-                        <div class="row">
-                            <div class="col-md-4 border-end">
-                                <h6 class="fw-bold mb-3">Upload Modelo</h6>
-                                <?php if($is_admin): ?>
-                                <form method="POST" enctype="multipart/form-data"><input type="hidden" name="acao" value="upload_modelo"><div class="mb-2"><label>Destino</label><select name="ambiente_destino" class="form-select"><option value="prod">Produção</option><option value="demo">Demo</option></select></div><div class="mb-3"><input type="file" name="arquivo_docx" class="form-control" accept=".docx" required></div><button class="btn btn-success w-100">Enviar</button></form>
-                                <?php else: renderRestrictedBanner('um novo Modelo'); endif; ?>
-                            </div>
-                            <div class="col-md-8">
-                                <h6 class="text-success">Modelos Produção</h6>
-                                <ul class="list-group small mb-3"><?php foreach($arquivos_prod as $a): ?><li class="list-group-item d-flex justify-content-between"><span><?php echo $a; ?></span><?php if($is_admin): ?><form method="POST" onsubmit="return confirm('Apagar?');" style="display:inline"><input type="hidden" name="acao" value="del_modelo"><input type="hidden" name="ambiente_origem" value="prod"><input type="hidden" name="nome_arquivo" value="<?php echo $a; ?>"><button class="btn btn-sm text-danger p-0"><i class="bi bi-trash"></i></button></form><?php endif; ?></li><?php endforeach; ?></ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <?php if($_SESSION['perfil'] === 'admin'): ?>
-                    <div class="tab-pane fade" id="sys">
-                        <div class="alert alert-danger text-center mt-3">
-                            <h4><i class="bi bi-exclamation-triangle-fill"></i> ZONA DE PERIGO</h4>
-                            <p>Esta ação apagará todos os dados da DEMO. Use com cuidado.</p>
-                            <form method="POST" onsubmit="return confirm('Confirmar limpeza TOTAL da Demo?');">
-                                <input type="hidden" name="acao" value="reset_demo">
-                                <button class="btn btn-danger fw-bold">LIMPAR AMBIENTE DEMO</button>
-                            </form>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
+                <!-- Menu Desktop -->
+                <div class="flex items-center gap-4">
+                    <a href="painel.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-arrow-left"></i> Voltar ao Painel
+                    </a>
+                    <span class="px-3 py-1 rounded-full bg-brand-accent/20 text-brand-accent text-xs font-bold border border-brand-accent/30 uppercase">
+                        Cadastros Auxiliares
+                    </span>
                 </div>
             </div>
         </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <?php if($msg): ?>
+            <div class="glass-panel rounded-xl p-4 mb-6 border-l-4 <?php echo $msg_tipo == 'success' ? 'border-green-500' : 'border-red-500'; ?> flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="ph <?php echo $msg_tipo == 'success' ? 'ph-check-circle text-green-400' : 'ph-warning-circle text-red-400'; ?> text-xl"></i>
+                    <span class="text-white font-medium"><?php echo $msg; ?></span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white"><i class="ph ph-x"></i></button>
+            </div>
+        <?php endif; ?>
+
+        <div class="glass-panel rounded-2xl overflow-hidden min-h-[600px] flex flex-col">
+            <!-- Tabs Header -->
+            <div class="border-b border-white/10 bg-black/20 px-6 pt-4">
+                <div class="flex gap-6 overflow-x-auto">
+                    <button onclick="openTab('func')" class="tab-btn active pb-4 text-sm font-bold text-brand-accent border-b-2 border-brand-accent transition-colors">Funções</button>
+                    <button onclick="openTab('precos')" class="tab-btn pb-4 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-colors">Preços Base</button>
+                    <button onclick="openTab('equip')" class="tab-btn pb-4 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-colors">Equipamentos</button>
+                    <button onclick="openTab('serv')" class="tab-btn pb-4 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-colors">Serviços</button>
+                    <button onclick="openTab('docs')" class="tab-btn pb-4 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-colors">Modelos Word</button>
+                    <?php if($_SESSION['perfil'] === 'admin'): ?>
+                    <button onclick="openTab('sys')" class="tab-btn pb-4 text-sm font-medium text-red-400 hover:text-red-300 border-b-2 border-transparent transition-colors">Sistema</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Tabs Content -->
+            <div class="p-6 flex-1 bg-brand-surface/30">
+                
+                <!-- 1. FUNÇÕES -->
+                <div id="func" class="tab-content block">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i class="ph ph-plus-circle text-brand-accent"></i> Nova Função</h4>
+                            <?php if($is_admin): ?>
+                            <form method="POST" class="space-y-4">
+                                <input type="hidden" name="acao" value="add_funcao">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Nome do Cargo</label>
+                                    <input type="text" name="nome" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Salário Base (R$)</label>
+                                    <input type="number" step="0.01" name="salario" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required>
+                                </div>
+                                <button class="w-full py-2 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-lg transition-colors">Salvar</button>
+                            </form>
+                            <?php else: renderRestrictedBanner('uma nova Função'); endif; ?>
+                        </div>
+                        <div class="md:col-span-2 overflow-y-auto max-h-[500px] pr-2">
+                            <table class="w-full text-left text-sm">
+                                <thead class="text-xs text-slate-500 uppercase border-b border-white/10"><tr><th class="py-2">Cargo</th><th class="py-2">Salário</th><th class="py-2 text-right">Ações</th></tr></thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <?php foreach($funcoes as $f): ?>
+                                    <tr class="group hover:bg-white/5 transition-colors">
+                                        <td class="py-3 text-white font-medium"><?php echo $f['nome']; ?></td>
+                                        <td class="py-3 text-slate-300">R$ <?php echo number_format($f['salario_base_default'], 2, ',', '.'); ?></td>
+                                        <td class="py-3 text-right">
+                                            <?php if($is_admin): ?>
+                                            <button onclick="editFuncao(<?php echo $f['id_funcao']; ?>, '<?php echo $f['nome']; ?>', '<?php echo $f['salario_base_default']; ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
+                                                <input type="hidden" name="acao" value="del_funcao"><input type="hidden" name="id" value="<?php echo $f['id_funcao']; ?>">
+                                                <button class="text-slate-400 hover:text-red-400"><i class="ph ph-trash"></i></button>
+                                            </form>
+                                            <?php else: echo '<i class="ph ph-lock text-slate-600"></i>'; endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PREÇOS BASE -->
+                <div id="precos" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i class="ph ph-plus-circle text-brand-accent"></i> Nova Categoria</h4>
+                            <?php if($is_admin): ?>
+                            <form method="POST" class="space-y-4">
+                                <input type="hidden" name="acao" value="add_tipo_locacao">
+                                <div><label class="block text-xs text-slate-400 mb-1">Categoria</label><input type="text" name="nome" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Valor Padrão (R$)</label><input type="number" step="0.01" name="valor" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required></div>
+                                <button class="w-full py-2 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-lg transition-colors">Salvar</button>
+                            </form>
+                            <?php else: renderRestrictedBanner('uma nova Categoria'); endif; ?>
+                        </div>
+                        <div class="md:col-span-2 overflow-y-auto max-h-[500px] pr-2">
+                            <table class="w-full text-left text-sm">
+                                <thead class="text-xs text-slate-500 uppercase border-b border-white/10"><tr><th class="py-2">Categoria</th><th class="py-2">Valor</th><th class="py-2 text-right">Ações</th></tr></thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <?php foreach($tipos_loc_array as $t): ?>
+                                    <tr class="group hover:bg-white/5 transition-colors">
+                                        <td class="py-3 text-white font-medium"><?php echo $t['nome']; ?></td>
+                                        <td class="py-3 text-slate-300">R$ <?php echo number_format($t['valor_mensal_default'], 2, ',', '.'); ?></td>
+                                        <td class="py-3 text-right">
+                                            <?php if($is_admin): ?>
+                                            <button onclick="editTipo(<?php echo $t['id_locacao']; ?>, '<?php echo $t['nome']; ?>', '<?php echo $t['valor_mensal_default']; ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
+                                            <?php else: echo '<i class="ph ph-lock text-slate-600"></i>'; endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. EQUIPAMENTOS -->
+                <div id="equip" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i class="ph ph-plus-circle text-brand-accent"></i> Novo Equipamento</h4>
+                            <?php if($is_admin): ?>
+                            <form method="POST" class="space-y-4">
+                                <input type="hidden" name="acao" value="add_marca">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Categoria</label>
+                                    <select name="id_locacao" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none">
+                                        <?php foreach($tipos_loc_array as $t): ?><option value="<?php echo $t['id_locacao']; ?>" class="text-black"><?php echo $t['nome']; ?></option><?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Modelo</label><input type="text" name="nome" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required></div>
+                                <button class="w-full py-2 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-lg transition-colors">Salvar</button>
+                            </form>
+                            <?php else: renderRestrictedBanner('um novo Equipamento'); endif; ?>
+                        </div>
+                        <div class="md:col-span-2 overflow-y-auto max-h-[500px] pr-2">
+                            <table class="w-full text-left text-sm">
+                                <thead class="text-xs text-slate-500 uppercase border-b border-white/10"><tr><th class="py-2">Categoria</th><th class="py-2">Modelo</th><th class="py-2 text-right">Ações</th></tr></thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <?php foreach($marcas as $m): ?>
+                                    <tr class="group hover:bg-white/5 transition-colors">
+                                        <td class="py-3"><span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 text-xs"><?php echo $m['tipo']; ?></span></td>
+                                        <td class="py-3 text-white font-medium"><?php echo $m['nome_marca']; ?></td>
+                                        <td class="py-3 text-right">
+                                            <?php if($is_admin): ?>
+                                            <button onclick="editMarca(<?php echo $m['id_marca']; ?>, '<?php echo $m['nome_marca']; ?>', '<?php echo $m['id_locacao']; ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
+                                                <input type="hidden" name="acao" value="del_marca"><input type="hidden" name="id" value="<?php echo $m['id_marca']; ?>">
+                                                <button class="text-slate-400 hover:text-red-400"><i class="ph ph-trash"></i></button>
+                                            </form>
+                                            <?php else: echo '<i class="ph ph-lock text-slate-600"></i>'; endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SERVIÇOS -->
+                <div id="serv" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i class="ph ph-plus-circle text-brand-accent"></i> Novo Serviço</h4>
+                            <?php if($is_admin): ?>
+                            <form method="POST" class="space-y-4">
+                                <input type="hidden" name="acao" value="add_servico">
+                                <div><label class="block text-xs text-slate-400 mb-1">Nome</label><input type="text" name="nome" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" required></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Descrição</label><textarea name="descricao" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none" rows="3"></textarea></div>
+                                <button class="w-full py-2 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-lg transition-colors">Salvar</button>
+                            </form>
+                            <?php else: renderRestrictedBanner('um novo Serviço'); endif; ?>
+                        </div>
+                        <div class="md:col-span-2 overflow-y-auto max-h-[500px] pr-2">
+                            <table class="w-full text-left text-sm">
+                                <thead class="text-xs text-slate-500 uppercase border-b border-white/10"><tr><th class="py-2">Serviço</th><th class="py-2">Descrição</th><th class="py-2 text-right">Ações</th></tr></thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <?php foreach($servicos as $s): ?>
+                                    <tr class="group hover:bg-white/5 transition-colors">
+                                        <td class="py-3 text-white font-medium"><?php echo $s['nome']; ?></td>
+                                        <td class="py-3 text-slate-400 text-xs"><?php echo substr($s['descricao'], 0, 40); ?>...</td>
+                                        <td class="py-3 text-right">
+                                            <?php if($is_admin): ?>
+                                            <button onclick="editServico(<?php echo $s['id_servico']; ?>, '<?php echo $s['nome']; ?>', '<?php echo $s['descricao']; ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
+                                                <input type="hidden" name="acao" value="del_servico"><input type="hidden" name="id" value="<?php echo $s['id_servico']; ?>">
+                                                <button class="text-slate-400 hover:text-red-400"><i class="ph ph-trash"></i></button>
+                                            </form>
+                                            <?php else: echo '<i class="ph ph-lock text-slate-600"></i>'; endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. MODELOS WORD -->
+                <div id="docs" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand-accent"></i> Upload Modelo</h4>
+                            <?php if($is_admin): ?>
+                            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                                <input type="hidden" name="acao" value="upload_modelo">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Destino</label>
+                                    <select name="ambiente_destino" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none">
+                                        <option value="prod" class="text-black">Produção</option>
+                                        <option value="demo" class="text-black">Demo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Arquivo .docx</label>
+                                    <input type="file" name="arquivo_docx" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all" accept=".docx" required>
+                                </div>
+                                <button class="w-full py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors">Enviar</button>
+                            </form>
+                            <?php else: renderRestrictedBanner('um novo Modelo'); endif; ?>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="text-green-400 font-bold mb-3 text-sm uppercase tracking-wider">Modelos em Produção</h4>
+                            <ul class="space-y-2 mb-6">
+                                <?php foreach($arquivos_prod as $a): ?>
+                                <li class="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5">
+                                    <span class="text-slate-300 text-sm"><i class="ph ph-file-doc text-blue-400 mr-2"></i> <?php echo $a; ?></span>
+                                    <?php if($is_admin): ?>
+                                    <form method="POST" onsubmit="return confirm('Apagar?');">
+                                        <input type="hidden" name="acao" value="del_modelo"><input type="hidden" name="ambiente_origem" value="prod"><input type="hidden" name="nome_arquivo" value="<?php echo $a; ?>">
+                                        <button class="text-slate-500 hover:text-red-400"><i class="ph ph-trash"></i></button>
+                                    </form>
+                                    <?php endif; ?>
+                                </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. SISTEMA -->
+                <?php if($_SESSION['perfil'] === 'admin'): ?>
+                <div id="sys" class="tab-content hidden">
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center p-8 border border-red-500/30 bg-red-500/10 rounded-2xl max-w-md">
+                            <i class="ph ph-warning-octagon text-5xl text-red-500 mb-4"></i>
+                            <h4 class="text-xl font-bold text-red-400 mb-2">ZONA DE PERIGO</h4>
+                            <p class="text-slate-300 mb-6 text-sm">Esta ação apagará <strong>TODOS</strong> os dados do ambiente de demonstração. Isso não pode ser desfeito.</p>
+                            <form method="POST" onsubmit="return confirm('Confirmar limpeza TOTAL da Demo?');">
+                                <input type="hidden" name="acao" value="reset_demo">
+                                <button class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-red-900/20">
+                                    LIMPAR AMBIENTE DEMO
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+            </div>
+        </div>
     </div>
-    
-    <!-- MODAIS DE EDIÇÃO -->
-    <div class="modal fade" id="modalEditFuncao" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST"><div class="modal-header"><h5 class="modal-title">Editar Função</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="acao" value="edit_funcao"><input type="hidden" name="id" id="edit_func_id"><div class="mb-3"><label>Nome</label><input type="text" name="nome" id="edit_func_nome" class="form-control" required></div><div class="mb-3"><label>Salário</label><input type="number" step="0.01" name="salario" id="edit_func_salario" class="form-control" required></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalEditTipoLocacao" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST"><div class="modal-header"><h5 class="modal-title">Editar Preço</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="acao" value="edit_tipo_locacao"><input type="hidden" name="id" id="edit_tipo_id"><div class="mb-3"><label>Nome</label><input type="text" name="nome" id="edit_tipo_nome" class="form-control" required></div><div class="mb-3"><label>Valor</label><input type="number" step="0.01" name="valor" id="edit_tipo_valor" class="form-control" required></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar</button></div></form></div></div></div>
+    <!-- MODAL EDIT GENÉRICO (Preenchido via JS) -->
+    <div id="modalEdit" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 glass-modal rounded-2xl shadow-2xl border border-white/20">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-xl font-bold text-white">Editar</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <form method="POST" id="modalForm" class="space-y-4">
+                <input type="hidden" name="acao" id="modalAcao">
+                <input type="hidden" name="id" id="modalId">
+                <div id="modalFields"></div>
+                <button type="submit" class="w-full py-3 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-xl transition-colors mt-4">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
 
-    <div class="modal fade" id="modalEditMarca" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST"><div class="modal-header"><h5 class="modal-title">Editar Equipamento</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="acao" value="edit_marca"><input type="hidden" name="id" id="edit_marca_id"><div class="mb-3"><label>Categoria</label><select name="id_locacao" id="edit_marca_locacao" class="form-select" required><?php foreach($tipos_loc_array as $t): ?><option value="<?php echo $t['id_locacao']; ?>"><?php echo $t['nome']; ?></option><?php endforeach; ?></select></div><div class="mb-3"><label>Modelo</label><input type="text" name="nome" id="edit_marca_nome" class="form-control" required></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar</button></div></form></div></div></div>
-
-    <div class="modal fade" id="modalEditServico" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST"><div class="modal-header"><h5 class="modal-title">Editar Serviço</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="acao" value="edit_servico"><input type="hidden" name="id" id="edit_serv_id"><div class="mb-3"><label>Nome</label><input type="text" name="nome" id="edit_serv_nome" class="form-control" required></div><div class="mb-3"><label>Descrição</label><textarea name="descricao" id="edit_serv_desc" class="form-control" rows="4"></textarea></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar</button></div></form></div></div></div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function(){
-            // Scripts de ativação de abas e modais
-            var triggerTabList = [].slice.call(document.querySelectorAll('#myTab button'))
-            triggerTabList.forEach(function (triggerEl) {
-                new bootstrap.Tab(triggerEl)
-            })
+        // Tabs Logic
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'text-brand-accent', 'border-brand-accent');
+                el.classList.add('text-slate-400', 'border-transparent');
+            });
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            const btn = document.querySelector(`button[onclick="openTab('${tabId}')"]`);
+            if(btn) {
+                btn.classList.add('active', 'text-brand-accent', 'border-brand-accent');
+                btn.classList.remove('text-slate-400', 'border-transparent');
+            }
+        }
 
-            $('.btn-edit-funcao').click(function(){ $('#edit_func_id').val($(this).data('id')); $('#edit_func_nome').val($(this).data('nome')); $('#edit_func_salario').val($(this).data('salario')); });
-            $('.btn-edit-tipo').click(function(){ $('#edit_tipo_id').val($(this).data('id')); $('#edit_tipo_nome').val($(this).data('nome')); $('#edit_tipo_valor').val($(this).data('valor')); });
-            $('.btn-edit-marca').click(function(){ $('#edit_marca_id').val($(this).data('id')); $('#edit_marca_nome').val($(this).data('nome')); $('#edit_marca_locacao').val($(this).data('locacao')); });
-            $('.btn-edit-servico').click(function(){ $('#edit_serv_id').val($(this).data('id')); $('#edit_serv_nome').val($(this).data('nome')); $('#edit_serv_desc').val($(this).data('descricao')); });
-        });
+        // Modal Logic
+        const modal = document.getElementById('modalEdit');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalAcao = document.getElementById('modalAcao');
+        const modalId = document.getElementById('modalId');
+        const modalFields = document.getElementById('modalFields');
+
+        function openModal(title, acao, id, fieldsHtml) {
+            modalTitle.innerText = title;
+            modalAcao.value = acao;
+            modalId.value = id;
+            modalFields.innerHTML = fieldsHtml;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Edit Functions
+        function editFuncao(id, nome, salario) {
+            openModal('Editar Função', 'edit_funcao', id, `
+                <div><label class="block text-xs text-slate-400 mb-1">Nome</label><input type="text" name="nome" value="${nome}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Salário</label><input type="number" step="0.01" name="salario" value="${salario}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+            `);
+        }
+
+        function editTipo(id, nome, valor) {
+            openModal('Editar Preço', 'edit_tipo_locacao', id, `
+                <div><label class="block text-xs text-slate-400 mb-1">Categoria</label><input type="text" name="nome" value="${nome}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Valor</label><input type="number" step="0.01" name="valor" value="${valor}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+            `);
+        }
+
+        function editMarca(id, nome, idLocacao) {
+            // Note: Select options need to be passed or regenerated. For simplicity, we'll just use text input for name here, 
+            // but ideally we should pass the categories array to JS.
+            // Let's grab the select from the add form to clone options
+            const options = document.querySelector('select[name="id_locacao"]').innerHTML;
+            openModal('Editar Equipamento', 'edit_marca', id, `
+                <div><label class="block text-xs text-slate-400 mb-1">Categoria</label><select name="id_locacao" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent">${options}</select></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Modelo</label><input type="text" name="nome" value="${nome}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+            `);
+            // Set selected value
+            setTimeout(() => document.querySelector('#modalFields select').value = idLocacao, 0);
+        }
+
+        function editServico(id, nome, descricao) {
+            openModal('Editar Serviço', 'edit_servico', id, `
+                <div><label class="block text-xs text-slate-400 mb-1">Nome</label><input type="text" name="nome" value="${nome}" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Descrição</label><textarea name="descricao" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-brand-accent" rows="3">${descricao}</textarea></div>
+            `);
+        }
     </script>
 </body>
 </html>

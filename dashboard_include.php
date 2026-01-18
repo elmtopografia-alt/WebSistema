@@ -55,77 +55,82 @@ if ($res_pizza) {
 }
 ?>
 
-<div class="row">
-    <div class="col-lg-8 mb-4">
-        <div class="card shadow h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="m-0 text-primary fw-bold"><i class="fas fa-chart-line me-2"></i>Evolução Financeira</h5>
-                <span class="badge bg-light text-dark border">Últimos 6 meses</span>
-            </div>
-            <div class="card-body">
-                <div style="height: 300px;">
-                    <canvas id="chartLinha"></canvas>
-                </div>
-            </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    
+    <!-- Gráfico de Linha (2/3) -->
+    <div class="md:col-span-2 glass-panel rounded-2xl p-6 flex flex-col h-full">
+        <div class="flex justify-between items-center mb-6">
+            <h5 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                <i class="ph ph-chart-line-up text-brand-accent"></i> Evolução Financeira
+            </h5>
+            <span class="px-3 py-1 rounded-full bg-white/5 text-slate-400 text-xs font-bold border border-white/10">
+                Últimos 6 meses
+            </span>
+        </div>
+        <div class="flex-1 relative min-h-[300px]">
+            <canvas id="chartLinha"></canvas>
         </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="card shadow h-100">
-            <div class="card-header bg-white">
-                <h5 class="m-0 text-primary fw-bold"><i class="fas fa-chart-pie me-2"></i>Status das Propostas</h5>
-            </div>
-            <div class="card-body">
-                <div style="height: 250px; position: relative;">
-                    <canvas id="chartPizza"></canvas>
-                </div>
-                <div class="text-center mt-3 text-muted small">
-                    Quantidade total de propostas por status
-                </div>
-            </div>
+    <!-- Gráfico de Pizza (1/3) -->
+    <div class="glass-panel rounded-2xl p-6 flex flex-col h-full">
+        <div class="mb-6">
+            <h5 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                <i class="ph ph-chart-pie-slice text-brand-accent"></i> Status Geral
+            </h5>
+        </div>
+        <div class="flex-1 relative min-h-[250px] flex items-center justify-center">
+            <canvas id="chartPizza"></canvas>
+        </div>
+        <div class="text-center mt-4 text-xs text-slate-500">
+            Quantidade total de propostas por status
         </div>
     </div>
 
-    <div class="col-lg-12">
-        <div class="card shadow border-top border-primary border-3">
-            <div class="card-header bg-white py-3">
-                <h5 id="tituloTabela" class="m-0 text-secondary"><i class="fas fa-list-ul me-2"></i> Detalhes da Seleção</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Proposta / Cliente</th>
-                                <th>Data Criação</th>
-                                <th class="text-end">Valor Final</th>
-                                <th class="text-end">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpoTabela">
-                            <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
-                                    <i class="fas fa-hand-pointer fa-2x mb-3"></i><br>
-                                    Clique em uma bolinha no <b>Gráfico de Evolução</b> para ver as propostas aqui.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+</div>
+
+<!-- Detalhes da Seleção -->
+<div class="glass-panel rounded-2xl overflow-hidden mb-8">
+    <div class="p-4 border-b border-white/5 bg-white/5">
+        <h5 id="tituloTabela" class="font-display text-sm font-bold text-slate-300 flex items-center gap-2">
+            <i class="ph ph-list text-brand-accent"></i> Detalhes da Seleção
+        </h5>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-black/20 text-xs text-slate-500 uppercase">
+                <tr>
+                    <th class="px-6 py-3 font-semibold">Proposta / Cliente</th>
+                    <th class="px-6 py-3 font-semibold">Data Criação</th>
+                    <th class="px-6 py-3 font-semibold text-right">Valor Final</th>
+                    <th class="px-6 py-3 font-semibold text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela" class="divide-y divide-white/5">
+                <tr>
+                    <td colspan="4" class="text-center py-8 text-slate-500">
+                        <i class="ph ph-hand-tap text-3xl mb-2 block opacity-50"></i>
+                        Clique em uma bolinha no <b>Gráfico de Evolução</b> para ver as propostas aqui.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // --- CORES OFICIAIS SGT ---
+    // --- CORES OFICIAIS SGT (Adaptadas para Dark Mode) ---
     const CORES = {
-        'Em elaboração': '#ffc107', // Amarelo
-        'Enviada':       '#0d6efd', // Azul
-        'Aprovada':      '#198754', // Verde
-        'Cancelada':     '#dc3545'  // Vermelho
+        'Em elaboração': '#fbbf24', // Amber 400
+        'Enviada':       '#3b82f6', // Blue 500
+        'Aprovada':      '#22c55e', // Green 500
+        'Cancelada':     '#ef4444'  // Red 500
     };
+
+    // Configuração Comum
+    Chart.defaults.color = '#94a3b8'; // Slate 400
+    Chart.defaults.borderColor = '#1e293b'; // Slate 800
 
     // 1. GRÁFICO DE LINHA
     const ctxLinha = document.getElementById('chartLinha').getContext('2d');
@@ -147,8 +152,12 @@ if ($res_pizza) {
             scales: { 
                 y: { 
                     beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
                     ticks: { callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); } }
-                } 
+                },
+                x: {
+                    grid: { display: false }
+                }
             },
             onClick: (e) => {
                 const points = chartLinha.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
@@ -159,7 +168,13 @@ if ($res_pizza) {
                 }
             },
             plugins: {
+                legend: { labels: { usePointStyle: true, padding: 20 } },
                 tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    padding: 12,
+                    cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
@@ -186,15 +201,22 @@ if ($res_pizza) {
             datasets: [{
                 data: valoresPizza,
                 backgroundColor: coresPizza,
-                borderWidth: 1
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '65%',
             plugins: {
-                legend: { position: 'right' },
+                legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } },
                 tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    padding: 12,
+                    cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
                             let label = context.label || '';
@@ -212,7 +234,7 @@ if ($res_pizza) {
     // 3. AJAX
     function carregarDetalhes(mes, status) {
         document.getElementById('tituloTabela').innerText = `Propostas: ${status} em ${mes}`;
-        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">Carregando dados...</div></td></tr>';
+        document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="4" class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div><div class="mt-2 text-slate-400 text-xs">Carregando dados...</div></td></tr>';
         
         // Chama a API dashboard
         fetch(`api_dashboard.php?acao=detalhes&mes=${mes}&status=${status}`)
@@ -222,7 +244,7 @@ if ($res_pizza) {
             })
             .catch(err => {
                 console.error(err);
-                document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Erro ao comunicar com o servidor.</td></tr>';
+                document.getElementById('corpoTabela').innerHTML = '<tr><td colspan="4" class="text-center text-red-400 py-4">Erro ao comunicar com o servidor.</td></tr>';
             });
     }
 </script>

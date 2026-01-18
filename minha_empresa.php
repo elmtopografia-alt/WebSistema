@@ -1,6 +1,6 @@
 <?php
 // Nome do Arquivo: minha_empresa.php
-// Função: Configuração da Empresa. BLOQUEIA EDIÇÃO SE FOR DEMO (Estratégia Anti-Calote).
+// Função: Configuração da Empresa. BLOQUEIA EDIÇÃO SE FOR DEMO.
 
 session_start();
 require_once 'config.php';
@@ -46,160 +46,337 @@ $readonly = $is_demo ? 'disabled' : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Empresa | SGT</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Exo 2', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#001e3c',
+                            primary: '#0a2e5c',
+                            surface: '#132f4c',
+                            accent: '#FF7518',
+                            action: '#EA580C',
+                            glow: '#4fc3f7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar-custom { background-color: #2c3e50; color: white; }
-        .env-badge-demo { background-color: #ffc107; color: #000; font-weight: bold; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .env-badge-prod { background-color: #198754; color: #fff; font-weight: bold; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .support-banner { background-color: #dc3545; color: white; text-align: center; padding: 10px; font-weight: bold; position: sticky; top: 0; z-index: 1050; }
-        .btn-upgrade { background-color: #25D366; color: white; font-weight: bold; border: none; animation: pulse 2s infinite; }
-        .btn-upgrade:hover { background-color: #128C7E; color: white; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
-        .dropdown-menu-end { right: 0; left: auto; }
-        .user-avatar { width: 32px; height: 32px; background-color: rgba(255,255,255,0.2); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(10, 46, 92, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .glass-card {
+            background: rgba(19, 47, 76, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
         
-        /* Estilo do Bloqueio Demo */
-        .demo-lock-overlay {
-            position: relative;
+        /* Background */
+        body {
+            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            min-height: 100vh;
         }
-        .demo-lock-overlay::after {
-            /* Se quiser bloquear o clique totalmente, descomente abaixo */
-            /* content: ''; position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10; cursor: not-allowed; */
-        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #001224; }
+        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF7518; }
     </style>
 </head>
-<body>
+<body class="text-slate-200 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark">
 
-    <?php if($modo_suporte): ?>
-        <div class="support-banner shadow">MODO SUPORTE: <?php echo strtoupper($nome_usuario); ?><a href="painel.php?sair_suporte=1" class="btn btn-sm btn-light text-danger fw-bold ms-3">ENCERRAR</a></div>
-    <?php endif; ?>
+    <!-- Navbar -->
+    <nav class="w-full glass-panel sticky top-0 z-50 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-4">
+                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-10">
+                    <?php if($is_demo): ?>
+                        <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold border border-yellow-500/30 uppercase tracking-wider">DEMO</span>
+                    <?php endif; ?>
+                </div>
 
-    <nav class="navbar navbar-expand-lg navbar-custom px-4 shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="painel.php">
-                <i class="bi bi-grid-fill me-2"></i>
-                <div>SGT <span class="<?php echo $is_demo ? 'env-badge-demo' : 'env-badge-prod'; ?> ms-2"><?php echo $is_demo ? 'DEMO' : 'PRODUÇÃO'; ?></span></div>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon text-white"><i class="bi bi-list"></i></span></button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
-                    <li class="nav-item me-2"><a href="minha_empresa.php" class="btn btn-light btn-sm fw-bold text-dark"><i class="bi bi-gear-fill"></i> Empresa</a></li>
-                    <li class="nav-item me-2"><a href="meus_clientes.php" class="btn btn-outline-light btn-sm fw-bold border-0"><i class="bi bi-people-fill"></i> Clientes</a></li>
-                    <li class="nav-item me-2"><a href="relatorios.php" class="btn btn-outline-light btn-sm fw-bold border-0"><i class="bi bi-graph-up"></i> Relatórios</a></li>
-                    <?php if($is_demo): ?><li class="nav-item mx-3"><a href="contratar.php" class="btn btn-upgrade btn-sm shadow-sm">CONTRATAR</a></li><?php endif; ?>
-                    <?php if(!$is_demo && !$modo_suporte && isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
-                        <li class="nav-item me-2"><a href="admin_usuarios.php" class="btn btn-warning btn-sm fw-bold text-dark">Admin</a></li>
-                        <li class="nav-item me-2"><a href="admin_parametros.php" class="btn btn-secondary btn-sm fw-bold text-white">Cadastros</a></li>
-                    <?php endif; ?>
-                    <?php if($_SESSION['usuario_id'] == 1 && !$modo_suporte): ?>
-                        <li class="nav-item mx-2"><a href="admin_alternar.php" class="btn btn-sm fw-bold <?php echo $is_demo ? 'btn-success' : 'btn-warning'; ?>"><i class="bi bi-arrow-repeat"></i> Trocar</a></li>
-                    <?php endif; ?>
+                <!-- Menu Desktop -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="painel.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-house"></i> Painel
+                    </a>
+                    <a href="minha_empresa.php" class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-gear-fill text-brand-accent"></i> Empresa
+                    </a>
+                    <a href="meus_clientes.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
+                        <i class="ph ph-users"></i> Clientes
+                    </a>
                     
-                    <li class="nav-item dropdown ms-3">
-                        <a class="nav-link dropdown-toggle text-white fw-bold d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <span class="user-avatar"><i class="bi bi-person-fill"></i></span> <?php echo htmlspecialchars($primeiro_nome); ?>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="alterar_senha.php"><i class="bi bi-key-fill me-2 text-primary"></i> Alterar Senha</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a></li>
-                        </ul>
-                    </li>
-                </ul>
+                    <div class="h-6 w-px bg-white/10 mx-2"></div>
+
+                    <!-- User Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 text-white font-medium hover:text-brand-accent transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-brand-surface border border-white/10 flex items-center justify-center text-brand-accent">
+                                <i class="ph ph-user"></i>
+                            </div>
+                            <span><?= htmlspecialchars($primeiro_nome) ?></span>
+                            <i class="ph ph-caret-down text-xs text-slate-500"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
+                            <div class="py-1">
+                                <a href="logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                                    <i class="ph ph-sign-out mr-2"></i> Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- MENSAGEM DE BLOQUEIO DEMO -->
-        <?php if($is_demo): ?>
-        <div class="alert alert-warning border-start border-warning border-5 shadow-sm mb-4">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div>
-                    <h5 class="fw-bold mb-1"><i class="bi bi-lock-fill me-2"></i>Edição Bloqueada na Versão Demo</h5>
-                    <p class="mb-0 small">Para personalizar os dados da sua empresa e remover a marca d'água das propostas, contrate o plano completo.</p>
+        <!-- Header Page -->
+        <div class="glass-panel rounded-2xl p-6 mb-8 flex justify-between items-center bg-brand-surface/50">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-accent/10 flex items-center justify-center text-brand-accent border border-brand-accent/20">
+                    <i class="ph ph-buildings text-2xl"></i>
                 </div>
-                <a href="contratar.php" class="btn btn-dark btn-sm fw-bold px-3">DESBLOQUEAR AGORA</a>
+                <div>
+                    <h1 class="font-display text-2xl font-bold text-white">Minha Empresa</h1>
+                    <p class="text-sm text-slate-400">Configure seus dados para as propostas</p>
+                </div>
             </div>
+        </div>
+
+        <!-- Alerta Demo -->
+        <?php if($is_demo): ?>
+        <div class="glass-panel rounded-xl p-4 border border-yellow-500/50 bg-yellow-500/10 flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <i class="ph ph-lock-key text-2xl text-yellow-500"></i>
+                <div>
+                    <h5 class="font-bold text-yellow-200">Edição Bloqueada na Versão Demo</h5>
+                    <p class="text-sm text-yellow-200/70">Para personalizar os dados, contrate o plano completo.</p>
+                </div>
+            </div>
+            <a href="contratar.php" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition-colors text-sm">
+                DESBLOQUEAR
+            </a>
         </div>
         <?php endif; ?>
 
-        <div class="row">
-            <!-- COLUNA ESQUERDA: LOGO -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white fw-bold">Logotipo da Empresa</div>
-                    <div class="card-body text-center">
-                        <?php $logo_atual = !empty($empresa['logo_caminho']) && file_exists(__DIR__ . '/' . $empresa['logo_caminho']) ? $empresa['logo_caminho'] : 'assets/img/sem_logo.png'; ?>
-                        <div class="mb-3 border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 200px; overflow: hidden;">
-                            <img src="<?php echo $logo_atual; ?>?t=<?php echo time(); ?>" alt="Logo" class="img-fluid" style="max-height: 100%;">
-                        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Coluna Esquerda: Logo -->
+            <div class="md:col-span-1">
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="font-display text-lg font-bold text-white mb-4">Logotipo</h3>
+                    
+                    <?php $logo_atual = !empty($empresa['logo_caminho']) && file_exists(__DIR__ . '/' . $empresa['logo_caminho']) ? $empresa['logo_caminho'] : 'assets/img/sem_logo.png'; ?>
+                    
+                    <!-- Novo Container Flexível -->
+                    <div class="w-full min-h-[200px] bg-white/5 rounded-xl border border-white/10 flex items-center justify-center p-4 mb-4 overflow-hidden relative group" 
+                         style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 10px 10px; background-color: rgba(255,255,255,0.02);">
+                        <img src="<?php echo $logo_atual; ?>?t=<?php echo time(); ?>" alt="Logo" class="max-w-full max-h-[180px] object-contain shadow-sm">
                         
                         <?php if(!$is_demo): ?>
-                            <form action="upload_logo.php" method="POST" enctype="multipart/form-data">
-                                <input type="file" name="logo" class="form-control mb-3" accept="image/png, image/jpeg" required>
-                                <button type="submit" class="btn btn-primary w-100 btn-sm"><i class="bi bi-upload me-2"></i>Enviar Logo</button>
-                            </form>
-                        <?php else: ?>
-                             <button class="btn btn-secondary w-100 btn-sm" disabled><i class="bi bi-lock-fill me-2"></i>Upload Bloqueado</button>
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center">
+                                <span class="text-white text-sm font-medium">Alterar Logo</span>
+                            </div>
                         <?php endif; ?>
                     </div>
+
+                    <?php if(!$is_demo): ?>
+                        <form action="upload_logo.php" method="POST" enctype="multipart/form-data" class="mb-3">
+                            <label class="block w-full cursor-pointer">
+                                <span class="sr-only">Escolher arquivo</span>
+                                <input type="file" name="logo" class="block w-full text-xs text-slate-400
+                                  file:mr-4 file:py-2 file:px-4
+                                  file:rounded-lg file:border-0
+                                  file:text-xs file:font-semibold
+                                  file:bg-brand-accent file:text-white
+                                  file:cursor-pointer hover:file:bg-brand-action
+                                  transition-all" accept="image/png, image/jpeg" required>
+                            </label>
+                            <button type="submit" class="mt-2 w-full py-2 bg-brand-primary hover:bg-brand-surface border border-white/10 rounded-lg text-white font-bold transition-colors flex items-center justify-center gap-2 text-sm">
+                                <i class="ph ph-upload-simple"></i> Enviar Imagem
+                            </button>
+                        </form>
+
+                        <!-- Botão Gerador de Logo -->
+                        <div class="border-t border-white/10 pt-3">
+                            <button type="button" onclick="document.getElementById('modalGeradorLogo').classList.remove('hidden')" class="w-full py-2 bg-brand-surface hover:bg-white/5 border border-white/10 rounded-lg text-brand-glow font-bold transition-colors flex items-center justify-center gap-2 text-sm">
+                                <i class="ph ph-magic-wand"></i> Criar Logo Texto
+                            </button>
+                        </div>
+                    <?php else: ?>
+                        <button disabled class="w-full py-2 bg-white/5 border border-white/10 rounded-lg text-slate-500 font-bold cursor-not-allowed flex items-center justify-center gap-2">
+                            <i class="ph ph-lock"></i> Upload Bloqueado
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA: DADOS -->
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0 <?php echo $is_demo ? 'opacity-75' : ''; ?>">
-                    <div class="card-header bg-white fw-bold d-flex justify-content-between">
-                        <span>Dados Cadastrais e Bancários</span>
-                        <a href="painel.php" class="btn btn-sm btn-outline-secondary">Voltar ao Painel</a>
-                    </div>
-                    <div class="card-body">
-                        <?php if(isset($_GET['msg']) && $_GET['msg']=='sucesso'): ?><div class="alert alert-success py-2">Dados salvos com sucesso!</div><?php endif; ?>
-                        
-                        <form action="salvar_dados_empresa.php" method="POST">
-                            <fieldset <?php echo $readonly; ?>>
-                                <h6 class="text-primary mb-3 border-bottom pb-2">Identidade</h6>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-8"><label class="form-label small fw-bold">Razão Social / Nome</label><input type="text" name="Empresa" class="form-control" value="<?php echo htmlspecialchars($empresa['Empresa']); ?>" required></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">CNPJ / CPF</label><input type="text" name="CNPJ" class="form-control" value="<?php echo htmlspecialchars($empresa['CNPJ']); ?>"></div>
+            <!-- Modal Gerador de Logo -->
+             <div id="modalGeradorLogo" class="fixed inset-0 z-[60] hidden">
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('modalGeradorLogo').classList.add('hidden')"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4">
+                    <div class="glass-panel bg-brand-surface rounded-2xl border border-brand-primary shadow-2xl overflow-hidden">
+                        <div class="bg-brand-primary/50 p-4 flex justify-between items-center border-b border-white/10">
+                            <h5 class="font-bold text-white flex items-center gap-2">
+                                <i class="ph ph-magic-wand text-brand-glow"></i> Gerador de Logo
+                            </h5>
+                            <button onclick="document.getElementById('modalGeradorLogo').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="ph ph-x text-lg"></i></button>
+                        </div>
+                        <form action="gerar_logo.php" method="POST" class="p-6">
+                            
+                            <div class="mb-4">
+                                <label class="block text-xs text-slate-400 mb-2">Cor do Texto</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="color" name="cor" value="#0a2e5c" class="h-10 w-10 rounded border border-white/20 p-0 cursor-pointer">
+                                    <span class="text-xs text-slate-500">Escolha a cor principal</span>
                                 </div>
-                                <div class="mb-3"><label class="form-label small fw-bold">Endereço</label><input type="text" name="Endereco" class="form-control" value="<?php echo htmlspecialchars($empresa['Endereco']); ?>"></div>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-9"><label class="form-label small fw-bold">Cidade</label><input type="text" name="Cidade" class="form-control" value="<?php echo htmlspecialchars($empresa['Cidade']); ?>"></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">UF</label><input type="text" name="Estado" class="form-control" value="<?php echo htmlspecialchars($empresa['Estado']); ?>" maxlength="2"></div>
-                                </div>
+                            </div>
 
-                                <h6 class="text-primary mb-3 border-bottom pb-2 mt-4">Contatos</h6>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Telefone</label><input type="text" name="Telefone" class="form-control" value="<?php echo htmlspecialchars($empresa['Telefone']); ?>"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Celular</label><input type="text" name="Celular" class="form-control" value="<?php echo htmlspecialchars($empresa['Celular']); ?>"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">WhatsApp</label><input type="text" name="Whatsapp" class="form-control" value="<?php echo htmlspecialchars($empresa['Whatsapp']); ?>"></div>
+                            <div class="mb-6">
+                                <label class="block text-xs text-slate-400 mb-2">Estilo do Texto</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="modo_texto" value="empresa" checked class="text-brand-accent focus:ring-brand-accent bg-black/20 border-white/10">
+                                        <span class="text-sm text-white">Usar Nome da Empresa</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="modo_texto" value="nome_topografia" class="text-brand-accent focus:ring-brand-accent bg-black/20 border-white/10">
+                                        <span class="text-sm text-white">Primeiro Nome + Topografia</span>
+                                    </label>
                                 </div>
+                            </div>
 
-                                <h6 class="text-primary mb-3 border-bottom pb-2 mt-4">Dados Bancários</h6>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Banco</label><input type="text" name="Banco" class="form-control" value="<?php echo htmlspecialchars($empresa['Banco']); ?>"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Agência</label><input type="text" name="Agencia" class="form-control" value="<?php echo htmlspecialchars($empresa['Agencia']); ?>"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Conta</label><input type="text" name="Conta" class="form-control" value="<?php echo htmlspecialchars($empresa['Conta']); ?>"></div>
-                                    <div class="col-12"><label class="form-label small fw-bold">Chave PIX</label><input type="text" name="PIX" class="form-control" value="<?php echo htmlspecialchars($empresa['PIX']); ?>"></div>
-                                </div>
-
-                                <?php if(!$is_demo): ?>
-                                <div class="text-end mt-4">
-                                    <button type="submit" class="btn btn-success px-4"><i class="bi bi-check-lg me-2"></i>Salvar Alterações</button>
-                                </div>
-                                <?php endif; ?>
-                            </fieldset>
+                            <button type="submit" class="w-full py-2 bg-brand-accent hover:bg-brand-action text-white font-bold rounded-lg transition-colors shadow-lg">
+                                Gerar e Salvar Logo
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
+
+            <!-- Coluna Direita: Formulário -->
+            <div class="md:col-span-2">
+                <div class="glass-panel rounded-2xl p-6 <?php echo $is_demo ? 'opacity-75 pointer-events-none' : ''; ?>">
+                    <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                        <h3 class="font-display text-lg font-bold text-white">Dados Cadastrais</h3>
+                        <?php if(isset($_GET['msg']) && $_GET['msg']=='sucesso'): ?>
+                            <span class="text-green-400 text-sm font-bold flex items-center gap-1"><i class="ph ph-check-circle"></i> Salvo!</span>
+                        <?php endif; ?>
+                    </div>
+
+                    <form action="salvar_dados_empresa.php" method="POST">
+                        <fieldset <?php echo $readonly; ?>>
+                            
+                            <!-- Identidade -->
+                            <h4 class="text-brand-accent text-sm font-bold uppercase tracking-wider mb-4">Identidade</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs text-slate-400 mb-1">Razão Social / Nome</label>
+                                    <input type="text" name="Empresa" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Empresa']); ?>" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">CNPJ / CPF</label>
+                                    <input type="text" name="CNPJ" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['CNPJ']); ?>">
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-xs text-slate-400 mb-1">Endereço Completo</label>
+                                <input type="text" name="Endereco" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Endereco']); ?>">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                                <div class="md:col-span-3">
+                                    <label class="block text-xs text-slate-400 mb-1">Cidade</label>
+                                    <input type="text" name="Cidade" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Cidade']); ?>">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">UF</label>
+                                    <input type="text" name="Estado" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Estado']); ?>" maxlength="2">
+                                </div>
+                            </div>
+
+                            <!-- Contatos -->
+                            <h4 class="text-brand-accent text-sm font-bold uppercase tracking-wider mb-4">Contatos</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Telefone</label>
+                                    <input type="text" name="Telefone" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Telefone']); ?>">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Celular</label>
+                                    <input type="text" name="Celular" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Celular']); ?>">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">WhatsApp</label>
+                                    <input type="text" name="Whatsapp" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Whatsapp']); ?>">
+                                </div>
+                            </div>
+
+                            <!-- Dados Bancários -->
+                            <h4 class="text-brand-accent text-sm font-bold uppercase tracking-wider mb-4">Dados Bancários</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Banco</label>
+                                    <input type="text" name="Banco" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Banco']); ?>">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Agência</label>
+                                    <input type="text" name="Agencia" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Agencia']); ?>">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Conta</label>
+                                    <input type="text" name="Conta" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['Conta']); ?>">
+                                </div>
+                            </div>
+                            <div class="mb-8">
+                                <label class="block text-xs text-slate-400 mb-1">Chave PIX</label>
+                                <input type="text" name="PIX" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['PIX']); ?>">
+                            </div>
+
+                            <?php if(!$is_demo): ?>
+                            <div class="text-right">
+                                <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20 flex items-center gap-2 ml-auto">
+                                    <i class="ph ph-check-circle text-xl"></i> Salvar Alterações
+                                </button>
+                            </div>
+                            <?php endif; ?>
+
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

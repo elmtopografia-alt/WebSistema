@@ -1,6 +1,7 @@
 <?php
 //cron_suspender_inadimplentes.php
 require_once 'config.php';
+require_once 'database.php';
 
 $sql = "
 UPDATE Usuarios u

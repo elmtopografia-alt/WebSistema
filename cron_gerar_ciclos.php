@@ -1,6 +1,7 @@
 <?php
 //cron_gerar_ciclos.php
 require_once 'config.php';
+require_once 'database.php';
 
 $competencia = date('Y-m');
 

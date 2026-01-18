@@ -61,46 +61,27 @@ $arquivo_existe = file_exists($caminho_anexo);
 // 4. Processamento do Envio (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'enviar') {
     
-    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-        $msg_feedback = "<div class='alert alert-warning'>A biblioteca PHPMailer não foi encontrada. Instale via Composer ou use o botão 'Abrir no Outlook'.</div>";
+    require_once 'GerenciadorEmail.php';
+
+    $destinatario = $_POST['destinatario_email'];
+    $assunto = $_POST['assunto'];
+    $mensagem = nl2br($_POST['mensagem']);
+    $anexos = [];
+
+    if ($arquivo_existe) {
+        $anexos[] = $caminho_anexo;
+    }
+
+    // Dados do Usuário para Reply-To e CC
+    $userEmail = $dados['email_comercial_padrao'] ?? ''; // E-mail comercial do usuário
+    $userCompany = $dados['nome_empresa'] ?? 'SGT'; // Nome da empresa do usuário
+
+    // Tenta enviar
+    // enviar($to, $toName, $subject, $body, $altBody, $attachments, $replyTo, $cc, $fromName)
+    if (GerenciadorEmail::enviar($destinatario, '', $assunto, $mensagem, strip_tags($mensagem), $anexos, $userEmail, $userEmail, $userCompany)) {
+        $msg_feedback = "<div class='alert alert-success'>E-mail enviado com sucesso! Uma cópia foi enviada para você.</div>";
     } else {
-        $mail = new PHPMailer(true);
-
-        try {
-            // --- CONFIGURAÇÕES DE SERVIDOR (SMTP) ---
-            // IMPORTANTE: Configure aqui seus dados reais ou use variáveis de ambiente
-            // $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Habilite para ver erros detalhados
-            $mail->isSMTP();
-            $mail->Host       = 'smtp.seuservidor.com.br'; // SEU HOST SMTP
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'seu_email@dominio.com.br'; // SEU EMAIL
-            $mail->Password   = 'sua_senha_secreta';        // SUA SENHA
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // ou ENCRYPTION_STARTTLS
-            $mail->Port       = 465; // ou 587
-
-            // --- REMETENTE E DESTINATÁRIO ---
-            // Se não tiver SMTP configurado, o envio falhará.
-            // Para ambiente DEMO/LOCAL, isso geralmente requer configuração específica.
-            $mail->setFrom('sistema@elmtopografia.com.br', $dados['nome_empresa']);
-            $mail->addAddress($_POST['destinatario_email'], $dados['nome_cliente_salvo']);
-
-            // --- CONTEÚDO ---
-            $mail->isHTML(true);
-            $mail->Subject = $_POST['assunto'];
-            $mail->Body    = nl2br($_POST['mensagem']);
-            $mail->AltBody = strip_tags($_POST['mensagem']);
-
-            // --- ANEXO ---
-            if ($arquivo_existe) {
-                $mail->addAttachment($caminho_anexo, $nome_arquivo);
-            }
-
-            $mail->send();
-            $msg_feedback = "<div class='alert alert-success'>E-mail enviado com sucesso!</div>";
-
-        } catch (Exception $e) {
-            $msg_feedback = "<div class='alert alert-danger'>Erro ao enviar: {$mail->ErrorInfo}. <br>Verifique as configurações SMTP no arquivo enviar_email.php.</div>";
-        }
+        $msg_feedback = "<div class='alert alert-danger'>Erro ao enviar o e-mail. Verifique as configurações.</div>";
     }
 }
 
@@ -110,13 +91,22 @@ $hora = date('H');
 $saudacao = ($hora < 12) ? 'Bom dia' : (($hora < 18) ? 'Boa tarde' : 'Boa noite');
 $primeiro_nome = explode(' ', trim($dados['nome_cliente_salvo']))[0];
 
+// Gera Link para Download da Proposta
+$link_proposta = "";
+if ($arquivo_existe) {
+    // Codifica o nome do arquivo para URL
+    $arquivo_url = rawurlencode($nome_arquivo);
+    $link_proposta = BASE_URL . "/propostas_emitidas/" . $arquivo_url;
+}
+
 $mensagem_padrao  = "$saudacao, $primeiro_nome.\n\n";
-$mensagem_padrao .= "Conforme solicitado, segue em anexo a proposta para o serviço de " . ($dados['nome_servico'] ?? 'Topografia') . ".\n\n";
+$mensagem_padrao .= "Conforme solicitado, segue o link para acessar a proposta para o serviço de " . ($dados['nome_servico'] ?? 'Topografia') . ".\n\n";
+$mensagem_padrao .= "📄 **Acesse a Proposta aqui:**\n$link_proposta\n\n";
 $mensagem_padrao .= "Estou à disposição para sanar dúvidas e negociarmos as condições.\n\n";
 $mensagem_padrao .= "Atenciosamente,\n";
 $mensagem_padrao .= $dados['nome_empresa'];
 
-// Link "Mailto" (Plano B)
+// Link "Mailto" (Plano B) - Agora inclui o link no corpo!
 $mailto_link = "mailto:" . $dados['email_salvo'] . 
                "?subject=" . rawurlencode($assunto_padrao) . 
                "&body=" . rawurlencode($mensagem_padrao);

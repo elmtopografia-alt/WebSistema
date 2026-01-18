@@ -47,21 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $stmtInsert = $conn->prepare($sql);
                 $stmtInsert->bind_param('ssss', $email, $senha_hash, $nome, $validade);
-                
-                if ($stmtInsert->execute()) {
-                    $id_novo = $conn->insert_id;
-                    
-                    // Cria dados da empresa
-                    $sqlEmp = "INSERT INTO DadosEmpresa (id_criador, Empresa, Cidade, Estado, CNPJ) VALUES (?, 'Sua Empresa Demo', 'São Paulo', 'SP', '00.000.000/0001-00')";
-                    $stmtEmp = $conn->prepare($sqlEmp);
-                    $stmtEmp->bind_param('i', $id_novo);
-                    $stmtEmp->execute();
-
-                    header("Location: login_demo.php?msg=criada");
-                    exit;
-                } else {
-                    $erro = "Erro ao cadastrar no banco de dados.";
-                }
             }
         } catch (Exception $e) { $erro = "Erro técnico: " . $e->getMessage(); }
     }

@@ -4,7 +4,7 @@
  * Recebe notificações do Mercado Pago e salva no banco de dados.
  */
 
-require_once 'config.php';
+require_once 'database.php';
 
 // 1. Captura o corpo da requisição
 $input = file_get_contents('php://input');
@@ -15,7 +15,7 @@ $tipo_evento = $data['type'] ?? ($data['action'] ?? 'unknown');
 
 // 3. Salva no banco de dados
 try {
-    $pdo = conectarBanco();
+    // $pdo já é criado pelo database.php
     
     $sql = "INSERT INTO Logs_Webhook (tipo_evento, payload_json, status_processamento) VALUES (?, ?, 'pendente')";
     $stmt = $pdo->prepare($sql);

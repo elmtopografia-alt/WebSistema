@@ -17,6 +17,7 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
 // AMBIENTE
 // ==========================================================
 define('ENVIRONMENT', 'production'); // development | production
+define('SISTEMA_VERSAO', '01');
 
 // Define URL Base automaticamente
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
@@ -61,6 +62,19 @@ define('DB_DEMO_HOST', 'proposta.mysql.dbaas.com.br');
 define('DB_DEMO_NAME', 'proposta');
 define('DB_DEMO_USER', 'proposta');
 define('DB_DEMO_PASS', 'Qtamaqmde5202@');
+
+// ==========================================================
+// E-MAIL (SMTP LOCAWEB)
+// ==========================================================
+define('SMTP_HOST', 'email-ssl.com.br'); // Host padrão da Locaweb
+define('SMTP_USER', 'admin.sgt@elmtopografia.com.br'); // E-mail de Autenticação (Admin)
+define('SMTP_PASS', 'Elm@8304063');        // SUBSTITUIR PELA SENHA DO ADMIN
+define('SMTP_PORT', 465); // 465 (SSL) ou 587 (TLS)
+define('SMTP_FROM_EMAIL', 'admin.sgt@elmtopografia.com.br'); // Remetente Padrão
+define('SMTP_FROM_NAME', 'SGT - Sistema de Gestão');
+
+// E-mail Financeiro (Para uso específico ou Reply-To)
+define('EMAIL_FINANCEIRO', 'financeiro.sgt@elmtopografia.com.br');
 
 // ==========================================================
 // FIM DAS CONFIGURAÇÕES

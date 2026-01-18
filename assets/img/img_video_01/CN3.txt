@@ -1,0 +1,32 @@
+🎬 Prompt Cinematográfico Normal
+
+A continuous cinematic scene inside the same modern professional auditorium, maintaining full continuity from the previous scenes. The presenter stands beside the digital board, holding an Apple tablet, wearing a discreet lapel microphone. He presents the screen with an open hand, without pointing, while keeping his gaze primarily on the audience, conveying calm authority and real-world experience. The camera starts with a medium framing that includes the presenter and part of the audience, stable and unhurried. From seconds three to six, the camera physically travels along the digital board in a smooth observational movement, not a zoom, calmly revealing organized system elements related to land regularization and usucapião workflows, including scope definition, timelines, and structured stages. The interface is clear, legible, softly illuminated, with no visual noise or animated distractions. The camera movement has a human rhythm, slow and deliberate. From seconds six to eight, the camera gently returns from the board back to the presenter and audience, re-centering him as he maintains eye contact. The emotional tone is technical confidence and familiarity, as if explaining everyday professional work. Cinematic realism, observational camera behavior, no cuts, no rush, no artificial enthusiasm, no subtitles.
+
+
+🧩 Prompt em JSON
+
+[{
+  "description": "An observational cinematic scene that demonstrates real technical competence, showing a professional presenter naturally explaining a familiar workflow related to usucapião.",
+  "style": "cinematic realism, observational cinema, professional, technical authenticity",
+  "camera": "medium framing followed by a smooth physical travel across the digital board, then a slow return to the presenter, no zooms, no cuts",
+  "lighting": "consistent professional auditorium lighting, clear and soft illumination on presenter and screen",
+  "environment": "modern professional auditorium with a clean, organized digital board interface",
+  "elements": ["male presenter", "Apple tablet", "lapel microphone", "digital board", "usucapião workflow interface"],
+  "motion": "human-paced, smooth, observational camera movement that visits content and returns to people",
+  "ending": "camera re-centers on the presenter facing the audience, reinforcing applicability and trust",
+  "voice": {
+    "text": "",
+    "language": "pt-BR",
+    "gender": "male",
+    "age": "40 years old",
+    "accent": "neutral Brazilian",
+    "tone": "confident, knowledgeable, conversational, restrained"
+  },
+  "text": "none",
+  "keywords": ["cinematic", "observational", "technical competence", "no text", "no subtitles"]
+}]
+
+
+🖼️ Prompt Imagem — Frame 1
+
+A cinematic realistic first frame showing a professional presenter standing beside a digital board in a modern auditorium. The presenter holds an Apple tablet and gestures with an open hand toward a clean, organized interface related to land regularization and usucapião workflows. Professional soft lighting, neutral corporate color palette, matte textures, shallow depth of field, ultra-realistic cinematic composition conveying competence, familiarity, and calm authority.
