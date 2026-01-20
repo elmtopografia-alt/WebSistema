@@ -226,6 +226,10 @@ try {
                         <i class="ph ph-plus-bold"></i> Nova Proposta
                     </a>
 
+                    <a href="gerador_prompt_veo.php" class="px-3 py-2 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 text-xs font-bold rounded-lg border border-purple-600/30 transition-colors flex items-center gap-2" title="Gerador de Prompts IA">
+                        <i class="ph ph-magic-wand"></i> <span class="hidden lg:inline">AI Prompts</span>
+                    </a>
+
                     <!-- User Dropdown -->
                     <div class="relative group ml-2">
                         <button class="flex items-center gap-2 text-white font-medium hover:text-brand-accent transition-colors">
