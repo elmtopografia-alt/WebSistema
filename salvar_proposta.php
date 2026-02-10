@@ -327,9 +327,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // --- FLUXO HTML (Salvar DB + Gerar Arquivo HTML + Redirecionar) ---
             
             // 1. Prepara dados para o gerador HTML (Injeta dados recém-salvos para consistência)
-            // O gerador espera $_POST, então atualizamos com o número gerado.
+            // O gerador espera $_POST, então atualizamos com o número gerado e dados calculados.
             $_POST['numero_proposta'] = $num_proposta; 
-            $_POST['id_proposta_criada'] = $id_prop; // Útil para debug ou retornos
+            $_POST['id_proposta_criada'] = $id_prop; 
+
+            // --- INJEÇÃO DE DADOS PARA O GERADOR (FIX) ---
+            // Cliente (do Banco)
+            $_POST['nome_cliente_salvo'] = $cliente_info['nome_cliente'];
+            $_POST['email_salvo'] = $cliente_info['email'];
+            $_POST['telefone_salvo'] = $cliente_info['telefone'];
+            $_POST['celular_salvo'] = $cliente_info['celular'];
+            $_POST['whatsapp_salvo'] = $cliente_info['whatsapp'];
+            $_POST['empresa_cliente'] = $_POST['empresa_cliente'] ?? ($cliente_info['empresa'] ?? '');
+
+            // Financeiro (Calculado no salvar_proposta.php)
+            // É crucial passar JÁ FORMATADO pois o gerador HTML usa formatarMoeda() que espera float ou string limpa,
+            // mas aqui já temos os valores finais calculados ($final, $mob_val, etc).
+            $_POST['ValorProposta'] = 'R$ ' . number_format($final, 2, ',', '.');
+            $_POST['ValorExtenso'] = $extenso;
+            $_POST['mobilizacao_valor'] = 'R$ ' . number_format($mob_val, 2, ',', '.');
+            $_POST['mobilizacao_percentual'] = number_format($mob_perc, 0); // Sem decimais
+            $_POST['restante_valor'] = 'R$ ' . number_format($rest_val, 2, ',', '.');
+            $_POST['restante_percentual'] = number_format($rest_perc, 0);
+
+            // Dados da Empresa (Do Banco)
+            $_POST['Empresa'] = $emp['Empresa'];
+            $_POST['CNPJ'] = $emp['CNPJ'];
+            $_POST['Banco'] = $emp['Banco'];
+            $_POST['Agencia'] = $emp['Agencia'];
+            $_POST['Conta'] = $emp['Conta'];
+            $_POST['PIX'] = $emp['PIX'];
+            $_POST['Cidade'] = $emp['Cidade'];
+            $_POST['whatsapp'] = $emp['Whatsapp'];
+            $_POST['logo_empresa'] = $emp['logo_caminho']; // Caminho relativo
+            
+            // Meta Dates
+            $_POST['DataExtenso'] = dataExtenso(date('Y-m-d'));
+            $_POST['data_criacao'] = date('Y-m-d H:i:s');
+            // ----------------------------------------------
 
             // 2. Captura o HTML
             ob_start();

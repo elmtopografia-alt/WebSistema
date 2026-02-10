@@ -175,8 +175,19 @@ if (isset($_GET['id']) && intval($_GET['id']) > 0) {
         );
     }
 } else {
-    // Se receber via POST (fluxo antigo do editor)
+    // Se receber via POST (fluxo antigo do editor ou via salvar_proposta.php)
     $variaveis = $_POST;
+}
+
+// [FIX] GARANTIA DE VARIÁVEIS INJETADAS
+// Se houver variáveis no POST que não estão em $variaveis (ou estão vazias), mescla.
+// Isso é crucial para quando salvar_proposta.php injeta valores calculados (ValorProposta, ValorExtenso)
+if (!empty($_POST)) {
+    foreach ($_POST as $key => $val) {
+        if (!isset($variaveis[$key]) || empty($variaveis[$key])) {
+            $variaveis[$key] = $val;
+        }
+    }
 }
 
 // =====================================================
