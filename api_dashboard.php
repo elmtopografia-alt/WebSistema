@@ -55,7 +55,10 @@ if ($acao == 'detalhes') {
             echo "<tr>
                     <td>{$row['numero_proposta']}</td>
                     <td>{$row['nome_cliente_salvo']}</td>
-                    <td class='{$corValor}'>R$ {$val}</td>
+                    <td class='{$corValor}'>
+                         <span class='text-slate-500 text-xs line-through decoration-white mr-2'>R$ " . number_format($row['valor_final_proposta']*1.1, 2, ',', '.') . "</span>
+                         R$ {$val}
+                    </td>
                     <td>{$row['data_fmt']}</td>
                     <td>{$row['status']}</td>
                     <td>

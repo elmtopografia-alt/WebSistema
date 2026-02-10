@@ -5,18 +5,46 @@
  * Integrada com Login e Segurança
  */
 
-session_start();
+// Configura parâmetros da sessão antes de iniciar
+if (session_status() === PHP_SESSION_NONE) {
+    $cookieParams = session_get_cookie_params();
+    session_set_cookie_params([
+        'lifetime' => $cookieParams['lifetime'],
+        'path' => '/',
+        'domain' => $cookieParams['domain'],
+        'secure' => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
 require_once 'config.php';
 require_once 'db.php';
 
-// Se já está logado, redireciona para o painel
+// Se já está logado, redireciona para a página correta
 if (isset($_SESSION['usuario_id'])) {
-    header('Location: painel.php');
+    // Verifica se há um redirecionamento pendente
+    if(isset($_SESSION['redirect_after_login'])) {
+        $dest = $_SESSION['redirect_after_login'];
+        unset($_SESSION['redirect_after_login']);
+        header("Location: $dest");
+    } else {
+        // ROTEAMENTO UNIFICADO: TODOS VÃO PARA PAINEL.PHP
+        header('Location: painel.php');
+    }
     exit;
 }
 
 $erro_login = '';
 $modal_aberto = false;
+
+// Captura intenção de redirecionamento via GET
+if (isset($_GET['redirect'])) {
+    $_SESSION['redirect_after_login'] = $_GET['redirect'];
+    $modal_aberto = true; // Abre o modal para facilitar
+} elseif (isset($_GET['id'])) {
+    $modal_aberto = true;
+}
 
 // Lógica de Login (Teste de Upload FTP - 21)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -30,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn = Database::getProd();
             
+            // Busca por usuario (Email é armazenado no campo usuario)
             $stmt = $conn->prepare("SELECT id_usuario, usuario, senha, nome_completo, tipo_perfil, validade_acesso FROM Usuarios WHERE usuario = ? LIMIT 1");
             $stmt->bind_param('s', $usuario);
             $stmt->execute();
@@ -48,30 +77,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($senha_valida) {
-                    // VERIFICAÇÃO ADMINISTRATIVA (Admin liberado)
                         // VERIFICA VALIDADE
                         $hoje = new DateTime();
                         $val = new DateTime($user['validade_acesso'] ? $user['validade_acesso'] : '2000-01-01');
                         
-                        if ($hoje > $val && $user['tipo_perfil'] !== 'admin') { // Admin não expira por data
+                        if ($hoje > $val && $user['tipo_perfil'] !== 'admin') { 
                             $erro_login = "Sua assinatura venceu. Entre em contato.";
                             $modal_aberto = true;
                         } else {
                             if ($precisa_migrar) {
                                 $novo_hash = password_hash($senha, PASSWORD_DEFAULT);
-                                $upd = $conn->prepare("UPDATE Usuarios SET senha = ? WHERE id_usuario = ?");
+                                $upd = $conn->prepare("UPDATE Usuarios SET senha = ?, ultimo_acesso = NOW() WHERE id_usuario = ?");
                                 $upd->bind_param('si', $novo_hash, $user['id_usuario']);
+                                $upd->execute();
+                            } else {
+                                $upd = $conn->prepare("UPDATE Usuarios SET ultimo_acesso = NOW() WHERE id_usuario = ?");
+                                $upd->bind_param('i', $user['id_usuario']);
                                 $upd->execute();
                             }
 
+                            // Regenera Sessão
                             session_regenerate_id(true);
                             $_SESSION['usuario_id']    = $user['id_usuario'];
                             $_SESSION['usuario_nome']  = $user['nome_completo'];
                             $_SESSION['perfil']        = $user['tipo_perfil'];
-                            $_SESSION['ambiente']      = 'producao'; 
-                            $_SESSION['origem_login']  = 'cliente';
+                            $_SESSION['ambiente']      = ($user['usuario'] == 'demo' || $user['tipo_perfil'] == 'demo') ? 'demo' : 'producao'; 
+                            $_SESSION['origem_login']  = ($user['tipo_perfil'] === 'admin') ? 'admin' : 'cliente';
                             
-                            header("Location: painel.php");
+                            session_write_close();
+
+                            // REDIRECIONAMENTO INTELIGENTE
+                            if(isset($_SESSION['redirect_after_login'])) {
+                                $dest = $_SESSION['redirect_after_login'];
+                                unset($_SESSION['redirect_after_login']);
+                                header("Location: $dest");
+                            } else {
+                                header("Location: painel.php");
+                            }
                             exit;
                         }
 
@@ -91,22 +133,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-br" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGT-Propostas | Sistema de Gestão SaaS</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iNjAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZEljb24iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTY7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZWE1ODBjO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjUiIHk9IjUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcng9IjEwIiBmaWxsPSJ1cmwoI2dyYWRJY29uKSIvPjxwYXRoIGQ9Ik0yOCAxNSBMMjIgMjggTDMwIDI4IEwyNiA0NSBMMzggMzAgTDMwIDMwIEwzNCAxNSBaIiBmaWxsPSJ3aGl0ZSIvPjx0ZXh0IHg9IjY1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNCIgZmlsbD0id2hpdGUiPlNHVDwvdGV4dD48dGV4dCB4PSI2NSIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZiOTIzYyI+UHJvcG9zdGFzPC90ZXh0Pjwvc3ZnPg==">
 
-    <!-- Tailwind CSS (Framework Moderno) -->
+
+
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Fontes Google (Exo 2 para ar tecnológico e Inter para leitura) -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Ícones (Phosphor Icons) -->
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -118,26 +161,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         display: ['Exo 2', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            // Azul Profissional (Mantido)
-                            dark: '#001e3c',
-                            primary: '#0a2e5c',
-                            surface: '#132f4c',
-
-                            // NOVAS CORES: ABÓBORA (Pumpkin)
-                            accent: '#FF7518',   // Abóbora Vibrante (Principal)
-                            action: '#EA580C',   // Laranja Escuro (Botões/Hover)
-                            glow: '#4fc3f7',     // Azul Celeste (Mantido para contraste)
-                        }
+                        background: '#0a0f1a',
+                        surface: '#111827',
+                        primary: '#f97316', // Orange 500
+                        secondary: '#3b82f6', // Blue 500
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'gradient': 'gradient-shift 8s ease infinite',
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(249, 115, 22, 0.4)' },
+                            '50%': { boxShadow: '0 0 40px rgba(249, 115, 22, 0.6)' },
+                        },
+                        'gradient-shift': {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
                         }
                     }
                 }
@@ -146,518 +191,704 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <style>
-        /* Efeitos de Vidro (Glassmorphism) - Otimizado para Projeção */
-        .glass-panel {
-            background: rgba(10, 46, 92, 0.65);
+        body {
+            background-color: #0a0f1a;
+            color: #f8fafc;
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .glass-card {
-            background: rgba(19, 47, 76, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            transition: all 0.3s ease;
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .glass-card:hover {
-            background: rgba(10, 46, 92, 0.85);
-            border-color: rgba(255, 117, 24, 0.6);
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px -10px rgba(255, 117, 24, 0.3);
+        .text-gradient-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* Canvas de fundo - Gradiente Azul Profissional */
-        #antigravity-canvas {
-            position: fixed;
+        /* Grid Background Pattern */
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Button Shine Effect */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::before {
+            content: '';
+            position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-shine:hover::before {
+            left: 100%;
         }
 
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* Card Hover */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
-        ::-webkit-scrollbar-track {
-            background: #001224;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #1e40af;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #FF7518;
-        }
-
-        /* Destaque SGT-Propostas */
-        .brand-highlight {
-            font-size: 1.15em;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 20px rgba(255, 117, 24, 0.4);
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0f1a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-
-<body
-    class="text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark text-base md:text-lg">
-
-    <!-- Fundo Animado (Antigravity) -->
-    <canvas id="antigravity-canvas"></canvas>
+<body class="antialiased overflow-x-hidden">
 
     <!-- Navbar -->
-    <header class="fixed w-full z-50 top-0 transition-all duration-300" id="navbar">
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div
-                class="flex justify-between items-center h-20 glass-panel mt-4 rounded-2xl px-6 shadow-2xl shadow-black/30">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#inicio" class="flex items-center gap-2 group transform hover:scale-105 transition-transform duration-200">
+                    <?php include 'components/logo_svg.php'; ?>
 
-                <!-- Logo Ajustado -->
-                <div class="flex items-center gap-3 cursor-pointer select-none" onclick="window.scrollTo(0,0)">
-                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT Propostas" class="h-12">
-                </div>
+                </a>
 
-                <!-- Menu Desktop - Centralizado e Uniforme -->
-                <nav class="hidden md:flex flex-1 justify-center gap-10 text-sm font-medium">
-                    <a href="#inicio" class="text-white hover:text-brand-accent transition-colors relative group">
-                        Início
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#funcionalidades" class="hover:text-brand-accent transition-colors relative group">
-                        Recursos
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#video" onclick="scrollToVideoAndPlay()" class="hover:text-brand-accent transition-colors relative group">
-                        Apresentação
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#planos" class="hover:text-brand-accent transition-colors relative group">
-                        Planos
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
-                    </a>
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center gap-1">
+                    <a href="#inicio" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-white/5 transition-colors">Início</a>
+                    <a href="#recursos" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-white/5 transition-colors">Recursos</a>
+                    <a href="#dashboard" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-white/5 transition-colors">Dashboard</a>
+                    <a href="#planos" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-white/5 transition-colors">Planos</a>
                 </nav>
 
-                <!-- Botão Login (CTA) -->
-                <div class="hidden md:block">
-                    <!-- Sombra ajustada para laranja -->
-                    <button onclick="toggleLoginModal()"
-                        class="group relative px-6 py-2 bg-transparent overflow-hidden rounded-full border border-brand-accent text-brand-accent font-semibold hover:bg-brand-accent hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(255,117,24,0.2)]">
-                        <span class="relative flex items-center gap-2">
-                            <i class="ph ph-sign-in"></i> Acesso Cliente
-                        </span>
+                <!-- CTA -->
+                <div class="hidden md:flex items-center gap-3">
+                    <button onclick="toggleLoginModal()" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                        Login
                     </button>
+                    <a href="#planos" class="btn-shine px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-orange-500/25 transition-all">
+                        Começar Agora
+                    </a>
                 </div>
 
-                <!-- Menu Mobile Button -->
-                <button class="md:hidden text-2xl text-white hover:text-brand-accent transition-colors p-2"
-                    onclick="toggleMobileMenu()">
-                    <i class="ph ph-list"></i>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5">
+                    <i class="ph ph-list text-2xl"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Menu Mobile Dropdown -->
-        <div id="mobile-menu"
-            class="hidden absolute top-24 left-4 right-4 glass-panel rounded-xl p-4 flex-col gap-4 text-center md:hidden bg-brand-dark/95 backdrop-blur-xl border-brand-primary/50 z-50">
-            <a href="#inicio" class="block py-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5"
-                onclick="toggleMobileMenu()">Início</a>
-            <a href="#funcionalidades"
-                class="block py-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5"
-                onclick="toggleMobileMenu()">Recursos</a>
-            <a href="#video" class="block py-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5"
-                onclick="toggleMobileMenu(); scrollToVideoAndPlay()">Apresentação</a>
-            <a href="#planos" class="block py-3 hover:bg-white/5 rounded-lg transition-colors"
-                onclick="toggleMobileMenu()">Planos</a>
-            <button onclick="toggleLoginModal(); toggleMobileMenu()"
-                class="w-full py-3 bg-brand-accent text-white font-bold rounded-lg mt-2 shadow-lg shadow-brand-accent/20">Acessar
-                Sistema</button>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass border-t border-white/10 absolute w-full">
+            <div class="px-4 py-4 space-y-2">
+                <a href="#inicio" onclick="toggleMobileMenu()" class="block px-4 py-3 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Início</a>
+                <a href="#recursos" onclick="toggleMobileMenu()" class="block px-4 py-3 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Recursos</a>
+                <a href="#dashboard" onclick="toggleMobileMenu()" class="block px-4 py-3 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Dashboard</a>
+                <a href="#planos" onclick="toggleMobileMenu()" class="block px-4 py-3 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Planos</a>
+                <div class="pt-4 space-y-2 border-t border-white/10">
+                    <button onclick="toggleLoginModal(); toggleMobileMenu()" class="w-full px-4 py-2 border border-white/20 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">
+                        Login
+                    </button>
+                    <a href="#planos" onclick="toggleMobileMenu()" class="block text-center w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-lg">
+                        Começar Agora
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Hero Section -->
-        <section id="inicio" class="min-h-screen flex items-center pt-32 pb-20 relative">
+    <main class="relative z-10">
+        
+        <!-- HERO SECTION -->
+        <section id="inicio" class="relative min-h-screen flex items-center pt-28 pb-16 overflow-hidden">
+             <!-- Background Effects -->
+            <div class="absolute inset-0 grid-bg opacity-30 pointer-events-none"></div>
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-            <!-- Glow Effect de fundo - Azul e Abóbora -->
-            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px]"></div>
-            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-accent/10 rounded-full blur-[128px]"></div>
-
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-
-                <!-- Texto Hero -->
-                <div class="space-y-10 animate-float text-center lg:text-left">
-                    <div
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-400/40 bg-blue-900/30 text-blue-200 text-sm font-semibold tracking-wide uppercase">
-                        <span class="w-2.5 h-2.5 rounded-full bg-brand-glow animate-pulse"></span>
-                        Sistema SaaS 4.0
-                    </div>
-
-                    <h1 class="font-display text-5xl sm:text-6xl lg:text-8xl font-bold text-white leading-tight">
-                        <span class="brand-highlight text-transparent bg-clip-text bg-gradient-to-r from-brand-accent via-orange-400 to-orange-300">SGT-Propostas</span>
-                        <br>
-                        <span class="text-4xl sm:text-5xl lg:text-6xl">Gestão de Prosperidade</span>
-                    </h1>
-
-                    <p class="text-lg sm:text-xl lg:text-2xl text-slate-200 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                        A solução definitiva para transformar leads em contratos fechados. Integrado ao MySQL, seguro e
-                        acessível em qualquer dispositivo.
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
-                        <!-- Botão CTA principal - Abóbora -->
-                        <button onclick="scrollToVideoAndPlay()"
-                            class="px-10 py-5 text-lg bg-gradient-to-r from-brand-accent to-brand-action text-white font-bold rounded-xl shadow-lg shadow-orange-600/40 hover:shadow-orange-500/60 transform hover:scale-105 transition-all flex items-center justify-center gap-3 border border-orange-400/30">
-                            <i class="ph ph-play-circle text-2xl"></i>
-                            Ver Demonstração
-                        </button>
-                        <button onclick="window.location.href='https://api.whatsapp.com/send?phone=5531971875928&text=Falar%20com%20um%20Consultor!'"
-                            class="px-10 py-5 text-lg glass-panel text-white font-semibold rounded-xl hover:bg-white/15 transition-all flex items-center justify-center gap-3 border border-white/15">
-                            <i class="ph ph-whatsapp-logo text-2xl text-green-400"></i>
-                            Falar com Consultor
-                        </button>
-                    </div>
-
-                    <!-- Indicadores de Tecnologia -->
-                    <div
-                        class="pt-10 border-t border-white/10 flex flex-wrap justify-center lg:justify-start gap-6 sm:gap-8 text-slate-300 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 text-base sm:text-lg">
-                        <div class="flex items-center gap-2"><i class="ph ph-database text-brand-glow text-xl"></i> MySQL</div>
-                        <div class="flex items-center gap-2"><i class="ph ph-code text-brand-accent text-xl"></i> HTML5/PHP
-                        </div>
-                        <div class="flex items-center gap-2"><i class="ph ph-shield-check text-green-400 text-xl"></i> SSL
-                            Seguro</div>
-                    </div>
-                </div>
-
-                <!-- Área do Vídeo / Preview -->
-                <div class="relative group perspective-1000 mt-8 lg:mt-0" id="video">
-                    <!-- Moldura decorativa -->
-                    <div
-                        class="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-accent rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200">
-                    </div>
-
-                    <div
-                        class="relative glass-panel rounded-2xl p-2 shadow-2xl transform transition-transform duration-500 group-hover:rotate-1 bg-brand-dark/50">
-                        <!-- Header do "Browser" Fake -->
-                        <div class="bg-brand-dark/80 rounded-t-xl p-3 flex items-center gap-2 border-b border-white/5">
-                            <div class="flex gap-1.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-                            </div>
-                            <div
-                                class="bg-black/30 flex-1 ml-4 rounded-md h-6 flex items-center px-3 text-xs text-blue-200/50 font-mono truncate">
-                                sgt-propostas.app/dashboard
-                            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+                <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    
+                    <!-- Left Content -->
+                    <div class="text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-8 hover:bg-orange-500/20 transition-colors">
+                            <i class="ph ph-sparkle text-lg"></i>
+                            <span class="text-sm font-medium">Sistema SaaS de Gestão</span>
                         </div>
 
-                        <!-- Container do Video / Carousel Inline -->
-                        <div class="aspect-video bg-black/60 rounded-b-xl overflow-hidden relative group">
-                            
-                            <!-- Carousel Track (Slides) -->
-                            <div id="carousel-track" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
-                                <img src="assets/img/slider/carousel_dashboard_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Dashboard - Visão Geral">
-                                <img src="assets/img/slider/carousel_financeiro_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Relatório Financeiro">
-                                <img src="assets/img/slider/carousel_proposta_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Formulário de Proposta">
-                                <img src="assets/img/slider/carousel_detalhado_20260111202511.png" class="w-full h-full object-cover flex-shrink-0" alt="Dashboard Detalhado">
-                            </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 font-display">
+                            <span class="text-white">SGT-</span>
+                            <span class="text-gradient">Propostas</span>
+                        </h1>
 
+                        <p class="text-xl sm:text-2xl text-slate-300 font-medium mb-4">
+                            Gestão de Prosperidade
+                        </p>
 
-                            <!-- Controls (Hidden by default, shown when active) -->
-                            <div id="carousel-controls" class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button onclick="prevSlide()" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-brand-accent/90 text-white p-3 rounded-full backdrop-blur-sm transition-all">
-                                    <i class="ph ph-caret-left text-2xl"></i>
-                                </button>
-                                <button onclick="nextSlide()" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-brand-accent/90 text-white p-3 rounded-full backdrop-blur-sm transition-all">
-                                    <i class="ph ph-caret-right text-2xl"></i>
-                                </button>
-                                <!-- Indicators -->
-                                <div class="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                    <button onclick="goToSlide(0)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"></button>
-                                    <button onclick="goToSlide(1)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
-                                    <button onclick="goToSlide(2)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
-                                    <button onclick="goToSlide(3)" class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"></button>
+                        <p class="text-slate-400 text-base sm:text-lg mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                            Sistema integrado ao MySQL, seguro e acessível. Transforme leads em contratos fechados com nossa solução SaaS completa.
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-8 justify-center lg:justify-start mb-10">
+                            <!-- Já Sou Cliente -->
+                            <div class="space-y-3">
+                                <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Já sou cliente</p>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button onclick="toggleLoginModal()" class="btn-shine inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/25 font-semibold transition-all hover:-translate-y-1">
+                                        <i class="ph ph-crown text-lg mr-2"></i>
+                                        Login Cliente PRO
+                                    </button>
+                                    <a href="login_demo.php" class="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-white/20 text-slate-300 hover:text-white hover:bg-white/5 transition-all hover:-translate-y-1">
+                                        <i class="ph ph-arrow-right text-lg mr-2"></i>
+                                        Login Demo
+                                    </a>
                                 </div>
                             </div>
 
+                            <!-- Quero Conhecer -->
+                            <div class="space-y-3">
+                                <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Quero conhecer</p>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <a href="criar_conta_demo.php" class="btn-shine inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/25 font-semibold transition-all hover:-translate-y-1">
+                                        <i class="ph ph-rocket-launch text-lg mr-2"></i>
+                                        Criar Conta Demo
+                                    </a>
+                                    <a href="#planos" class="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-green-500/30 text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-all hover:-translate-y-1">
+                                        <i class="ph ph-shopping-cart text-lg mr-2"></i>
+                                        Plano PRO
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Badges -->
+                        <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                                <i class="ph ph-database text-orange-400"></i>
+                                <span class="text-sm text-slate-300">MySQL</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                                <i class="ph ph-shield-check text-orange-400"></i>
+                                <span class="text-sm text-slate-300">Seguro</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                                <i class="ph ph-device-mobile text-orange-400"></i>
+                                <span class="text-sm text-slate-300">Responsivo</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Right Content (Mockup 1 - Pie Chart) -->
+                    <div class="relative mt-12 lg:mt-0 animate-float">
+                        <div class="absolute -inset-4 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-3xl blur-2xl"></div>
+                        
+                        <div class="relative bg-surface rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+                            <!-- Fake Browser Header -->
+                            <div class="flex items-center gap-2 px-4 py-3 bg-[#0f172a] border-b border-white/5">
+                                <div class="flex gap-1.5">
+                                    <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                                </div>
+                                <div class="flex-1 text-center">
+                                    <span class="text-xs text-slate-500 font-mono">sgt-propostas.app/dashboard</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="p-6">
+                                <!-- Top Stats -->
+                                <div class="grid grid-cols-3 gap-4 mb-6">
+                                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                        <p class="text-xs text-slate-500 mb-1">Custo Total</p>
+                                        <p class="text-sm font-bold text-blue-400">R$ 300.000,00</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                        <p class="text-xs text-slate-500 mb-1">Margem</p>
+                                        <p class="text-sm font-bold text-green-400">20%</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                        <p class="text-xs text-slate-500 mb-1">Valor Proposta</p>
+                                        <p class="text-sm font-bold text-orange-400">R$ 375.000,00</p>
+                                    </div>
+                                </div>
+
+                                <!-- Chart Area -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center">
+                                        <!-- Simple CSS Pie Chart representation -->
+                                        <div class="relative w-32 h-32 rounded-full border-8 border-slate-700 flex items-center justify-center">
+                                            <div class="absolute inset-0 rounded-full border-8 border-blue-500 border-t-transparent border-l-transparent transform rotate-45"></div>
+                                            <div class="text-center">
+                                                <p class="text-[10px] text-slate-500">Total</p>
+                                                <p class="text-sm font-bold text-white">R$ 375k</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4 w-full space-y-2">
+                                            <div class="flex items-center justify-between text-xs">
+                                                <span class="flex items-center gap-2 text-slate-400"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Mão de Obra</span>
+                                                <span class="text-slate-300">35%</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-xs">
+                                                <span class="flex items-center gap-2 text-slate-400"><span class="w-2 h-2 rounded-full bg-orange-500"></span>Materiais</span>
+                                                <span class="text-slate-300">28%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                        <p class="text-xs font-medium text-white mb-3">Custos Recentes</p>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between py-1 border-b border-white/5">
+                                                <span class="text-xs text-slate-400">Mão de Obra</span>
+                                                <span class="text-xs text-slate-300">R$ 105k</span>
+                                            </div>
+                                            <div class="flex justify-between py-1 border-b border-white/5">
+                                                <span class="text-xs text-slate-400">Materiais</span>
+                                                <span class="text-xs text-slate-300">R$ 84k</span>
+                                            </div>
+                                            <div class="flex justify-between py-1 border-b border-white/5">
+                                                <span class="text-xs text-slate-400">Equip.</span>
+                                                <span class="text-xs text-slate-300">R$ 66k</span>
+                                            </div>
+                                            <div class="mt-2 pt-1 flex justify-between">
+                                                <span class="text-xs font-bold text-white">Total</span>
+                                                <span class="text-xs font-bold text-orange-400">R$ 375k</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
-        
-        <!-- FIM CAROUSEL -->
 
-        <!-- Features Cards -->
-        <section id="funcionalidades" class="py-24 relative z-10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-3 gap-10">
-                    <!-- Card 1 -->
-                    <div class="glass-card p-10 rounded-2xl transition-all duration-300">
-                        <div
-                            class="w-16 h-16 bg-brand-glow/10 rounded-xl flex items-center justify-center mb-6 text-brand-glow border border-brand-glow/20">
-                            <i class="ph ph-device-mobile-camera text-4xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Multi-Plataforma</h3>
-                        <p class="text-slate-200 text-base leading-relaxed">
-                            Acesse suas propostas via PC, Notebook, Tablet ou Celular. Layout 100% responsivo que
-                            acompanha você.
-                        </p>
-                    </div>
+        <!-- RECURSOS (FEATURES) -->
+        <section id="recursos" class="relative py-24 overflow-hidden bg-[#0d121f]">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-transparent pointer-events-none"></div>
 
-                    <!-- Card 2 -->
-                    <div
-                        class="glass-card p-10 rounded-2xl transition-all duration-300 border-brand-accent/20 bg-brand-accent/5 relative overflow-hidden">
-                        <!-- Glow extra no card principal -->
-                        <div class="absolute -right-10 -top-10 w-20 h-20 bg-brand-accent/20 blur-2xl rounded-full">
-                        </div>
-
-                        <div
-                            class="w-16 h-16 bg-brand-accent/10 rounded-xl flex items-center justify-center mb-6 text-brand-accent border border-brand-accent/20">
-                            <i class="ph ph-chart-line-up text-4xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Prosperidade em Vendas</h3>
-                        <p class="text-slate-200 text-base leading-relaxed">
-                            Ferramentas focadas em conversão. Dashboards intuitivos que mostram onde está o dinheiro.
-                        </p>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="glass-card p-10 rounded-2xl transition-all duration-300">
-                        <div
-                            class="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-400 border border-blue-500/20">
-                            <i class="ph ph-cloud-check text-4xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Cloud SaaS Seguro</h3>
-                        <p class="text-slate-200 text-base leading-relaxed">
-                            Seus dados MySQL blindados na nuvem. Backups automáticos e acesso rápido de qualquer lugar.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- Plans Section -->
-        <section id="planos" class="py-20 relative z-10 scroll-mt-32">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="text-center mb-16">
-                    <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-                        Escolha o Plano <span class="text-brand-accent">Ideal</span>
+                    <span class="inline-block px-4 py-2 rounded-full bg-orange-500/10 text-orange-400 text-sm font-medium mb-4 border border-orange-500/20">Recursos</span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 font-display">
+                        Tudo que você precisa para <span class="text-gradient">gerenciar propostas</span>
                     </h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto">
-                        Desbloqueie o potencial máximo do seu negócio com nossos planos flexíveis.
+                    <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                        Ferramentas completas e intuitivas para transformar sua gestão comercial e aumentar suas conversões.
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
-                    
-                    <!-- Plano Mensal -->
-                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
-                        <div class="mb-4">
-                            <h3 class="text-lg font-bold text-slate-300 uppercase tracking-wider">Mensal</h3>
-                            <div class="flex items-baseline gap-1 mt-2">
-                                <span class="text-sm text-slate-400">R$</span>
-                                <span class="text-4xl font-bold text-white">30,00</span>
-                                <span class="text-sm text-slate-400">/mês</span>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-1">Sem fidelidade</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Feature 1 -->
+                    <div class="group relative p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-monitor text-white text-xl"></i>
                         </div>
-
-                        <ul class="space-y-3 mb-8 flex-1">
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Acesso Completo
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Multi-Plataforma
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Suporte Básico
-                            </li>
-                        </ul>
-
-                        <div class="space-y-3">
-                            <a href="https://mpago.la/2JrbxWt" target="_blank" 
-                               class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
-                                <i class="ph ph-qr-code"></i> Pagar com PIX
-                            </a>
-                            
-                            <div class="flex items-center gap-2 text-xs text-slate-500 justify-center">
-                                <span class="w-full h-px bg-white/10"></span>
-                                OU
-                                <span class="w-full h-px bg-white/10"></span>
-                            </div>
-
-                            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=6b8610a74e9e4f66aed94c9bd7a957af" target="_blank"
-                               class="w-full py-2.5 border border-brand-primary hover:bg-brand-primary/30 text-blue-200 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                                <i class="ph ph-credit-card"></i> Assinatura (Cartão)
-                            </a>
-                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Multi-Plataforma</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Acesse suas propostas via PC, Notebook, Tablet ou Celular. Layout 100% responsivo.</p>
                     </div>
 
-                    <!-- Plano Trimestral -->
-                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
-                        <div class="absolute -top-3 right-4 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
-                            5% OFF
+                    <!-- Feature 2 -->
+                    <div class="group relative p-6 rounded-2xl bg-orange-500/10 border border-orange-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-trend-up text-white text-xl"></i>
                         </div>
-                        <div class="mb-4">
-                            <h3 class="text-lg font-bold text-blue-400 uppercase tracking-wider">Trimestral</h3>
-                            <div class="flex items-baseline gap-1 mt-2">
-                                <span class="text-sm text-slate-400">R$</span>
-                                <span class="text-4xl font-bold text-white">28,50</span>
-                                <span class="text-sm text-slate-400">/mês</span>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-orange-400 transition-colors">Prosperidade em Vendas</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Dashboards intuitivos que mostram onde está o dinheiro e como otimizar resultados.</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="group relative p-6 rounded-2xl bg-green-500/10 border border-green-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-cloud-check text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors">Cloud SaaS Seguro</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Seus dados MySQL blindados na nuvem. Backups automáticos e acesso rápido.</p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="group relative p-6 rounded-2xl bg-purple-500/10 border border-purple-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-lock-key text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors">Segurança Total</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Criptografia de ponta a ponta, autenticação em duas etapas e conformidade LGPD.</p>
+                    </div>
+                    
+                    <!-- Feature 5 -->
+                    <div class="group relative p-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-lightning text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors">Alta Performance</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Sistema otimizado para carregamento rápido. Interface fluida sem espera.</p>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="group relative p-6 rounded-2xl bg-pink-500/10 border border-pink-500/20 card-hover">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="ph ph-headset text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-400 transition-colors">Suporte Dedicado</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Equipe especializada pronta para ajudar. Atendimento rápido e eficiente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD PREVIEW START -->
+        <section id="dashboard" class="relative py-24 overflow-hidden">
+             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500/5 to-transparent pointer-events-none"></div>
+
+             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-16">
+                    <span class="inline-block px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium mb-4 border border-blue-500/20">Dashboard</span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 font-display">
+                        Visualize seu negócio em <span class="text-gradient-blue">tempo real</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                        Dashboards intuitivos que mostram exatamente onde está o dinheiro e como otimizar seus resultados.
+                    </p>
+                </div>
+
+                <div class="relative">
+                    <!-- Glow -->
+                    <div class="absolute -inset-4 bg-gradient-to-r from-blue-500/10 to-orange-500/10 rounded-3xl blur-2xl pointer-events-none"></div>
+
+                    <!-- Container -->
+                    <div class="relative bg-surface rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-6 py-4 bg-[#0f172a] border-b border-white/5">
+                            <div class="flex items-center gap-4">
+                                <div class="flex gap-1.5">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span class="text-sm text-slate-500 font-mono hidden sm:inline">sgt-propostas.app/dashboard</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">Cobrado R$ 85,50 a cada 3 meses</p>
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5">
+                                    <i class="ph ph-calendar-blank text-slate-400"></i>
+                                    <span class="text-sm text-slate-300">Últimos 30 dias</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <ul class="space-y-3 mb-8 flex-1">
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Tudo do Mensal
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Desconto de 5%
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Renovação Manual
-                            </li>
-                        </ul>
+                        <!-- Content -->
+                        <div class="p-6">
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <i class="ph ph-file-text text-slate-400 text-xl"></i>
+                                        <span class="text-xs text-green-400 flex items-center gap-1">+12% <i class="ph ph-trend-up"></i></span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-white mb-1">1.234</p>
+                                    <p class="text-xs text-slate-500">Propostas Enviadas</p>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <i class="ph ph-chart-line-up text-slate-400 text-xl"></i>
+                                        <span class="text-xs text-green-400 flex items-center gap-1">+5% <i class="ph ph-trend-up"></i></span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-white mb-1">68%</p>
+                                    <p class="text-xs text-slate-500">Conversão</p>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <i class="ph ph-users text-slate-400 text-xl"></i>
+                                        <span class="text-xs text-green-400 flex items-center gap-1">+23% <i class="ph ph-trend-up"></i></span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-white mb-1">456</p>
+                                    <p class="text-xs text-slate-500">Clientes</p>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <i class="ph ph-currency-dollar text-slate-400 text-xl"></i>
+                                        <span class="text-xs text-green-400 flex items-center gap-1">+18% <i class="ph ph-trend-up"></i></span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-white mb-1">R$ 2.5M</p>
+                                    <p class="text-xs text-slate-500">Faturamento</p>
+                                </div>
+                            </div>
 
-                        <a href="https://mpago.la/2BV5xy6" target="_blank"
-                           class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-900/20 mt-auto text-center">
+                            <!-- List -->
+                             <div class="grid lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-2 p-5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                    <div class="text-center py-10">
+                                        <i class="ph ph-chart-bar text-6xl text-slate-600 mb-4"></i>
+                                        <p class="text-slate-400">Gráfico de Desempenho Visual</p>
+                                    </div>
+                                </div>
+                                <div class="p-5 rounded-xl bg-white/5 border border-white/10">
+                                    <h4 class="text-sm font-medium text-white mb-4">Recentes</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                                            <div>
+                                                <p class="text-sm text-white">Construtora ABC</p>
+                                                <p class="text-xs text-slate-500">Hoje</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm text-orange-400">R$ 150k</p>
+                                                <span class="text-xs text-green-400">Aprovada</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                                            <div>
+                                                <p class="text-sm text-white">Engenharia XYZ</p>
+                                                <p class="text-xs text-slate-500">Ontem</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm text-orange-400">R$ 89.5k</p>
+                                                <span class="text-xs text-yellow-400">Pendente</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        <!-- PLANOS -->
+        <section id="planos" class="relative py-24 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-transparent pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-16">
+                    <span class="inline-block px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-sm font-medium mb-4 border border-green-500/20">Planos</span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 font-display">
+                        Escolha o plano <span class="text-gradient">Ideal</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                        Desbloqueie o potencial máximo do seu negócio.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Mensal -->
+                    <div class="relative rounded-2xl p-6 bg-[#111827] border border-white/10 hover:border-white/20 transition-all hover:-translate-y-2">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-white mb-1">Mensal</h3>
+                            <p class="text-sm text-slate-500">Sem fidelidade</p>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-sm text-slate-500 line-through decoration-white mb-1">
+                                R$ 33,00
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-lg text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">30,00</span>
+                                <span class="text-slate-500">/mês</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-blue-400"></i> Acesso Completo</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-blue-400"></i> Multi-Plataforma</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-blue-400"></i> Suporte Básico</li>
+                        </ul>
+                        <a href="https://mpago.la/2JrbxWt" target="_blank" class="block w-full py-3 text-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold hover:shadow-lg transition-all btn-shine">
+                            Pagar com PIX
+                        </a>
+                    </div>
+
+                    <!-- Trimestral -->
+                    <div class="relative rounded-2xl p-6 bg-[#111827] border border-white/10 hover:border-white/20 transition-all hover:-translate-y-2">
+                         <div class="absolute top-4 right-4"><span class="bg-purple-500/20 text-purple-400 text-xs font-bold px-2 py-1 rounded-full">5% OFF</span></div>
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-white mb-1">Trimestral</h3>
+                            <p class="text-sm text-slate-500">Cobrado cada 3 meses</p>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-sm text-slate-500 line-through decoration-white mb-1">
+                                R$ 31,35
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-lg text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">28,50</span>
+                                <span class="text-slate-500">/mês</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-purple-400"></i> Tudo do Mensal</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-purple-400"></i> Desconto de 5%</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-purple-400"></i> Renovação Manual</li>
+                        </ul>
+                        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=6b8610a74e9e4f66aed94c9bd7a957af" target="_blank" class="block w-full py-3 text-center rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold hover:shadow-lg transition-all btn-shine">
                             Assinar Trimestral
                         </a>
                     </div>
 
-                    <!-- Plano Semestral -->
-                    <div class="glass-card p-6 rounded-2xl flex flex-col relative group hover:border-brand-accent/50 transition-all duration-300">
-                        <div class="absolute -top-3 right-4 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
-                            10% OFF
+                    <!-- Semestral -->
+                    <div class="relative rounded-2xl p-6 bg-[#111827] border border-white/10 hover:border-white/20 transition-all hover:-translate-y-2">
+                        <div class="absolute top-4 right-4"><span class="bg-green-500/20 text-green-400 text-xs font-bold px-2 py-1 rounded-full">10% OFF</span></div>
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-white mb-1">Semestral</h3>
+                            <p class="text-sm text-slate-500">Cobrado cada 6 meses</p>
                         </div>
-                        <div class="mb-4">
-                            <h3 class="text-lg font-bold text-blue-300 uppercase tracking-wider">Semestral</h3>
-                            <div class="flex items-baseline gap-1 mt-2">
-                                <span class="text-sm text-slate-400">R$</span>
-                                <span class="text-4xl font-bold text-white">27,00</span>
-                                <span class="text-sm text-slate-400">/mês</span>
+                        <div class="mb-6">
+                            <div class="text-sm text-slate-500 line-through decoration-white mb-1">
+                                R$ 29,70
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">Cobrado R$ 162,00 a cada 6 meses</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-lg text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">27,00</span>
+                                <span class="text-slate-500">/mês</span>
+                            </div>
                         </div>
-
-                        <ul class="space-y-3 mb-8 flex-1">
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Tudo do Mensal
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Desconto de 10%
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-blue-400"></i> Prioridade no Suporte
-                            </li>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-green-400"></i> Tudo do Mensal</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-green-400"></i> Desconto de 10%</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-400"><i class="ph ph-check text-green-400"></i> Backup Diário</li>
                         </ul>
-
-                        <a href="https://mpago.la/2MjigKn" target="_blank"
-                           class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-900/20 mt-auto text-center">
+                        <a href="https://mpago.la/2MjigKn" target="_blank" class="block w-full py-3 text-center rounded-lg bg-gradient-to-r from-green-600 to-green-700 text-white font-bold hover:shadow-lg transition-all btn-shine">
                             Assinar Semestral
                         </a>
                     </div>
 
-                    <!-- Plano Anual -->
-                    <div class="glass-card p-6 rounded-2xl flex flex-col relative border border-brand-accent/30 bg-brand-accent/5 transform hover:-translate-y-2 transition-all duration-300 shadow-xl shadow-brand-accent/10">
-                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-brand-accent to-orange-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-orange-500/30">
-                            MELHOR ESCOLHA
+                    <!-- Anual (Popular) -->
+                     <div class="relative rounded-2xl p-6 bg-gradient-to-b from-orange-500/20 to-orange-600/10 border-2 border-orange-500/50 scale-105 transition-all hover:-translate-y-2">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2"><span class="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg"><i class="ph ph-sparkle inline mr-1"></i>MELHOR ESCOLHA</span></div>
+                         <div class="absolute top-4 right-4"><span class="bg-orange-500/20 text-orange-400 text-xs font-bold px-2 py-1 rounded-full">20% OFF</span></div>
+                        <div class="mb-6 mt-2">
+                            <h3 class="text-xl font-bold text-white mb-1">Anual</h3>
+                            <p class="text-sm text-slate-400">Cobrado anualmente</p>
                         </div>
-                        <div class="mb-4 pt-2">
-                            <h3 class="text-lg font-bold text-brand-accent uppercase tracking-wider">Anual</h3>
-                            <div class="flex items-baseline gap-1 mt-2">
-                                <span class="text-sm text-slate-400">R$</span>
-                                <span class="text-5xl font-bold text-white">24,00</span>
-                                <span class="text-sm text-slate-400">/mês</span>
+                        <div class="mb-6">
+                            <div class="text-sm text-slate-500 line-through decoration-white mb-1">
+                                R$ 26,40
                             </div>
-                            <p class="text-xs text-slate-400 mt-1">Cobrado R$ 288,00 anualmente</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-lg text-slate-400">R$</span>
+                                <span class="text-4xl font-bold text-white">24,00</span>
+                                <span class="text-slate-500">/mês</span>
+                            </div>
                         </div>
-
-                        <ul class="space-y-3 mb-8 flex-1">
-                            <li class="flex items-center gap-2 text-sm text-slate-200">
-                                <i class="ph ph-check-circle text-brand-accent"></i> <strong>20% de Desconto</strong>
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Acesso Vitalício aos Dados
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Suporte VIP 24/7
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-slate-300">
-                                <i class="ph ph-check-circle text-brand-accent"></i> Backup Diário
-                            </li>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-sm text-slate-300"><i class="ph ph-check text-orange-400"></i> 20% de Desconto</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300"><i class="ph ph-check text-orange-400"></i> Acesso Vitalício aos Dados</li>
+                            <li class="flex items-center gap-2 text-sm text-slate-300"><i class="ph ph-check text-orange-400"></i> Suporte VIP 24/7</li>
                         </ul>
-
-                        <a href="https://mpago.la/1CuvPFA" target="_blank"
-                           class="w-full py-4 bg-gradient-to-r from-brand-accent to-brand-action hover:to-orange-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-500/30 mt-auto flex items-center justify-center gap-2">
-                            <i class="ph ph-star-fill text-yellow-300"></i> Assinar Agora
+                        <a href="https://mpago.la/1CuvPFA" target="_blank" class="block w-full py-3 text-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold hover:shadow-lg transition-all btn-shine shadow-orange-500/25">
+                            Assinar Agora
                         </a>
                     </div>
-
                 </div>
 
                 <div class="mt-12 text-center">
-                    <p class="text-slate-400 text-sm mb-4">
-                        <i class="ph ph-lock-key text-green-400"></i> Pagamento 100% seguro via Mercado Pago. Ativação imediata.
-                    </p>
-                    <a href="https://api.whatsapp.com/send?phone=5531971875928&text=Falar%20com%20um%20Consultor!" target="_blank" 
-                       class="inline-flex items-center gap-2 text-brand-accent hover:text-white transition-colors text-sm font-semibold">
+                    <p class="text-slate-500 text-sm mb-4"><i class="ph ph-lock-key text-green-400 mr-1"></i> Pagamento 100% seguro via Mercado Pago. Ativação imediata.</p>
+                     <a href="https://api.whatsapp.com/send?phone=5531971875928&text=Falar%20com%20um%20Consultor!" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 border border-green-500/30 rounded-lg text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors">
                         <i class="ph ph-whatsapp-logo text-lg"></i>
                         Falar com Consultor
                     </a>
                 </div>
-
             </div>
         </section>
 
-    <footer class="border-t border-white/5 bg-black/40 backdrop-blur-sm py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-blue-200/60 text-sm">© 2024 SGT-Propostas. Todos os direitos reservados. Tecnologia PHP +
-                MySQL.</p>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative bg-[#0f172a] border-t border-white/10 pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                <div class="col-span-2 lg:col-span-2">
+                    <a href="#inicio" class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                            <i class="ph ph-lightning text-white text-xl"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-white leading-tight">SGT</span>
+                            <span class="text-xs text-orange-400 leading-tight">Propostas</span>
+                        </div>
+                    </a>
+                    <p class="text-slate-400 text-sm mb-6 max-w-sm">Sistema integrado ao MySQL, seguro e acessível. Transforme leads em contratos fechados.</p>
+                </div>
+                <!-- Links (Simplified) -->
+                <div>
+                     <h4 class="text-sm font-semibold text-white mb-4">Produto</h4>
+                     <ul class="space-y-2 text-sm text-slate-400">
+                         <li><a href="#recursos" class="hover:text-orange-400">Recursos</a></li>
+                         <li><a href="#dashboard" class="hover:text-orange-400">Dashboard</a></li>
+                         <li><a href="#planos" class="hover:text-orange-400">Planos</a></li>
+                     </ul>
+                </div>
+                 <div>
+                     <h4 class="text-sm font-semibold text-white mb-4">Empresa</h4>
+                     <ul class="space-y-2 text-sm text-slate-400">
+                         <li><a href="https://elmtopografia.com.br" target="_blank" class="hover:text-orange-400">Sobre</a></li>
+                         <li><a href="http://www.elmtopografia.com.br/Portfolio.html" target="_blank" class="hover:text-orange-400">Portfólio</a></li>
+                     </ul>
+                </div>
+                 <div>
+                     <h4 class="text-sm font-semibold text-white mb-4">Suporte</h4>
+                     <ul class="space-y-2 text-sm text-slate-400">
+                         <li><a href="#" class="hover:text-orange-400">Ajuda</a></li>
+                         <li><a href="https://api.whatsapp.com/send?phone=5531971875928" target="_blank" class="hover:text-orange-400">WhatsApp</a></li>
+                     </ul>
+                </div>
+                 <div>
+                     <h4 class="text-sm font-semibold text-white mb-4">Legal</h4>
+                     <ul class="space-y-2 text-sm text-slate-400">
+                         <li><a href="termos_uso.php" class="hover:text-orange-400">Termos de Uso</a></li>
+                         <li><a href="politica_privacidade.php" class="hover:text-orange-400">Privacidade</a></li>
+                     </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-slate-500">© 2024 SGT-Propostas. Todos os direitos reservados.</p>
+                <div class="flex gap-2">
+                     <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs">PHP</span>
+                     <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs">MySQL</span>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Login Modal (Hidden by default) -->
+
+    <!-- Login Modal (Preserved Logic) -->
     <div id="login-modal" class="fixed inset-0 z-[60] <?php echo $modal_aberto ? '' : 'hidden'; ?>">
-        <!-- Backdrop Blur -->
-        <div class="absolute inset-0 bg-brand-dark/80 backdrop-blur-sm" onclick="toggleLoginModal()"></div>
-
-        <!-- Modal Content -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleLoginModal()"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-            <div
-                class="glass-panel bg-brand-surface rounded-2xl p-8 border border-brand-primary shadow-2xl relative overflow-hidden">
-
-                <!-- Decorativo Abóbora -->
-                <div
-                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent">
-                </div>
-
-                <button onclick="toggleLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+            <div class="glass bg-surface rounded-2xl p-8 shadow-2xl relative overflow-hidden ring-1 ring-white/10">
+                
+                <button onclick="toggleLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
                     <i class="ph ph-x text-xl"></i>
                 </button>
 
                 <div class="text-center mb-8">
-                    <div class="inline-block p-3 rounded-full bg-brand-dark/50 mb-3 border border-brand-accent/20">
-                        <i class="ph ph-user-circle text-4xl text-brand-accent"></i>
+                    <div class="inline-flex p-3 rounded-full bg-orange-500/10 mb-3 border border-orange-500/20">
+                        <i class="ph ph-user-circle text-3xl text-orange-400"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-white font-display">Bem-vindo de volta</h2>
-                    <p class="text-blue-200/70 text-sm">Acesse o painel SGT-Propostas</p>
+                    <h2 class="text-2xl font-bold text-white font-display">Bem-vindo</h2>
+                    <p class="text-slate-400 text-sm">Acesse o painel SGT-Propostas</p>
                 </div>
 
                 <?php if (!empty($erro_login)): ?>
@@ -668,207 +899,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form class="space-y-4" method="POST" action="index.php">
                     <div>
-                        <label class="block text-xs font-medium text-blue-200/70 mb-1 ml-1">USUÁRIO / E-MAIL</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Usuário / E-mail</label>
                         <div class="relative">
-                            <i class="ph ph-envelope absolute left-3 top-3 text-slate-400"></i>
-                            <input type="text" name="usuario" required
-                                class="w-full bg-black/20 border border-brand-primary/50 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all placeholder-slate-500"
-                                placeholder="Seu usuário de acesso">
+                            <i class="ph ph-envelope absolute left-3 top-3 text-slate-500"></i>
+                            <input type="text" name="usuario" required autocomplete="username"
+                                class="w-full bg-black/50 border border-white/10 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-slate-600"
+                                placeholder="Seu usuário">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-blue-200/70 mb-1 ml-1">SENHA</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Senha</label>
                         <div class="relative">
-                            <i class="ph ph-lock-key absolute left-3 top-3 text-slate-400"></i>
-                            <input type="password" name="senha" required
-                                class="w-full bg-black/20 border border-brand-primary/50 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all placeholder-slate-500"
+                            <i class="ph ph-lock-key absolute left-3 top-3 text-slate-500"></i>
+                            <input type="password" name="senha" required autocomplete="current-password"
+                                class="w-full bg-black/50 border border-white/10 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-slate-600"
                                 placeholder="••••••••">
                         </div>
                     </div>
 
                     <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-brand-action to-orange-600 text-white font-bold rounded-lg shadow-lg hover:shadow-brand-accent/20 transform hover:-translate-y-0.5 transition-all">
-                        ENTRAR NO SISTEMA
+                        class="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-lg shadow-lg hover:shadow-orange-500/25 transition-all btn-shine">
+                        ENTRAR
                     </button>
+                    
+                    <div class="text-center mt-4">
+                        <a href="esqueci_senha.php" class="text-xs text-orange-400 hover:text-orange-300">Esqueceu a senha?</a>
+                    </div>
                 </form>
-
-                <div class="mt-6 text-center">
-                    <a href="#" class="text-xs text-brand-accent hover:underline">Esqueceu sua senha?</a>
-                </div>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script>
-        // Carousel Logic
-        let currentSlide = 0;
-        const totalSlides = 4;
-        let slideInterval;
-        const track = document.getElementById('carousel-track');
-        const indicators = document.querySelectorAll('.indicator');
-        let isPlaying = false;
-
-        function updateCarousel() {
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            indicators.forEach((ind, index) => {
-                if(index === currentSlide) {
-                    ind.classList.add('bg-white', 'scale-125');
-                    ind.classList.remove('bg-white/50');
-                } else {
-                    ind.classList.remove('bg-white', 'scale-125');
-                    ind.classList.add('bg-white/50');
-                }
-            });
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateCarousel();
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateCarousel();
-        }
-
-        function goToSlide(index) {
-            currentSlide = index;
-            updateCarousel();
-            resetInterval();
-        }
-
-        function startSlideShow() {
-            if (slideInterval) clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000); // 5 segundos por slide
-            isPlaying = true;
-        }
-
-        function stopSlideShow() {
-            clearInterval(slideInterval);
-            isPlaying = false;
-        }
-
-        function resetInterval() {
-            stopSlideShow();
-            startSlideShow();
-        }
-
-        // Auto-start Carousel immediately
-        document.addEventListener('DOMContentLoaded', () => {
-            startSlideShow();
-        });
-
-        // Pause on hover (opcional, boa prática UX)
-        track.addEventListener('mouseenter', stopSlideShow);
-        track.addEventListener('mouseleave', startSlideShow);
-
-        // Função para scrollar (usada pelos botões)
-        function scrollToVideoAndPlay() {
-            const videoSection = document.getElementById('video');
-            videoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        // Lógica do Modal
+        // Modal Logic
         function toggleLoginModal() {
             const modal = document.getElementById('login-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.querySelector('.glass-panel').classList.add('scale-100', 'opacity-100');
-                    modal.querySelector('.glass-panel').classList.remove('scale-95', 'opacity-0');
-                }, 10);
-            } else {
-                modal.classList.add('hidden');
-            }
+            modal.classList.toggle('hidden');
         }
 
-        // Se o PHP abriu o modal (por erro), aplica a animação de entrada
-        <?php if ($modal_aberto): ?>
-        document.addEventListener('DOMContentLoaded', () => {
-             const modal = document.getElementById('login-modal');
-             const panel = modal.querySelector('.glass-panel');
-             // Já está visível via classe PHP, só ajusta animação
-             panel.classList.add('scale-100', 'opacity-100');
-             panel.classList.remove('scale-95', 'opacity-0');
-        });
-        <?php endif; ?>
-
-        // Lógica do Menu Mobile
+        // Mobile Menu Logic
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
-            menu.classList.toggle('flex');
         }
 
-        // Sistema "Antigravity" de Partículas
-        const canvas = document.getElementById('antigravity-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedY = -1 * (Math.random() * 0.5 + 0.1);
-                this.speedX = (Math.random() - 0.5) * 0.5;
-
-                // Cores ajustadas: Abóbora (Accent) e Azul (Glow)
-                this.color = Math.random() > 0.6
-                    ? `rgba(255, 117, 24, ${Math.random() * 0.5})` // Abóbora (#FF7518)
-                    : `rgba(79, 195, 247, ${Math.random() * 0.3})`; // Light Blue
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('glass', 'border-b', 'border-white/10');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('glass', 'border-b', 'border-white/10');
+                navbar.classList.add('bg-transparent');
             }
-
-            update() {
-                this.y += this.speedY;
-                this.x += this.speedX;
-
-                if (this.y < 0) {
-                    this.y = canvas.height;
-                    this.x = Math.random() * canvas.width;
-                }
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            for (let i = 0; i < 110; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Gradiente Azul Profissional de Fundo
-            const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width);
-            gradient.addColorStop(0, '#0a2e5c'); // Azul Royal Escuro
-            gradient.addColorStop(1, '#001224'); // Quase Preto/Azul
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for (let particle of particles) {
-                particle.update();
-                particle.draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        initParticles();
-        animateParticles();
+        });
     </script>
 </body>
-
 </html>

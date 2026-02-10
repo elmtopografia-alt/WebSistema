@@ -4,10 +4,10 @@
 // ==========================================
 // 1. LÓGICA DE DADOS (BACKEND)
 // ==========================================
-session_start();
+require_once 'session_validator.php';
 
-// Simulação de Usuário Logado
-$id_criador_logado = $_SESSION['usuario_id'] ?? 1;
+// Usuário Logado
+$id_criador_logado = $_SESSION['usuario_id'];
 
 /**
  * ------------------------------------------------------------------

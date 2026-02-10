@@ -59,34 +59,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGT Admin</title>
-    <link rel="stylesheet" href="assets/css/login.css">
+    <title>SGT Admin | Acesso Restrito</title>
+    <link rel="stylesheet" href="assets/css/auth-premium.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>ADMINISTRAÇÃO</h1>
-                <p>Acesso restrito</p>
-            </div>
+    
+    <div class="ambient-glow"></div>
+
+    <main class="auth-container">
+        <section class="auth-card">
+            <header class="auth-header">
+                <h1>
+                    <div class="icon-logo"><i class="bi bi-shield-lock-fill"></i></div>
+                    SGT Admin
+                </h1>
+                <p>Acesso Restrito</p>
+            </header>
 
             <?php if($erro): ?>
-                <div class="alert alert-danger"><?php echo $erro; ?></div>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-octagon-fill"></i> 
+                    <div><?php echo htmlspecialchars($erro); ?></div>
+                </div>
             <?php endif; ?>
             
             <form method="POST">
                 <div class="form-group">
-                    <label>Usuário</label>
-                    <input type="text" name="usuario" class="form-control" placeholder="Usuário" required autocomplete="username">
+                    <label for="usuario" class="form-label">Usuário</label>
+                    <input type="text" name="usuario" id="usuario" class="form-control" placeholder="Usuário" required autocomplete="username">
                 </div>
+                
                 <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" name="senha" class="form-control" placeholder="Senha" required autocomplete="current-password">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" name="senha" id="senha" class="form-control" placeholder="Senha" required autocomplete="current-password">
                 </div>
+
                 <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($_GET['redirect'] ?? ''); ?>">
-                <button class="btn-login">ACESSAR</button>
+                
+                <button class="btn-primary">
+                    <i class="bi bi-lock-fill"></i> ACESSAR
+                </button>
             </form>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>

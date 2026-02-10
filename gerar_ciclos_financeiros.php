@@ -3,6 +3,24 @@
 
 require_once __DIR__ . '/../config/config.php';
 
+// SEGURANÇA: Permitir apenas execução via CLI (Cron) ou Admin Logado
+$isCli = (php_sapi_name() === 'cli');
+$isAdmin = false;
+
+if (!$isCli) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (isset($_SESSION['usuario_id']) && isset($_SESSION['perfil']) && $_SESSION['perfil'] === 'admin') {
+        $isAdmin = true;
+    }
+}
+
+if (!$isCli && !$isAdmin) {
+    http_response_code(403);
+    die("Acesso negado. Este script só pode ser executado via CRON ou por um Administrador.");
+}
+
 $dataAtual = date('Y-m');
 $dataHoje = date('Y-m-d');
 

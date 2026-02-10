@@ -103,6 +103,12 @@ function dataExtenso($data) {
 // ====================================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // VALIDAÇÃO CSRF (VACINA)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        ob_end_clean();
+        die("ERRO DE SEGURANÇA: Token inválido (CSRF). Tente recarregar a página.");
+    }
     
     $conn->begin_transaction();
 
@@ -329,9 +335,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $template->saveAs($pastaSaida . $nomeArquivoDownload);
             
-            // REDIRECIONA PARA SUCESSO (Com o botão de download)
+            // REDIRECIONA CONFORME A OPÇÃO ESCOLHIDA
             ob_end_clean();
-            header("Location: proposta_sucesso.php?arquivo=" . urlencode($nomeArquivoDownload) . "&id=" . $id_prop);
+            
+            // Verifica se o usuário quer ir direto para o Editor Dinâmico
+            if (isset($_POST['redirect_to_editor']) && $_POST['redirect_to_editor'] === '1') {
+                header("Location: editor_dinamico.php?id_proposta=" . $id_prop . "&success=1");
+            } else {
+                // Redireciona para tela de sucesso (com download do Word)
+                header("Location: proposta_sucesso.php?arquivo=" . urlencode($nomeArquivoDownload) . "&id=" . $id_prop);
+            }
             exit;
         } else {
             // Se salvou banco mas não achou modelo Word

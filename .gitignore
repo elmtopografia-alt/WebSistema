@@ -9,3 +9,11 @@ desktop.ini
 demanda (2).sql
 demanda estruturas.sql
 demanda.sql
+
+# Large Video Files
+*.mp4
+*.mkv
+*.avi
+*.mov
+Cena_07/
+Video_SGT/

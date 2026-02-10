@@ -30,101 +30,141 @@ $mockTransacoes = [];
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; font-family: 'Inter', sans-serif; color: #1f2937; }
+        /* === SGT DARK THEME OVERRIDE === */
+        :root {
+            --bg-page: #0a0f1a;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-grad: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+
+        body { 
+            background-color: var(--bg-page); 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main); 
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
         
         /* Card Styles */
         .card-financeiro { 
-            border: none; 
+            border: 1px solid var(--border-glass); 
             border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
-            background: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             overflow: hidden;
             transition: transform 0.2s;
         }
         
         .card-header-custom {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border-glass);
             padding: 1.5rem;
         }
 
         /* Typography */
-        h2 { font-weight: 700; letter-spacing: -0.025em; color: #111827; }
-        h5 { font-weight: 600; color: #374151; }
+        h2, h3, h5, .h2, .h3, .h5 { color: var(--text-main) !important; font-weight: 700; letter-spacing: -0.025em; }
+        .text-muted { color: var(--text-muted) !important; }
+        .text-dark { color: #f8fafc !important; }
         
         /* Table Styles */
         .table-custom th { 
             font-size: 0.75rem; 
             text-transform: uppercase; 
-            color: #6b7280; 
+            color: var(--text-muted); 
             font-weight: 600; 
             letter-spacing: 0.05em;
-            background-color: #f9fafb;
+            background-color: rgba(0, 0, 0, 0.2);
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-glass);
+            border-top: none;
         }
         .table-custom td { 
             padding: 1rem 1.5rem; 
             vertical-align: middle; 
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid var(--border-glass);
             font-size: 0.875rem;
+            color: var(--text-main);
+            background-color: transparent !important;
         }
+        .table-custom tr:hover td { background-color: rgba(255, 255, 255, 0.05) !important; }
         .table-custom tr:last-child td { border-bottom: none; }
         
-        .id-badge { color: #6b7280; font-family: monospace; font-weight: 500; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
-        .comprador-nome { font-weight: 500; color: #111827; }
+        .id-badge { color: #cbd5e1; font-family: monospace; font-weight: 500; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
+        .comprador-nome { font-weight: 600; color: white; }
         
         /* Status Badges */
-        .badge-status { padding: 0.35em 0.8em; border-radius: 9999px; font-weight: 600; font-size: 0.75rem; }
-        .bg-aprovado { background-color: #d1fae5; color: #065f46; }
-        .bg-pendente { background-color: #fef3c7; color: #92400e; }
-        .bg-cancelado { background-color: #fee2e2; color: #991b1b; }
+        .badge-status { padding: 0.35em 0.8em; border-radius: 9999px; font-weight: 600; font-size: 0.75rem; border: 1px solid transparent; }
+        .bg-aprovado { background-color: rgba(5, 150, 105, 0.2); color: #34d399; border-color: rgba(5, 150, 105, 0.3); }
+        .bg-pendente { background-color: rgba(217, 119, 6, 0.2); color: #fbbf24; border-color: rgba(217, 119, 6, 0.3); }
+        .bg-cancelado { background-color: rgba(220, 38, 38, 0.2); color: #f87171; border-color: rgba(220, 38, 38, 0.3); }
+        .bg-inadimplente { background-color: rgba(127, 29, 29, 0.4); color: #fca5a5; border-color: rgba(127, 29, 29, 0.5); }
 
         /* Buttons */
         .btn-contratar {
-            background-color: #2563eb;
+            background: var(--primary-grad);
             color: white;
-            font-weight: 600;
+            font-weight: 700;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             transition: all 0.2s;
             border: none;
             width: 100%;
+            box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2);
         }
         .btn-contratar:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 8px 15px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+            color: white;
         }
         
         .btn-pdf {
-            color: #4b5563;
+            color: #cbd5e1;
             padding: 6px 12px;
             border-radius: 6px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-glass);
             transition: all 0.2s;
             text-decoration: none;
             font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            background: rgba(255,255,255,0.05);
         }
-        .btn-pdf:hover { background-color: #f9fafb; color: #111827; border-color: #d1d5db; }
+        .btn-pdf:hover { background-color: rgba(255,255,255,0.1); color: white; border-color: white; }
 
         /* Search Bar */
         .search-input {
             border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-glass);
             padding: 0.6rem 1rem 0.6rem 2.5rem;
             font-size: 0.875rem;
             width: 250px;
+            background-color: rgba(0,0,0,0.3);
+            color: white;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: 0.75rem center;
             background-size: 1rem;
         }
-        .search-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .search-input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+        
+        /* Modal & Dropdowns Fix */
+        .modal-content { background-color: #1f2937; border: 1px solid var(--border-glass); color: white; }
+        .modal-header { border-bottom: 1px solid var(--border-glass); }
+        .modal-footer { border-top: 1px solid var(--border-glass); }
+        .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .dropdown-menu { background-color: #1f2937; border: 1px solid var(--border-glass); }
+        .dropdown-item { color: #e5e7eb; }
+        .dropdown-item:hover { background-color: rgba(255,255,255,0.1); color: white; }
     </style>
 </head>
 <body>

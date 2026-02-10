@@ -2,18 +2,23 @@
 // Nome do Arquivo: enviar_email.php
 // Função: Interface de envio de e-mail com anexo utilizando PHPMailer.
 
+ini_set('display_errors', 0); // Desabilita erros em produção
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
+
 session_start();
 require_once 'config.php';
 require_once 'db.php';
 
 // Tenta carregar o Composer (PHPMailer deve estar aqui)
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
+// TEMPORARIAMENTE DESABILITADO PARA MANUTENÇÃO DO SERVIDOR
+// if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+//    require_once __DIR__ . '/vendor/autoload.php';
+// }
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+// use PHPMailer\PHPMailer\PHPMailer;
+// use PHPMailer\PHPMailer\Exception;
+// use PHPMailer\PHPMailer\SMTP;
 
 // 1. Validação de Acesso
 if (!isset($_SESSION['usuario_id']) || !isset($_GET['id'])) {
@@ -22,16 +27,17 @@ if (!isset($_SESSION['usuario_id']) || !isset($_GET['id'])) {
 }
 
 $id_usuario = $_SESSION['usuario_id'];
-$is_demo = ($_SESSION['ambiente'] === 'demo');
+$is_demo = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
 $conn = $is_demo ? Database::getDemo() : Database::getProd();
 $id_proposta = intval($_GET['id']);
 $msg_feedback = '';
 
 // 2. Busca Dados da Proposta e Empresa
-$sql = "SELECT p.*, s.nome as nome_servico, d.Empresa as nome_empresa, d.email_comercial_padrao 
+$sql = "SELECT p.*, s.nome as nome_servico, d.Empresa as nome_empresa, d.email_comercial_padrao, c.nome_cliente 
         FROM Propostas p
         LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
         LEFT JOIN DadosEmpresa d ON p.id_criador = d.id_criador
+        LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente
         WHERE p.id_proposta = ? AND p.id_criador = ?";
 
 $stmt = $conn->prepare($sql);
@@ -41,60 +47,98 @@ $dados = $stmt->get_result()->fetch_assoc();
 
 if (!$dados) die("Proposta não encontrada.");
 
-// 3. Define Caminho do Arquivo Anexo
-function gerarNomeArquivo($nomeEmpresa, $numeroProposta) {
-    $s = trim(explode(' ', $nomeEmpresa)[0]);
-    if (function_exists('iconv')) $s = iconv('UTF-8', 'ASCII//TRANSLIT', $s);
+// 3. Define Caminho do Arquivo Anexo (LÓGICA SIMPLES SEM RECURSÃO)
+function buscarArquivoExistente($dados) {
+    $ano = date('Y', strtotime($dados['data_criacao']));
+    $numeroProposta = $dados['numero_proposta'];
+    
+    // Extrai Sequência
+    $parts = explode('-', $numeroProposta);
+    
+    // Verifica se o último pedaço é revisão (Rv01, Rv02, etc)
+    $sufixoRevisao = '';
+    $rawSeq = '';
+    if (preg_match('/^Rv\d+$/i', end($parts))) {
+        $sufixoRevisao = '-' . array_pop($parts);
+        $rawSeq = end($parts);
+    } else {
+        $rawSeq = end($parts);
+    }
+    
+    $numPad = str_pad(preg_replace('/\D/', '', $rawSeq), 3, '0', STR_PAD_LEFT);
+    $prefix = reset($parts);
+
+    $bases = [];
+    if (!empty($dados['nome_cliente'])) $bases[] = $dados['nome_cliente'];
+    if (!empty($dados['nome_cliente_salvo'])) $bases[] = $dados['nome_cliente_salvo'];
+    if (!empty($dados['nome_empresa'])) $bases[] = $dados['nome_empresa'];
+    
+    $dirBase = __DIR__ . '/propostas_emitidas';
+    
+    // 1. Tenta nomes exatos na raiz
+    foreach($bases as $base) {
+        $s = trim($base);
+        if (function_exists('iconv')) $s = @iconv('UTF-8', 'ASCII//TRANSLIT', $s);
+        $nomeLimpo = preg_replace('/[^a-zA-Z0-9]/', '', $s);
+        
+        $patterns = [
+            "{$nomeLimpo}-{$ano}-{$numPad}{$sufixoRevisao}.docx",
+            "{$nomeLimpo}-{$ano}-{$numPad}.docx"
+        ];
+        
+        foreach ($patterns as $candidato) {
+            if (file_exists($dirBase . '/' . $candidato)) {
+                return $candidato;
+            }
+        }
+    }
+    
+    // 2. Fallback por Prefixo (glob simples na raiz)
+    if (!empty($prefix)) {
+        $prefixClean = preg_replace('/[^A-Za-z0-9]/', '', @iconv('UTF-8', 'ASCII//TRANSLIT', $prefix));
+        
+        $searchPatterns = [
+            $dirBase . '/*-' . $ano . '-' . $numPad . $sufixoRevisao . '.docx',
+            $dirBase . '/*-' . $ano . '-' . $numPad . '.docx',
+            $dirBase . '/*' . $numeroProposta . '*.docx'
+        ];
+        
+        foreach ($searchPatterns as $pattern) {
+            $candidatos = glob($pattern);
+            if ($candidatos) {
+                // Se não encontrou pelo prefixo, pega o primeiro
+                return basename($candidatos[0]);
+            }
+        }
+    }
+    
+    // Fallback Visual
+    $primeiraBase = !empty($dados['nome_cliente']) ? $dados['nome_cliente'] : ($dados['nome_cliente_salvo'] ?? 'Proposta');
+    $s = trim($primeiraBase);
+    if (function_exists('iconv')) $s = @iconv('UTF-8', 'ASCII//TRANSLIT', $s);
     $nomeLimpo = preg_replace('/[^a-zA-Z0-9]/', '', $s);
-    
-    $partes = explode('-', $numeroProposta);
-    $seq = end($partes);
-    $ano = (count($partes) >= 3) ? $partes[1] : date('Y');
-    
-    return "{$nomeLimpo}-{$ano}-{$seq}.docx";
+    return "{$nomeLimpo}-{$ano}-{$numPad}.docx";
 }
 
-$nome_arquivo = gerarNomeArquivo($dados['empresa_proponente_nome'], $dados['numero_proposta']);
+$nome_arquivo = buscarArquivoExistente($dados);
 $caminho_anexo = __DIR__ . '/propostas_emitidas/' . $nome_arquivo;
 $arquivo_existe = file_exists($caminho_anexo);
 
 // 4. Processamento do Envio (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'enviar') {
-    
-    require_once 'GerenciadorEmail.php';
-
-    $destinatario = $_POST['destinatario_email'];
-    $assunto = $_POST['assunto'];
-    $mensagem = nl2br($_POST['mensagem']);
-    $anexos = [];
-
-    if ($arquivo_existe) {
-        $anexos[] = $caminho_anexo;
-    }
-
-    // Dados do Usuário para Reply-To e CC
-    $userEmail = $dados['email_comercial_padrao'] ?? ''; // E-mail comercial do usuário
-    $userCompany = $dados['nome_empresa'] ?? 'SGT'; // Nome da empresa do usuário
-
-    // Tenta enviar
-    // enviar($to, $toName, $subject, $body, $altBody, $attachments, $replyTo, $cc, $fromName)
-    if (GerenciadorEmail::enviar($destinatario, '', $assunto, $mensagem, strip_tags($mensagem), $anexos, $userEmail, $userEmail, $userCompany)) {
-        $msg_feedback = "<div class='alert alert-success'>E-mail enviado com sucesso! Uma cópia foi enviada para você.</div>";
-    } else {
-        $msg_feedback = "<div class='alert alert-danger'>Erro ao enviar o e-mail. Verifique as configurações.</div>";
-    }
+    // MODO MANUTENÇÃO
+    $msg_feedback = "<div class='alert alert-warning'><strong>⚠️ Serviço Indisponível:</strong> O envio automático por e-mail está em manutenção na Locaweb. Por favor, utilize o botão 'Abrir no Outlook' ou baixe o anexo manualmente.</div>";
 }
 
 // 5. Prepara Valores Padrão para o Formulário
-$assunto_padrao = "Proposta " . $dados['numero_proposta'] . " - " . $dados['nome_empresa'];
+$assunto_padrao = "Proposta " . $dados['numero_proposta'] . " - " . ($dados['nome_empresa'] ?? 'Empresa');
 $hora = date('H');
 $saudacao = ($hora < 12) ? 'Bom dia' : (($hora < 18) ? 'Boa tarde' : 'Boa noite');
-$primeiro_nome = explode(' ', trim($dados['nome_cliente_salvo']))[0];
+$primeiro_nome = explode(' ', trim($dados['nome_cliente_salvo'] ?? 'Cliente'))[0];
 
 // Gera Link para Download da Proposta
 $link_proposta = "";
 if ($arquivo_existe) {
-    // Codifica o nome do arquivo para URL
     $arquivo_url = rawurlencode($nome_arquivo);
     $link_proposta = BASE_URL . "/propostas_emitidas/" . $arquivo_url;
 }
@@ -104,10 +148,10 @@ $mensagem_padrao .= "Conforme solicitado, segue o link para acessar a proposta p
 $mensagem_padrao .= "📄 **Acesse a Proposta aqui:**\n$link_proposta\n\n";
 $mensagem_padrao .= "Estou à disposição para sanar dúvidas e negociarmos as condições.\n\n";
 $mensagem_padrao .= "Atenciosamente,\n";
-$mensagem_padrao .= $dados['nome_empresa'];
+$mensagem_padrao .= $dados['nome_empresa'] ?? 'Empresa';
 
-// Link "Mailto" (Plano B) - Agora inclui o link no corpo!
-$mailto_link = "mailto:" . $dados['email_salvo'] . 
+// Link "Mailto" (Plano B)
+$mailto_link = "mailto:" . ($dados['email_salvo'] ?? '') . 
                "?subject=" . rawurlencode($assunto_padrao) . 
                "&body=" . rawurlencode($mensagem_padrao);
 
@@ -125,7 +169,7 @@ $mailto_link = "mailto:" . $dados['email_salvo'] .
     <!-- Navbar Simplificada -->
     <nav class="navbar navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="index.php"><i class="bi bi-arrow-left me-2"></i>Voltar ao Painel</a>
+            <a class="navbar-brand" href="painel.php"><i class="bi bi-arrow-left me-2"></i>Voltar ao Painel</a>
             <span class="navbar-text text-white">Entrega de Proposta</span>
         </div>
     </nav>
@@ -161,7 +205,7 @@ $mailto_link = "mailto:" . $dados['email_salvo'] .
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Para:</label>
-                                <input type="email" name="destinatario_email" class="form-control" value="<?php echo htmlspecialchars($dados['email_salvo']); ?>" required>
+                                <input type="email" name="destinatario_email" class="form-control" value="<?php echo htmlspecialchars($dados['email_salvo'] ?? ''); ?>" required>
                             </div>
 
                             <div class="mb-3">

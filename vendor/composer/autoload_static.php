@@ -6,31 +6,36 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit175f515b2811e085f3258b59792b25af
 {
-    public static $prefixLengthsPsr4 = array (
-        'P' => 
-        array (
+    public static $prefixLengthsPsr4 = array(
+        'P' =>
+        array(
+            'ProposalArchitect\\' => 18,
             'PhpOffice\\PhpWord\\' => 18,
             'PhpOffice\\Math\\' => 15,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
     );
 
-    public static $prefixDirsPsr4 = array (
-        'PhpOffice\\PhpWord\\' => 
-        array (
+    public static $prefixDirsPsr4 = array(
+        'ProposalArchitect\\' =>
+        array(
+            0 => __DIR__ . '/..' . '/../src/ProposalArchitect',
+        ),
+        'PhpOffice\\PhpWord\\' =>
+        array(
             0 => __DIR__ . '/..' . '/phpoffice/phpword/src/PhpWord',
         ),
-        'PhpOffice\\Math\\' => 
-        array (
+        'PhpOffice\\Math\\' =>
+        array(
             0 => __DIR__ . '/..' . '/phpoffice/math/src/Math',
         ),
-        'PHPMailer\\PHPMailer\\' => 
-        array (
+        'PHPMailer\\PHPMailer\\' =>
+        array(
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
     );
 
-    public static $classMap = array (
+    public static $classMap = array(
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
@@ -40,7 +45,6 @@ class ComposerStaticInit175f515b2811e085f3258b59792b25af
             $loader->prefixLengthsPsr4 = ComposerStaticInit175f515b2811e085f3258b59792b25af::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit175f515b2811e085f3258b59792b25af::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit175f515b2811e085f3258b59792b25af::$classMap;
-
         }, null, ClassLoader::class);
     }
 }

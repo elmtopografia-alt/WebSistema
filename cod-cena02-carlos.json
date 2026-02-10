@@ -1,0 +1,58 @@
+[
+    {
+        "scene_number": "02",
+        "continuity_type": "CONTINUES FROM SCENE 01 - Same Carlos, same office environment",
+        "reference_frame": "Use final frame from Scene 01 as visual reference - Carlos at same desk",
+        "transition_note": "Camera transitions from Carlos working at notebook (Scene 01 ending) to extreme close-up of notification on his laptop screen",
+        "description": "VISUAL CONTINUITY FROM SCENE 01: Same office environment, same Lenovo ThinkPad T480 laptop that Carlos was working on. Extreme macro cinematography, shallow depth of field. Close-up shot of laptop screen showing digital notification popup appearing in corner with text 'E aí Carlos, o orçamento sai hoje?' in Portuguese, blue glowing notification box. Background heavily blurred with cinematic bokeh effect showing Carlos's hands (same mixed race complexion, same casual business attire visible through blur) operating manual calculator out of focus. Blue notification glow dynamically reflects on hands and desk surface. Tech photography aesthetic with shallow focus plane keeping only notification sharp. Calculator buttons being pressed visible through blur. Professional lighting creating cinematic depth. Same cold natural daylight 6500k from Scene 01. Camera static macro position emphasizing notification pressure. Duration 8 seconds with notification appearing at start and remaining visible.",
+        "character_consistency": {
+            "name": "Carlos",
+            "visible_elements": "hands with same skin tone (white/pardo complexion), partial casual business attire visible through blur",
+            "location": "same technical office and desk from Scene 01",
+            "lighting_reference": "same cold natural daylight 6500k maintaining continuity",
+            "same_device": "Lenovo ThinkPad T480 from Scene 01"
+        },
+        "style": "extreme macro photography, cinematic tech aesthetic, photorealistic, shallow depth of field",
+        "camera": "static extreme macro close-up, shallow focus plane, cinematic bokeh, notification in sharp focus",
+        "lighting": "blue glow from notification reflecting on surfaces, ambient office light, dynamic light reflections on hands",
+        "environment": "office desk surface, laptop screen, calculator visible through blur",
+        "elements": [
+            "laptop screen with notification popup",
+            "notification text in Portuguese",
+            "Carlos's hands (blurred) operating calculator",
+            "manual calculator",
+            "blue notification glow",
+            "desktop surface"
+        ],
+        "motion": "notification popup appears, blue glow reflects on hands, calculator buttons being pressed (blurred), subtle hand movements",
+        "ending": "notification remains on screen, hands pause on calculator showing work pressure",
+        "voice": {
+            "text": "Métodos tradicionais exigem muito tempo. No mercado, agilidade também é precisão.",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "mature adult",
+            "accent": "neutral Brazilian",
+            "tone": "institutional, narrative, professional, slightly concerned"
+        },
+        "sfx": [
+            "sharp notification ping sound",
+            "dry calculator button clicks",
+            "subtle ambient office tone"
+        ],
+        "text": "E aí Carlos, o orçamento sai hoje?",
+        "duration": "8 seconds",
+        "timing": "00:08 - 00:16",
+        "keywords": [
+            "macro photography",
+            "notification",
+            "pressure",
+            "deadline",
+            "calculator",
+            "bokeh effect",
+            "cinematic",
+            "photorealistic",
+            "16:9 widescreen",
+            "tech aesthetic"
+        ]
+    }
+]

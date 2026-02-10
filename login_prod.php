@@ -65,14 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
 
                             // Login Sucesso
-                            session_regenerate_id(true);
+                            // session_regenerate_id(true); // Desativado para evitar perda de sessão no Windows
                             $_SESSION['usuario_id']    = $user['id_usuario'];
                             $_SESSION['usuario_nome']  = $user['nome_completo'];
                             $_SESSION['perfil']        = $user['tipo_perfil'];
                             $_SESSION['ambiente']      = 'producao'; 
                             $_SESSION['origem_login']  = 'cliente';
                             
-                            header("Location: painel.php");
+                            header("Location: Cli_Pro.php");
                             exit;
                         }
                     }

@@ -1,0 +1,930 @@
+[2026-02-05 07:27:52] Iniciando backup...
+[2026-02-05 07:27:52] GIT ADD: git : warning: in the working copy of 'form_cliente.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'login_admin.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'login_demo.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'meus_clientes.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'minha_empresa.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'relatorios.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/charts.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/colors.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/icons.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/landing.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/products.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/prompts.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/react-performance.csv', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/flutter.csv', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/html-tailwind.csv', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/jetpack-compose.csv', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/nextjs.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/nuxt-ui.csv', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/nuxtjs.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/react-native.csv', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/react.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/shadcn.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/svelte.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/swiftui.csv', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/stacks/vue.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/styles.csv', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/typography.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/ui-reasoning.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/ux-guidelines.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/data/web-interface.csv', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/scripts/core.py', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/scripts/design_system.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/.shared/ui-ux-pro-max/scripts/search.py', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/ARCHITECTURE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/agents/backend-specialist.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/code-archaeologist.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/database-architect.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/debugger.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/agents/devops-engineer.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/documentation-writer.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/explorer-agent.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/frontend-specialist.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/game-developer.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/mobile-developer.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/orchestrator.md', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of '.agent/agents/penetration-tester.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/performance-optimizer.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/agents/product-manager.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/product-owner.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/project-planner.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/qa-automation-engineer.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/agents/security-auditor.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/seo-specialist.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/agents/test-engineer.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/mcp_config.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/rules/GEMINI.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/scripts/auto_preview.py', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/scripts/checklist.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/scripts/session_manager.py', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/scripts/verify_all.py', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of '.agent/skills/api-patterns/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/api-patterns/api-style.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/auth.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/api-patterns/documentation.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/graphql.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/api-patterns/rate-limiting.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/response.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/rest.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/api-patterns/scripts/api_validator.py', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/security-testing.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/api-patterns/trpc.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/api-patterns/versioning.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/app-builder/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/app-builder/agent-coordination.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/feature-building.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/project-detection.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/scaffolding.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/app-builder/tech-stack.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/astro-static/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/chrome-extension/TEMPLATE.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/cli-tool/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/electron-desktop/TEMPLATE.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/express-api/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/flutter-app/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/monorepo-turborepo/TEMPLATE.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/nextjs-fullstack/TEMPLATE.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/nextjs-saas/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/nextjs-static/TEMPLATE.md', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/nuxt-app/TEMPLATE.md', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/python-fastapi/TEMPLATE.md', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/app-builder/templates/react-native-app/TEMPLATE.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/architecture/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/architecture/context-discovery.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/architecture/examples.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/architecture/pattern-selection.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/architecture/patterns-reference.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/architecture/trade-off-analysis.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/bash-linux/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/behavioral-modes/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/brainstorming/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/brainstorming/dynamic-questioning.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/clean-code/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/code-review-checklist/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/database-design/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/database-design/database-selection.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/database-design/indexing.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/database-design/migrations.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/database-design/optimization.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/database-design/orm-selection.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/database-design/schema-design.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/database-design/scripts/schema_validator.py', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/deployment-procedures/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/doc.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/documentation-templates/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/animation-guide.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/color-system.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/decision-trees.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/motion-graphics.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/scripts/accessibility_checker.py', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/scripts/ux_audit.py', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/typography-system.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/ux-psychology.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/frontend-design/visual-effects.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/2d-games/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/3d-games/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/game-development/game-art/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/game-audio/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/game-design/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/mobile-games/SKILL.md', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/multiplayer/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/pc-games/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/game-development/vr-ar/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/game-development/web-games/SKILL.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/geo-fundamentals/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/geo-fundamentals/scripts/geo_checker.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/i18n-localization/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/i18n-localization/scripts/i18n_checker.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/intelligent-routing/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/lint-and-validate/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/lint-and-validate/scripts/lint_runner.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/lint-and-validate/scripts/type_coverage.py', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/mcp-builder/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/mobile-design/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/mobile-design/decision-trees.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-backend.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-color-system.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-debugging.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-design-thinking.md', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-navigation.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-performance.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-testing.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/mobile-typography.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/platform-android.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/platform-ios.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/scripts/mobile_audit.py', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/mobile-design/touch-psychology.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/1-async-eliminating-waterfalls.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/2-bundle-bundle-size-optimization.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/3-server-server-side-performance.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/4-client-client-side-data-fetching.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/5-rerender-re-render-optimization.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/6-rendering-rendering-performance.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/7-js-javascript-performance.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/8-advanced-advanced-patterns.md', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/scripts/convert_rules.py', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nextjs-react-expert/scripts/react_performance_checker.py', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/nodejs-best-practices/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/parallel-agents/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/performance-profiling/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/performance-profiling/scripts/lighthouse_audit.py', LF will be replaced 
+by CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/plan-writing/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/powershell-windows/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/python-patterns/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/red-team-tactics/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/seo-fundamentals/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/seo-fundamentals/scripts/seo_checker.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/server-management/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/systematic-debugging/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/tailwind-patterns/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/tdd-workflow/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/testing-patterns/SKILL.md', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of '.agent/skills/testing-patterns/scripts/test_runner.py', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of '.agent/skills/vulnerability-scanner/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/vulnerability-scanner/checklists.md', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of '.agent/skills/vulnerability-scanner/scripts/security_scan.py', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/skills/web-design-guidelines/SKILL.md', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of '.agent/skills/webapp-testing/SKILL.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/skills/webapp-testing/scripts/playwright_runner.py', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/brainstorm.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/workflows/create.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/debug.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/deploy.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/enhance.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/orchestrate.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of '.agent/workflows/plan.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/preview.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/status.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/test.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/workflows/ui-ux-pro-max.md', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/novo 1.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/painel_old.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/teste_card.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/teste_conexao.php', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'Backup_2026/teste_demo.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/teste_final.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/teste_frente.html', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'Backup_2026/teste_modelos.php', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'HTML/Proposta 2026_518.html', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-05 07:27:52] GIT COMMIT: [main 750cd56] Backup Di+â-írio Autom+â-ítico: 2026-02-05 07:27:52
+ 296 files changed, 44048 insertions(+), 2391 deletions(-)
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/charts.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/colors.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/icons.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/landing.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/products.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/prompts.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/react-performance.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/flutter.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/html-tailwind.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/jetpack-compose.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/nextjs.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/nuxt-ui.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/nuxtjs.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/react-native.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/react.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/shadcn.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/svelte.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/swiftui.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/stacks/vue.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/styles.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/typography.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/ui-reasoning.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/ux-guidelines.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/data/web-interface.csv
+ create mode 100644 .agent/.shared/ui-ux-pro-max/scripts/__pycache__/core.cpython-313.pyc
+ create mode 100644 .agent/.shared/ui-ux-pro-max/scripts/__pycache__/design_system.cpython-313.pyc
+ create mode 100644 .agent/.shared/ui-ux-pro-max/scripts/core.py
+ create mode 100644 .agent/.shared/ui-ux-pro-max/scripts/design_system.py
+ create mode 100644 .agent/.shared/ui-ux-pro-max/scripts/search.py
+ create mode 100644 .agent/ARCHITECTURE.md
+ create mode 100644 .agent/agents/backend-specialist.md
+ create mode 100644 .agent/agents/code-archaeologist.md
+ create mode 100644 .agent/agents/database-architect.md
+ create mode 100644 .agent/agents/debugger.md
+ create mode 100644 .agent/agents/devops-engineer.md
+ create mode 100644 .agent/agents/documentation-writer.md
+ create mode 100644 .agent/agents/explorer-agent.md
+ create mode 100644 .agent/agents/frontend-specialist.md
+ create mode 100644 .agent/agents/game-developer.md
+ create mode 100644 .agent/agents/mobile-developer.md
+ create mode 100644 .agent/agents/orchestrator.md
+ create mode 100644 .agent/agents/penetration-tester.md
+ create mode 100644 .agent/agents/performance-optimizer.md
+ create mode 100644 .agent/agents/product-manager.md
+ create mode 100644 .agent/agents/product-owner.md
+ create mode 100644 .agent/agents/project-planner.md
+ create mode 100644 .agent/agents/qa-automation-engineer.md
+ create mode 100644 .agent/agents/security-auditor.md
+ create mode 100644 .agent/agents/seo-specialist.md
+ create mode 100644 .agent/agents/test-engineer.md
+ create mode 100644 .agent/mcp_config.json
+ create mode 100644 .agent/rules/GEMINI.md
+ create mode 100644 .agent/scripts/auto_backup.ps1
+ create mode 100644 .agent/scripts/auto_preview.py
+ create mode 100644 .agent/scripts/checklist.py
+ create mode 100644 .agent/scripts/session_manager.py
+ create mode 100644 .agent/scripts/verify_all.py
+ create mode 100644 .agent/skills/api-patterns/SKILL.md
+ create mode 100644 .agent/skills/api-patterns/api-style.md
+ create mode 100644 .agent/skills/api-patterns/auth.md
+ create mode 100644 .agent/skills/api-patterns/documentation.md
+ create mode 100644 .agent/skills/api-patterns/graphql.md
+ create mode 100644 .agent/skills/api-patterns/rate-limiting.md
+ create mode 100644 .agent/skills/api-patterns/response.md
+ create mode 100644 .agent/skills/api-patterns/rest.md
+ create mode 100644 .agent/skills/api-patterns/scripts/api_validator.py
+ create mode 100644 .agent/skills/api-patterns/security-testing.md
+ create mode 100644 .agent/skills/api-patterns/trpc.md
+ create mode 100644 .agent/skills/api-patterns/versioning.md
+ create mode 100644 .agent/skills/app-builder/SKILL.md
+ create mode 100644 .agent/skills/app-builder/agent-coordination.md
+ create mode 100644 .agent/skills/app-builder/feature-building.md
+ create mode 100644 .agent/skills/app-builder/project-detection.md
+ create mode 100644 .agent/skills/app-builder/scaffolding.md
+ create mode 100644 .agent/skills/app-builder/tech-stack.md
+ create mode 100644 .agent/skills/app-builder/templates/SKILL.md
+ create mode 100644 .agent/skills/app-builder/templates/astro-static/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/chrome-extension/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/cli-tool/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/electron-desktop/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/express-api/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/flutter-app/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/monorepo-turborepo/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/nextjs-fullstack/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/nextjs-saas/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/nextjs-static/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/nuxt-app/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/python-fastapi/TEMPLATE.md
+ create mode 100644 .agent/skills/app-builder/templates/react-native-app/TEMPLATE.md
+ create mode 100644 .agent/skills/architecture/SKILL.md
+ create mode 100644 .agent/skills/architecture/context-discovery.md
+ create mode 100644 .agent/skills/architecture/examples.md
+ create mode 100644 .agent/skills/architecture/pattern-selection.md
+ create mode 100644 .agent/skills/architecture/patterns-reference.md
+ create mode 100644 .agent/skills/architecture/trade-off-analysis.md
+ create mode 100644 .agent/skills/bash-linux/SKILL.md
+ create mode 100644 .agent/skills/behavioral-modes/SKILL.md
+ create mode 100644 .agent/skills/brainstorming/SKILL.md
+ create mode 100644 .agent/skills/brainstorming/dynamic-questioning.md
+ create mode 100644 .agent/skills/clean-code/SKILL.md
+ create mode 100644 .agent/skills/code-review-checklist/SKILL.md
+ create mode 100644 .agent/skills/database-design/SKILL.md
+ create mode 100644 .agent/skills/database-design/database-selection.md
+ create mode 100644 .agent/skills/database-design/indexing.md
+ create mode 100644 .agent/skills/database-design/migrations.md
+ create mode 100644 .agent/skills/database-design/optimization.md
+ create mode 100644 .agent/skills/database-design/orm-selection.md
+ create mode 100644 .agent/skills/database-design/schema-design.md
+ create mode 100644 .agent/skills/database-design/scripts/schema_validator.py
+ create mode 100644 .agent/skills/deployment-procedures/SKILL.md
+ create mode 100644 .agent/skills/doc.md
+ create mode 100644 .agent/skills/documentation-templates/SKILL.md
+ create mode 100644 .agent/skills/frontend-design/SKILL.md
+ create mode 100644 .agent/skills/frontend-design/animation-guide.md
+ create mode 100644 .agent/skills/frontend-design/color-system.md
+ create mode 100644 .agent/skills/frontend-design/decision-trees.md
+ create mode 100644 .agent/skills/frontend-design/motion-graphics.md
+ create mode 100644 .agent/skills/frontend-design/scripts/accessibility_checker.py
+ create mode 100644 .agent/skills/frontend-design/scripts/ux_audit.py
+ create mode 100644 .agent/skills/frontend-design/typography-system.md
+ create mode 100644 .agent/skills/frontend-design/ux-psychology.md
+ create mode 100644 .agent/skills/frontend-design/visual-effects.md
+ create mode 100644 .agent/skills/game-development/2d-games/SKILL.md
+ create mode 100644 .agent/skills/game-development/3d-games/SKILL.md
+ create mode 100644 .agent/skills/game-development/SKILL.md
+ create mode 100644 .agent/skills/game-development/game-art/SKILL.md
+ create mode 100644 .agent/skills/game-development/game-audio/SKILL.md
+ create mode 100644 .agent/skills/game-development/game-design/SKILL.md
+ create mode 100644 .agent/skills/game-development/mobile-games/SKILL.md
+ create mode 100644 .agent/skills/game-development/multiplayer/SKILL.md
+ create mode 100644 .agent/skills/game-development/pc-games/SKILL.md
+ create mode 100644 .agent/skills/game-development/vr-ar/SKILL.md
+ create mode 100644 .agent/skills/game-development/web-games/SKILL.md
+ create mode 100644 .agent/skills/geo-fundamentals/SKILL.md
+ create mode 100644 .agent/skills/geo-fundamentals/scripts/geo_checker.py
+ create mode 100644 .agent/skills/i18n-localization/SKILL.md
+ create mode 100644 .agent/skills/i18n-localization/scripts/i18n_checker.py
+ create mode 100644 .agent/skills/intelligent-routing/SKILL.md
+ create mode 100644 .agent/skills/lint-and-validate/SKILL.md
+ create mode 100644 .agent/skills/lint-and-validate/scripts/lint_runner.py
+ create mode 100644 .agent/skills/lint-and-validate/scripts/type_coverage.py
+ create mode 100644 .agent/skills/mcp-builder/SKILL.md
+ create mode 100644 .agent/skills/mobile-design/SKILL.md
+ create mode 100644 .agent/skills/mobile-design/decision-trees.md
+ create mode 100644 .agent/skills/mobile-design/mobile-backend.md
+ create mode 100644 .agent/skills/mobile-design/mobile-color-system.md
+ create mode 100644 .agent/skills/mobile-design/mobile-debugging.md
+ create mode 100644 .agent/skills/mobile-design/mobile-design-thinking.md
+ create mode 100644 .agent/skills/mobile-design/mobile-navigation.md
+ create mode 100644 .agent/skills/mobile-design/mobile-performance.md
+ create mode 100644 .agent/skills/mobile-design/mobile-testing.md
+ create mode 100644 .agent/skills/mobile-design/mobile-typography.md
+ create mode 100644 .agent/skills/mobile-design/platform-android.md
+ create mode 100644 .agent/skills/mobile-design/platform-ios.md
+ create mode 100644 .agent/skills/mobile-design/scripts/mobile_audit.py
+ create mode 100644 .agent/skills/mobile-design/touch-psychology.md
+ create mode 100644 .agent/skills/nextjs-react-expert/1-async-eliminating-waterfalls.md
+ create mode 100644 .agent/skills/nextjs-react-expert/2-bundle-bundle-size-optimization.md
+ create mode 100644 .agent/skills/nextjs-react-expert/3-server-server-side-performance.md
+ create mode 100644 .agent/skills/nextjs-react-expert/4-client-client-side-data-fetching.md
+ create mode 100644 .agent/skills/nextjs-react-expert/5-rerender-re-render-optimization.md
+ create mode 100644 .agent/skills/nextjs-react-expert/6-rendering-rendering-performance.md
+ create mode 100644 .agent/skills/nextjs-react-expert/7-js-javascript-performance.md
+ create mode 100644 .agent/skills/nextjs-react-expert/8-advanced-advanced-patterns.md
+ create mode 100644 .agent/skills/nextjs-react-expert/SKILL.md
+ create mode 100644 .agent/skills/nextjs-react-expert/scripts/convert_rules.py
+ create mode 100644 .agent/skills/nextjs-react-expert/scripts/react_performance_checker.py
+ create mode 100644 .agent/skills/nodejs-best-practices/SKILL.md
+ create mode 100644 .agent/skills/parallel-agents/SKILL.md
+ create mode 100644 .agent/skills/performance-profiling/SKILL.md
+ create mode 100644 .agent/skills/performance-profiling/scripts/lighthouse_audit.py
+ create mode 100644 .agent/skills/plan-writing/SKILL.md
+ create mode 100644 .agent/skills/powershell-windows/SKILL.md
+ create mode 100644 .agent/skills/python-patterns/SKILL.md
+ create mode 100644 .agent/skills/red-team-tactics/SKILL.md
+ create mode 100644 .agent/skills/seo-fundamentals/SKILL.md
+ create mode 100644 .agent/skills/seo-fundamentals/scripts/seo_checker.py
+ create mode 100644 .agent/skills/server-management/SKILL.md
+ create mode 100644 .agent/skills/systematic-debugging/SKILL.md
+ create mode 100644 .agent/skills/tailwind-patterns/SKILL.md
+ create mode 100644 .agent/skills/tdd-workflow/SKILL.md
+ create mode 100644 .agent/skills/testing-patterns/SKILL.md
+ create mode 100644 .agent/skills/testing-patterns/scripts/test_runner.py
+ create mode 100644 .agent/skills/ui-standardizer/SKILL.md
+ create mode 100644 .agent/skills/ui-standardizer/STRUCTURE_GUARD.md
+ create mode 100644 .agent/skills/ui-standardizer/scripts/check-responsive.py
+ create mode 100644 .agent/skills/vulnerability-scanner/SKILL.md
+ create mode 100644 .agent/skills/vulnerability-scanner/checklists.md
+ create mode 100644 .agent/skills/vulnerability-scanner/scripts/security_scan.py
+ create mode 100644 .agent/skills/web-design-guidelines/SKILL.md
+ create mode 100644 .agent/skills/webapp-testing/SKILL.md
+ create mode 100644 .agent/skills/webapp-testing/scripts/playwright_runner.py
+ create mode 100644 .agent/workflows/brainstorm.md
+ create mode 100644 .agent/workflows/create.md
+ create mode 100644 .agent/workflows/debug.md
+ create mode 100644 .agent/workflows/deploy.md
+ create mode 100644 .agent/workflows/enhance.md
+ create mode 100644 .agent/workflows/orchestrate.md
+ create mode 100644 .agent/workflows/plan.md
+ create mode 100644 .agent/workflows/preview.md
+ delete mode 100644 .agent/workflows/prompt_auditorio.md
+ create mode 100644 .agent/workflows/status.md
+ create mode 100644 .agent/workflows/test.md
+ create mode 100644 .agent/workflows/ui-ux-pro-max.md
+ create mode 100644 .vscode/launch.json
+ rename Cli_Pro_old.php => Backup_2026/Cli_Pro_old.php (100%)
+ rename Cli_demo_old.php => Backup_2026/Cli_demo_old.php (100%)
+ rename Untitled => Backup_2026/Untitled (100%)
+ rename debug_blocks.php => Backup_2026/debug_blocks.php (100%)
+ rename debug_coluna.php => Backup_2026/debug_coluna.php (100%)
+ rename debug_db.php => Backup_2026/debug_db.php (100%)
+ rename debug_kpi.php => Backup_2026/debug_kpi.php (100%)
+ rename debug_session.php => Backup_2026/debug_session.php (100%)
+ rename debug_status.php => Backup_2026/debug_status.php (100%)
+ rename debug_status_cli.php => Backup_2026/debug_status_cli.php (100%)
+ rename debug_status_db.php => Backup_2026/debug_status_db.php (100%)
+ rename index_backup_old.php => Backup_2026/index_backup_old.php (100%)
+ rename lista arquivos.bat => Backup_2026/lista arquivos.bat (100%)
+ rename novo 1.php => Backup_2026/novo 1.php (100%)
+ rename painel_old.php => Backup_2026/painel_old.php (100%)
+ rename teste.php => Backup_2026/teste.php (100%)
+ rename teste.txt => Backup_2026/teste.txt (100%)
+ rename teste_arquitetura.php => Backup_2026/teste_arquitetura.php (100%)
+ rename teste_arvore.php => Backup_2026/teste_arvore.php (100%)
+ rename teste_card.html => Backup_2026/teste_card.html (100%)
+ rename teste_conexao.php => Backup_2026/teste_conexao.php (100%)
+ rename teste_demo.php => Backup_2026/teste_demo.php (100%)
+ rename teste_final.php => Backup_2026/teste_final.php (100%)
+ rename teste_frente.html => Backup_2026/teste_frente.html (100%)
+ rename teste_loader_banco.php => Backup_2026/teste_loader_banco.php (100%)
+ rename teste_modelos.php => Backup_2026/teste_modelos.php (100%)
+ rename teste_smtp.php => Backup_2026/teste_smtp.php (100%)
+ create mode 100644 DB_NORMALIZATION_PLAN.md
+ create mode 100644 HTML/HTML.rar
+ create mode 100644 HTML/Proposta 2026_518.html
+ create mode 100644 HTML/Proposta 2026_518_files/logo_5_864a2f9992e071eb9c61ec92f1be253e.png
+ create mode 100644 assets/css/auth-premium.css
+ create mode 100644 backup_log.txt
+ create mode 100644 components/dashboard/footer.php
+ create mode 100644 components/dashboard/head.php
+ create mode 100644 components/dashboard/navbar.php
+ create mode 100644 components/dashboard/quick_actions.php
+ create mode 100644 components/dashboard/stats_grid.php
+ create mode 100644 components/dashboard/welcome_card.php
+ create mode 100644 components/landing/dashboard_preview.php
+ create mode 100644 components/landing/features.php
+ create mode 100644 components/landing/footer.php
+ create mode 100644 components/landing/head.php
+ create mode 100644 components/landing/hero.php
+ create mode 100644 components/landing/login_modal.php
+ create mode 100644 components/landing/navbar.php
+ create mode 100644 components/landing/pricing.php
+ create mode 100644 components/navbar.php
+ create mode 100644 components/reports/charts_layout.php
+ create mode 100644 components/reports/charts_logic.php
+ create mode 100644 components/reports/kpi_cards.php
+ create mode 100644 core/TenantGuard.php
+ create mode 100644 core/auth_landing.php
+ create mode 100644 core/dashboard_controller.php
+ create mode 100644 core/proposal_report_controller.php
+ create mode 100644 core/reports_controller.php
+ create mode 100644 debug_check_services.php
+ create mode 100644 icons/icon-192x192.png
+ create mode 100644 icons/icon-512x512.png
+ create mode 100644 modelos_prod/.~lock.ModeloPropostaAvulso.docx#
+ create mode 100644 politica_privacidade.php
+ create mode 100644 promover_admin_agora.php
+ create mode 100644 salvar_proposta_html.php
+ create mode 100644 salvar_rascunho.php
+ create mode 100644 setup_tabela_rascunho.php
+ create mode 100644 temp_criar_user_prod.php
+ create mode 100644 termos_uso.php
+
+[2026-02-05 07:27:52] GIT PUSH: git : remote: warning: File Video_SGT/2026-01-25 11-02-43.mp4 is 57.64 MB; this is larger than GitHub's recommended 
+maximum file size of 50.00 MB        
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (remote: warning...0.00 MB        :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+remote: error: Trace: 758996f92c52196477e437739780516fbbfc8b6f8cce43551d74b22d9df91aca        
+remote: error: See https://gh.io/lfs for more information.        
+remote: error: File Video_SGT/2026-01-26 13-41-31.mkv is 431.53 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Video_SGT/2026-01-26 15-09-11.mkv is 533.20 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Video_SGT/2026-01-27 16-58-19.mkv is 2298.79 MB; this exceeds GitHub's file size limit of 100.00 
+MB        
+remote: error: File Cena_07/0123 (6)(1).mp4 is 106.47 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Video_SGT/1769517609168/screen_1769517609189.mp4 is 260.30 MB; this exceeds GitHub's file size 
+limit of 100.00 MB        
+remote: error: File Video_SGT/2026-01-27 19-51-43.mkv is 1749.74 MB; this exceeds GitHub's file size limit of 100.00 
+MB        
+remote: error: File Video_SGT/2026-01-25 14-30-07.mkv is 101.64 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Cena_07/0123 (6).mp4 is 106.50 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Cena_07/0123 (8).mp4 is 118.15 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Video_SGT/2026-01-25 17-30-57.mkv is 213.83 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.   
+     
+To https://github.com/elmtopografia-alt/WebSistema.git
+ ! [remote rejected] main -> main (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/elmtopografia-alt/WebSistema.git'
+
+[2026-02-05 07:27:52] Backup concluÃ­do com sucesso.
+[2026-02-05 18:00:02] Iniciando backup...
+[2026-02-05 18:00:02] GIT ADD: 
+[2026-02-05 18:00:02] GIT COMMIT: [main 595eb11] Backup Di+â-írio Autom+â-ítico: 2026-02-05 18:00:02
+ 15 files changed, 694 insertions(+)
+ create mode 100644 .agent/rules/SGT_SALES_ETHICS.md
+ create mode 100644 .agent/rules/SGT_SALES_PITCH.md
+ create mode 100644 .agent/scripts/mysql_diagnostic.ps1
+ create mode 100644 .agent/scripts/mysql_diagnostic_v2.ps1
+ create mode 100644 SGT_ETHICS_BIBLE.php
+ create mode 100644 diagnostico_conexao.php
+ create mode 100644 importar_relatorio_txt.php
+ create mode 100644 painel_prospeccao.php
+ create mode 100644 popular_leads_fake.php
+ create mode 100644 relatorio_prospeccao_brasil_v1.txt
+ create mode 100644 setup_db.php
+ create mode 100644 setup_leads_prospeccao.sql
+ create mode 100644 test_prospector.php
+ create mode 100644 verificar_banco.php
+
+[2026-02-05 18:00:02] GIT PUSH: git : error: RPC failed; HTTP 408 curl 22 The requested URL returned error: 408
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (error: RPC fail...rned error: 408:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+send-pack: unexpected disconnect while reading sideband packet
+fatal: the remote end hung up unexpectedly
+Everything up-to-date
+
+[2026-02-05 18:00:02] Backup concluÃ­do com sucesso.
+[2026-02-06 18:00:05] Iniciando backup...
+[2026-02-06 18:00:05] GIT ADD: 
+[2026-02-06 18:00:05] GIT COMMIT: [main 9ca92e2] Backup Di+â-írio Autom+â-ítico: 2026-02-06 18:00:05
+ 22 files changed, 1611 insertions(+), 389 deletions(-)
+ create mode 100644 .agent/GEMINI.md
+ create mode 100644 .agent/skills/legacy-system-protocol/SKILL.md
+ create mode 100644 ajax_crm_action.php
+ create mode 100644 conexao.php
+ create mode 100644 engine_busca.php
+ create mode 100644 instalar_tabela.php
+ create mode 100644 prospector.php
+ create mode 100644 robo_exec.php
+ create mode 100644 robo_start.php
+ create mode 100644 run_crm_update.php
+ create mode 100644 seed_real.php
+ create mode 100644 server_info.php
+ create mode 100644 setup_crm_update.sql
+ create mode 100644 validador_formato.php
+ create mode 100644 verificar_arquivos.php
+
+[2026-02-06 18:00:05] GIT PUSH: git : remote: warning: File Video_SGT/2026-01-25 11-02-43.mp4 is 57.64 MB; this is larger than GitHub's recommended 
+maximum file size of 50.00 MB        
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (remote: warning...0.00 MB        :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+remote: error: Trace: eb1c997f9c095c9992c4fe10c77d3ba6e3dbdbbd533c8dcb9e3719cc3c0b65be        
+remote: error: See https://gh.io/lfs for more information.        
+remote: error: File Video_SGT/2026-01-27 16-58-19.mkv is 2298.79 MB; this exceeds GitHub's file size limit of 100.00 
+MB        
+remote: error: File Video_SGT/2026-01-27 19-51-43.mkv is 1749.74 MB; this exceeds GitHub's file size limit of 100.00 
+MB        
+remote: error: File Cena_07/0123 (6).mp4 is 106.50 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Video_SGT/2026-01-26 13-41-31.mkv is 431.53 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Cena_07/0123 (6)(1).mp4 is 106.47 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Video_SGT/2026-01-25 14-30-07.mkv is 101.64 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Cena_07/0123 (8).mp4 is 118.15 MB; this exceeds GitHub's file size limit of 100.00 MB        
+remote: error: File Video_SGT/1769517609168/screen_1769517609189.mp4 is 260.30 MB; this exceeds GitHub's file size 
+limit of 100.00 MB        
+remote: error: File Video_SGT/2026-01-25 17-30-57.mkv is 213.83 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: File Video_SGT/2026-01-26 15-09-11.mkv is 533.20 MB; this exceeds GitHub's file size limit of 100.00 MB 
+       
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.   
+     
+To https://github.com/elmtopografia-alt/WebSistema.git
+ ! [remote rejected] main -> main (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/elmtopografia-alt/WebSistema.git'
+
+[2026-02-06 18:00:05] Backup concluÃ­do com sucesso.
+[2026-02-07 18:00:03] Iniciando backup...
+[2026-02-07 18:00:03] GIT ADD: git : warning: in the working copy of 'config.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'meus_clientes.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-07 18:00:03] GIT COMMIT: [main 70554ca] Backup Di+â-írio Autom+â-ítico: 2026-02-07 18:00:03
+ 46 files changed, 7791 insertions(+), 143 deletions(-)
+ create mode 100644 Sugestao_kimi_CRM/1_1_Criar_arquivo_tarefas_api.php
+ create mode 100644 Sugestao_kimi_CRM/1_2_Criar_arquivo_modulo_tarefas.php
+ create mode 100644 "Sugestao_kimi_CRM/2_1_SQL_para_abela_de_hist\303\263rico.sql"
+ create mode 100644 Sugestao_kimi_CRM/2_2_Criar_arquivo_timeline_api.php
+ create mode 100644 Sugestao_kimi_CRM/2_3_Componente_Visual_Modal_Timeline.php
+ create mode 100644 Sugestao_kimi_CRM/3_1_Criar_arquivo_relatorios_api.php
+ create mode 100644 Sugestao_kimi_CRM/3_2_Criar_arquivo_dashboard_crm.php
+ create mode 100644 Sugestao_kimi_CRM/4_1_SQL_para_tabelas_de_email.sql
+ create mode 100644 Sugestao_kimi_CRM/4_2_API_email_api.php
+ create mode 100644 Sugestao_kimi_CRM/4_3_Interface_modulo_email.php
+ create mode 100644 Sugestao_kimi_CRM/5_1_SQL_para_documentos.sql
+ create mode 100644 Sugestao_kimi_CRM/5_2_API_documentos_api.php
+ create mode 100644 Sugestao_kimi_CRM/5_3_Interface_modulo_documentos.php
+ create mode 100644 api/auth_mobile.php
+ create mode 100644 api/crm_controller.php
+ create mode 100644 api/documentos_api.php
+ create mode 100644 api/email_api.php
+ create mode 100644 api/relatorios_api.php
+ create mode 100644 api/setup_auth_token.php
+ create mode 100644 api/tarefas_api.php
+ create mode 100644 api/timeline_api.php
+ create mode 100644 dashboard_crm.php
+ create mode 100644 force_logout.php
+ create mode 100644 login_diag.php
+ create mode 100644 magic_login.php
+ create mode 100644 migration_crm_v3.php
+ create mode 100644 migration_whatsapp.php
+ create mode 100644 modulo_documentos.php
+ create mode 100644 modulo_email.php
+ create mode 100644 modulo_tarefas.php
+ create mode 100644 modulo_timeline.php
+ create mode 100644 nuke_session.php
+ create mode 100644 painel_crm.php
+ create mode 100644 painel_crm_debug.php
+ create mode 100644 painel_crm_old_claude.php
+ create mode 100644 painel_crm_v2_template.php
+ create mode 100644 sugestao_kimi_crm.txt
+ create mode 100644 test_login_debug.php
+
+[2026-02-08 18:00:05] Iniciando backup...
+[2026-02-08 18:00:05] GIT ADD: git : warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-02-08 18:00:05] GIT COMMIT: [main a8d268e] Backup Di+â-írio Autom+â-ítico: 2026-02-08 18:00:05
+ 59 files changed, 14516 insertions(+), 2687 deletions(-)
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/1_Substitua_o_bloco_de_bot\303\265es_de_a\303\247\303\243o_da_tabela_aprox_linhas_374_405.php"
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/1_criar_proposta.php"
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/2_Adicione_este_CSS.css"
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/2_Criar_proposta_Adicione.css"
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/3. Substitua"
+ create mode 100644 "Sugest\303\243o_mobile_Kimi/3Criar_proposta_Substitua_HTML.php"
+ create mode 100644 api/gerar_proposta_docx.php
+ create mode 100644 assets/css/proposta.css
+ create mode 100644 assets/js/autosave.js
+ create mode 100644 assets/js/calculator.js
+ create mode 100644 assets/js/cliente-modal.js
+ create mode 100644 assets/js/costs-manager.js
+ create mode 100644 assets/js/proposta.js
+ create mode 100644 assets/js/utils.js
+ create mode 100644 assets/js/wizard.js
+ create mode 100644 backup_20260207_223436/auth-premium.css
+ create mode 100644 backup_20260207_223436/criar_proposta.php
+ create mode 100644 backup_20260207_223436/form_proposta.css
+ create mode 100644 backup_20260207_223436/landing.css
+ create mode 100644 backup_20260207_223436/landing_dark.css
+ create mode 100644 backup_20260207_223436/landing_premium.css
+ create mode 100644 backup_20260207_223436/login.css
+ create mode 100644 backup_20260207_223436/navbar.php
+ create mode 100644 backup_20260207_223436/painel.php
+ create mode 100644 backup_20260207_223436/qrcode_login.php
+ create mode 100644 backup_criar_proposta_20260208.php
+ create mode 100644 classes/PropostaPHPWord.php
+ create mode 100644 debug_edivaldo.php
+ create mode 100644 debug_insert_test.php
+ create mode 100644 debug_last_proposals.php
+ create mode 100644 debug_qr.php
+ create mode 100644 partials/proposta_hiddens.php
+ create mode 100644 partials/proposta_modais.php
+ create mode 100644 partials/proposta_step1.php
+ create mode 100644 partials/proposta_step2.php
+ create mode 100644 partials/proposta_step3.php
+ create mode 100644 partials/proposta_step4.php
+ create mode 100644 qrcode_login.php
+
+[2026-02-09 18:00:05] Iniciando backup...
+[2026-02-09 18:00:05] GIT ADD: git : warning: in the working copy of 'editar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'salvar_edicao_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/editar_proposta_restaurado_20260208_201630.php', LF will be replaced by 
+CRLF the next time Git touches it
+
+[2026-02-09 18:00:05] GIT COMMIT: [main 243e13a] Backup Di+â-írio Autom+â-ítico: 2026-02-09 18:00:05
+ 22 files changed, 5286 insertions(+), 826 deletions(-)
+ create mode 100644 .agent/rules/SURGICAL_EDITS.md
+ create mode 100644 Backup_2026/editar_proposta_restaurado_20260208_201630.php
+ create mode 100644 classes/GeradorTemplateDrone.php
+ create mode 100644 debug_proposta.php
+ create mode 100644 diagnostico_base.php
+ create mode 100644 diagnostico_funcoes.php
+ create mode 100644 editar_proposta bk.php
+ create mode 100644 editor_dinamico_BACKUP_20260209.php
+ create mode 100644 fix_content_variations.php
+ create mode 100644 gerador_dados.php
+ create mode 100644 ver_dados_base.php
+ create mode 100644 verify_db_content.php
+

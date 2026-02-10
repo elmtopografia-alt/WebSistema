@@ -1,0 +1,74 @@
+[
+    {
+        "scene_number": "06",
+        "continuity_type": "RETURNS TO CARLOS - Full circle from Scene 01, showing transformation and success",
+        "reference_frame": "Use Carlos character reference from Scene 01 - SAME Carlos but now successful and confident",
+        "transition_note": "After software demonstration (Scenes 03-05), returns to Carlos showing the result: from stressed (Scene 01) to successful and confident",
+        "description": "SAME CARLOS FROM SCENE 01 - NOW TRANSFORMED INTO SUCCESS: Carlos (same 45-year-old Brazilian surveyor, mixed race white/pardo complexion from Scene 01) now wearing professional beige field work vest over blue long-sleeve shirt, facing camera with broad confident smile showing complete transformation from stressed (Scene 01) to triumphant. Professional surveyor ready for field work. In his left hand: ELM branded coffee mug (tan/beige color with blue ELM logo). In his right hand: yellow GNSS GPS handheld device (professional surveying equipment). Behind right shoulder visible: iPhone displaying large green checkmark with text 'PROPOSTA APROVADA' (Proposal Approved) on screen, confirming the R$ 33.050,00 contract success. Carlos positioned in office environment transitioning toward exit where brilliant warm golden hour sunlight (5500k color temperature) streams through glass doors/windows creating inspirational backlit atmosphere with natural lens flare effect. Office background visible through glass partition showing workspace he's leaving behind. Shot composition: medium frontal shot, Carlos center frame walking confidently toward camera and field work. Lighting: warm golden hour natural light creating uplifting cinematic atmosphere with soft lens flare. Expression: genuine satisfied smile, relaxed confident posture of someone who solved their problem. Duration 8 seconds with subtle forward walking motion toward light and camera, ending with Carlos ready to leave for field work.",
+        "character_consistency": {
+            "name": "Carlos - SAME CHARACTER FROM SCENE 01",
+            "age": 45,
+            "ethnicity": "Brazilian mixed race (white/pardo complexion) - EXACT SAME",
+            "clothing": "SAME casual business attire from Scene 01: dark blue sport blazer, brown trousers, light beige shirt",
+            "physical_features": "SAME mature adult male - maintain exact facial features and appearance",
+            "location": "SAME technical office from Scene 01, different camera angle showing exit",
+            "emotional_transformation": "FROM stressed/focused (Scene 01) TO confident/successful (Scene 06)"
+        },
+        "narrative_closure": {
+            "story_arc": "Complete transformation - Carlos's problem (Scenes 01-02) solved by SGT (Scenes 03-05) resulting in R$ 33.050,00 approved contract and field work success (Scene 06)",
+            "visual_callback": "Same Carlos from Scene 01 but now equipped and confident - ready for field instead of stuck in office",
+            "emotional_shift": "From office stress to field freedom, from manual calculations to automated success, from frustrated to fulfilled",
+            "symbolic_victory": "Leaving desk work behind, heading to field with approved proposal - the ultimate surveyor's goal"
+        },
+        "style": "cinematic corporate photography, inspirational success moment, photorealistic, professional documentary aesthetic, dynamic lighting",
+        "camera": "medium shot frontal angle, slight tracking backward as Carlos walks forward toward camera, smooth movement maintaining framing",
+        "lighting": "dynamic lighting transition from warm indoor 3000k to bright outdoor 6000k, realistic lens flare from sunlight, natural lighting progression, cinematic quality",
+        "environment": "office interior transitioning to outdoor exit, professional workspace, bright doorway with sunlight, success atmosphere",
+        "elements": [
+            "Carlos (SAME Brazilian surveyor from Scene 01, now triumphant)",
+            "beige professional field work vest",
+            "blue long-sleeve shirt",
+            "ELM branded coffee mug (tan/beige with blue logo)",
+            "yellow GNSS GPS handheld device in right hand",
+            "iPhone behind shoulder showing PROPOSTA APROVADA with green checkmark",
+            "R$ 33.050,00 contract reference (confirmed success)",
+            "office background with glass partition",
+            "warm golden hour sunlight through exit",
+            "natural lens flare effect",
+            "confident satisfied smile"
+        ],
+        "motion": "Carlos walking confidently toward camera with broad smile, holding coffee mug in left hand, GPS device in right hand, iPhone visible behind shoulder showing approval screen, progressive movement from office interior toward golden lit exit, relaxed triumphant body language",
+        "ending": "Carlos reaches near exit bathed in warm golden sunlight, full lens flare effect, ready to leave for field work with approved R$ 33.050,00 proposal, complete transformation from stressed office worker to confident field professional",
+        "voice": {
+            "text": "Foque no campo e deixe a gestão com o SGT Pro. Feche mais contratos.",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "mature adult",
+            "accent": "neutral Brazilian",
+            "tone": "institutional, inspirational, professional, motivational, confident, uplifting, triumphant"
+        },
+        "sfx": [
+            "inspirational corporate music crescendo",
+            "door opening sound",
+            "outdoor ambient transition",
+            "subtle footsteps",
+            "triumphant musical accent"
+        ],
+        "text": "Proposta Aprovada!",
+        "duration": "8 seconds",
+        "timing": "00:40 - 00:48",
+        "keywords": [
+            "success",
+            "inspiration",
+            "approval",
+            "professional achievement",
+            "cinematic",
+            "lens flare",
+            "lighting transition",
+            "Brazilian professional",
+            "field work",
+            "16:9 widescreen",
+            "triumphant moment"
+        ]
+    }
+]

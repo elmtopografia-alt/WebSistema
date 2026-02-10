@@ -183,7 +183,7 @@ if ($total_admin > 0) { $chart_labels[] = 'Admin'; $chart_data[] = $total_admin;
         <!-- Header Compacto -->
         <div class="text-center mb-10">
             <div class="inline-flex items-center gap-3 mb-4">
-                <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-16">
+                <img src="<?= BASE_URL ?>/assets/img/logo_sgt_new.png" alt="SGT" class="h-16">
             </div>
             <h1 class="font-display text-4xl font-bold text-white leading-tight">
                 <?= htmlspecialchars($proposta['nome_cliente']) ?>

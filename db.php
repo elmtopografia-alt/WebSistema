@@ -66,9 +66,10 @@ class Database {
 // ==========================================================
 // Cria a variável $conn que o index.php espera encontrar.
 
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
+// Sessão deve ser iniciada nos controladores (index.php, login_demo.php, session_validator.php)
+// if (session_status() === PHP_SESSION_NONE) {
+//     @session_start();
+// }
 
 $is_demo_legacy = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
 

@@ -2,5 +2,10 @@
     "require": {
         "phpoffice/phpword": "^1.4",
         "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "ProposalArchitect\\": "src/ProposalArchitect/"
+        }
     }
 }

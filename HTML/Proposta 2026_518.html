@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<!-- saved from url=(0075)https://elmtopografia.com.br/Orcamento/propostas_html/proposta_2026518.html -->
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Proposta 2026/518</title>
+    
+    <style>
+        /* Reset e Base */
+        @import url("https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap");
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6; /* Cinza claro fundo tela */
+        }
+        
+        .proposal-document {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm; /* A4 width */
+            margin: 20px auto;
+            padding: 20mm;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Cabeçalho */
+        .header-block {
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .logo-full img {
+            max-width: 200px;
+            height: auto;
+        }
+        
+        .logo-compact {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #fff; /* Fundo branco limpo */
+            padding: 20px 0;
+            margin-bottom: 20px;
+            /* border-bottom: 4px solid #1e293b; Remove visual border if not needed, simpler is better */
+            color: #1e293b; /* Texto Escuro */
+        }
+        
+        .logo-compact img {
+            max-height: 90px; /* Logo maior */
+            width: auto;
+            /* background: white; Remove white bg on img */
+            padding: 0;
+        }
+        
+        .logo-compact h1 {
+            font-size: 24pt; /* Título bem visível */
+            font-weight: 800; /* Extra Bold - Negrito Encorpado */
+            color: #1e293b; 
+            letter-spacing: 1px;
+            margin: 0;
+            flex-grow: 1; 
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .proposal-meta {
+            margin-top: 15px;
+            text-align: right;
+        }
+        
+        .meta-row {
+            margin: 5px 0;
+        }
+        
+        .proposal-number {
+            font-size: 14pt;
+            color: #2563eb;
+        }
+        
+        .location-date {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        /* Blocos de Conteúdo */
+        .proposal-block {
+            margin-bottom: 30px;
+            /* page-break-inside: avoid; REMOVIDO PARA EVITAR BURACOS */
+            orphans: 3;
+            widows: 3;
+        }
+        
+        .section-title {
+            font-size: 14pt;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            page-break-after: avoid; /* Mantém título colado com o texto */
+        }
+        
+        /* Blocos que NÃO devem quebrar (Pequenos) */
+        .header-block, 
+        .investment-block, 
+        .bank-data, 
+        .final-block,
+        .info-list { 
+            page-break-inside: avoid;
+        }
+        
+        .section-title.numbered {
+            color: #2563eb;
+        }
+        
+        .section-intro {
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        
+        /* Listas de Informação (Cliente/Obra) */
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .info-list li {
+            padding: 8px 0;
+            border-bottom: 1px dotted #e2e8f0;
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .info-list li strong {
+            min-width: 120px;
+            color: #475569;
+        }
+        
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Conteúdo Texto Rico */
+        .content-text {
+            text-align: justify;
+        }
+
+        .content-text h4 {
+            color: #334155;
+            font-size: 11pt;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .content-text ul, .content-text ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        
+        .content-text li {
+            margin-bottom: 8px;
+        }
+        
+        /* Tabela de Prazos */
+        .proposal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 10pt;
+        }
+        
+        .proposal-table th {
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        
+        .proposal-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        
+        .proposal-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .total-row td {
+            background: #eff6ff !important;
+            border-top: 2px solid #2563eb;
+            font-weight: bold;
+            color: #1e40af;
+        }
+        
+        /* Bloco de Investimento */
+        .investment-block {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #86efac;
+            border-radius: 12px;
+            padding: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .investment-value {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .investment-value h3 {
+            font-size: 24pt;
+            color: #166534;
+            margin: 0;
+            font-weight: 800;
+        }
+        
+        .value-extenso {
+            display: block;
+            color: #15803d;
+            font-size: 10pt;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .investment-note {
+            text-align: center;
+            color: #166534;
+            font-size: 10pt;
+            margin-top: 15px;
+        }
+        
+        /* Condições de Pagamento */
+        .payment-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        
+        .payment-list li {
+            padding: 15px;
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .payment-list .value {
+            font-size: 12pt;
+            color: #2563eb;
+            font-weight: 700;
+        }
+        
+        .payment-list .note {
+            color: #64748b;
+            font-size: 9pt;
+            display: block;
+            margin-top: 4px;
+        }
+        
+        .bank-data {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .bank-data h4 {
+            margin-top: 0;
+            color: #475569;
+            font-size: 11pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .bank-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .bank-list li {
+            padding: 5px 0;
+            font-size: 10pt;
+            color: #334155;
+        }
+        
+        /* Lista de Equipamentos */
+        .equipment-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .equipment-list li {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #0ea5e9;
+        }
+
+        .equipment-list li strong {
+            color: #0c4a6e;
+        }
+        
+        /* Assinatura */
+        .final-block {
+            margin-top: 40px;
+        }
+        
+        .signature {
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .closing {
+            margin-bottom: 80px; /* Aumentado para dar espaço para assinatura */
+        }
+        
+        .company-name {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .responsible {
+            color: #64748b;
+            font-size: 10pt;
+            border-top: 1px solid #cbd5e1;
+            display: inline-block;
+            padding-top: 10px;
+            min-width: 200px;
+        }
+        
+        .contact {
+            color: #2563eb;
+            font-size: 11pt;
+            margin-top: 5px;
+        }
+        
+        /* Rodapé */
+        .proposal-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 9pt;
+            color: #94a3b8;
+        }
+        
+        /* Impressão */
+        @media print {
+            body {
+                background: white;
+            }
+            .proposal-document {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+            }
+            .proposal-block {
+                page-break-inside: avoid;
+            }
+            .investment-block, .final-block, .bank-data {
+                page-break-inside: avoid;
+            }
+            /* Ocultar botão de imprimir se houver */
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+    <meta id="nedeegdmhlnmboboahchfpkmdnnemapd"><meta id="dcngeagmmhegagicpcmpinaoklddcgon"></head>
+<body>
+
+    <div class="no-print" style="position:fixed; top:20px; right:20px; z-index:9999;">
+        <button onclick="window.print()" style="background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+            🖨️ Imprimir / Salvar PDF
+        </button>
+    </div>
+
+    <div class="proposal-document">
+        
+        <div class="proposal-block header-block"><div class="logo-compact"><img src="./Proposta 2026_518_files/logo_5_864a2f9992e071eb9c61ec92f1be253e.png" alt="Logo"><h1>PROPOSTA TÉCNICA COMERCIAL</h1></div><div class="proposal-meta"><div class="meta-row"><span class="proposal-number">Proposta Nº: <strong>2026/518</strong></span></div><div class="meta-row location-date"><span>BELO HORIZONTE, 02 de fevereiro de 2026</span></div></div></div><div class="proposal-block"><h2 class="section-title">📌 Dados do Cliente</h2><ul class="info-list"><li><strong>Nome:</strong> Daniel Editor da Silva</li><li><strong>E-mail:</strong> daniel.editor@silva.com</li><li><strong>Contato:</strong> 3532114539 / 35991234765</li></ul></div><div class="proposal-block"><h2 class="section-title">📍 Local da Obra</h2><ul class="info-list"><li><strong>Endereço:</strong> Avenida dos Andradas 2000</li><li><strong>Bairro:</strong> Centro</li><li><strong>Cidade/UF:</strong> BELO HORIZONTE - MG</li><li><strong>Área Estimada:</strong> 1,00 ha</li></ul></div><div class="proposal-block content-block"><h2 class="section-title numbered">1. Apresentação</h2><div class="content-text"><p class="mb-4 text-slate-700 leading-relaxed">A <strong class="text-slate-900">GeoMetrópole Engenharia e Topografia Ltda.</strong> apresenta esta proposta técnica visando a execução de levantamento topográfico planialtimétrico através de <strong>Aerofotogrametria com Drones (VANTs)</strong>.</p>
+<p class="mb-4 text-slate-700 leading-relaxed">Diferente de simples filmagens aéreas, este serviço trata-se de <strong>Engenharia de Precisão</strong>. O objetivo é gerar uma representação digital fiel do terreno, com coordenadas exatas (Latitude, Longitude e Altitude), servindo de base legal e técnica para projetos de arquitetura, loteamentos, regularização fundiária e cálculos de volume, se necessário.</p></div></div><div class="proposal-block content-block"><h2 class="section-title numbered">2. Metodologia (Aerofotogrametria)</h2><div class="content-text"><p class="mb-4 text-slate-700 leading-relaxed">Para garantir que o produto final tenha validade topográfica, seguimos um rigoroso fluxo de trabalho dividido em etapas de campo e escritório. Abaixo, detalhamos cada fase para total compreensão do processo contratado:</p>
+<h4 class="font-bold text-slate-900 mt-6 mb-2">FASE 1: Planejamento e Configuração de Voo (Escritório)</h4>
+<p class="mb-2 text-slate-700">Antes de ir a campo, realizamos o estudo da área via satélite.</p>
+<ul class="list-none space-y-2 mb-4">
+<li><strong class="text-slate-900">● O que é:</strong> Definimos a altura de voo para garantir a resolução desejada (GSD) e a área de abrangência.</li>
+<li><strong class="text-slate-900">● Para o Leigo:</strong> O drone não voa aleatoriamente. Ele segue uma "grade" programada via GPS, garantindo que nenhuma parte do terreno fique sem cobertura.</li>
+<li><strong class="text-slate-900">● Critério Técnico:</strong> Configuração de sobreposição (overlap) frontal e lateral (geralmente 75/80%) para garantir a estereoscopia (visão 3D) no processamento.</li>
+</ul>
+<h4 class="font-bold text-slate-900 mt-6 mb-2">FASE 2: Apoio Terrestre - Pontos de Controle (Campo)</h4>
+<p class="mb-2 text-slate-700">Esta é a etapa que diferencia uma foto comum de um mapa topográfico.</p>
+<ul class="list-none space-y-2 mb-4">
+<li><strong class="text-slate-900">● O Procedimento:</strong> Antes do drone decolar, nossa equipe distribui e pinta alvos no chão ou utiliza marcos naturais. As coordenadas exatas do centro desses alvos são coletadas com GPS Geodésico de Alta Precisão (RTK).</li>
+<li><strong class="text-slate-900">● Importância:</strong> Esses pontos servem como "âncoras" que amarram as fotos do drone ao sistema de coordenadas do mundo real, corrigindo distorções e garantindo precisão centimétrica.</li>
+<li><strong class="text-slate-900">● Checklist:</strong> Verificação da fixação dos pontos, nivelamento do bastão GPS e tempo de rastreio dos satélites.</li>
+</ul>
+<h4 class="font-bold text-slate-900 mt-6 mb-2">FASE 3: Evolução do Voo e Captura de Dados (Campo)</h4>
+<ul class="list-none space-y-2 mb-4">
+<li><strong class="text-slate-900">* Checklist de Segurança:</strong> Verificação de baterias, hélices, cartões de memória, interferência magnética (bússola), condições do vento e autorizações de voo (DECEA).</li>
+<li><strong class="text-slate-900">● O Voo:</strong> O drone percorre a rota autônoma, capturando centenas de fotos em ângulos verticais (nadir) e oblíquos.</li>
+<li><strong class="text-slate-900">● Resultado:</strong> Coleta de imagens brutas (Raw Data) que, isoladamente, não possuem escala, mas que juntas formarão o mapa.</li>
+</ul>
+<h4 class="font-bold text-slate-900 mt-6 mb-2">FASE 4: Processamento Fotogramétrico (Escritório)</h4>
+<p class="mb-2 text-slate-700">Utilizamos supercomputadores (Workstations) e softwares específicos para transformar as fotos em geometria.</p>
+<ul class="list-decimal pl-5 mb-4 space-y-2 text-slate-700">
+<li><strong>Alinhamento:</strong> O software encontra milhares de pontos em comum entre as fotos.</li>
+<li><strong>Nuvem de Pontos Densa:</strong> Criação de milhões de pontos coloridos no espaço 3D, representando o solo, árvores e construções.</li>
+<li><strong>Georreferenciamento:</strong> Inserção dos Pontos de Controle (da Fase 2) para corrigir a posição da nuvem de pontos com precisão milimétrica.</li>
+</ul>
+<h4 class="font-bold text-slate-900 mt-6 mb-2">FASE 5: Vetorização e Desenho Técnico (Escritório - CAD)</h4>
+<ul class="list-none space-y-2 mb-4">
+<li><strong class="text-slate-900">● O que é:</strong> Um desenhista técnico utiliza o modelo 3D gerado para "desenhar" o mapa final em software CAD (AutoCAD/Civil 3D).</li>
+<li><strong class="text-slate-900">● O Trabalho:</strong> Vetorização de guias, cercas, edificações, postes, árvores e, principalmente, a geração das Curvas de Nível (linhas que representam a altura do terreno).</li>
+</ul></div></div><div class="proposal-block content-block"><h2 class="section-title numbered">3. Produtos Entregues</h2><div class="content-text"><h4 class="font-bold text-slate-900 mb-4">Produtos Entregues (O que você recebe)</h4>
+<p class="mb-4 text-slate-700">Ao final do processo, entregamos um pacote completo de dados técnicos:</p>
+<ul class="list-decimal pl-5 mb-4 space-y-2 text-slate-700">
+<li><strong>Ortomosaico Georreferenciado (TIF/JPG):</strong> Uma "foto" gigante de toda a área, livre de distorções de perspectiva e em escala real. É possível medir distâncias e áreas diretamente sobre ela.</li>
+<li><strong>MDT (Modelo Digital de Terreno):</strong> Representação 3D apenas do solo (sem árvores/prédios), essencial para projetos de terraplenagem.</li>
+<li><strong>Curvas de Nível (DWG/DXF):</strong> Arquivo pronto para abertura em AutoCAD, contendo a topografia do terreno com equidistância definida (ex: 1 em 1 metro).</li>
+<li><strong>Planta Topográfica Planialtimétrica (PDF/Plotagem):</strong> Mapa finalizado com legendas, norte, carimbo e dados técnicos.</li>
+<li><strong>Relatório de Processamento:</strong> Documento comprovando a precisão alcançada nos Pontos de Controle.</li>
+<li><strong>ART (Anotação de Responsabilidade Técnica):</strong> Documento registrado no CREA garantindo a responsabilidade técnica do engenheiro sobre o levantamento.</li>
+</ul></div></div><div class="proposal-block"><h2 class="section-title numbered">4. Prazos Estimados</h2><p class="section-intro">O cumprimento dos prazos depende de condições climáticas favoráveis.</p><table class="proposal-table"><thead><tr><th>Etapa</th><th>Descrição</th><th>Prazo Estimado</th></tr></thead><tbody><tr><td><strong>1. Mobilização</strong></td><td>Planejamento e ida a campo</td><td>Até 02 dias</td></tr><tr><td><strong>2. Execução</strong></td><td>Levantamento de Campo</td><td>1 dias</td></tr><tr><td><strong>3. Escritório</strong></td><td>Processamento e Desenho</td><td>5 dias</td></tr><tr class="total-row"><td colspan="2">TOTAL ESTIMADO</td><td>6 dias úteis após campo</td></tr></tbody></table></div><div class="proposal-block investment-block"><h2 class="section-title numbered">5. Investimento</h2><p>O valor total para execução dos serviços descritos é de:</p><div class="investment-value"><h3>R$ 1.900,00</h3><span class="value-extenso">(mil oitocentos e noventa e nove reais e cem centavos)</span></div><p class="investment-note">Este investimento reflete o custo-benefício de nossa tecnologia e expertise.</p></div><div class="proposal-block"><h2 class="section-title numbered">6. Condições de Pagamento</h2><ul class="payment-list"><li><strong>Mobilização (Sinal):</strong> <span class="value">R$ 570,00</span> <span class="note">(30% no aceite)</span></li><li><strong>Entrega Final:</strong> <span class="value">R$ 1.330,00</span> <span class="note">(70% na entrega)</span></li></ul><div class="bank-data"><h4>Dados Bancários</h4><ul class="bank-list"><li><strong>Banco:</strong> Itaú Unibanco S.A.</li><li><strong>Ag/Conta:</strong> 2934 / 56789-0</li><li><strong>Pix:</strong> financeiro@geometropolesp.com.</li><li><strong>Favorecido:</strong> GeoMetrópole Engenharia e Topografia Ltda.</li></ul></div></div><div class="proposal-block"><h2 class="section-title numbered">7. Equipamentos</h2><ul class="equipment-list"><li><strong>Veículo:</strong> Veiculo Fiat Strada</li><li><strong>Aeronave:</strong> Drone DJI Mavic</li><li><strong>GPS:</strong> GPS ComNav T300 Plus / T30</li></ul></div><div class="proposal-block final-block"><h2 class="section-title numbered">8. Considerações Finais</h2><div class="content-text"><p class="mb-6 text-slate-700 leading-relaxed">Esta proposta tem validade de <strong>15 dias</strong>. A <strong>GeoMetrópole Engenharia e Topografia Ltda.</strong> coloca-se à disposição para sanar quaisquer dúvidas técnicas. Garantimos que o produto final entregue será uma ferramenta robusta para o desenvolvimento do seu projeto.</p></div><div class="signature"><p class="closing">Atenciosamente,</p><div class="company-name">GeoMetrópole Engenharia e Topografia Ltda.</div><div class="responsible">Engenheiro Responsável</div><div class="contact">(31) 99876-5432</div></div></div><div class="proposal-footer">GeoMetrópole Engenharia e Topografia Ltda. • CNPJ: 45.123.890/0001-56 • WhatsApp: (31) 99876-5432</div>        
+    </div>
+
+
+
+</body></html>

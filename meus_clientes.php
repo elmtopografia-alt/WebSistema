@@ -2,11 +2,9 @@
 // Nome do Arquivo: meus_clientes.php
 // Função: Lista de Clientes com MENU UNIVERSAL.
 
-session_start();
+require_once 'session_validator.php';
 require_once 'config.php';
 require_once 'db.php';
-
-if (!isset($_SESSION['usuario_id'])) { header("Location: login.php"); exit; }
 
 $id_usuario = $_SESSION['usuario_id'];
 $ambiente_atual = $_SESSION['ambiente'] ?? 'indefinido';
@@ -34,6 +32,11 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes | SGT</title>
     
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | SGT</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -42,6 +45,9 @@ try {
     
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- QR Code Library (Client Side) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -53,12 +59,12 @@ try {
                     },
                     colors: {
                         brand: {
-                            dark: '#001e3c',
-                            primary: '#0a2e5c',
-                            surface: '#132f4c',
-                            accent: '#FF7518',
-                            action: '#EA580C',
-                            glow: '#4fc3f7',
+                            dark: '#0a0f1a',      // Was #001e3c -> SGT Background
+                            primary: '#111827',   // Was #0a2e5c -> SGT Surface
+                            surface: 'rgba(255,255,255,0.03)', // Was #132f4c -> SGT Glass Ultra Light
+                            accent: '#f97316',    // Was #FF7518 -> SGT Orange
+                            action: '#ea580c',    // Was #EA580C -> SGT Orange Dark
+                            glow: '#3b82f6',      // Was #4fc3f7 -> SGT Blue
                         }
                     }
                 }
@@ -67,77 +73,36 @@ try {
     </script>
 
     <style>
-        /* Glassmorphism */
+        /* Glassmorphism - Remapped to SGT Visuals */
         .glass-panel {
-            background: rgba(10, 46, 92, 0.65);
+            background: rgba(17, 24, 39, 0.7); /* SGT Glass Base */
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
-        /* Background */
+        /* Background - Remapped to SGT Dark */
         body {
-            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            background-color: #0a0f1a;
+            color: #f8fafc;
+            /* Optional: Subtle grid pattern if desired, but sticking to pure CSS properties */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
             min-height: 100vh;
         }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #001224; }
-        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #FF7518; }
+        ::-webkit-scrollbar-track { background: #0a0f1a; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f97316; }
     </style>
 </head>
 <body class="text-slate-200 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark">
 
     <!-- Navbar -->
-    <nav class="w-full glass-panel sticky top-0 z-50 border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-4">
-                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-10">
-                    <?php if($is_demo): ?>
-                        <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold border border-yellow-500/30 uppercase tracking-wider">DEMO</span>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Menu Desktop -->
-                <div class="hidden md:flex items-center gap-4">
-                    <a href="painel.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-                        <i class="ph ph-house"></i> Painel
-                    </a>
-                    <a href="minha_empresa.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-                        <i class="ph ph-gear"></i> Empresa
-                    </a>
-                    <a href="meus_clientes.php" class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-users-three-fill text-brand-accent"></i> Clientes
-                    </a>
-                    
-                    <div class="h-6 w-px bg-white/10 mx-2"></div>
-
-                    <!-- User Dropdown -->
-                    <div class="relative group">
-                        <button class="flex items-center gap-2 text-white font-medium hover:text-brand-accent transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-brand-surface border border-white/10 flex items-center justify-center text-brand-accent">
-                                <i class="ph ph-user"></i>
-                            </div>
-                            <span><?= htmlspecialchars($primeiro_nome) ?></span>
-                            <i class="ph ph-caret-down text-xs text-slate-500"></i>
-                        </button>
-                        <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
-                            <div class="py-1">
-                                <a href="logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300">
-                                    <i class="ph ph-sign-out mr-2"></i> Sair
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <?php include 'components/navbar.php'; ?>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
@@ -226,5 +191,95 @@ try {
         </div>
 
     </div>
-</body>
-</html>
+
+    <!-- Modal Share SGT -->
+    <div id="modalShare" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeShareModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4">
+            <div class="glass-panel rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative animate-float">
+                
+                <!-- Header -->
+                <div class="bg-brand-primary p-4 flex justify-between items-center border-b border-white/10">
+                    <h5 class="font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-share-network text-brand-accent"></i> Acesso do Cliente
+                    </h5>
+                    <button onclick="closeShareModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="ph ph-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 flex flex-col items-center text-center">
+                    <p class="text-xs text-slate-400 mb-4">Escaneie para acessar a área exclusiva de:</p>
+                    <h3 id="shareClientName" class="text-lg font-bold text-white mb-6">Nome do Cliente</h3>
+                    
+                    <!-- QR Code Area -->
+                    <div class="p-3 bg-white rounded-xl mb-6 shadow-lg shadow-white/5">
+                        <div id="qrcode"></div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="w-full space-y-3">
+                        <button id="btnWhatsapp" class="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02]">
+                            <i class="ph ph-whatsapp-logo text-xl"></i> Enviar no WhatsApp
+                        </button>
+                        
+                        <button id="btnCopy" class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <i class="ph ph-copy"></i> Copiar Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // URL de Produção solicitada
+        // Aponta para a Home. Futuramente o index.php pode ler o ?id= para redirecionar se necessário.
+        const baseUrl = 'https://elmtopografia.com.br/Orcamento/index.php?id=';
+
+        function openShareModal(id, nome, celular) {
+            const modal = document.getElementById('modalShare');
+            const nameEl = document.getElementById('shareClientName');
+            const qrEl = document.getElementById('qrcode');
+            const btnZap = document.getElementById('btnWhatsapp');
+            const btnCopy = document.getElementById('btnCopy');
+
+            // 1. Setup Data
+            const link = baseUrl + id;
+            const zapLink = `https://wa.me/55${celular.replace(/\D/g,'')}?text=${encodeURIComponent('Olá ' + nome + ', acesse seu painel SGT aqui: ' + link)}`;
+
+            // 2. Update UI
+            nameEl.textContent = nome;
+            
+            // 3. Generate QR
+            qrEl.innerHTML = ''; // Clear previous
+            new QRCode(qrEl, {
+                text: link,
+                width: 160,
+                height: 160,
+                colorDark : "#0a0f1a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // 4. Setup Buttons
+            btnZap.onclick = () => window.open(zapLink, '_blank');
+            btnCopy.onclick = () => {
+                navigator.clipboard.writeText(link);
+                btnCopy.innerHTML = '<i class="ph ph-check text-green-400"></i> Copiado!';
+                setTimeout(() => btnCopy.innerHTML = '<i class="ph ph-copy"></i> Copiar Link', 2000);
+            };
+
+            // 5. Show
+            modal.classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('modalShare').classList.add('hidden');
+        }
+    </script>

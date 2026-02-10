@@ -2,12 +2,10 @@
 // ARQUIVO: gerenciar.php
 // VERSÃO: CORREÇÃO DE CAMPOS DESABILITADOS EM CLIENTES
 
-session_start();
+require_once 'session_validator.php';
 require_once 'config.php';
 require_once 'db.php';
 require_once 'valida_demo.php';
-
-if (!isset($_SESSION['usuario_id'])) { header("Location: login.php"); exit; }
 
 $id_usuario = $_SESSION['usuario_id'];
 $is_demo = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
@@ -102,12 +100,18 @@ if ($tabela === 'Marcas') {
 }
 
 // --- EXCLUSÃO ---
-if (isset($_GET['acao']) && $_GET['acao'] === 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+// --- EXCLUSÃO (PROTEGIDO CONTRA CSRF) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'excluir') {
+    
+    // VERIFICA TOKEN (VACINA #1)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die("ERRO DE SEGURANÇA: Token inválido. (CSRF Detectado)");
+    }
+
+    $id = intval($_POST['id']);
     $where = "$pk = ?";
     $types = 'i'; $params = [$id];
     
-    // Se for tabela privada, garante que só apaga o que é do usuário
     if ($is_private) { 
         $where .= " AND id_criador = ?";
         $types .= 'i'; 
@@ -117,7 +121,7 @@ if (isset($_GET['acao']) && $_GET['acao'] === 'excluir' && isset($_GET['id'])) {
     $stmt = $conn->prepare("DELETE FROM $tabela WHERE $where");
     $stmt->bind_param($types, ...$params);
     $stmt->execute();
-    $_SESSION['mensagem_sucesso'] = 'Registro excluído com sucesso!';
+    $_SESSION['mensagem_sucesso'] = 'Registro excluído com segurança!';
     header("Location: gerenciar.php?tabela=$tabela");
     exit;
 }
@@ -232,6 +236,7 @@ $resultado = $conn->query($sql_lista);
         </div>
         <div class="card-body">
             <form method="POST" action="gerenciar.php?tabela=<?= $tabela ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <?php if($dados_editar): ?><input type="hidden" name="id_editar" value="<?= $dados_editar[$pk] ?>"><?php endif; ?>
 
                 <div class="row g-3">
@@ -315,7 +320,7 @@ $resultado = $conn->query($sql_lista);
                             <td class="text-end pe-3">
                                 <?php if (!$block_edition): ?>
                                     <a href="?tabela=<?= $tabela ?>&acao=editar&id=<?= $row[$pk] ?>" class="btn btn-sm btn-outline-warning me-1"><i class="fa-solid fa-pen"></i></a>
-                                    <a href="?tabela=<?= $tabela ?>&acao=excluir&id=<?= $row[$pk] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza?')"><i class="fa-solid fa-trash"></i></a>
+                                    <button onclick="confirmarExclusao(<?= $row[$pk] ?>)" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
                                 <?php else: ?>
                                     <span class="badge bg-secondary"><i class="fa-solid fa-lock"></i></span>
                                 <?php endif; ?>
@@ -333,3 +338,26 @@ $resultado = $conn->query($sql_lista);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+<script>
+function confirmarExclusao(id) {
+    if(confirm('Tem certeza que deseja excluir este item? Essa ação não pode ser desfeita.')) {
+        // Cria formulário dinâmico para enviar POST com Token
+        let f = document.createElement('form');
+        f.action = 'gerenciar.php?tabela=<?= $tabela ?>';
+        f.method = 'POST';
+
+        let i1 = document.createElement('input');
+        i1.type = 'hidden'; i1.name = 'acao'; i1.value = 'excluir';
+        
+        let i2 = document.createElement('input');
+        i2.type = 'hidden'; i2.name = 'id'; i2.value = id;
+
+        let i3 = document.createElement('input');
+        i3.type = 'hidden'; i3.name = 'csrf_token'; i3.value = '<?= $_SESSION['csrf_token'] ?>';
+
+        f.appendChild(i1); f.appendChild(i2); f.appendChild(i3);
+        document.body.appendChild(f);
+        f.submit();
+    }
+}
+</script>

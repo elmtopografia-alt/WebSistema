@@ -1,0 +1,73 @@
+[
+    {
+        "scene_number": "05",
+        "continuity_type": "CONTINUES FROM SCENE 04 - Same SGT-Propostas software interface",
+        "reference_frame": "Use visual reference from Scene 04 - same software interface, same blue and white color scheme",
+        "transition_note": "Continues from automatic calculation (Scene 04) to next step: generating and sharing the proposal",
+        "description": "VISUAL CONTINUITY FROM SCENE 04: Same Carlos (45-year-old Brazilian surveyor, same casual business attire) in same technical office environment. Over-the-shoulder camera angle showing Carlos's hand positioned over laptop keyboard/touchpad, preparing to click. Laptop screen displays 'Fechamento da Proposta' screen with prominent enlarged green button 'GERAR PROPOSTA R$ 33.050,00' taking center focus. Button appears larger and more prominent than in previous scene, emphasizing the call-to-action moment. Professional office setting maintained with same cold natural daylight 6500k. Yellow GNSS GPS surveying equipment visible on desk next to laptop (left side), reinforcing Carlos's profession as surveyor. Camera steady over-shoulder position capturing the decisive moment. Carlos's hand moves toward button, hovers briefly, then clicks. Upon click, quick visual feedback: button press animation, brief processing indicator, then success confirmation. Duration 8 seconds showing Carlos's decisive action to generate the proposal.",
+        "character_consistency": {
+            "name": "Carlos - SAME CHARACTER FROM SCENES 01-04",
+            "age": 45,
+            "ethnicity": "Brazilian mixed race (white/pardo complexion) - EXACT SAME",
+            "clothing": "SAME casual business attire: dark blue sport blazer, brown trousers, light beige shirt",
+            "physical_features": "SAME mature adult male - maintain exact facial features",
+            "location": "SAME technical office from previous scenes, over-shoulder camera angle",
+            "lighting_reference": "same cold natural daylight 6500k maintaining continuity",
+            "emotional_state": "decisive, taking action, confident in the solution"
+        },
+        "narrative_context": {
+            "purpose": "climax moment - Carlos executes the solution that solves his original problem",
+            "emotional_progression": "from reviewing (Scene 04) to decisive action (Scene 05)",
+            "symbolic_equipment": "yellow GNSS GPS device visible - represents his field work that generates proposals",
+            "action_moment": "the click that generates the proposal automatically"
+        },
+        "style": "software interface recording, clean UI design, professional digital aesthetic, smooth micro-animations, modern UX",
+        "camera": "static focused shot on action button area, slight depth of field effect on background interface, centered composition",
+        "lighting": "clean digital rendering, focal highlight on green button, uniform screen brightness, professional interface lighting",
+        "environment": "SGT-Propostas software interface, proposal generation screen, modern application design",
+        "elements": [
+            "Carlos (SAME from previous scenes)",
+            "Carlos's hand hovering over laptop",
+            "laptop showing Fechamento da Proposta screen",
+            "enlarged green button: GERAR PROPOSTA R$ 33.050,00",
+            "yellow GNSS GPS surveying equipment on desk",
+            "button press animation upon click",
+            "brief processing indicator",
+            "success confirmation feedback",
+            "blue and white SGT interface",
+            "office desk and environment from previous scenes"
+        ],
+        "motion": "Carlos's hand moves from keyboard toward button, hovers briefly over green button (anticipation), clicks decisively, button press animation triggers, brief processing indicator spins, success confirmation appears",
+        "ending": "Success confirmation visible on screen, Carlos's hand releases from click position, satisfaction visible in body language, proposal generated successfully",
+        "voice": {
+            "text": "Personalize o edital, gere o PDF e envie por WhatsApp. Tudo em segundos.",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "mature adult",
+            "accent": "neutral Brazilian",
+            "tone": "institutional, demonstrative, professional, efficient, solution-focused, empowering"
+        },
+        "sfx": [
+            "decisive mouse click sound",
+            "brief processing whoosh",
+            "success confirmation chime",
+            "soft ambient office tone"
+        ],
+        "text": "GERAR PROPOSTA R$ 33.050,00",
+        "duration": "8 seconds",
+        "timing": "00:32 - 00:40",
+        "keywords": [
+            "decisive action",
+            "call to action moment",
+            "proposal generation",
+            "automated solution",
+            "Brazilian professional",
+            "surveying equipment",
+            "GPS device",
+            "professional workflow",
+            "16:9 widescreen",
+            "photorealistic",
+            "character continuity"
+        ]
+    }
+]

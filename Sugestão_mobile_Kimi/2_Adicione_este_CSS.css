@@ -1,0 +1,72 @@
+/*  no final da tag <style> (antes de </head>)
+   ============================================
+   CORREÇÕES MOBILE - PAINEL.PHP
+   ============================================ */
+
+/* Botões de ação sempre visíveis em mobile */
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+    
+    /* Força botões de ação a serem sempre visíveis */
+    #tabelaPrincipal tbody tr .flex.items-center.justify-end {
+        opacity: 1 !important;
+    }
+    
+    /* Aumenta área de toque nas linhas da tabela */
+    #tabelaPrincipal tbody tr {
+        position: relative;
+    }
+    
+    #tabelaPrincipal tbody tr td {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    /* Status dropdown mais amigável em mobile */
+    .dropdown-container button {
+        min-height: 44px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    /* Dropdown de status em tela cheia em mobile */
+    [id^="dropdown-"] {
+        position: fixed !important;
+        top: auto !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        bottom: 1rem !important;
+        width: auto !important;
+        border-radius: 16px !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5) !important;
+        z-index: 9999 !important;
+    }
+    
+    [id^="dropdown-"]::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: -1;
+        pointer-events: none;
+    }
+}
+
+/* Animação suave para dropdown */
+[id^="dropdown-"] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[id^="dropdown-"].hidden {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+[id^="dropdown-"]:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}

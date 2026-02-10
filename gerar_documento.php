@@ -27,12 +27,18 @@ if ($is_demo) {
 }
 
 // Mapa de Modelos
+// NOTA: ModeloProfissional.docx é o novo template com design premium
+// Para usar em todos os serviços, basta substituir os arquivos individuais
 $mapaModelos = [
     11 => 'ModeloPropostaUsucapiao.docx', 12 => 'ModeloPropostaPlanimetrico.docx', 13 => 'ModeloPropostaPlanialtimetrico.docx',
     14 => 'ModeloPropostaObraTerraplanagem.docx', 15 => 'ModeloPropostaObraIndustrial.docx', 16 => 'ModeloPropostaObraCivil.docx',
     17 => 'ModeloPropostaLocacaodeObra.docx', 18 => 'ModeloPropostaLocacaoTerraplenagem.docx', 19 => 'ModeloPropostaDrone.docx',
     20 => 'ModeloPropostaDesdobramento.docx', 21 => 'ModeloPropostaConferencia.docx'
 ];
+
+// Modelo padrão profissional (usado quando o específico não existe)
+$modeloPadrao = 'ModeloProfissional.docx';
+
 
 // --- FUNÇÕES AUXILIARES ---
 function numeroParaExtenso($valor = 0) {
@@ -72,11 +78,12 @@ try {
 
     // 3. SELEÇÃO DO ARQUIVO WORD
     $id_servico = $proposta['id_servico'];
-    $nomeArquivo = $mapaModelos[$id_servico] ?? 'ModeloPropostaPadrao.docx';
+    $nomeArquivo = $mapaModelos[$id_servico] ?? $modeloPadrao;
     $caminhoArquivo = $pastaBase . $nomeArquivo;
 
     if (!file_exists($caminhoArquivo)) {
-        $caminhoArquivo = $pastaBase . 'ModeloPropostaPadrao.docx';
+        // Fallback para o modelo profissional
+        $caminhoArquivo = $pastaBase . $modeloPadrao;
     }
 
     if (!file_exists($caminhoArquivo)) {
@@ -174,14 +181,24 @@ try {
     $template->setValue('finalidade', $proposta['finalidade']);
     $template->setValue('prazo_execucao', $proposta['prazo_execucao']);
 
-    // 6. DOWNLOAD
-    $nomeArquivoDownload = 'Proposta_' . $proposta['numero_proposta'] . '.docx';
-
-    header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    header('Content-Disposition: attachment; filename="' . $nomeArquivoDownload . '"');
-    header('Cache-Control: max-age=0');
-
-    $template->saveAs('php://output');
+    // 6. SALVAR ARQUIVO NO SERVIDOR E REDIRECIONAR
+    
+    // Normaliza nome do cliente para arquivo (Remove acentos e caracteres especiais)
+    $nomeClienteLimpo = preg_replace('/[^A-Za-z0-9]/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $proposta['nome_cliente']));
+    $nomeArquivoSalvo = $nomeClienteLimpo . '-' . date('Y') . '-' . str_pad($proposta['numero_proposta'], 3, '0', STR_PAD_LEFT) . '.docx';
+    
+    $dirDestino = __DIR__ . '/propostas_emitidas/';
+    if (!is_dir($dirDestino)) {
+        mkdir($dirDestino, 0755, true);
+    }
+    
+    $caminhoCompleto = $dirDestino . $nomeArquivoSalvo;
+    
+    // Salva no disco
+    $template->saveAs($caminhoCompleto);
+    
+    // Redireciona para o final.php
+    header("Location: final.php?id=" . $id_proposta . "&arquivo=" . urlencode($nomeArquivoSalvo));
     exit;
 
 } catch (Exception $e) {

@@ -2,12 +2,9 @@
 // Nome do Arquivo: minha_empresa.php
 // Função: Configuração da Empresa. BLOQUEIA EDIÇÃO SE FOR DEMO.
 
-session_start();
+require_once 'session_validator.php';
 require_once 'config.php';
 require_once 'db.php';
-
-// 1. Segurança
-if (!isset($_SESSION['usuario_id'])) { header("Location: login.php"); exit; }
 
 $id_usuario = $_SESSION['usuario_id'];
 $ambiente_atual = $_SESSION['ambiente'] ?? 'indefinido';
@@ -42,6 +39,12 @@ $readonly = $is_demo ? 'disabled' : '';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Empresa | SGT</title>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,12 +69,12 @@ $readonly = $is_demo ? 'disabled' : '';
                     },
                     colors: {
                         brand: {
-                            dark: '#001e3c',
-                            primary: '#0a2e5c',
-                            surface: '#132f4c',
-                            accent: '#FF7518',
-                            action: '#EA580C',
-                            glow: '#4fc3f7',
+                            dark: '#0a0f1a',      // Was #001e3c -> SGT Background
+                            primary: '#111827',   // Was #0a2e5c -> SGT Surface
+                            surface: 'rgba(255,255,255,0.03)', // Was #132f4c -> SGT Glass Ultra Light
+                            accent: '#f97316',    // Was #FF7518 -> SGT Orange
+                            action: '#ea580c',    // Was #EA580C -> SGT Orange Dark
+                            glow: '#3b82f6',      // Was #4fc3f7 -> SGT Blue
                         }
                     }
                 }
@@ -80,86 +83,39 @@ $readonly = $is_demo ? 'disabled' : '';
     </script>
 
     <style>
-        /* Glassmorphism */
+        /* Glassmorphism - Remapped to SGT Visuals */
         .glass-panel {
-            background: rgba(10, 46, 92, 0.65);
+            background: rgba(17, 24, 39, 0.7); /* SGT Glass Base */
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        }
-        .glass-card {
-            background: rgba(19, 47, 76, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
-        /* Background */
+        /* Background - Remapped to SGT Dark */
         body {
-            background: radial-gradient(circle at center, #0a2e5c 0%, #001224 100%);
+            background-color: #0a0f1a;
+            color: #f8fafc;
+            /* Optional: Subtle grid pattern if desired */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
             min-height: 100vh;
         }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #001224; }
-        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #FF7518; }
+        ::-webkit-scrollbar-track { background: #0a0f1a; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f97316; }
     </style>
 </head>
 <body class="text-slate-200 font-sans antialiased selection:bg-brand-accent selection:text-brand-dark">
 
     <!-- Navbar -->
-    <nav class="w-full glass-panel sticky top-0 z-50 border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-4">
-                    <img src="<?= BASE_URL ?>/assets/img/logo_sgt.png" alt="SGT" class="h-10">
-                    <?php if($is_demo): ?>
-                        <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold border border-yellow-500/30 uppercase tracking-wider">DEMO</span>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Menu Desktop -->
-                <div class="hidden md:flex items-center gap-4">
-                    <a href="painel.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-                        <i class="ph ph-house"></i> Painel
-                    </a>
-                    <a href="minha_empresa.php" class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-gear-fill text-brand-accent"></i> Empresa
-                    </a>
-                    <a href="meus_clientes.php" class="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-                        <i class="ph ph-users"></i> Clientes
-                    </a>
-                    
-                    <div class="h-6 w-px bg-white/10 mx-2"></div>
-
-                    <!-- User Dropdown -->
-                    <div class="relative group">
-                        <button class="flex items-center gap-2 text-white font-medium hover:text-brand-accent transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-brand-surface border border-white/10 flex items-center justify-center text-brand-accent">
-                                <i class="ph ph-user"></i>
-                            </div>
-                            <span><?= htmlspecialchars($primeiro_nome) ?></span>
-                            <i class="ph ph-caret-down text-xs text-slate-500"></i>
-                        </button>
-                        <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
-                            <div class="py-1">
-                                <a href="logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300">
-                                    <i class="ph ph-sign-out mr-2"></i> Sair
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
+    <?php include 'components/navbar.php'; ?>
+    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <!-- Header Page -->
         <div class="glass-panel rounded-2xl p-6 mb-8 flex justify-between items-center bg-brand-surface/50">
             <div class="flex items-center gap-4">
@@ -174,44 +130,45 @@ $readonly = $is_demo ? 'disabled' : '';
         </div>
 
         <!-- Alerta Demo -->
-        <?php if($is_demo): ?>
-        <div class="glass-panel rounded-xl p-4 border border-yellow-500/50 bg-yellow-500/10 flex items-center justify-between mb-8">
-            <div class="flex items-center gap-3">
-                <i class="ph ph-lock-key text-2xl text-yellow-500"></i>
-                <div>
-                    <h5 class="font-bold text-yellow-200">Edição Bloqueada na Versão Demo</h5>
-                    <p class="text-sm text-yellow-200/70">Para personalizar os dados, contrate o plano completo.</p>
+        <?php if ($is_demo): ?>
+            <div class="glass-panel rounded-xl p-4 border border-yellow-500/50 bg-yellow-500/10 flex items-center justify-between mb-8">
+                <div class="flex items-center gap-3">
+                    <i class="ph ph-lock-key text-2xl text-yellow-500"></i>
+                    <div>
+                        <h5 class="font-bold text-yellow-200">Edição Bloqueada na Versão Demo</h5>
+                        <p class="text-sm text-yellow-200/70">Para personalizar os dados, contrate o plano completo.</p>
+                    </div>
                 </div>
+                <a href="contratar.php" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition-colors text-sm">
+                    DESBLOQUEAR
+                </a>
             </div>
-            <a href="contratar.php" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition-colors text-sm">
-                DESBLOQUEAR
-            </a>
-        </div>
         <?php endif; ?>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
+
             <!-- Coluna Esquerda: Logo -->
             <div class="md:col-span-1">
                 <div class="glass-panel rounded-2xl p-6">
                     <h3 class="font-display text-lg font-bold text-white mb-4">Logotipo</h3>
-                    
-                    <?php $logo_atual = !empty($empresa['logo_caminho']) && file_exists(__DIR__ . '/' . $empresa['logo_caminho']) ? $empresa['logo_caminho'] : 'assets/img/sem_logo.png'; ?>
-                    
+
+                    <?php $logo_atual = !empty($empresa['logo_caminho']) && file_exists(__DIR__ . '/' . $empresa['logo_caminho']) ? $empresa['logo_caminho'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iNjAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZEljb24iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTY7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZWE1ODBjO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjUiIHk9IjUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcng9IjEwIiBmaWxsPSJ1cmwoI2dyYWRJY29uKSIvPjxwYXRoIGQ9Ik0yOCAxNSBMMjIgMjggTDMwIDI4IEwyNiA0NSBMMzggMzAgTDMwIDMwIEwzNCAxNSBaIiBmaWxsPSJ3aGl0ZSIvPjx0ZXh0IHg9IjY1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNCIgZmlsbD0id2hpdGUiPlNHVDwvdGV4dD48dGV4dCB4PSI2NSIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZiOTIzYyI+UHJvcG9zdGFzPC90ZXh0Pjwvc3ZnPg=='; ?>
+
                     <!-- Novo Container Flexível -->
-                    <div class="w-full min-h-[200px] bg-white/5 rounded-xl border border-white/10 flex items-center justify-center p-4 mb-4 overflow-hidden relative group" 
-                         style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 10px 10px; background-color: rgba(255,255,255,0.02);">
+                    <div class="w-full min-h-[200px] bg-white/5 rounded-xl border border-white/10 flex items-center justify-center p-4 mb-4 overflow-hidden relative group"
+                        style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 10px 10px; background-color: rgba(255,255,255,0.02);">
                         <img src="<?php echo $logo_atual; ?>?t=<?php echo time(); ?>" alt="Logo" class="max-w-full max-h-[180px] object-contain shadow-sm">
-                        
-                        <?php if(!$is_demo): ?>
+
+                        <?php if (!$is_demo): ?>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center">
                                 <span class="text-white text-sm font-medium">Alterar Logo</span>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <?php if(!$is_demo): ?>
+                    <?php if (!$is_demo): ?>
                         <form action="upload_logo.php" method="POST" enctype="multipart/form-data" class="mb-3">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <label class="block w-full cursor-pointer">
                                 <span class="sr-only">Escolher arquivo</span>
                                 <input type="file" name="logo" class="block w-full text-xs text-slate-400
@@ -239,10 +196,99 @@ $readonly = $is_demo ? 'disabled' : '';
                         </button>
                     <?php endif; ?>
                 </div>
+
+                <!-- Card: Configuração do Header -->
+                <div class="glass-panel rounded-2xl p-6 mt-6">
+                    <h3 class="font-display text-lg font-bold text-white mb-4">
+                        <i class="ph ph-layout text-brand-accent mr-2"></i>Modo do Header
+                    </h3>
+
+                    <p class="text-sm text-slate-400 mb-4">Escolha como o logo será exibido no cabeçalho das propostas:</p>
+
+                    <?php
+                    $header_mode = $empresa['header_logo_mode'] ?? 'full';
+                    $logo_icon = $empresa['logo_icon_caminho'] ?? '';
+                    ?>
+
+                    <div class="space-y-3">
+                        <!-- Opção: Logo Completo -->
+                        <label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border <?= $header_mode === 'full' ? 'border-brand-accent bg-brand-accent/10' : 'border-white/10 bg-white/5 hover:bg-white/10'; ?> <?= $is_demo ? 'pointer-events-none opacity-60' : ''; ?>">
+                            <input type="radio" name="header_logo_mode" value="full"
+                                <?= $header_mode === 'full' ? 'checked' : ''; ?>
+                                <?= $is_demo ? 'disabled' : ''; ?>
+                                onchange="updateHeaderModePreview(this.value)"
+                                class="text-brand-accent focus:ring-brand-accent bg-black/20 border-white/20">
+                            <div class="flex-1">
+                                <span class="text-white font-medium flex items-center gap-2">
+                                    <i class="ph ph-image text-lg text-brand-glow"></i> Logo Completo
+                                </span>
+                                <span class="text-xs text-slate-400 block mt-1">Header expandido com logo grande e nome da empresa</span>
+                            </div>
+                            <div class="w-16 h-8 bg-white/10 rounded flex items-center justify-center">
+                                <i class="ph ph-rectangle text-brand-glow text-2xl"></i>
+                            </div>
+                        </label>
+
+                        <!-- Opção: Logo Ícone -->
+                        <label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border <?= $header_mode === 'icon' ? 'border-brand-accent bg-brand-accent/10' : 'border-white/10 bg-white/5 hover:bg-white/10'; ?> <?= $is_demo ? 'pointer-events-none opacity-60' : ''; ?>">
+                            <input type="radio" name="header_logo_mode" value="icon"
+                                <?= $header_mode === 'icon' ? 'checked' : ''; ?>
+                                <?= $is_demo ? 'disabled' : ''; ?>
+                                onchange="updateHeaderModePreview(this.value)"
+                                class="text-brand-accent focus:ring-brand-accent bg-black/20 border-white/20">
+                            <div class="flex-1">
+                                <span class="text-white font-medium flex items-center gap-2">
+                                    <i class="ph ph-app-window text-lg text-brand-accent"></i> Logo Compacto
+                                </span>
+                                <span class="text-xs text-slate-400 block mt-1">Header minimalista com ícone pequeno</span>
+                            </div>
+                            <div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
+                                <i class="ph ph-square text-brand-accent text-lg"></i>
+                            </div>
+                        </label>
+                    </div>
+
+                    <?php if (!$is_demo): ?>
+                        <!-- Upload do Ícone (aparece quando modo icon está selecionado) -->
+                        <div id="iconUploadSection" class="mt-4 p-4 bg-black/20 rounded-xl border border-white/10 <?= $header_mode !== 'icon' ? 'hidden' : ''; ?>">
+                            <h4 class="text-sm font-bold text-brand-glow mb-3">
+                                <i class="ph ph-upload mr-1"></i> Logo Ícone (Opcional)
+                            </h4>
+
+                            <?php if (!empty($logo_icon) && file_exists(__DIR__ . '/' . $logo_icon)): ?>
+                                <div class="flex items-center gap-3 mb-3 p-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+                                    <img src="<?= htmlspecialchars($logo_icon) ?>?t=<?= time() ?>" alt="Ícone atual" class="w-10 h-10 object-contain rounded">
+                                    <span class="text-xs text-green-400">Ícone configurado</span>
+                                </div>
+                            <?php endif; ?>
+
+                            <form action="upload_logo_icon.php" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <input type="file" name="logo_icon"
+                                    class="block w-full text-xs text-slate-400
+                                   file:mr-2 file:py-1.5 file:px-3
+                                   file:rounded-lg file:border-0
+                                   file:text-xs file:font-semibold
+                                   file:bg-brand-surface file:text-white
+                                   file:cursor-pointer hover:file:bg-white/10
+                                   transition-all" accept="image/png, image/jpeg" required>
+                                <p class="text-xs text-slate-500 mt-2">Recomendado: imagem quadrada (ex: 100x100px)</p>
+                                <button type="submit" class="mt-2 w-full py-2 bg-brand-primary hover:bg-brand-surface border border-white/10 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2 text-sm">
+                                    <i class="ph ph-upload-simple"></i> Enviar Ícone
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Botão Salvar Modo -->
+                        <button type="button" onclick="salvarModoHeader()" class="mt-4 w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20 flex items-center justify-center gap-2 text-sm">
+                            <i class="ph ph-check-circle"></i> Aplicar Modo
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <!-- Modal Gerador de Logo -->
-             <div id="modalGeradorLogo" class="fixed inset-0 z-[60] hidden">
+            <div id="modalGeradorLogo" class="fixed inset-0 z-[60] hidden">
                 <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('modalGeradorLogo').classList.add('hidden')"></div>
                 <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4">
                     <div class="glass-panel bg-brand-surface rounded-2xl border border-brand-primary shadow-2xl overflow-hidden">
@@ -253,7 +299,8 @@ $readonly = $is_demo ? 'disabled' : '';
                             <button onclick="document.getElementById('modalGeradorLogo').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="ph ph-x text-lg"></i></button>
                         </div>
                         <form action="gerar_logo.php" method="POST" class="p-6">
-                            
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
                             <div class="mb-4">
                                 <label class="block text-xs text-slate-400 mb-2">Cor do Texto</label>
                                 <div class="flex items-center gap-3">
@@ -289,14 +336,15 @@ $readonly = $is_demo ? 'disabled' : '';
                 <div class="glass-panel rounded-2xl p-6 <?php echo $is_demo ? 'opacity-75 pointer-events-none' : ''; ?>">
                     <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                         <h3 class="font-display text-lg font-bold text-white">Dados Cadastrais</h3>
-                        <?php if(isset($_GET['msg']) && $_GET['msg']=='sucesso'): ?>
+                        <?php if (isset($_GET['msg']) && $_GET['msg'] == 'sucesso'): ?>
                             <span class="text-green-400 text-sm font-bold flex items-center gap-1"><i class="ph ph-check-circle"></i> Salvo!</span>
                         <?php endif; ?>
                     </div>
 
                     <form action="salvar_dados_empresa.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <fieldset <?php echo $readonly; ?>>
-                            
+
                             <!-- Identidade -->
                             <h4 class="text-brand-accent text-sm font-bold uppercase tracking-wider mb-4">Identidade</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -364,12 +412,12 @@ $readonly = $is_demo ? 'disabled' : '';
                                 <input type="text" name="PIX" class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-colors" value="<?php echo htmlspecialchars($empresa['PIX']); ?>">
                             </div>
 
-                            <?php if(!$is_demo): ?>
-                            <div class="text-right">
-                                <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20 flex items-center gap-2 ml-auto">
-                                    <i class="ph ph-check-circle text-xl"></i> Salvar Alterações
-                                </button>
-                            </div>
+                            <?php if (!$is_demo): ?>
+                                <div class="text-right">
+                                    <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-900/20 flex items-center gap-2 ml-auto">
+                                        <i class="ph ph-check-circle text-xl"></i> Salvar Alterações
+                                    </button>
+                                </div>
                             <?php endif; ?>
 
                         </fieldset>
@@ -378,5 +426,85 @@ $readonly = $is_demo ? 'disabled' : '';
             </div>
         </div>
     </div>
+
+    <!-- JavaScript para Modo do Header -->
+    <script>
+        function updateHeaderModePreview(mode) {
+            const iconUploadSection = document.getElementById('iconUploadSection');
+            const radioLabels = document.querySelectorAll('input[name="header_logo_mode"]');
+
+            // Atualizar estilos visuais dos cards
+            radioLabels.forEach(radio => {
+                const label = radio.closest('label');
+                if (radio.value === mode) {
+                    label.classList.remove('border-white/10', 'bg-white/5');
+                    label.classList.add('border-brand-accent', 'bg-brand-accent/10');
+                } else {
+                    label.classList.remove('border-brand-accent', 'bg-brand-accent/10');
+                    label.classList.add('border-white/10', 'bg-white/5');
+                }
+            });
+
+            // Mostrar/esconder seção de upload do ícone
+            if (iconUploadSection) {
+                if (mode === 'icon') {
+                    iconUploadSection.classList.remove('hidden');
+                } else {
+                    iconUploadSection.classList.add('hidden');
+                }
+            }
+        }
+
+        function salvarModoHeader() {
+            const mode = document.querySelector('input[name="header_logo_mode"]:checked').value;
+            const csrfToken = '<?= $_SESSION['csrf_token'] ?>';
+
+            // Mostrar loading
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
+            btn.disabled = true;
+
+            fetch('salvar_modo_header.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `header_logo_mode=${mode}&csrf_token=${csrfToken}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.innerHTML = '<i class="ph ph-check-circle"></i> Salvo!';
+                        btn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                        btn.classList.add('bg-green-500');
+
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.classList.remove('bg-green-500');
+                            btn.classList.add('bg-green-600', 'hover:bg-green-500');
+                            btn.disabled = false;
+                        }, 2000);
+                    } else {
+                        throw new Error(data.error || 'Erro desconhecido');
+                    }
+                })
+                .catch(error => {
+                    btn.innerHTML = '<i class="ph ph-warning"></i> Erro!';
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-red-600');
+                    console.error('Erro:', error);
+
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('bg-red-600');
+                        btn.classList.add('bg-green-600', 'hover:bg-green-500');
+                        btn.disabled = false;
+                    }, 3000);
+                });
+        }
+    </script>
+
 </body>
+
 </html>

@@ -1,0 +1,73 @@
+[
+    {
+        "scene_number": "04",
+        "continuity_type": "CONTINUES FROM SCENE 03 - Carlos actively using SGT solution",
+        "reference_frame": "Use final frame from Scene 03 as visual reference - same Carlos, same office environment",
+        "transition_note": "Carlos transitions from discovering SGT (Scene 03) to actively using it - demonstrating automatic calculation and proposal completion",
+        "description": "VISUAL CONTINUITY FROM SCENE 03: Same Carlos (45-year-old Brazilian surveyor, mixed race white/pardo complexion, same casual business attire) in same technical office environment. Over-the-shoulder camera angle showing Carlos's left hand on laptop keyboard/touchpad, right hand holding iPhone displaying SGT Pro Propostas mobile interface. Both screens show 'Fechamento da Proposta' (Proposal Completion) screen with detailed budget breakdown including 'Resumo de Custos' (Cost Summary) with line items (Mão de Obra, Equipe, Depreciação, Deslocamento, Hospedagem, Valor Líquido) and prominent total value 'R$ 33.050,00' displayed in large blue font. Laptop shows full desktop interface, iPhone shows responsive mobile version with identical information. Green 'GERAR PROPOSTA' button visible on both screens. White card UI design with professional layout. Carlos reviewing calculated values on both devices. Professional office setting maintained with same cold natural daylight 6500k. Camera steady over-shoulder position. Subtle hand movements as Carlos reviews the proposal details. Duration 8 seconds showing Carlos engaged with the completed automatic calculation.",
+        "character_consistency": {
+            "name": "Carlos - SAME CHARACTER FROM SCENES 01-03",
+            "age": 45,
+            "ethnicity": "Brazilian mixed race (white/pardo complexion) - EXACT SAME",
+            "clothing": "SAME casual business attire: dark blue sport blazer, brown trousers, light beige shirt",
+            "physical_features": "SAME mature adult male - maintain exact facial features",
+            "location": "SAME technical office from previous scenes, over-shoulder camera angle",
+            "lighting_reference": "same cold natural daylight 6500k maintaining continuity",
+            "emotional_state": "engaged, reviewing solution, professional focus with growing confidence"
+        },
+        "narrative_context": {
+            "purpose": "demonstrate SGT's automatic calculation solving Carlos's Excel spreadsheet problem from Scene 01",
+            "emotional_progression": "from discovery (Scene 03) to active engagement with solution (Scene 04)",
+            "problem_solved": "complex manual calculations now automated - R$ 33.050,00 calculated instantly",
+            "cross_device_consistency": "reinforces professional quality and accessibility"
+        },
+        "style": "cinematic corporate photography, photorealistic, professional documentary aesthetic, consistent with previous scenes",
+        "camera": "static over-the-shoulder medium shot, stable composition capturing both laptop and phone screens clearly",
+        "lighting": "same cold natural daylight 6500k from office window, screen glow from both devices (blue SGT interface), realistic lighting continuity",
+        "environment": "same technical office workspace from Scenes 01-03, surveying equipment visible in background, professional setting maintained",
+        "elements": [
+            "Carlos (SAME from previous scenes)",
+            "laptop showing Fechamento da Proposta screen",
+            "iPhone showing matching mobile interface",
+            "R$ 33.050,00 total value prominently displayed",
+            "Resumo de Custos breakdown (Mão de Obra, Equipe, etc.)",
+            "Condições do Pagamento section",
+            "green GERAR PROPOSTA button on both screens",
+            "white card UI design",
+            "blue corporate branding maintained",
+            "Carlos's hands (left on laptop, right holding phone)",
+            "office desk and environment from previous scenes"
+        ],
+        "motion": "Carlos's left hand subtle movements on laptop touchpad/keyboard, right hand holding phone steadily, slight head movements as he reviews data on both screens, professional engagement with the interface",
+        "ending": "Carlos continues reviewing the completed proposal values on both devices, confidence building as he sees the automated solution working",
+        "voice": {
+            "text": "Selecione o serviço e o cálculo é automático. Simples, rápido e exato.",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "mature adult",
+            "accent": "neutral Brazilian",
+            "tone": "institutional, explanatory, professional, confident, demonstrative, satisfied"
+        },
+        "sfx": [
+            "subtle laptop touchpad interaction",
+            "soft ambient office tone",
+            "quiet screen interaction sounds"
+        ],
+        "text": "R$ 33.050,00",
+        "duration": "8 seconds",
+        "timing": "00:24 - 00:32",
+        "keywords": [
+            "proposal completion",
+            "automatic calculation",
+            "cross-device demonstration",
+            "budget breakdown",
+            "Brazilian professional",
+            "responsive interface",
+            "professional workflow",
+            "cost summary",
+            "16:9 widescreen",
+            "photorealistic",
+            "character continuity"
+        ]
+    }
+]

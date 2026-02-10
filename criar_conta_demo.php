@@ -1,6 +1,6 @@
 <?php
 // Nome do Arquivo: criar_conta_demo.php
-// Função: Cadastro Demo com Instruções Visuais e Bloqueio de Senha Fraca.
+// Função: Cadastro Demo com Layout Bootstrap e Regras Claras.
 
 session_start();
 require_once 'config.php';
@@ -47,8 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $stmtInsert = $conn->prepare($sql);
                 $stmtInsert->bind_param('ssss', $email, $senha_hash, $nome, $validade);
+                
+                if ($stmtInsert->execute()) {
+                    header("Location: login_demo.php?msg=criada");
+                    exit;
+                } else {
+                    $erro = "Erro ao criar conta. Tente novamente.";
+                }
             }
-        } catch (Exception $e) { $erro = "Erro técnico: " . $e->getMessage(); }
+        } catch (Exception $e) { $erro = "Erro técnico no servidor."; }
     }
 }
 ?>
@@ -58,230 +65,170 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Criar Conta Demo | SGT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/css/landing_dark.css">
     <style>
-        /* Overrides específicos para o formulário no tema Dark */
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+         body { background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Inter', sans-serif; }
+        
+        .login-card { width: 100%; border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); overflow: hidden; }
+        .login-header { background-color: #fff; color: #EA580C; padding: 25px 20px 10px; text-align: center; }
+        
+        /* Botão Laranja Personalizado */
+        .btn-custom { background-color: #EA580C; color: white; font-weight: 800; letter-spacing: 0.5px; border: none; }
+        .btn-custom:hover { background-color: #C2410C; color: white; }
 
-        .card-cadastro {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: float 6s ease-in-out infinite; /* Sutil movimento */
-        }
-
-        h3 {
-            color: var(--primary);
-            margin-top: 0;
-            font-weight: 800;
-            text-align: center;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #ccc;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: var(--primary);
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .input-group {
-            display: flex;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .input-group:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        }
-
-        .input-icon {
-            padding: 12px 15px;
-            color: #888;
-            display: flex;
-            align-items: center;
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            color: white;
-            width: 100%;
-            padding: 12px 10px;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-        }
-
-        input::placeholder {
-            color: rgba(255,255,255,0.3);
-        }
-
-        .btn-submit {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 50px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
-        }
-
+        .feature-item { margin-bottom: 20px; display: flex; align-items: flex-start; }
+        .feature-icon { font-size: 1.5rem; margin-right: 15px; flex-shrink: 0; color: #FDBA74; }
+        .feature-text { color: white; font-size: 0.9rem; opacity: 0.95; }
+        .feature-title { font-weight: bold; display: block; margin-bottom: 2px; font-size: 1rem; color: #FFF; }
+        
         .password-rules {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 20px;
-        }
-
-        .rule-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        .rule-item.valid { color: #00ff88; }
-        .rule-item.invalid { color: #ff4444; }
-
-        .links {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .links a {
-            color: #888;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-
-        .links a:hover { color: var(--primary); }
-
-        .alert-danger {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid #ff4444;
-            color: #ff4444;
-            padding: 10px;
+            background-color: #f8f9fa;
             border-radius: 8px;
-            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
+            color: #666;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            border: 1px solid #e9ecef;
         }
+
+        .rule-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .rule-item i { font-size: 1rem; }
+        .rule-item.valid { color: #198754; font-weight: 600; }
+        .rule-item.invalid { color: #dc3545; }
+        .rule-item.valid i::before { content: "\F26B"; /* Bootstap check-circle-fill code (approx) or phosphor */ }
     </style>
 </head>
 <body>
 
-    <div class="card-cadastro">
-        <h3>Quase lá! 🚀</h3>
-        <p class="subtitle">
-            Para <strong>acessar e editar</strong> o modelo de proposta, precisamos criar seu acesso seguro.<br>
-            É rápido, gratuito e sem compromisso.
-        </p>
+    <div class="row justify-content-center w-100 px-3">
+        <!-- Coluna de Regras DEMO (Esquerda) -->
+        <div class="col-lg-5 col-md-8 mb-4 mb-lg-0">
+            <div class="card h-100 border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="card-body p-4 p-lg-5 text-white">
+                    <h2 class="fw-bold mb-4">Conta Demo <span style="color: #FF7518;">Grátis 🚀</span></h2>
+                    <p class="subtitle mb-5 opacity-75">Entenda como funciona nosso período de avaliação:</p>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="ph ph-calendar-check"></i></div>
+                        <div class="feature-text">
+                            <span class="feature-title">5 Dias de Acesso Total</span>
+                            Você terá acesso irrestrito a todas as ferramentas por 5 dias corridos.
+                        </div>
+                    </div>
 
-        <?php if($erro): ?>
-            <div class="alert-danger">
-                <i class="bi bi-exclamation-triangle-fill"></i> <?php echo $erro; ?>
-            </div>
-        <?php endif; ?>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="ph ph-prohibit"></i></div>
+                        <div class="feature-text">
+                            <span class="feature-title">Sem Cartão de Crédito</span>
+                            Não pedimos dados de pagamento para testar. É só cadastrar e usar.
+                        </div>
+                    </div>
 
-        <form method="POST" id="formCadastro" novalidate autocomplete="off">
-            <!-- Fake fields to trick browser autofill -->
-            <input type="text" style="display:none">
-            <input type="password" style="display:none">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="ph ph-hourglass-high"></i></div>
+                        <div class="feature-text">
+                            <span class="feature-title">Validade dos Dados (30 Dias)</span>
+                            Seus dados ficam salvos por <strong>30 dias</strong> após o teste. Contrate o plano PRO neste prazo para não perdê-los.
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label>Nome Completo</label>
-                <div class="input-group">
-                    <div class="input-icon"><i class="bi bi-person"></i></div>
-                    <input type="text" name="nome" required placeholder="Digite seu nome" autocomplete="new-password">
+                    <div class="alert bg-warning-subtle text-dark border-0 mt-5 rounded-4 shadow-sm" role="alert">
+                        <div class="d-flex">
+                            <i class="ph ph-warning fs-2 me-3 text-danger"></i>
+                            <div>
+                                <strong class="text-uppercase mb-1 d-block text-danger" style="font-size: 0.85rem;">Política de Exclusão</strong>
+                                <span class="d-block lh-sm" style="font-size: 0.85rem;">
+                                    Ao final dos 5 dias, seu acesso trava. <strong>Após 30 dias inativo, tudo é apagado permanentemente.</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label>Seu Melhor E-mail</label>
-                <div class="input-group">
-                    <div class="input-icon"><i class="bi bi-envelope"></i></div>
-                    <input type="email" name="email" required placeholder="seu@email.com" autocomplete="new-password">
+        <!-- Coluna de Cadastro (Direita) -->
+        <div class="col-lg-4 col-md-8">
+            <div class="card login-card bg-white border-0 h-100">
+                <div class="login-header">
+                    <h3 class="mb-1 fw-bold">Criar Login Seguro</h3>
+                    <p class="text-muted small">Preencha para liberar seu acesso agora</p>
                 </div>
-            </div>
+                <div class="card-body p-4">
+                    
+                    <?php if($erro): ?>
+                        <div class="alert alert-danger text-center py-2 shadow-sm border-0 small">
+                            <?php echo $erro; ?>
+                        </div>
+                    <?php endif; ?>
 
-            <div class="form-group">
-                <label>Crie uma Senha Forte</label>
-                <div class="input-group">
-                    <div class="input-icon"><i class="bi bi-lock"></i></div>
-                    <input type="password" name="senha" id="senhaInput" required placeholder="Mínimo 8 caracteres..." autocomplete="new-password">
-                    <div class="input-icon" style="cursor: pointer;" onclick="toggleSenha()">
-                        <i class="bi bi-eye" id="eyeIcon"></i>
+                    <form method="POST" id="formCadastro" novalidate autocomplete="off">
+                        <!-- Fake fields -->
+                        <input type="text" style="display:none">
+                        <input type="password" style="display:none">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">SEU NOME COMPLETO</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="ph ph-user"></i></span>
+                                <input type="text" name="nome" class="form-control bg-light border-start-0" required placeholder="Digite seu nome" autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">SEU MELHOR E-MAIL</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="ph ph-envelope"></i></span>
+                                <input type="email" name="email" class="form-control bg-light border-start-0" required placeholder="seu@email.com" autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-bold text-secondary small">CRIE UMA SENHA FORTE</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="ph ph-lock"></i></span>
+                                <input type="password" name="senha" id="senhaInput" class="form-control bg-light border-start-0" required placeholder="Mínimo 8 caracteres..." autocomplete="new-password">
+                                <span class="input-group-text bg-light border-start-0" style="cursor: pointer;" onclick="toggleSenha()">
+                                    <i class="ph ph-eye" id="eyeIcon"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Visual da Senha -->
+                        <div class="password-rules">
+                            <div class="fw-bold mb-2 text-dark" style="font-size: 0.75rem;">REQUISITOS DA SENHA:</div>
+                            <div class="rule-item" id="rule-length"><i class="ph ph-circle"></i> Mínimo 8 caracteres</div>
+                            <div class="rule-item" id="rule-upper"><i class="ph ph-circle"></i> Uma letra Maiúscula</div>
+                            <div class="rule-item" id="rule-number"><i class="ph ph-circle"></i> Um Número</div>
+                            <div class="rule-item" id="rule-symbol"><i class="ph ph-circle"></i> Um Símbolo (@ # $ %)</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom w-100 btn-lg shadow-sm mb-3">
+                            LIBERAR ACESSO GRÁTIS
+                        </button>
+                    </form>
+                    
+                    <div class="text-center pt-2">
+                        <a href="login_demo.php" class="text-decoration-none text-muted small fw-bold">
+                            Já tenho conta, quero entrar
+                        </a>
+                        <br>
+                        <a href="index.php" class="text-decoration-none text-muted small mt-2 d-inline-block">
+                            &larr; Voltar ao site
+                        </a>
                     </div>
                 </div>
             </div>
-
-            <div class="password-rules">
-                <div style="margin-bottom: 8px; font-weight: bold; color: #ccc;">Sua senha precisa ter:</div>
-                <div class="rule-item" id="rule-length"><i class="bi bi-circle"></i> Mínimo 8 caracteres</div>
-                <div class="rule-item" id="rule-upper"><i class="bi bi-circle"></i> Uma letra Maiúscula</div>
-                <div class="rule-item" id="rule-number"><i class="bi bi-circle"></i> Um Número</div>
-                <div class="rule-item" id="rule-symbol"><i class="bi bi-circle"></i> Um Símbolo (@ # $ %)</div>
-            </div>
-
-            <button type="submit" class="btn-submit" id="btnSubmit">
-                Liberar Meu Acesso
-            </button>
-        </form>
-
-        <div class="links">
-            <a href="login_demo.php">Já tenho conta, quero entrar</a><br><br>
-            <a href="index.php">&larr; Voltar ao Início</a>
         </div>
     </div>
 
     <script>
         const senhaInput = document.getElementById('senhaInput');
         
-        // Regras
+        // Mapeamento de Regras
         const rules = {
             length: document.getElementById('rule-length'),
             upper: document.getElementById('rule-upper'),
@@ -292,14 +239,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function toggleSenha() {
             const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
             senhaInput.setAttribute('type', type);
-            document.getElementById('eyeIcon').classList.toggle('bi-eye');
-            document.getElementById('eyeIcon').classList.toggle('bi-eye-slash');
+            const icon = document.getElementById('eyeIcon');
+            if(type === 'text') {
+                icon.classList.remove('ph-eye');
+                icon.classList.add('ph-eye-slash');
+            } else {
+                icon.classList.remove('ph-eye-slash');
+                icon.classList.add('ph-eye');
+            }
         }
 
         senhaInput.addEventListener('input', function() {
             const val = senhaInput.value;
             
-            // Validações
             updateRule('length', val.length >= 8);
             updateRule('upper', /[A-Z]/.test(val));
             updateRule('number', /[0-9]/.test(val));
@@ -313,23 +265,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isValid) {
                 el.classList.add('valid');
                 el.classList.remove('invalid');
-                icon.className = 'bi bi-check-circle-fill';
+                icon.classList.remove('ph-circle');
+                icon.classList.add('ph-check-circle');
             } else {
                 el.classList.remove('valid');
-                el.classList.add('invalid'); // Opcional
-                icon.className = 'bi bi-circle';
+                el.classList.add('invalid'); // Opcional, para deixar vermelho
+                icon.classList.remove('ph-check-circle');
+                icon.classList.add('ph-circle');
             }
         }
 
         document.getElementById('formCadastro').addEventListener('submit', function(e) {
             const val = senhaInput.value;
+            // Bloqueio extra no front para evitar reload desnecessário
             if (val.length < 8 || !/[A-Z]/.test(val) || !/[0-9]/.test(val) || !/[\W_]/.test(val)) {
                 e.preventDefault();
-                alert('Por favor, fortaleça sua senha seguindo as regras abaixo.');
+                alert('Por favor, fortaleça sua senha seguindo todas as regras.');
                 senhaInput.focus();
             }
         });
     </script>
-
 </body>
 </html>

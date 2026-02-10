@@ -84,6 +84,12 @@ function dataExtenso($data) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // VALIDAÇÃO CSRF (VACINA)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        ob_end_clean();
+        die("ERRO DE SEGURANÇA: Token inválido (CSRF). Tente recarregar a página.");
+    }
     
     $conn->begin_transaction();
 
@@ -148,7 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($_POST['locacao_id'] as $k => $id) {
                 if (!$id) continue;
                 $qtd=floatval($_POST['locacao_qtd'][$k]); $val=floatval($_POST['locacao_valor'][$k]); $dias=floatval($_POST['locacao_dias'][$k]);
-                $id_marca = !empty($_POST['locacao_id_marca'][$k]) ? $_POST['locacao_id_marca'][$k] : null;
+                $rawMarca = $_POST['locacao_id_marca'][$k] ?? null;
+                $id_marca = (is_numeric($rawMarca) && intval($rawMarca) > 0) ? intval($rawMarca) : null;
                 $total_locacao += $calc->calcularLocacao($qtd, $val, $dias);
                 $nome_cat = $_POST['locacao_nome'][$k] ?? ''; 
                 $nome_marca_texto = "Sim";
@@ -157,10 +164,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if($qm && $rm = $qm->fetch_assoc()) $nome_marca_texto = $rm['nome_marca'];
                 }
                 $nm_lower = mb_strtolower($nome_cat);
-                if (strpos($nm_lower, 'veículo')!==false || strpos($nm_lower, 'veiculo')!==false) $equip_veiculo = $nome_marca_texto;
-                if (strpos($nm_lower, 'estação')!==false || strpos($nm_lower, 'estacao')!==false) $equip_estacao = $nome_marca_texto;
-                if (strpos($nm_lower, 'gps')!==false) $equip_gps = $nome_marca_texto;
-                if (strpos($nm_lower, 'drone')!==false) $equip_drone = $nome_marca_texto;
+                if (strpos($nm_lower, 'veículo')!==false || strpos($nm_lower, 'veiculo')!==false) $equip_veiculo = !empty($_POST['veiculo']) ? $_POST['veiculo'] : $nome_marca_texto;
+                if (strpos($nm_lower, 'estação')!==false || strpos($nm_lower, 'estacao')!==false) $equip_estacao = !empty($_POST['estacao_total']) ? $_POST['estacao_total'] : $nome_marca_texto;
+                if (strpos($nm_lower, 'gps')!==false) $equip_gps = !empty($_POST['gps']) ? $_POST['gps'] : $nome_marca_texto;
+                if (strpos($nm_lower, 'drone')!==false) $equip_drone = !empty($_POST['drone']) ? $_POST['drone'] : $nome_marca_texto;
                 $itens_locacao[] = ['id'=>$id, 'id_marca'=>$id_marca, 'qtd'=>$qtd, 'val'=>$val, 'dias'=>$dias];
             }
         }
@@ -192,28 +199,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = 'Em elaboração';
         $is_demo_int = $is_demo ? 1 : 0;
 
-        $sql = "INSERT INTO Propostas (
-            numero_proposta, id_cliente, id_criador, is_demo,
-            nome_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
-            empresa_proponente_nome, empresa_proponente_cnpj, empresa_proponente_endereco, empresa_proponente_cidade, empresa_proponente_estado,
-            empresa_proponente_banco, empresa_proponente_agencia, empresa_proponente_conta, empresa_proponente_pix,
-            id_servico, contato_obra, finalidade, tipo_levantamento, area_obra, endereco_obra, bairro_obra, cidade_obra, estado_obra,
-            prazo_execucao, dias_campo, dias_escritorio, status,
-            total_custos_salarios, total_custos_estadia, total_custos_consumos, total_custos_locacao, total_custos_admin,
-            percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto, valor_final_proposta, Valor_proposta_extenso,
-            mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        // Extração dos campos de escopo da obra
+        $p_contato = $_POST['contato_obra'] ?? '';
+        $p_fin = $_POST['finalidade'] ?? '';
+        $p_tipo = $_POST['tipo_levantamento'] ?? '';
+        $p_area = $_POST['area'] ?? '';
+        $p_end = $_POST['endereco'] ?? '';
+        $p_bairro = $_POST['bairro'] ?? '';
+        $p_cid = $_POST['cidade'] ?? '';
+        $p_uf = $_POST['estado'] ?? '';
+        $p_prazo = $_POST['prazo_execucao'] ?? '';
+        $p_dc = intval($_POST['dias_campo'] ?? 0);
+        $p_de = intval($_POST['dias_escritorio'] ?? 0);
 
-        $stmt = $conn->prepare($sql);
-        $p_contato=$_POST['contato_obra']; $p_fin=$_POST['finalidade']; $p_tipo=$_POST['tipo_levantamento'];
-        $p_area=$_POST['area']; $p_end=$_POST['endereco']; $p_bairro=$_POST['bairro']; 
-        $p_cid=$_POST['cidade']; $p_uf=$_POST['estado']; $p_prazo=$_POST['prazo_execucao'];
-        $p_dc=intval($_POST['dias_campo']); $p_de=intval($_POST['dias_escritorio']);
+        // VERIFICA SE É EDIÇÃO OU NOVA PROPOSTA
+        $id_prop_existente = isset($_POST['id_proposta_criada']) ? intval($_POST['id_proposta_criada']) : 0;
+        // Compatibilidade com possíveis campos de ID
+        if (!$id_prop_existente && isset($_POST['id_proposta'])) $id_prop_existente = intval($_POST['id_proposta']);
+        if (!$id_prop_existente && isset($_POST['id_proposta_original'])) $id_prop_existente = intval($_POST['id_proposta_original']);
 
-        $types = "siiissssssssssssssisssssssssiisddddddddddsdddd";
-        $stmt->bind_param($types, $num_proposta, $id_cliente, $id_criador, $is_demo_int, $cliente_info['nome_cliente'], $cliente_info['email'], $cliente_info['telefone'], $cliente_info['celular'], $cliente_info['whatsapp'], $emp['Empresa'], $emp['CNPJ'], $emp['Endereco'], $emp['Cidade'], $emp['Estado'], $emp['Banco'], $emp['Agencia'], $emp['Conta'], $emp['PIX'], $id_servico, $p_contato, $p_fin, $p_tipo, $p_area, $p_end, $p_bairro, $p_cid, $p_uf, $p_prazo, $p_dc, $p_de, $status, $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin, $perc_lucro, $valor_lucro, $subtotal, $desc, $final, $extenso, $mob_perc, $mob_val, $rest_perc, $rest_val);
-        $stmt->execute();
-        $id_prop = $conn->insert_id;
+        // Check ownership
+        if ($id_prop_existente > 0) {
+            $checkOwner = $conn->query("SELECT id_proposta, numero_proposta FROM Propostas WHERE id_proposta = $id_prop_existente AND id_criador = $id_criador");
+            if ($checkOwner && $rowOwner = $checkOwner->fetch_assoc()) {
+                // É edição válida! Mantém o número original
+                $num_proposta = $rowOwner['numero_proposta'];
+            } else {
+                // Não é dono ou não existe, força criar nova (segurança)
+                $id_prop_existente = 0;
+            }
+        }
+
+        if ($id_prop_existente > 0) {
+            // --- UPDATE ---
+            $sql = "UPDATE Propostas SET 
+                id_cliente=?, nome_cliente_salvo=?, empresa_cliente_salvo=?, email_salvo=?, telefone_salvo=?, celular_salvo=?, whatsapp_salvo=?,
+                id_servico=?, contato_obra=?, finalidade=?, tipo_levantamento=?, area_obra=?, endereco_obra=?, bairro_obra=?, cidade_obra=?, estado_obra=?,
+                prazo_execucao=?, dias_campo=?, dias_escritorio=?, status=?,
+                total_custos_salarios=?, total_custos_estadia=?, total_custos_consumos=?, total_custos_locacao=?, total_custos_admin=?,
+                percentual_lucro=?, valor_lucro=?, subtotal_com_lucro=?, valor_desconto=?, valor_final_proposta=?, Valor_proposta_extenso=?,
+                mobilizacao_percentual=?, mobilizacao_valor=?, restante_percentual=?, restante_valor=?,
+                tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?
+                WHERE id_proposta=?";
+            
+            $stmt = $conn->prepare($sql);
+            $types = "issssssisssssssssiisddddddddddsddddsssssi";
+            $stmt->bind_param($types, 
+                $id_cliente, $cliente_info['nome_cliente'], $_POST['empresa_cliente'], $cliente_info['email'], $cliente_info['telefone'], $cliente_info['celular'], $cliente_info['whatsapp'],
+                $id_servico, $p_contato, $p_fin, $p_tipo, $p_area, $p_end, $p_bairro, $p_cid, $p_uf,
+                $p_prazo, $p_dc, $p_de, $status, 
+                $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin, 
+                $perc_lucro, $valor_lucro, $subtotal, $desc, $final, $extenso, 
+                $mob_perc, $mob_val, $rest_perc, $rest_val,
+                $_POST['tipo_terreno'], $_POST['cobertura_vegetal'], $_POST['acesso_local'], $_POST['restricoes_aereas'], $_POST['coordenadas_gps'],
+                $id_prop_existente
+            );
+            $stmt->execute();
+            $id_prop = $id_prop_existente;
+
+            // Limpa itens antigos para recriar (evita duplicação de itens de custo)
+            $conn->query("DELETE FROM Proposta_Salarios WHERE id_proposta = $id_prop");
+            $conn->query("DELETE FROM Proposta_Estadia WHERE id_proposta = $id_prop");
+            $conn->query("DELETE FROM Proposta_Consumos WHERE id_proposta = $id_prop");
+            $conn->query("DELETE FROM Proposta_Locacao WHERE id_proposta = $id_prop");
+            $conn->query("DELETE FROM Proposta_Custos_Administrativos WHERE id_proposta = $id_prop");
+
+        } else {
+            // --- INSERT (Nova) ---
+            $sql = "INSERT INTO Propostas (
+                numero_proposta, id_cliente, id_criador, is_demo,
+                nome_cliente_salvo, empresa_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
+                empresa_proponente_nome, empresa_proponente_cnpj, empresa_proponente_endereco, empresa_proponente_cidade, empresa_proponente_estado,
+                empresa_proponente_banco, empresa_proponente_agencia, empresa_proponente_conta, empresa_proponente_pix,
+                id_servico, contato_obra, finalidade, tipo_levantamento, area_obra, endereco_obra, bairro_obra, cidade_obra, estado_obra,
+                prazo_execucao, dias_campo, dias_escritorio, status,
+                total_custos_salarios, total_custos_estadia, total_custos_consumos, total_custos_locacao, total_custos_admin,
+                percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto, valor_final_proposta, Valor_proposta_extenso,
+                mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor,
+                tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+            $stmt = $conn->prepare($sql);
+            $types = "siiisssssssssssssssisssssssssiisddddddddddsddddsssss";
+            $stmt->bind_param($types, $num_proposta, $id_cliente, $id_criador, $is_demo_int, $cliente_info['nome_cliente'], $_POST['empresa_cliente'], $cliente_info['email'], $cliente_info['telefone'], $cliente_info['celular'], $cliente_info['whatsapp'], $emp['Empresa'], $emp['CNPJ'], $emp['Endereco'], $emp['Cidade'], $emp['Estado'], $emp['Banco'], $emp['Agencia'], $emp['Conta'], $emp['PIX'], $id_servico, $p_contato, $p_fin, $p_tipo, $p_area, $p_end, $p_bairro, $p_cid, $p_uf, $p_prazo, $p_dc, $p_de, $status, $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin, $perc_lucro, $valor_lucro, $subtotal, $desc, $final, $extenso, $mob_perc, $mob_val, $rest_perc, $rest_val, $_POST['tipo_terreno'], $_POST['cobertura_vegetal'], $_POST['acesso_local'], $_POST['restricoes_aereas'], $_POST['coordenadas_gps']);
+            $stmt->execute();
+            $id_prop = $conn->insert_id;
+        }
 
         // Itens
         $s1 = $conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
@@ -227,16 +298,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $s5 = $conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
         foreach($itens_admin as $i) { $s5->bind_param('iisid', $id_prop, $i['id'], $i['nome'], $i['qtd'], $i['val']); $s5->execute(); }
 
+        // Mapeamento de Conteúdo Personalizado (Vindo do Editor Dinâmico)
+        $msg_custom = [];
+        $sContent = $conn->prepare("INSERT INTO Proposta_Conteudo_Personalizado (id_proposta, block_id, conteudo_texto) VALUES (?,?,?) ON DUPLICATE KEY UPDATE conteudo_texto = VALUES(conteudo_texto)");
+        
+        foreach ($_POST as $key => $val) {
+            // Identifica campos de conteúdo (ex: 'apresentacao_content', 'escopo_content')
+            if (strpos($key, '_content') !== false) {
+                // Remove o sufixo para ter o ID do bloco (ex: 'apresentacao')
+                $blockId = str_replace('_content', '', $key);
+                if (!empty($val)) {
+                    $sContent->bind_param('iss', $id_prop, $blockId, $val);
+                    $sContent->execute();
+                    $msg_custom[] = $blockId;
+                }
+            }
+        }
+        $sContent->close();
+
         $conn->commit();
 
         // =========================================================
-        // VALIDAÇÃO E GERAÇÃO
+        // DECISÃO DE SAÍDA (DOCX ou HTML)
         // =========================================================
+        $formatoSaida = $_POST['formato_saida'] ?? 'docx';
+
+        if ($formatoSaida === 'html') {
+            // --- FLUXO HTML (Salvar DB + Gerar Arquivo HTML + Redirecionar) ---
+            
+            // 1. Prepara dados para o gerador HTML (Injeta dados recém-salvos para consistência)
+            // O gerador espera $_POST, então atualizamos com o número gerado.
+            $_POST['numero_proposta'] = $num_proposta; 
+            $_POST['id_proposta_criada'] = $id_prop; // Útil para debug ou retornos
+
+            // 2. Captura o HTML
+            ob_start();
+            include 'gerar_proposta_html.php';
+            $htmlContent = ob_get_clean();
+
+            // 3. Ajusta Caminhos Relativos (Assets) para funcionar dentro de /propostas_html/
+            $htmlContent = str_replace('src="assets/', 'src="../assets/', $htmlContent);
+            $htmlContent = str_replace('src="uploads/', 'src="../uploads/', $htmlContent);
+            $htmlContent = str_replace('src="images/', 'src="../images/', $htmlContent);
+            $htmlContent = str_replace("src='assets/", "src='../assets/", $htmlContent);
+            $htmlContent = str_replace("src='uploads/", "src='../uploads/", $htmlContent);
+            $htmlContent = str_replace('href="assets/', 'href="../assets/', $htmlContent);
+
+            // 4. Salva Arquivo Físico
+            $nomeArquivoClean = preg_replace('/[^a-zA-Z0-9_-]/', '', $num_proposta);
+            $filename = 'proposta_' . $nomeArquivoClean . '.html';
+            $dirSaida = __DIR__ . '/propostas_html';
+            
+            if (!is_dir($dirSaida)) mkdir($dirSaida, 0755, true);
+            $path = $dirSaida . '/' . $filename;
+            
+            file_put_contents($path, $htmlContent);
+
+            // 5. Redireciona
+            ob_end_clean();
+            header("Location: propostas_html/" . $filename);
+            exit;
+
+        } else {
+            // --- FLUXO PADRÃO (DOCX) ---
+
         if (!file_exists($pastaBase . $arquivoModeloNome)) {
             // Tenta o Padrão
             $arquivoModeloNome = 'ModeloPropostaPadrao.docx';
         }
-        
+
+        // --- INTEGRAÇÃO MODELO DRONE (PERFECT MODEL) ---
+        // Se for Drone, força o uso do modelo especializado
+        if ($equip_drone !== 'Não' || stripos($serv_info['nome'], 'drone') !== false || stripos($serv_info['nome'], 'aero') !== false) {
+            $arquivoModeloDrone = 'ModeloPropostaDroneV2.docx';
+            $caminhoModeloDrone = $pastaBase . $arquivoModeloDrone;
+
+            // Se o modelo físico não existir, cria-o na hora usando a classe Gerador
+            if (!file_exists($caminhoModeloDrone)) {
+                require_once __DIR__ . '/classes/GeradorTemplateDrone.php';
+                try {
+                    \ProposalArchitect\Templates\GeradorTemplateDrone::gerar($caminhoModeloDrone);
+                } catch (Exception $e) {
+                    // Falha silenciosa, fallback para padrão
+                    error_log("Falha ao gerar template drone: " . $e->getMessage());
+                }
+            }
+            
+            // Se agora existe, usa ele!
+            if (file_exists($caminhoModeloDrone)) {
+                $arquivoModeloNome = $arquivoModeloDrone;
+            }
+        }
+        // ------------------------------------------------
+
         if (!file_exists($pastaBase . $arquivoModeloNome)) {
              throw new Exception("Modelo não encontrado: " . $arquivoModeloNome);
         }
@@ -265,6 +419,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template->setValue('Cidade', $emp['Cidade']);
         $template->setValue('DExrenso', dataExtenso(date('Y-m-d')));
         $template->setValue('nome_cliente_salvo', $cliente_info['nome_cliente']);
+        $template->setValue('EmpresaCliente', htmlspecialchars($_POST['empresa_cliente'] ?? ''));
         $template->setValue('Empresa', htmlspecialchars($emp['Empresa']));
         $template->setValue('ValorProposta', number_format($final, 2, ',', '.'));
         $template->setValue('ValorExtenso', $extenso);
@@ -284,6 +439,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template->setValue('finalidade', $p_fin); $template->setValue('prazo_execucao', $p_prazo);
         $template->setValue('email_salvo', $cliente_info['email']); $template->setValue('telefone_salvo', $cliente_info['telefone']);
         $template->setValue('celular_salvo', $cliente_info['celular']); $template->setValue('whatsapp_salvo', $cliente_info['whatsapp']);
+        
+        // --- NOVAS VARIÁVEIS (DRONE / DINÂMICO) ---
+        $template->setValue('dias_campo', $p_dc);
+        $template->setValue('dias_escritorio', $p_de);
+        
+        // Conteúdo (Strip Tags para evitar sujeira HTML no DOCX simples)
+        // Nota: Para formatação rica seria necessário usar setComplexBlock ou conversor HTML-to-Word
+        $template->setValue('apresentacao', strip_tags($_POST['apresentacao_content'] ?? '', '<br><p>')); 
+        $template->setValue('metodologia', strip_tags($_POST['metodologia_content'] ?? '', '<br><p>')); 
+        $template->setValue('documentacao', strip_tags($_POST['documentacao_content'] ?? '', '<br><p>')); 
+        $template->setValue('consideracoes_content', strip_tags($_POST['consideracoes_content'] ?? '', '<br><p>'));
+
 
         $nomeEmpresaLimpo = limparStr(explode(' ', trim($emp['Empresa']))[0]);
         $nomeClienteLimpo = limparStr(explode(' ', trim($cliente_info['nome_cliente']))[0]);
@@ -294,13 +461,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template->saveAs($pastaSaida . $nomeArquivoDownload);
         
         ob_end_clean();
-        header("Location: proposta_sucesso.php?arquivo=" . urlencode($nomeArquivoDownload) . "&id=" . $id_prop);
+        header("Location: final.php?arquivo=" . urlencode($nomeArquivoDownload) . "&id=" . $id_prop);
         exit;
+    } // Fecha bloco if geração DOCX
 
     } catch (Exception $e) {
         $conn->rollback();
         ob_end_clean();
         die("<div style='font-family:sans-serif; text-align:center; margin-top:50px;'><h1 style='color:red'>Erro ao Salvar</h1><p>" . $e->getMessage() . "</p><a href='criar_proposta.php'>Voltar</a></div>");
     }
-}
+} // Fecha POST
 ?>

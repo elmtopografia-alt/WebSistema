@@ -12,6 +12,11 @@ if (!isset($_SESSION['usuario_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// VALIDAÇÃO CSRF (VACINA)
+if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    die("Acesso Negado: Token de Segurança Inválido (CSRF).");
+}
+
 $id_usuario = $_SESSION['usuario_id'];
 $is_demo = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
 

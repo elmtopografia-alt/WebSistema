@@ -1,0 +1,59 @@
+[
+  {
+    "scene_number": "01",
+    "continuity_type": "OPENING SCENE - Establishes Carlos character baseline",
+    "reference_frame": "none - first scene establishes visual baseline",
+    "description": "Industrial cinematic scene, anamorphic 35mm lens aesthetic. Over-the-shoulder camera angle framing Carlos, a 45-year-old Brazilian surveyor (mixed race, white/pardo complexion) in casual business attire, sitting at Lenovo ThinkPad T480 notebook. Screen displays dense, complex Excel spreadsheets with visible formulas and data. Ray-traced screen reflections. Technical office environment with surveying equipment visible in background. Cold natural daylight (6500k color temperature) streams from side window creating contrast with warm screen glow (4000k). Carlos has focused, concentrated expression working on budgets. Camera slowly dollies in from over-shoulder position to closer medium shot. Office ambient sounds: keyboard typing, subtle room tone. Duration 8 seconds ending with Carlos looking slightly stressed at the spreadsheet complexity.",
+    "character_consistency": {
+      "name": "Carlos",
+      "age": 45,
+      "ethnicity": "Brazilian mixed race (white/pardo complexion)",
+      "clothing": "casual business attire - dark blue sport blazer, brown trousers, light beige shirt",
+      "physical_features": "mature adult male, professional appearance",
+      "location": "technical office with surveying equipment",
+      "lighting_reference": "cold natural daylight 6500k from window side, warm screen glow 4000k"
+    },
+    "style": "cinematic industrial photography, photorealistic, professional corporate documentary",
+    "camera": "over-the-shoulder shot transitioning to medium shot, slow dolly in, anamorphic 35mm lens with subtle lens breathing",
+    "lighting": "natural cold daylight 6500k from window side, warm screen glow 4000k, contrast lighting creating depth, realistic shadows",
+    "environment": "technical office workspace, surveying equipment visible, professional setting, realistic office details",
+    "elements": [
+      "Carlos (45-year-old Brazilian surveyor)",
+      "Lenovo ThinkPad T480 notebook",
+      "Excel spreadsheets on screen",
+      "office desk with documents",
+      "surveying equipment in background",
+      "side window with natural light"
+    ],
+    "motion": "Carlos typing on keyboard, occasional mouse clicks, slight head movements, camera slow dolly in",
+    "ending": "Carlos pauses, looks at complex spreadsheet with focused expression, slight exhale showing effort",
+    "voice": {
+      "text": "Este é o Carlos. Um mestre no campo, mas o escritório ainda é um desafio.",
+      "language": "pt-BR",
+      "gender": "male",
+      "age": "mature adult",
+      "accent": "neutral Brazilian",
+      "tone": "institutional, narrative, professional, slightly empathetic"
+    },
+    "sfx": [
+      "office ambient room tone",
+      "mechanical keyboard typing sounds",
+      "subtle mouse clicks"
+    ],
+    "text": "none",
+    "duration": "8 seconds",
+    "timing": "00:00 - 00:08",
+    "keywords": [
+      "cinematic",
+      "industrial photography",
+      "photorealistic",
+      "16:9 widescreen",
+      "horizontal format",
+      "documentary style",
+      "office environment",
+      "Excel spreadsheets",
+      "Brazilian professional",
+      "work challenge"
+    ]
+  }
+]

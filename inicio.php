@@ -66,7 +66,7 @@
             </a>
 
             <small class="text-secondary text-uppercase fw-bold ps-2 mb-1 mt-2">Propostas</small>
-            <a href="criar_proposta.php" class="list-group-item list-group-item-action list-group-item-dark">
+            <a href="criar_proposta.php?nova=1" class="list-group-item list-group-item-action list-group-item-dark">
                 <i class="bi bi-plus-circle-fill me-2"></i>Criar Nova Proposta
             </a>
             <a href="listar_propostas.php" class="list-group-item list-group-item-action list-group-item-dark mb-2">
@@ -100,7 +100,7 @@
                             <h5 class="card-title">Módulo de Propostas</h5>
                             <p class="card-text text-muted">Crie uma nova proposta do zero ou visualize e edite as propostas salvas.</p>
                             
-                            <a href="criar_proposta.php" class="btn btn-success btn-lg mb-2">
+                            <a href="criar_proposta.php?nova=1" class="btn btn-success btn-lg mb-2">
                                 🚀 Criar Nova Proposta
                             </a>
                             

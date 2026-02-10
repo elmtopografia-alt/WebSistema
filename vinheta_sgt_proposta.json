@@ -1,0 +1,69 @@
+{
+  "video_metadata": {
+    "title": "SGT Proposta - Opening Vinhette",
+    "duration_seconds": 8,
+    "aspect_ratio": "16:9",
+    "resolution": "1920x1080",
+    "fps": 30
+  },
+  "visual_prompt": {
+    "scene_description": "A sleek, modern logo reveal animation on a deep dark opaque background (dark navy blue #0a1628 or charcoal black #1a1a2e). The ELM TOPOGRAFIA logo emerges from complete darkness with dramatic volumetric lighting effects. The logo features the iconic theodolite/surveying instrument silhouette inside a silver-gray gradient circle, with bold blue 'ELM' letters and 'TOPOGRAFIA' text beneath. Golden and cyan light rays sweep across the scene, creating high contrast highlights on the metallic elements of the logo. Subtle lens flares and particle effects add depth and premium quality. The text 'SGT PROPOSTA' elegantly fades in below the main logo with a smooth glow effect.",
+    "lighting": {
+      "type": "Dramatic volumetric lighting with high contrast",
+      "primary_source": "Side rim lighting in electric blue (#0000FF) and golden highlights",
+      "ambient": "Very low, dark opaque environment",
+      "effects": ["lens flares", "light rays", "subtle bloom", "metallic reflections"]
+    },
+    "color_palette": {
+      "background": "Deep dark opaque - dark navy (#0a1628) transitioning to charcoal (#1a1a2e)",
+      "primary": "Electric blue (#0000FF) - main logo color",
+      "secondary": "Silver-gray gradient - circle element",
+      "accent": "Golden warm highlights and cyan rim lights",
+      "text_glow": "Soft blue glow (#4444FF) around text elements"
+    },
+    "motion_elements": [
+      "Logo emerges from darkness with smooth scale-up animation (0-3s)",
+      "Light rays sweep from left to right creating dynamic reveal (2-5s)",
+      "Theodolite instrument detail catches light reflection (3-4s)",
+      "SGT PROPOSTA text fades in with elegant glow beneath main logo (4-6s)",
+      "Final hold with subtle particle movement and breathing glow effect (6-8s)"
+    ],
+    "style": "Premium corporate tech aesthetic, cinematic quality, modern 3D appearance with metallic textures, high-end motion graphics feel"
+  },
+  "audio_prompt": {
+    "music_style": "Modern corporate cinematic whoosh with deep bass hit on logo reveal, followed by elegant ambient synthesizer pad",
+    "sound_effects": [
+      "Subtle digital whoosh during initial reveal (0-2s)",
+      "Deep bass impact on full logo appearance (2-3s)",
+      "Soft shimmer/sparkle sounds during light effects (3-5s)",
+      "Elegant fade with sustained chord on SGT PROPOSTA reveal (5-7s)"
+    ],
+    "mood": "Professional, confident, innovative, premium"
+  },
+  "technical_specs": {
+    "camera_movement": "Slow push-in from slightly wide to centered frame, ending with subtle drift",
+    "depth_of_field": "Shallow DOF with sharp logo focus, blurred light particles in background",
+    "post_processing": "Film grain minimal, color grading with lifted blacks, enhanced blues and warm highlights"
+  },
+  "text_elements": [
+    {
+      "text": "ELM",
+      "position": "center-right of circle element",
+      "animation": "Fade in with subtle scale (1-3s)",
+      "style": "Bold, electric blue, clean sans-serif"
+    },
+    {
+      "text": "TOPOGRAFIA",
+      "position": "below ELM text",
+      "animation": "Fade in with letter-by-letter reveal (2-4s)",
+      "style": "Clean, blue, spaced letters"
+    },
+    {
+      "text": "SGT PROPOSTA",
+      "position": "below main logo, centered",
+      "animation": "Elegant fade-in with soft glow (4-6s)",
+      "style": "Modern, slightly smaller, with subtle glow effect"
+    }
+  ],
+  "veo_prompt_english": "Cinematic 8-second logo reveal animation. Deep dark opaque background transitioning from navy blue to charcoal black. The ELM TOPOGRAFIA surveying company logo emerges dramatically from darkness: a silver-gray gradient circle containing a theodolite instrument silhouette, with bold electric blue 'ELM' text and 'TOPOGRAFIA' lettering below. Dramatic volumetric lighting with golden and cyan light rays sweeping across the scene, creating high contrast metallic reflections on the logo. Subtle lens flares and floating particles add depth. The text 'SGT PROPOSTA' elegantly fades in below with a soft blue glow. Premium corporate motion graphics style, cinematic quality, modern 3D appearance. Slow camera push-in, shallow depth of field. Professional, confident, innovative mood."
+}

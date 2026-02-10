@@ -1,0 +1,72 @@
+[
+    {
+        "scene_number": "03",
+        "continuity_type": "CONTINUES FROM SCENE 02 - Carlos discovers the solution (SGT Pro Propostas)",
+        "reference_frame": "Use final frame from Scene 02 as visual reference - same Carlos, same office environment",
+        "transition_note": "Carlos looks up from notification pressure (Scene 02) and discovers SGT Pro Propostas on both laptop and smartphone - visual relief as solution appears",
+        "description": "VISUAL CONTINUITY FROM SCENES 01-02: Same Carlos (45-year-old Brazilian surveyor, mixed race white/pardo complexion, same casual business attire from previous scenes) in same technical office environment. Over-the-shoulder camera angle capturing Carlos holding iPhone in his hands showing SGT Pro Propostas mobile interface with 'Proposta Gerada!' success confirmation (white card UI with green checkmark, blue corporate branding). Laptop screen visible in front displays matching SGT Pro Propostas desktop interface with same success state and blue brand colors. Both devices show synchronized interface demonstrating responsive cross-platform design. Carlos's hands prominently visible holding phone naturally. Professional office setting maintained with same cold natural daylight 6500k from previous scenes. Calculator from Scene 02 still visible on desk. Camera in steady over-shoulder medium shot position showing both screens clearly. Subtle shift in Carlos's body language suggesting relief and discovery. Duration 8 seconds with Carlos reviewing the solution on both devices, slight head movement showing engagement.",
+        "character_consistency": {
+            "name": "Carlos - SAME CHARACTER FROM SCENES 01-02",
+            "age": 45,
+            "ethnicity": "Brazilian mixed race (white/pardo complexion) - EXACT SAME",
+            "clothing": "SAME casual business attire from Scenes 01-02: dark blue sport blazer, brown trousers, light beige shirt",
+            "physical_features": "SAME mature adult male - maintain exact facial features",
+            "location": "SAME technical office from Scenes 01-02, over-shoulder camera angle",
+            "lighting_reference": "same cold natural daylight 6500k maintaining continuity",
+            "emotional_shift": "FROM stressed/pressured (Scene 02) TO discovering solution/beginning relief (Scene 03)"
+        },
+        "narrative_context": {
+            "purpose": "solution reveal - Carlos discovers SGT as answer to his problems",
+            "emotional_shift": "from pressure/frustration to hope/discovery",
+            "brand_introduction": "SGT Pro Propostas presented as the practical solution through actual interface",
+            "cross_device_demonstration": "shows responsive design (desktop + mobile) reinforcing professional quality"
+        },
+        "style": "cinematic corporate photography, photorealistic, professional documentary aesthetic, consistent with Scenes 01-02",
+        "camera": "static over-the-shoulder medium shot, slightly higher angle capturing both laptop and phone screens, stable composition",
+        "lighting": "same cold natural daylight 6500k from office window, screen glow from both devices (blue brand colors), realistic lighting continuity",
+        "environment": "same technical office workspace from Scenes 01-02, surveying equipment visible in background, professional setting maintained",
+        "elements": [
+            "Carlos (SAME from Scenes 01-02)",
+            "iPhone showing SGT mobile interface",
+            "laptop showing SGT desktop interface",
+            "Proposta Gerada! confirmation on both screens",
+            "green success checkmark",
+            "blue corporate branding (SGT colors)",
+            "white card UI design",
+            "office desk from previous scenes",
+            "calculator from Scene 02 still visible",
+            "natural window light"
+        ],
+        "motion": "Carlos's hands holding phone naturally, subtle head movement showing he's reading/reviewing screens, slight body language shift suggesting relief, both screens remain visible and clear throughout",
+        "ending": "Carlos continues reviewing both screens, beginning of emotional relief visible in body language, solution discovered",
+        "voice": {
+            "text": "SGT Pro Propostas: a lógica digital para o rigor da sua topografia.",
+            "language": "pt-BR",
+            "gender": "male",
+            "age": "mature adult",
+            "accent": "neutral Brazilian",
+            "tone": "institutional, authoritative, professional, confident, solution-focused, relieved"
+        },
+        "sfx": [
+            "subtle interface success chime",
+            "soft ambient office tone",
+            "quiet screen interaction sounds"
+        ],
+        "text": "Proposta Gerada!",
+        "duration": "8 seconds",
+        "timing": "00:16 - 00:24",
+        "keywords": [
+            "solution discovery",
+            "cross-device demonstration",
+            "responsive design",
+            "mobile and desktop",
+            "Brazilian professional",
+            "corporate interface",
+            "success confirmation",
+            "relief moment",
+            "16:9 widescreen",
+            "photorealistic",
+            "character continuity"
+        ]
+    }
+]

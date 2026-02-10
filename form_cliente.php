@@ -50,12 +50,100 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     <title><?php echo $titulo; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- SGT Theme Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        /* Ajuste de label para ficar mais elegante */
-        .form-label { font-weight: 600; color: #495057; }
+        /* === SGT DARK THEME OVERRIDE FOR BOOTSTRAP === */
+        
+        /* 1. Base Styles */
+        body {
+            background-color: #0a0f1a !important; /* Brand Dark */
+            color: #f8fafc !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* 2. Glass Card Override */
+        .card {
+            background-color: rgba(17, 24, 39, 0.7) !important; /* Glass Dark */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            color: #f8fafc;
+        }
+        .card-header {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .card-header h5 {
+            color: #f8fafc !important;
+        }
+
+        /* 3. Inputs & Forms */
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+        .form-control:focus {
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            border-color: #f97316 !important; /* Orange Focus */
+            box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.25) !important;
+            color: #fff !important;
+        }
+        .form-label {
+            color: #94a3b8 !important; /* Slate 400 */
+            font-weight: 500 !important;
+        }
+        .text-muted {
+            color: #64748b !important; /* Slate 500 */
+            border-bottom-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* 4. Navbar Override */
+        .navbar {
+            background-color: rgba(17, 24, 39, 0.8) !important;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .navbar-text {
+            color: #f8fafc !important;
+            font-weight: 600;
+        }
+        .navbar-brand {
+            color: #94a3b8 !important;
+        }
+        .navbar-brand:hover {
+            color: #fff !important;
+        }
+
+        /* 5. Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+            border: none !important;
+            color: white !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+            transform: translateY(-1px);
+        }
+        .btn-outline-secondary {
+            border-color: rgba(255,255,255,0.2) !important;
+            color: #94a3b8 !important;
+        }
+        .btn-outline-secondary:hover {
+            background-color: rgba(255,255,255,0.05) !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255, 0.4) !important;
+        }
     </style>
 </head>
-<body class="bg-light">
+<body class="antialiased">
 
     <!-- Navbar Simplificada -->
     <nav class="navbar navbar-dark bg-dark mb-4">

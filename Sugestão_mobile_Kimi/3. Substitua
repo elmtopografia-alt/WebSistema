@@ -1,0 +1,47 @@
+//Substitua a função JavaScript toggleDropdown (aproximadamente linha 530)
+// FUNÇÃO CORRIGIDA PARA MOBILE
+function toggleDropdown(id) {
+    const dropdown = document.getElementById('dropdown-' + id);
+    const isHidden = dropdown.classList.contains('hidden');
+    
+    // Fecha todos os dropdowns primeiro
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Abre o atual se estava fechado
+    if (isHidden) {
+        dropdown.classList.remove('hidden');
+        
+        // Em mobile, adiciona botão de fechar
+        if (window.innerWidth <= 768) {
+            // Cria overlay se não existir
+            let overlay = document.getElementById('dropdown-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'dropdown-overlay';
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;';
+                overlay.onclick = () => {
+                    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+                    overlay.remove();
+                };
+                document.body.appendChild(overlay);
+            }
+        }
+    } else {
+        // Remove overlay se existir
+        const overlay = document.getElementById('dropdown-overlay');
+        if (overlay) overlay.remove();
+    }
+}
+
+// Fecha dropdown ao clicar fora (atualizado)
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown-container')) {
+        document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+        const overlay = document.getElementById('dropdown-overlay');
+        if (overlay) overlay.remove();
+    }
+});

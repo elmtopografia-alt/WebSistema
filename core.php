@@ -1,17 +1,16 @@
 <?php
 // Arquivo: core.php
-session_start();
+require_once 'session_validator.php';
 require_once 'config.php';
 
 /*
 |--------------------------------------------------------------------------
-| VERIFICA LOGIN
+| VALIDADO PELO session_validator.php
 |--------------------------------------------------------------------------
 */
-if (!isset($_SESSION['id_usuario'])) {
-    header('Location: login.php');
-    exit;
-}
+// A validação já ocorreu no include acima.
+// O validator garante que $_SESSION['id_usuario'] e $_SESSION['usuario_id'] existam.
+
 
 $id_usuario = intval($_SESSION['id_usuario']);
 
