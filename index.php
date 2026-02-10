@@ -137,6 +137,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência. Aumente suas vendas com dashboards financeiros.">
+    <meta property="og:title" content="SGT-Propostas | Sistema de Gestão SaaS">
+    <meta property="og:description" content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sgt-propostas.app">
+    <meta name="description" content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência. Aumente suas vendas com dashboards financeiros.">
+    <meta property="og:title" content="SGT-Propostas | Sistema de Gestão SaaS">
+    <meta property="og:description" content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sgt-propostas.app">
     <title>SGT-Propostas | Sistema de Gestão SaaS</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iNjAiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZEljb24iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTY7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZWE1ODBjO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjUiIHk9IjUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcng9IjEwIiBmaWxsPSJ1cmwoI2dyYWRJY29uKSIvPjxwYXRoIGQ9Ik0yOCAxNSBMMjIgMjggTDMwIDI4IEwyNiA0NSBMMzggMzAgTDMwIDMwIEwzNCAxNSBaIiBmaWxsPSJ3aGl0ZSIvPjx0ZXh0IHg9IjY1IiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNCIgZmlsbD0id2hpdGUiPlNHVDwvdGV4dD48dGV4dCB4PSI2NSIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZiOTIzYyI+UHJvcG9zdGFzPC90ZXh0Pjwvc3ZnPg==">
 
@@ -899,19 +909,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form class="space-y-4" method="POST" action="index.php">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Usuário / E-mail</label>
+                        <label for="usuario" class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Usuário / E-mail</label>
                         <div class="relative">
                             <i class="ph ph-envelope absolute left-3 top-3 text-slate-500"></i>
-                            <input type="text" name="usuario" required autocomplete="username"
+                            <input type="text" id="usuario" name="usuario" required autocomplete="username"
                                 class="w-full bg-black/50 border border-white/10 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-slate-600"
                                 placeholder="Seu usuário">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Senha</label>
+                        <label for="senha" class="block text-xs font-medium text-slate-400 mb-1 ml-1 uppercase">Senha</label>
                         <div class="relative">
                             <i class="ph ph-lock-key absolute left-3 top-3 text-slate-500"></i>
-                            <input type="password" name="senha" required autocomplete="current-password"
+                            <input type="password" id="senha" name="senha" required autocomplete="current-password"
                                 class="w-full bg-black/50 border border-white/10 rounded-lg py-2.5 pl-10 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-slate-600"
                                 placeholder="••••••••">
                         </div>

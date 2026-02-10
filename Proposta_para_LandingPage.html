@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência. Visualização moderna e segura.">
+    <meta property="og:title" content="SGT-Propostas | Sistema de Gestão SaaS">
+    <meta property="og:description"
+        content="SGT-Propostas: Sistema de Gestão SaaS para criar, enviar e acompanhar propostas comerciais com inteligência.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sgt-propostas.app">
     <title>SGT-Propostas | Sistema de Gestão SaaS</title>
 
     <!-- Tailwind CSS (Framework Moderno) -->
@@ -57,14 +64,15 @@
         /* Efeitos de Vidro (Glassmorphism) */
         .glass-panel {
             background: rgba(10, 46, 92, 0.4);
-            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
 
         .glass-card {
             background: rgba(19, 47, 76, 0.4);
+            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
@@ -174,7 +182,7 @@
 
                 <!-- Menu Mobile Button -->
                 <button class="md:hidden text-2xl text-white hover:text-brand-accent transition-colors p-2"
-                    onclick="toggleMobileMenu()">
+                    onclick="toggleMobileMenu()" aria-label="Abrir menu mobile">
                     <i class="ph ph-list"></i>
                 </button>
             </div>
@@ -379,7 +387,8 @@
                     class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent">
                 </div>
 
-                <button onclick="toggleLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <button onclick="toggleLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"
+                    aria-label="Fechar modal">
                     <i class="ph ph-x text-xl"></i>
                 </button>
 
