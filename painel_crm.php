@@ -137,12 +137,14 @@ try {
 
 // 2. Busca Propostas (Lógica de Colunas Dinâmicas)
 // Mapeamos os status REAIS do banco para as COLUNAS VISUAIS do CRM
-$sql = "SELECT p.id_proposta, p.id_cliente, p.status, p.data_criacao,
+        $sql = "SELECT p.id_proposta, p.id_cliente, p.status, p.data_criacao,
                c.nome_cliente, c.whatsapp, c.whatsapp_handle, c.telefone,
                DATEDIFF(NOW(), p.data_criacao) as dias_decorridos,
-               p.data_atualizacao
+               p.data_atualizacao,
+               ts.nome as tipo_nome, ts.cor as tipo_cor, ts.icone as tipo_icone
         FROM Propostas p
         LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente
+        LEFT JOIN tipos_servico ts ON p.tipo_servico_id = ts.id
         WHERE p.id_criador = ? 
         ORDER BY 
             CASE 
@@ -619,9 +621,21 @@ function getZapLink($numero, $handle) {
                             </span>
                         </div>
                         
-                        <h3 class="text-sm font-bold text-white mb-3 leading-tight truncate" title="<?= htmlspecialchars($card['nome_cliente']) ?>">
+                        <h3 class="text-sm font-bold text-white mb-1 leading-tight truncate" title="<?= htmlspecialchars($card['nome_cliente']) ?>">
                             <?= htmlspecialchars($card['nome_cliente']) ?>
                         </h3>
+                        
+                        <?php if (!empty($card['tipo_nome'])): ?>
+                            <div class="mb-3">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium text-white shadow-sm" 
+                                      style="background-color: <?= htmlspecialchars($card['tipo_cor'] ?? '#64748b') ?>">
+                                    <i class="ph ph-<?= htmlspecialchars($card['tipo_icone'] ?? 'tag') ?>"></i>
+                                    <?= htmlspecialchars($card['tipo_nome']) ?>
+                                </span>
+                            </div>
+                        <?php else: ?>
+                            <div class="mb-3 h-4"></div> <!-- Espaçador para alinhamento -->
+                        <?php endif; ?>
                         
                         <!-- Ações Rápidas -->
                         <div class="grid grid-cols-4 gap-1 mb-2">

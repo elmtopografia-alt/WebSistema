@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta Técnica ${NumeroProposta}</title>
+
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/print-longo.css">
+    <link rel="stylesheet" href="css/tema-dinamico.css">
+</head>
+
+<body class="modelo-longo">
+    <button onclick="window.print()" class="btn-print no-print">
+        🖨️ Imprimir / Salvar PDF
+    </button>
+
+    <div class="print-hint no-print">
+        💡 <strong>Dica:</strong> Na tela de impressão (Ctrl+P), selecione "Salvar como PDF".
+    </div>
+
+    <div class="container">
+        <!-- CAPA -->
+        <div class="cover">
+            <div class="cover-logo">G</div>
+            <h1>${Empresa}</h1>
+            <div class="subtitle">Proposta Técnica Comercial</div>
+            <div class="proposal-number">${NumeroProposta}</div>
+            <div class="cover-client">Proposta elaborada para:</div>
+            <div class="cover-client-name">${ClienteNome}</div>
+            <div class="cover-date">${DataExtenso}</div>
+        </div>
+
+        <!-- SUMÁRIO -->
+        <section class="section">
+            <div class="section-title">Sumário Executivo</div>
+            <div class="executive-summary">
+                A <strong>${Empresa}</strong> apresenta solução completa em levantamento topográfico de alta precisão
+                utilizando <strong>Aerofotogrametria com Drones</strong>. Nossa metodologia garante precisão
+                centimétrica
+                e redução de prazos em até 60% comparado aos métodos tradicionais.
+            </div>
+        </section>
+
+        <!-- DADOS -->
+        <section class="section">
+            <div class="section-title">1. Dados da Empresa</div>
+            <table class="data-table">
+                <tr>
+                    <td class="label-cell">Razão Social</td>
+                    <td>${Empresa}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">CNPJ</td>
+                    <td>${EmpresaCNPJ}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">Contato</td>
+                    <td>${EmpresaTelefone} | ${EmpresaWhatsApp}</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="section">
+            <div class="section-title">2. Dados do Cliente e Obra</div>
+            <table class="data-table">
+                <tr>
+                    <td class="label-cell">Cliente</td>
+                    <td>${ClienteNome}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">E-mail</td>
+                    <td>${ClienteEmail}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">Obra</td>
+                    <td>${EnderecoObra}, ${BairroObra} - ${CidadeObra}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">Área</td>
+                    <td>${AreaEstimada} m²</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- ESCOPO -->
+        <section class="section">
+            <div class="section-title">3. Escopo do Serviço</div>
+            <div class="service-highlight">
+                ${EscopoServico}
+            </div>
+            <p>${DescricaoServico}</p>
+        </section>
+
+        <!-- METODOLOGIA -->
+        <section class="section">
+            <div class="section-title">4. Metodologia Detalhada</div>
+            <div class="timeline">
+                <div class="timeline-item" data-step="1">
+                    <h4>Planejamento e Configuração de Voo</h4>
+                    <ul>
+                        <li>Estudo via satélite e definição do GSD</li>
+                        <li>Planejamento da malha de fotos</li>
+                        <li>Cálculo de tempo e autorizações</li>
+                    </ul>
+                </div>
+                <div class="timeline-item" data-step="2">
+                    <h4>Pontos de Controle (RTK/PPK)</h4>
+                    <ul>
+                        <li>Distribuição de alvos no terreno</li>
+                        <li>Coleta de coordenadas geodésicas</li>
+                        <li>Registro fotográfico</li>
+                    </ul>
+                </div>
+                <div class="timeline-item" data-step="3">
+                    <h4>Execução do Voo</h4>
+                    <ul>
+                        <li>Checklist de segurança DECEA</li>
+                        <li>Voo autônomo programado</li>
+                        <li>Captura nadir e oblíqua</li>
+                    </ul>
+                </div>
+                <div class="timeline-item" data-step="4">
+                    <h4>Processamento Fotogramétrico</h4>
+                    <ul>
+                        <li>Triangulação aérea e alinhamento</li>
+                        <li>Nuvem de Pontos Densa</li>
+                        <li>Geração de MDT e Ortomosaico</li>
+                    </ul>
+                </div>
+                <div class="timeline-item" data-step="5">
+                    <h4>Vetorização e Desenho Técnico</h4>
+                    <ul>
+                        <li>Importação em CAD</li>
+                        <li>Vetorização de elementos</li>
+                        <li>Geração de curvas de nível</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- EQUIPAMENTOS -->
+        <section class="section">
+            <div class="section-title">5. Equipamentos</div>
+            <div class="equipment-grid">
+                <div class="equipment-card">
+                    <div class="eq-icon">🚁</div>
+                    <div class="eq-card-name">Drone</div>
+                    <div class="eq-card-brand">${DroneMarca}</div>
+                </div>
+                <div class="equipment-card">
+                    <div class="eq-icon">📡</div>
+                    <div class="eq-card-name">GPS</div>
+                    <div class="eq-card-brand">${GPSMarca}</div>
+                </div>
+                <div class="equipment-card">
+                    <div class="eq-icon">🚙</div>
+                    <div class="eq-card-name">Veículo</div>
+                    <div class="eq-card-brand">${VeiculoMarca}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUTOS -->
+        <section class="section">
+            <div class="section-title">6. Produtos Entregáveis</div>
+            <div class="deliverables">
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">🖼️</div>
+                    <div class="deliverable-content">
+                        <h4>Ortomosaico Georreferenciado</h4>
+                        <p>GeoTIFF, 2cm/pixel, SIRGAS 2000</p>
+                    </div>
+                </div>
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">🏔️</div>
+                    <div class="deliverable-content">
+                        <h4>Modelo Digital de Terreno</h4>
+                        <p>LAS, XYZ, precisão ±3cm</p>
+                    </div>
+                </div>
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">📊</div>
+                    <div class="deliverable-content">
+                        <h4>Curvas de Nível</h4>
+                        <p>DWG/DXF, equidistância 0.5m</p>
+                    </div>
+                </div>
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">🗺️</div>
+                    <div class="deliverable-content">
+                        <h4>Planta Topográfica</h4>
+                        <p>PDF/DWG, escala conforme projeto</p>
+                    </div>
+                </div>
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">📄</div>
+                    <div class="deliverable-content">
+                        <h4>Relatório Técnico</h4>
+                        <p>Metodologia e certificados</p>
+                    </div>
+                </div>
+                <div class="deliverable-item">
+                    <div class="deliverable-icon">✅</div>
+                    <div class="deliverable-content">
+                        <h4>ART</h4>
+                        <p>Responsabilidade Técnica CREA</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRAZO -->
+        <section class="section">
+            <div class="section-title">7. Prazo e Cronograma</div>
+            <table class="data-table">
+                <tr>
+                    <th>Etapa</th>
+                    <th>Duração</th>
+                    <th>%</th>
+                </tr>
+                <tr>
+                    <td>Planejamento e Pontos de Controle</td>
+                    <td>2 dias</td>
+                    <td>20%</td>
+                </tr>
+                <tr>
+                    <td>Execução do Voo</td>
+                    <td>1 dia</td>
+                    <td>10%</td>
+                </tr>
+                <tr>
+                    <td>Processamento</td>
+                    <td>3-4 dias</td>
+                    <td>40%</td>
+                </tr>
+                <tr>
+                    <td>Vetorização</td>
+                    <td>2-3 dias</td>
+                    <td>30%</td>
+                </tr>
+                <tr style="background: #e8f5e9; font-weight: bold;">
+                    <td>TOTAL</td>
+                    <td>${PrazoEntrega}</td>
+                    <td>100%</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- INVESTIMENTO -->
+        <section class="section">
+            <div class="section-title">8. Investimento</div>
+            <div class="investment-highlight">
+                <div class="investment-label">Valor Global</div>
+                <div class="investment-value">${ValorTotal}</div>
+                <div class="investment-extenso">${ValorExtenso}</div>
+            </div>
+
+            <div class="payment-timeline">
+                <div class="payment-step highlight">
+                    <div class="payment-dot">30%</div>
+                    <div class="payment-label">Mobilização</div>
+                    <div class="payment-value">${Sinal}</div>
+                    <div class="payment-desc">No aceite</div>
+                </div>
+                <div class="payment-step">
+                    <div class="payment-dot">70%</div>
+                    <div class="payment-label">Entrega Final</div>
+                    <div class="payment-value">${ValorFinal}</div>
+                    <div class="payment-desc">Na entrega</div>
+                </div>
+            </div>
+
+            <div class="banking-section">
+                <div class="subsection-title">Dados para Pagamento</div>
+                <div class="banking-grid-detailed">
+                    <span class="banking-label-detailed">Banco:</span>
+                    <span class="banking-value-detailed">${Banco}</span>
+                    <span class="banking-label-detailed">Ag/Conta:</span>
+                    <span class="banking-value-detailed">${AgenciaConta}</span>
+                    <span class="banking-label-detailed">Pix:</span>
+                    <span class="banking-value-detailed">${Pix}</span>
+                    <span class="banking-label-detailed">Favorecido:</span>
+                    <span class="banking-value-detailed">${Favorecido}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONDIÇÕES -->
+        <section class="section">
+            <div class="section-title">9. Condições Gerais</div>
+            <ul class="conditions-list">
+                <li><strong>Validade:</strong> ${Validade}</li>
+                <li><strong>Início:</strong> Imediato após aceite</li>
+                <li><strong>Acesso:</strong> Cliente garante acesso ao local</li>
+                <li><strong>Força Maior:</strong> Prazos renegociáveis por clima</li>
+                <li><strong>Confidencialidade:</strong> Dados protegidos</li>
+                <li><strong>Garantia:</strong> 90 dias técnicos</li>
+            </ul>
+        </section>
+
+        <!-- ASSINATURAS -->
+        <section class="section">
+            <div class="section-title">10. Aceite da Proposta</div>
+            <div class="signatures-grid">
+                <div class="signature-block">
+                    <div class="signature-line">${Empresa}</div>
+                    <div class="signature-company">
+                        ${Engenheiro}<br>Engenheiro Responsável<br>CREA: ${EngenheiroCREA}
+                    </div>
+                    <div class="signature-docs">${DataHoje}</div>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line">${ClienteNome}</div>
+                    <div class="signature-company">Cliente / Contratante</div>
+                    <div class="signature-docs">CPF/CNPJ: _______________</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

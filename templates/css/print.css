@@ -1,0 +1,969 @@
+/**
+ * PRINT.CSS - Estilos Compartilhados
+ * Sistema de Propostas GEOMETRPOLE
+ * 
+ * Este arquivo contém estilos base usados em TODOS os templates
+ * (curto e longo). Estilos específicos estão em arquivos separados.
+ */
+
+/* ============================================
+   1. RESET E CONFIGURAÇÕES BASE
+   ============================================ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Cores da Marca */
+    --cor-primaria: #2c3e50;
+    --cor-secundaria: #34495e;
+    --cor-destaque: #3498db;
+    --cor-sucesso: #27ae60;
+    --cor-alerta: #ffc107;
+    --cor-texto: #333;
+    --cor-texto-claro: #7f8c8d;
+    --cor-fundo: #f5f5f5;
+    --cor-fundo-card: #f8f9fa;
+    --cor-borda: #dee2e6;
+    
+    /* Tipografia */
+    --fonte-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --fonte-monospace: 'Courier New', monospace;
+    
+    /* Tamanhos */
+    --tamanho-base: 11pt;
+    --tamanho-pequeno: 9pt;
+    --tamanho-medio: 12pt;
+    --tamanho-grande: 14pt;
+    --tamanho-titulo: 16pt;
+    --tamanho-destaque: 20pt;
+    --tamanho-preco: 28pt;
+    
+    /* Espaçamentos */
+    --espacamento-xs: 5px;
+    --espacamento-sm: 10px;
+    --espacamento-md: 15px;
+    --espacamento-lg: 20px;
+    --espacamento-xl: 30px;
+    --espacamento-xxl: 40px;
+    
+    /* Bordas */
+    --raio-borda: 6px;
+    --raio-borda-lg: 8px;
+}
+
+body {
+    font-family: var(--fonte-principal);
+    font-size: var(--tamanho-base);
+    line-height: 1.6;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   2. LAYOUT BASE - CONTAINER
+   ============================================ */
+.container {
+    max-width: 210mm;
+    margin: var(--espacamento-lg) auto;
+    background: white;
+    padding: var(--espacamento-xxl);
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* ============================================
+   3. TIPOGRAFIA
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--cor-primaria);
+    line-height: 1.3;
+    margin-bottom: var(--espacamento-md);
+}
+
+p {
+    margin-bottom: var(--espacamento-md);
+    text-align: justify;
+}
+
+strong {
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+/* ============================================
+   4. BOTÃO IMPRIMIR (visível apenas na tela)
+   ============================================ */
+.btn-print {
+    position: fixed;
+    top: var(--espacamento-lg);
+    right: var(--espacamento-lg);
+    background: linear-gradient(135deg, var(--cor-destaque) 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--raio-borda);
+    cursor: pointer;
+    font-size: var(--tamanho-base);
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: var(--espacamento-sm);
+}
+
+.btn-print:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.print-hint {
+    position: fixed;
+    top: 70px;
+    right: var(--espacamento-lg);
+    background: #fff3cd;
+    border: 2px solid var(--cor-alerta);
+    padding: var(--espacamento-md);
+    border-radius: var(--raio-borda);
+    font-size: var(--tamanho-pequeno);
+    color: #856404;
+    max-width: 280px;
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ============================================
+   5. CABEÇALHOS DE SEÇÃO
+   ============================================ */
+.section {
+    margin-bottom: var(--espacamento-xl);
+    page-break-inside: avoid;
+}
+
+.section-title {
+    background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
+    color: white;
+    padding: var(--espacamento-sm) var(--espacamento-md);
+    font-size: var(--tamanho-grande);
+    font-weight: 600;
+    border-radius: var(--raio-borda);
+    margin-bottom: var(--espacamento-md);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    page-break-after: avoid;
+}
+
+.subsection-title {
+    font-size: var(--tamanho-medio);
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin: var(--espacamento-lg) 0 var(--espacamento-sm) 0;
+    padding-bottom: var(--espacamento-xs);
+    border-bottom: 2px solid var(--cor-destaque);
+    page-break-after: avoid;
+}
+
+/* ============================================
+   6. GRIDS DE INFORMAÇÃO
+   ============================================ */
+.info-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: var(--espacamento-xs) var(--espacamento-md);
+    align-items: baseline;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--cor-primaria);
+    font-size: var(--tamanho-pequeno);
+    text-transform: uppercase;
+}
+
+.info-value {
+    color: var(--cor-texto);
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+}
+
+/* ============================================
+   7. DESTAQUE DO SERVIÇO (ESCOPO)
+   ============================================ */
+.service-highlight {
+    background: var(--cor-fundo-card);
+    border-left: 5px solid var(--cor-destaque);
+    padding: var(--espacamento-lg);
+    margin: var(--espacamento-md) 0;
+    border-radius: 0 var(--raio-borda-lg) var(--raio-borda-lg) 0;
+    page-break-inside: avoid;
+}
+
+.service-highlight strong,
+.service-destaque {
+    font-size: var(--tamanho-destaque);
+    color: var(--cor-primaria);
+    display: block;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   8. EQUIPAMENTOS
+   ============================================ */
+.equipment-list {
+    list-style: none;
+    padding: 0;
+}
+
+.equipment-list li {
+    padding: var(--espacamento-sm) var(--espacamento-md);
+    margin: var(--espacamento-xs) 0;
+    background: var(--cor-fundo-card);
+    border-radius: var(--raio-borda);
+    border-left: 4px solid var(--cor-destaque);
+    display: flex;
+    align-items: center;
+    page-break-inside: avoid;
+}
+
+.eq-name {
+    font-weight: 700;
+    color: var(--cor-primaria);
+    min-width: 100px;
+    font-size: var(--tamanho-medio);
+}
+
+.eq-brand {
+    color: var(--cor-texto-claro);
+    font-style: italic;
+}
+
+.eq-brand::before {
+    content: "— ";
+    color: #bdc3c7;
+    margin: 0 var(--espacamento-sm);
+}
+
+/* Grid de cards (usado no modelo longo) */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--espacamento-md);
+    margin: var(--espacamento-md) 0;
+}
+
+.equipment-card {
+    background: var(--cor-fundo-card);
+    border: 2px solid var(--cor-borda);
+    border-radius: var(--raio-borda-lg);
+    padding: var(--espacamento-lg);
+    text-align: center;
+    transition: all 0.3s ease;
+    page-break-inside: avoid;
+}
+
+.equipment-card:hover {
+    border-color: var(--cor-destaque);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.eq-icon {
+    font-size: 32px;
+    margin-bottom: var(--espacamento-sm);
+}
+
+.eq-card-name {
+    font-size: var(--tamanho-grande);
+    font-weight: 700;
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-xs);
+}
+
+.eq-card-brand {
+    color: var(--cor-texto-claro);
+    font-style: italic;
+    font-size: var(--tamanho-base);
+}
+
+/* ============================================
+   9. DOCUMENTAÇÃO / LISTAS
+   ============================================ */
+.doc-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.doc-list li {
+    padding: var(--espacamento-xs) 0;
+    padding-left: 30px;
+    position: relative;
+    margin: var(--espacamento-xs) 0;
+}
+
+.doc-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--cor-sucesso);
+    font-weight: bold;
+    font-size: var(--tamanho-medio);
+}
+
+/* ============================================
+   10. METODOLOGIA / STEPS
+   ============================================ */
+.method-steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+}
+
+.method-steps li {
+    counter-increment: step;
+    padding: var(--espacamento-sm) 0 var(--espacamento-sm) 50px;
+    position: relative;
+    margin: var(--espacamento-xs) 0;
+    page-break-inside: avoid;
+}
+
+.method-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--cor-primaria);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--tamanho-pequeno);
+}
+
+/* Timeline (modelo longo) */
+.timeline {
+    position: relative;
+    padding-left: 40px;
+    margin: var(--espacamento-md) 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--cor-destaque);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: var(--espacamento-lg);
+    padding: var(--espacamento-md);
+    background: var(--cor-fundo-card);
+    border-radius: var(--raio-borda-lg);
+    page-break-inside: avoid;
+}
+
+.timeline-item::before {
+    content: attr(data-step);
+    position: absolute;
+    left: -40px;
+    top: var(--espacamento-md);
+    width: 30px;
+    height: 30px;
+    background: var(--cor-primaria);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--tamanho-base);
+}
+
+.timeline-item h4 {
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-sm);
+    font-size: var(--tamanho-medio);
+}
+
+.timeline-item ul {
+    margin-left: var(--espacamento-lg);
+    color: #555;
+}
+
+.timeline-item li {
+    margin: var(--espacamento-xs) 0;
+}
+
+/* ============================================
+   11. TABELAS
+   ============================================ */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--espacamento-md) 0;
+    font-size: var(--tamanho-base);
+}
+
+.data-table th {
+    background: var(--cor-primaria);
+    color: white;
+    padding: var(--espacamento-sm);
+    text-align: left;
+    font-weight: 600;
+}
+
+.data-table td {
+    padding: var(--espacamento-sm);
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.data-table tr:nth-child(even) {
+    background: var(--cor-fundo-card);
+}
+
+.data-table .label-cell {
+    background: #e9ecef;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    width: 30%;
+}
+
+/* Tabela de pagamento */
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--espacamento-md) 0;
+}
+
+.payment-table th,
+.payment-table td {
+    padding: var(--espacamento-sm);
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.payment-table th {
+    background: var(--cor-fundo-card);
+    font-weight: 600;
+    color: var(--cor-primaria);
+}
+
+.payment-table .highlight {
+    background: #fff3cd;
+    font-weight: 600;
+}
+
+/* ============================================
+   12. INVESTIMENTO / PREÇOS
+   ============================================ */
+.price-box {
+    background: linear-gradient(135deg, var(--cor-fundo-card) 0%, #e9ecef 100%);
+    border: 2px solid var(--cor-primaria);
+    border-radius: var(--raio-borda-lg);
+    padding: var(--espacamento-xl);
+    text-align: center;
+    margin: var(--espacamento-md) 0;
+    page-break-inside: avoid;
+}
+
+.price-label {
+    font-size: var(--tamanho-base);
+    color: var(--cor-texto-claro);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--espacamento-sm);
+}
+
+.price-value {
+    font-size: var(--tamanho-preco);
+    font-weight: 700;
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-xs);
+}
+
+.price-extenso {
+    font-style: italic;
+    color: #555;
+    font-size: var(--tamanho-base);
+}
+
+/* Destaque de investimento (modelo longo) */
+.investment-highlight {
+    background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
+    color: white;
+    padding: var(--espacamento-xxl);
+    border-radius: var(--raio-borda-lg);
+    text-align: center;
+    margin: var(--espacamento-xl) 0;
+    page-break-inside: avoid;
+}
+
+.investment-label {
+    font-size: var(--tamanho-medio);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--espacamento-sm);
+    opacity: 0.9;
+}
+
+.investment-value {
+    font-size: 36pt;
+    font-weight: 700;
+    margin-bottom: var(--espacamento-xs);
+}
+
+.investment-extenso {
+    font-size: var(--tamanho-base);
+    font-style: italic;
+    opacity: 0.9;
+}
+
+/* Timeline de pagamento */
+.payment-timeline {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--espacamento-xl) 0;
+    position: relative;
+}
+
+.payment-timeline::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: var(--cor-borda);
+}
+
+.payment-step {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    page-break-inside: avoid;
+}
+
+.payment-dot {
+    width: 60px;
+    height: 60px;
+    background: white;
+    border: 4px solid var(--cor-destaque);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--espacamento-sm);
+    font-weight: bold;
+    color: var(--cor-primaria);
+    font-size: var(--tamanho-grande);
+}
+
+.payment-step.highlight .payment-dot {
+    background: var(--cor-destaque);
+    color: white;
+}
+
+.payment-label {
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-xs);
+}
+
+.payment-value {
+    font-size: var(--tamanho-grande);
+    color: var(--cor-sucesso);
+    font-weight: 700;
+}
+
+.payment-desc {
+    font-size: var(--tamanho-pequeno);
+    color: var(--cor-texto-claro);
+    margin-top: var(--espacamento-xs);
+}
+
+/* ============================================
+   13. DADOS BANCÁRIOS
+   ============================================ */
+.banking-box {
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda-lg);
+    padding: var(--espacamento-lg);
+    margin: var(--espacamento-md) 0;
+    page-break-inside: avoid;
+}
+
+.banking-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--espacamento-sm) var(--espacamento-md);
+    align-items: center;
+}
+
+.banking-label {
+    font-weight: 600;
+    color: var(--cor-primaria);
+    font-size: var(--tamanho-pequeno);
+}
+
+.banking-value {
+    color: var(--cor-texto);
+    font-family: var(--fonte-monospace);
+    font-size: var(--tamanho-base);
+}
+
+/* Grid detalhado (modelo longo) */
+.banking-grid-detailed {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: var(--espacamento-sm) var(--espacamento-lg);
+    align-items: center;
+}
+
+.banking-label-detailed {
+    font-weight: 600;
+    color: var(--cor-primaria);
+    font-size: var(--tamanho-pequeno);
+    text-align: right;
+}
+
+.banking-value-detailed {
+    color: var(--cor-texto);
+    font-family: var(--fonte-monospace);
+    font-size: var(--tamanho-medio);
+    padding: var(--espacamento-xs) var(--espacamento-sm);
+    background: white;
+    border-radius: var(--raio-borda);
+    border: 1px solid var(--cor-borda);
+}
+
+/* ============================================
+   14. LISTAS DE CONDIÇÕES
+   ============================================ */
+.conditions-list {
+    list-style: none;
+    padding: 0;
+}
+
+.conditions-list li {
+    padding: var(--espacamento-sm) 0;
+    padding-left: 35px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    page-break-inside: avoid;
+}
+
+.conditions-list li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--cor-destaque);
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ============================================
+   15. ASSINATURAS
+   ============================================ */
+.signature-section {
+    margin-top: var(--espacamento-xxl);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--espacamento-xl);
+    page-break-inside: avoid;
+}
+
+.signature-box {
+    text-align: center;
+}
+
+.signature-line {
+    border-top: 1px solid #333;
+    margin-top: 60px;
+    padding-top: var(--espacamento-sm);
+    font-weight: 600;
+}
+
+.signature-role {
+    font-size: var(--tamanho-pequeno);
+    color: var(--cor-texto-claro);
+    margin-top: var(--espacamento-xs);
+}
+
+.signatures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-top: 60px;
+    page-break-inside: avoid;
+}
+
+.signature-block {
+    text-align: center;
+}
+
+.signature-company {
+    font-size: var(--tamanho-base);
+    color: var(--cor-texto-claro);
+    margin-top: var(--espacamento-xs);
+}
+
+.signature-docs {
+    font-size: var(--tamanho-pequeno);
+    color: #999;
+    margin-top: var(--espacamento-sm);
+}
+
+/* ============================================
+   16. PRODUTOS ENTREGÁVEIS (modelo longo)
+   ============================================ */
+.deliverables {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--espacamento-md);
+    margin: var(--espacamento-md) 0;
+}
+
+.deliverable-item {
+    display: flex;
+    align-items: flex-start;
+    padding: var(--espacamento-md);
+    background: var(--cor-fundo-card);
+    border-radius: var(--raio-borda);
+    border-left: 4px solid var(--cor-sucesso);
+    page-break-inside: avoid;
+}
+
+.deliverable-icon {
+    font-size: 24px;
+    margin-right: var(--espacamento-md);
+    color: var(--cor-sucesso);
+}
+
+.deliverable-content h4 {
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-xs);
+    font-size: var(--tamanho-base);
+}
+
+.deliverable-content p {
+    font-size: var(--tamanho-pequeno);
+    color: var(--cor-texto-claro);
+    margin: 0;
+}
+
+/* ============================================
+   17. EXECUTIVE SUMMARY (modelo longo)
+   ============================================ */
+.executive-summary {
+    background: var(--cor-fundo-card);
+    border-left: 5px solid var(--cor-sucesso);
+    padding: var(--espacamento-lg);
+    margin: var(--espacamento-md) 0;
+    border-radius: 0 var(--raio-borda-lg) var(--raio-borda-lg) 0;
+    font-size: var(--tamanho-base);
+}
+
+/* ============================================
+   18. MEDIA PRINT - IMPRESSÃO
+   ============================================ */
+@media print {
+    :root {
+        --tamanho-base: 10pt;
+    }
+    
+    body {
+        background: white;
+        font-size: var(--tamanho-base);
+    }
+    
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 15px;
+        box-shadow: none;
+    }
+    
+    /* Esconder elementos da UI */
+    .btn-print,
+    .print-hint,
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Prevenir quebras indesejadas */
+    .section,
+    .service-highlight,
+    .price-box,
+    .investment-highlight,
+    .banking-box,
+    .banking-section,
+    .equipment-card,
+    .timeline-item,
+    .deliverable-item,
+    .payment-step,
+    .signature-section,
+    .signatures-grid {
+        page-break-inside: avoid;
+    }
+    
+    .section-title {
+        page-break-after: avoid;
+    }
+    
+    /* Cores em preto e branco para economia */
+    .section-title {
+        background: #333 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .data-table th {
+        background: #333 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .payment-table .highlight {
+        background: #f0f0f0 !important;
+    }
+    
+    /* Bordas visíveis */
+    .service-highlight,
+    .price-box,
+    .banking-box,
+    .banking-section,
+    .equipment-card,
+    .timeline-item,
+    .deliverable-item {
+        border: 1px solid #999 !important;
+    }
+    
+    .investment-highlight {
+        border: 3px solid #333 !important;
+        background: white !important;
+        color: black !important;
+    }
+    
+    .investment-value {
+        color: #000 !important;
+    }
+    
+    /* Remover sombras e efeitos */
+    .equipment-card:hover,
+    .btn-print {
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    
+    /* Garantir que links apareçam como texto */
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+/* ============================================
+   19. RESPONSIVO - MOBILE
+   ============================================ */
+@media screen and (max-width: 768px) {
+    .container {
+        margin: var(--espacamento-sm);
+        padding: var(--espacamento-md);
+    }
+    
+    .info-grid,
+    .banking-grid,
+    .banking-grid-detailed {
+        grid-template-columns: 1fr;
+    }
+    
+    .banking-label-detailed {
+        text-align: left;
+    }
+    
+    .equipment-grid,
+    .deliverables {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-timeline {
+        flex-direction: column;
+        gap: var(--espacamento-lg);
+    }
+    
+    .payment-timeline::before {
+        display: none;
+    }
+    
+    .signature-section,
+    .signatures-grid {
+        grid-template-columns: 1fr;
+        gap: var(--espacamento-xl);
+    }
+    
+    .price-value,
+    .investment-value {
+        font-size: 24pt;
+    }
+    
+    .btn-print {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: var(--espacamento-sm);
+        width: calc(100% - 20px);
+        justify-content: center;
+    }
+    
+    .print-hint {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: var(--espacamento-sm);
+        max-width: none;
+    }
+}
+
+/* ============================================
+   20. UTILITÁRIOS
+   ============================================ */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-normal { font-weight: 400; }
+
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.my-0 { margin-top: 0; margin-bottom: 0; }
+
+.hidden { display: none; }
+.visible { display: block; }
+
+.page-break { page-break-before: always; }
+.page-break-after { page-break-after: always; }
+.no-break { page-break-inside: avoid; }

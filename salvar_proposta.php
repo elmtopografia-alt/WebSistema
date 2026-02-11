@@ -1,19 +1,16 @@
 <?php
-// Nome do Arquivo: salvar_proposta.php
-// Função: Salva proposta usando o NOME DO ARQUIVO definido no Banco de Dados.
+/**
+ * Nome do Arquivo: salvar_proposta.php
+ * Função: Processa o salvamento da proposta (INSERT/UPDATE), salva itens relacionados
+ * e decide o fluxo de saída (Editor Dinâmico, HTML ou DOCX).
+ */
 
-ini_set('display_errors', 0); 
+// 1. CONFIGURAÇÕES E ERROS
+ini_set('display_errors', '0'); 
 error_reporting(E_ALL);
 ob_start();
 
-session_start();
-
-if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
-    ob_end_clean();
-    die("ERRO CRÍTICO: Pasta /vendor/ não encontrada.");
-}
-
-require_once 'vendor/autoload.php'; 
+require_once 'session_validator.php';
 require_once 'config.php';
 require_once 'db.php';
 require_once 'CalculadoraOrcamento.php';
@@ -24,8 +21,16 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+    ob_end_clean();
+    die("ERRO CRÍTICO: Pasta /vendor/ não encontrada.");
+}
+require_once __DIR__ . '/vendor/autoload.php';
+
+// 2. INICIALIZAÇÃO DE VARIÁVEIS
 $id_criador = $_SESSION['usuario_id'];
 $is_demo = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
+$is_demo_int = $is_demo ? 1 : 0;
 $conn = $is_demo ? Database::getDemo() : Database::getProd();
 $calc = new CalculadoraOrcamento();
 
@@ -33,7 +38,6 @@ $calc = new CalculadoraOrcamento();
 $nomePastaModelo = $is_demo ? 'modelos_demo' : 'modelos_prod';
 $pastaBase = __DIR__ . '/' . $nomePastaModelo . '/';
 $pastaSaida = __DIR__ . '/propostas_emitidas/';
-
 if (!is_dir($pastaBase)) mkdir($pastaBase, 0755, true);
 if (!is_dir($pastaSaida)) mkdir($pastaSaida, 0755, true);
 
@@ -43,26 +47,46 @@ function limparStr($string) {
 }
 
 function gerarNumero($conn, $nomeEmpresa) {
-    $prefixo = strtoupper(limparStr(explode(' ', trim($nomeEmpresa))[0]));
+    // Escapa e limpa o prefixo
+    $empresaLimpa = trim($nomeEmpresa);
+    if (empty($empresaLimpa)) $empresaLimpa = 'SGT';
+    
+    $prefixo = strtoupper(limparStr(explode(' ', $empresaLimpa)[0]));
     if (strlen($prefixo) < 2) $prefixo = 'PROP';
     $ano = date('Y');
     
-    $stmt = $conn->prepare("SELECT numero_proposta FROM Propostas WHERE numero_proposta LIKE CONCAT(?, '-', ?, '-%') ORDER BY id_proposta DESC LIMIT 1");
+    // Busca o maior sequencial para este prefixo/ano
+    $stmt = $conn->prepare("SELECT numero_proposta FROM Propostas WHERE numero_proposta LIKE CONCAT(?, '-', ?, '-%') ORDER BY CAST(SUBSTRING_INDEX(numero_proposta, '-', -1) AS UNSIGNED) DESC LIMIT 1");
     $stmt->bind_param('ss', $prefixo, $ano);
     $stmt->execute();
     $res = $stmt->get_result();
     $prox_seq = 1;
+
     if ($res && $row = $res->fetch_assoc()) {
         $partes = explode('-', $row['numero_proposta']);
         $ultimo = intval(end($partes));
         $prox_seq = $ultimo + 1;
     }
 
+    // Loop de segurança para garantir unicidade real (evitar race conditions)
+    $tentativas = 0;
     do {
         $numero_final = $prefixo . '-' . $ano . '-' . str_pad($prox_seq, 3, '0', STR_PAD_LEFT);
         $check = $conn->query("SELECT id_proposta FROM Propostas WHERE numero_proposta = '$numero_final'");
-        if ($check->num_rows > 0) { $prox_seq++; } else { break; }
+        if ($check && $check->num_rows > 0) { 
+            $prox_seq++; 
+            $tentativas++;
+        } else { 
+            break; 
+        }
+        // Limite de segurança para evitar loop infinito
+        if ($tentativas > 100) break; 
     } while (true);
+
+    // Garantia final: nunca retornar vazio
+    if (empty($numero_final)) {
+        $numero_final = $prefixo . '-' . $ano . '-' . uniqid();
+    }
 
     return $numero_final;
 }
@@ -76,51 +100,34 @@ function numExtenso($valor = 0) {
     return number_format($valor, 2, ',', '.') . " (valor extenso)";
 }
 
-function dataExtenso($data) {
-    setlocale(LC_TIME, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
-    $meses = [1=>'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    $timestamp = strtotime($data);
-    return date('d', $timestamp) . " de " . $meses[(int)date('m', $timestamp)] . " de " . date('Y', $timestamp);
-}
-
+// 3. PROCESSAMENTO DO POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // VALIDAÇÃO CSRF (VACINA)
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    
+    // CSRF VACINA
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
         ob_end_clean();
         die("ERRO DE SEGURANÇA: Token inválido (CSRF). Tente recarregar a página.");
     }
-    
+
     $conn->begin_transaction();
 
     try {
-        // Verificação de Integridade do POST
         if (!isset($_POST['form_complete'])) {
             throw new Exception("Erro de transmissão: O formulário não foi recebido completamente. Tente novamente.");
         }
-        if ($is_demo) {
-            $hoje = date('Y-m-d');
-            $stmtL = $conn->prepare("SELECT COUNT(*) as qtd FROM Propostas WHERE id_criador = ? AND DATE(data_criacao) = ?");
-            $stmtL->bind_param('is', $id_criador, $hoje);
-            $stmtL->execute();
-            if ($stmtL->get_result()->fetch_assoc()['qtd'] >= 10) throw new Exception("Limite diário DEMO atingido.");
-        }
 
+        // Dados Básicos
         $id_cliente = intval($_POST['id_cliente'] ?? 0);
         $id_servico = intval($_POST['id_servico'] ?? 0);
+        $tipo_servico_id = !empty($_POST['tipo_servico_id']) ? intval($_POST['tipo_servico_id']) : null;
         
         $cliente_info = $conn->query("SELECT * FROM Clientes WHERE id_cliente = $id_cliente")->fetch_assoc();
         $emp = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $id_criador")->fetch_assoc();
-        
-        // --- AQUI ESTÁ A MUDANÇA: PEGA O NOME DO ARQUIVO DO BANCO ---
         $serv_info = $conn->query("SELECT nome, arquivo_modelo FROM Tipo_Servicos WHERE id_servico = $id_servico")->fetch_assoc();
-        
-        // Se tiver arquivo configurado no banco, usa ele. Se não, usa o Padrão.
-        $arquivoModeloNome = !empty($serv_info['arquivo_modelo']) ? $serv_info['arquivo_modelo'] : 'ModeloPropostaPadrao.docx';
 
-        if (!$cliente_info || !$emp) throw new Exception("Dados incompletos.");
+        if (!$cliente_info || !$emp) throw new Exception("Dados de cliente ou empresa não encontrados.");
 
-        // Cálculos
+        // Cálculos e Itens (Simplificado para o processamento)
         $total_salarios = 0; $itens_salario = [];
         if (!empty($_POST['salario_id_funcao'])) {
             foreach ($_POST['salario_id_funcao'] as $k => $id) {
@@ -149,25 +156,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         $total_locacao = 0; $itens_locacao = [];
-        $equip_veiculo='Não'; $equip_estacao='Não'; $equip_gps='Não'; $equip_drone='Não';
         if (!empty($_POST['locacao_id'])) {
             foreach ($_POST['locacao_id'] as $k => $id) {
                 if (!$id) continue;
                 $qtd=floatval($_POST['locacao_qtd'][$k]); $val=floatval($_POST['locacao_valor'][$k]); $dias=floatval($_POST['locacao_dias'][$k]);
-                $rawMarca = $_POST['locacao_id_marca'][$k] ?? null;
-                $id_marca = (is_numeric($rawMarca) && intval($rawMarca) > 0) ? intval($rawMarca) : null;
+                $id_marca = !empty($_POST['locacao_id_marca'][$k]) ? intval($_POST['locacao_id_marca'][$k]) : null;
                 $total_locacao += $calc->calcularLocacao($qtd, $val, $dias);
-                $nome_cat = $_POST['locacao_nome'][$k] ?? ''; 
-                $nome_marca_texto = "Sim";
-                if ($id_marca) {
-                    $qm = $conn->query("SELECT nome_marca FROM Marcas WHERE id_marca = ".intval($id_marca));
-                    if($qm && $rm = $qm->fetch_assoc()) $nome_marca_texto = $rm['nome_marca'];
-                }
-                $nm_lower = mb_strtolower($nome_cat);
-                if (strpos($nm_lower, 'veículo')!==false || strpos($nm_lower, 'veiculo')!==false) $equip_veiculo = !empty($_POST['veiculo']) ? $_POST['veiculo'] : $nome_marca_texto;
-                if (strpos($nm_lower, 'estação')!==false || strpos($nm_lower, 'estacao')!==false) $equip_estacao = !empty($_POST['estacao_total']) ? $_POST['estacao_total'] : $nome_marca_texto;
-                if (strpos($nm_lower, 'gps')!==false) $equip_gps = !empty($_POST['gps']) ? $_POST['gps'] : $nome_marca_texto;
-                if (strpos($nm_lower, 'drone')!==false) $equip_drone = !empty($_POST['drone']) ? $_POST['drone'] : $nome_marca_texto;
                 $itens_locacao[] = ['id'=>$id, 'id_marca'=>$id_marca, 'qtd'=>$qtd, 'val'=>$val, 'dias'=>$dias];
             }
         }
@@ -196,68 +190,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $extenso = numExtenso($final);
         
         $num_proposta = gerarNumero($conn, $emp['Empresa']);
-        $status = 'Em elaboração';
-        $is_demo_int = $is_demo ? 1 : 0;
+        $status = $_POST['status'] ?? 'Em elaboração';
 
-        // Extração dos campos de escopo da obra
+        // Escopo e Campos Técnicos
         $p_contato = $_POST['contato_obra'] ?? '';
         $p_fin = $_POST['finalidade'] ?? '';
         $p_tipo = $_POST['tipo_levantamento'] ?? '';
-        $p_area = $_POST['area'] ?? '';
-        $p_end = $_POST['endereco'] ?? '';
-        $p_bairro = $_POST['bairro'] ?? '';
-        $p_cid = $_POST['cidade'] ?? '';
-        $p_uf = $_POST['estado'] ?? '';
+        $p_area = $_POST['area_obra'] ?? $_POST['area'] ?? '';
+        $p_unidade = $_POST['unidade_area'] ?? 'm²';
+        $p_end = $_POST['endereco_obra'] ?? $_POST['endereco'] ?? '';
+        $p_bairro = $_POST['bairro_obra'] ?? $_POST['bairro'] ?? '';
+        $p_cid = $_POST['cidade_obra'] ?? $_POST['cidade'] ?? '';
+        $p_uf = $_POST['estado_obra'] ?? $_POST['estado'] ?? '';
         $p_prazo = $_POST['prazo_execucao'] ?? '';
         $p_dc = intval($_POST['dias_campo'] ?? 0);
         $p_de = intval($_POST['dias_escritorio'] ?? 0);
 
-        // VERIFICA SE É EDIÇÃO OU NOVA PROPOSTA
+        // Identificação (Update ou Insert)
         $id_prop_existente = isset($_POST['id_proposta_criada']) ? intval($_POST['id_proposta_criada']) : 0;
-        // Compatibilidade com possíveis campos de ID
         if (!$id_prop_existente && isset($_POST['id_proposta'])) $id_prop_existente = intval($_POST['id_proposta']);
-        if (!$id_prop_existente && isset($_POST['id_proposta_original'])) $id_prop_existente = intval($_POST['id_proposta_original']);
 
-        // Check ownership
         if ($id_prop_existente > 0) {
+            // Verifica dono para UPDATE
             $checkOwner = $conn->query("SELECT id_proposta, numero_proposta FROM Propostas WHERE id_proposta = $id_prop_existente AND id_criador = $id_criador");
             if ($checkOwner && $rowOwner = $checkOwner->fetch_assoc()) {
-                // É edição válida! Mantém o número original
                 $num_proposta = $rowOwner['numero_proposta'];
+                $id_prop = $id_prop_existente;
             } else {
-                // Não é dono ou não existe, força criar nova (segurança)
-                $id_prop_existente = 0;
+                $id_prop_existente = 0; // Força Insert se não for dono
             }
         }
 
         if ($id_prop_existente > 0) {
-            // --- UPDATE ---
+            // ========== UPDATE ==========
+            // CORREÇÃO: Array organizado com contagem exata (43 valores)
             $sql = "UPDATE Propostas SET 
                 id_cliente=?, nome_cliente_salvo=?, empresa_cliente_salvo=?, email_salvo=?, telefone_salvo=?, celular_salvo=?, whatsapp_salvo=?,
-                id_servico=?, contato_obra=?, finalidade=?, tipo_levantamento=?, area_obra=?, endereco_obra=?, bairro_obra=?, cidade_obra=?, estado_obra=?,
+                id_servico=?, tipo_servico_id=?, contato_obra=?, finalidade=?, tipo_levantamento=?, area_obra=?, unidade_area=?, endereco_obra=?, bairro_obra=?, cidade_obra=?, estado_obra=?,
                 prazo_execucao=?, dias_campo=?, dias_escritorio=?, status=?,
                 total_custos_salarios=?, total_custos_estadia=?, total_custos_consumos=?, total_custos_locacao=?, total_custos_admin=?,
                 percentual_lucro=?, valor_lucro=?, subtotal_com_lucro=?, valor_desconto=?, valor_final_proposta=?, Valor_proposta_extenso=?,
                 mobilizacao_percentual=?, mobilizacao_valor=?, restante_percentual=?, restante_valor=?,
-                tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?
+                tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?, data_atualizacao=NOW()
                 WHERE id_proposta=?";
             
             $stmt = $conn->prepare($sql);
-            $types = "issssssisssssssssiisddddddddddsddddsssssi";
-            $stmt->bind_param($types, 
-                $id_cliente, $cliente_info['nome_cliente'], $_POST['empresa_cliente'], $cliente_info['email'], $cliente_info['telefone'], $cliente_info['celular'], $cliente_info['whatsapp'],
-                $id_servico, $p_contato, $p_fin, $p_tipo, $p_area, $p_end, $p_bairro, $p_cid, $p_uf,
-                $p_prazo, $p_dc, $p_de, $status, 
-                $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin, 
-                $perc_lucro, $valor_lucro, $subtotal, $desc, $final, $extenso, 
-                $mob_perc, $mob_val, $rest_perc, $rest_val,
-                $_POST['tipo_terreno'], $_POST['cobertura_vegetal'], $_POST['acesso_local'], $_POST['restricoes_aereas'], $_POST['coordenadas_gps'],
-                $id_prop_existente
-            );
-            $stmt->execute();
-            $id_prop = $id_prop_existente;
+            
+            $params = [
+                $id_cliente,                            // 1
+                $cliente_info['nome_cliente'],          // 2
+                $_POST['empresa_cliente'] ?? '',        // 3
+                $cliente_info['email'],                 // 4
+                $cliente_info['telefone'],              // 5
+                $cliente_info['celular'],               // 6
+                $cliente_info['whatsapp'],              // 7
+                $id_servico,                            // 8
+                $tipo_servico_id,                       // 9
+                $p_contato,                             // 10
+                $p_fin,                                 // 11
+                $p_tipo,                                // 12
+                $p_area,                                // 13
+                $p_unidade,                             // 14
+                $p_end,                                 // 15
+                $p_bairro,                              // 16
+                $p_cid,                                 // 17
+                $p_uf,                                  // 18
+                $p_prazo,                               // 19
+                $p_dc,                                  // 20
+                $p_de,                                  // 21
+                $status,                                // 22
+                $total_salarios,                        // 23
+                $total_estadia,                         // 24
+                $total_consumos,                        // 25
+                $total_locacao,                         // 26
+                $total_admin,                           // 27
+                $perc_lucro,                            // 28
+                $valor_lucro,                           // 29
+                $subtotal,                              // 30
+                $desc,                                  // 31
+                $final,                                 // 32
+                $extenso,                               // 33
+                $mob_perc,                              // 34
+                $mob_val,                               // 35
+                $rest_perc,                             // 36
+                $rest_val,                              // 37
+                $_POST['tipo_terreno'] ?? null,         // 38
+                $_POST['cobertura_vegetal'] ?? null,    // 39
+                $_POST['acesso_local'] ?? null,         // 40
+                $_POST['restricoes_aereas'] ?? null,    // 41
+                $_POST['coordenadas_gps'] ?? null,      // 42
+                $id_prop                                // 43 (WHERE)
+            ];
+            
+            if (!$stmt->execute($params)) throw new Exception("Erro no Update: " . $stmt->error);
 
-            // Limpa itens antigos para recriar (evita duplicação de itens de custo)
+            // Limpa itens antigos para reinserir
             $conn->query("DELETE FROM Proposta_Salarios WHERE id_proposta = $id_prop");
             $conn->query("DELETE FROM Proposta_Estadia WHERE id_proposta = $id_prop");
             $conn->query("DELETE FROM Proposta_Consumos WHERE id_proposta = $id_prop");
@@ -265,245 +292,390 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->query("DELETE FROM Proposta_Custos_Administrativos WHERE id_proposta = $id_prop");
 
         } else {
-            // --- INSERT (Nova) ---
+            // ========== INSERT ==========
+            // CORREÇÃO: Contagem exata de colunas vs valores
             $sql = "INSERT INTO Propostas (
                 numero_proposta, id_cliente, id_criador, is_demo,
                 nome_cliente_salvo, empresa_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
                 empresa_proponente_nome, empresa_proponente_cnpj, empresa_proponente_endereco, empresa_proponente_cidade, empresa_proponente_estado,
                 empresa_proponente_banco, empresa_proponente_agencia, empresa_proponente_conta, empresa_proponente_pix,
-                id_servico, contato_obra, finalidade, tipo_levantamento, area_obra, endereco_obra, bairro_obra, cidade_obra, estado_obra,
+                id_servico, tipo_servico_id, contato_obra, finalidade, tipo_levantamento, area_obra, unidade_area, 
+                endereco_obra, bairro_obra, cidade_obra, estado_obra,
                 prazo_execucao, dias_campo, dias_escritorio, status,
                 total_custos_salarios, total_custos_estadia, total_custos_consumos, total_custos_locacao, total_custos_admin,
                 percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto, valor_final_proposta, Valor_proposta_extenso,
                 mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor,
                 tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             $stmt = $conn->prepare($sql);
-            $types = "siiisssssssssssssssisssssssssiisddddddddddsddddsssss";
-            $stmt->bind_param($types, $num_proposta, $id_cliente, $id_criador, $is_demo_int, $cliente_info['nome_cliente'], $_POST['empresa_cliente'], $cliente_info['email'], $cliente_info['telefone'], $cliente_info['celular'], $cliente_info['whatsapp'], $emp['Empresa'], $emp['CNPJ'], $emp['Endereco'], $emp['Cidade'], $emp['Estado'], $emp['Banco'], $emp['Agencia'], $emp['Conta'], $emp['PIX'], $id_servico, $p_contato, $p_fin, $p_tipo, $p_area, $p_end, $p_bairro, $p_cid, $p_uf, $p_prazo, $p_dc, $p_de, $status, $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin, $perc_lucro, $valor_lucro, $subtotal, $desc, $final, $extenso, $mob_perc, $mob_val, $rest_perc, $rest_val, $_POST['tipo_terreno'], $_POST['cobertura_vegetal'], $_POST['acesso_local'], $_POST['restricoes_aereas'], $_POST['coordenadas_gps']);
-            $stmt->execute();
-            $id_prop = $conn->insert_id;
-        }
+            
+            $paramsArr = [
+                $num_proposta,                          // 1
+                $id_cliente,                            // 2
+                $id_criador,                            // 3
+                $is_demo_int,                           // 4
+                $cliente_info['nome_cliente'],          // 5
+                $_POST['empresa_cliente'] ?? '',        // 6
+                $cliente_info['email'],                 // 7
+                $cliente_info['telefone'],              // 8
+                $cliente_info['celular'],               // 9
+                $cliente_info['whatsapp'],              // 10
+                $emp['Empresa'],                        // 11
+                $emp['CNPJ'],                           // 12
+                $emp['Endereco'],                       // 13
+                $emp['Cidade'],                         // 14
+                $emp['Estado'],                         // 15
+                $emp['Banco'],                          // 16
+                $emp['Agencia'],                        // 17
+                $emp['Conta'],                          // 18
+                $emp['PIX'],                            // 19
+                $id_servico,                            // 20
+                $tipo_servico_id,                       // 21
+                $p_contato,                             // 22
+                $p_fin,                                 // 23
+                $p_tipo,                                // 24
+                $p_area,                                // 25
+                $p_unidade,                             // 26
+                $p_end,                                 // 27
+                $p_bairro,                              // 28
+                $p_cid,                                 // 29
+                $p_uf,                                  // 30
+                $p_prazo,                               // 31
+                $p_dc,                                  // 32
+                $p_de,                                  // 33
+                $status,                                // 34
+                $total_salarios,                        // 35
+                $total_estadia,                         // 36
+                $total_consumos,                        // 37
+                $total_locacao,                         // 38
+                $total_admin,                           // 39
+                $perc_lucro,                            // 40
+                $valor_lucro,                           // 41
+                $subtotal,                              // 42
+                $desc,                                  // 43
+                $final,                                 // 44
+                $extenso,                               // 45
+                $mob_perc,                              // 46
+                $mob_val,                               // 47
+                $rest_perc,                             // 48
+                $rest_val,                              // 49
+                $_POST['tipo_terreno'] ?? null,         // 50
+                $_POST['cobertura_vegetal'] ?? null,    // 51
+                $_POST['acesso_local'] ?? null,         // 52
+                $_POST['restricoes_aereas'] ?? null,    // 53
+                $_POST['coordenadas_gps'] ?? null       // 54
+            ];
 
-        // Itens
-        $s1 = $conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
-        foreach($itens_salario as $i) { $f=1+($i['enc']/100); $s1->bind_param('iisiddi', $id_prop, $i['id'], $i['nome'], $i['qtd'], $i['base'], $f, $i['dias']); $s1->execute(); }
-        $s2 = $conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
-        foreach($itens_estadia as $i) { $s2->bind_param('iisidi', $id_prop, $i['id'], $i['nome'], $i['qtd'], $i['val'], $i['dias']); $s2->execute(); }
-        $s3 = $conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
-        foreach($itens_consumo as $i) { $s3->bind_param('iisiddd', $id_prop, $i['id'], $i['nome'], $i['qtd'], $i['kml'], $i['lit'], $i['kmt']); $s3->execute(); }
-        $s4 = $conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
-        foreach($itens_locacao as $i) { $s4->bind_param('iiisdi', $id_prop, $i['id'], $i['id_marca'], $i['qtd'], $i['val'], $i['dias']); $s4->execute(); }
-        $s5 = $conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
-        foreach($itens_admin as $i) { $s5->bind_param('iisid', $id_prop, $i['id'], $i['nome'], $i['qtd'], $i['val']); $s5->execute(); }
+            if (!$stmt->execute($paramsArr)) throw new Exception("Erro no Insert: " . $stmt->error);
 
-        // Mapeamento de Conteúdo Personalizado (Vindo do Editor Dinâmico)
-        $msg_custom = [];
-        $sContent = $conn->prepare("INSERT INTO Proposta_Conteudo_Personalizado (id_proposta, block_id, conteudo_texto) VALUES (?,?,?) ON DUPLICATE KEY UPDATE conteudo_texto = VALUES(conteudo_texto)");
-        
-        foreach ($_POST as $key => $val) {
-            // Identifica campos de conteúdo (ex: 'apresentacao_content', 'escopo_content')
-            if (strpos($key, '_content') !== false) {
-                // Remove o sufixo para ter o ID do bloco (ex: 'apresentacao')
-                $blockId = str_replace('_content', '', $key);
-                if (!empty($val)) {
-                    $sContent->bind_param('iss', $id_prop, $blockId, $val);
-                    $sContent->execute();
-                    $msg_custom[] = $blockId;
-                }
+            $id_prop = $stmt->insert_id;
+            // Fallback ID
+            if (!$id_prop || $id_prop <= 0) {
+                $rId = $conn->query("SELECT LAST_INSERT_ID() as last_id");
+                $id_prop = ($rId && $rowId = $rId->fetch_assoc()) ? (int)$rowId['last_id'] : 0;
             }
         }
-        $sContent->close();
+
+        if (!$id_prop || $id_prop <= 0) throw new Exception("Não foi possível gerar um ID válido para a proposta.");
+
+        // Salva Itens (Salários, Estadia, etc)
+        $s1 = $conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
+        foreach($itens_salario as $i) { 
+            $f=1+($i['enc']/100); 
+            $s1->execute([$id_prop, $i['id'], $i['nome'], $i['qtd'], $i['base'], $f, $i['dias']]); 
+        }
+        $s2 = $conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
+        foreach($itens_estadia as $i) { 
+            $s2->execute([$id_prop, $i['id'], $i['nome'], $i['qtd'], $i['val'], $i['dias']]); 
+        }
+        $s3 = $conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
+        foreach($itens_consumo as $i) { 
+            $s3->execute([$id_prop, $i['id'], $i['nome'], $i['qtd'], $i['kml'], $i['lit'], $i['kmt']]); 
+        }
+        $s4 = $conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
+        foreach($itens_locacao as $i) { 
+            $s4->execute([$id_prop, $i['id'], $i['id_marca'], $i['qtd'], $i['val'], $i['dias']]); 
+        }
+        $s5 = $conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
+        foreach($itens_admin as $i) { 
+            $s5->execute([$id_prop, $i['id'], $i['nome'], $i['qtd'], $i['val']]); 
+        }
 
         $conn->commit();
 
-        // =========================================================
-        // DECISÃO DE SAÍDA (DOCX ou HTML)
-        // =========================================================
+        // ============================================================
+        // VALIDAÇÃO DE DADOS MÍNIMOS ANTES DO REDIRECIONAMENTO
+        // ============================================================
+
+        function validarDadosMinimos($id_cliente, $id_servico, $itens) {
+            $erros = [];
+            
+            if (empty($id_cliente) || $id_cliente == 0) {
+                $erros[] = "Cliente não selecionado";
+            }
+            if (empty($id_servico) || $id_servico == 0) {
+                $erros[] = "Tipo de serviço não selecionado";
+            }
+            
+            $temItens = !empty($itens['salarios']) || 
+                        !empty($itens['estadia']) || 
+                        !empty($itens['consumos']) || 
+                        !empty($itens['locacao']);
+            
+            if (!$temItens) {
+                $erros[] = "Nenhum item de custo adicionado (mão de obra, estadia, equipamentos, etc.)";
+            }
+            
+            return $erros;
+        }
+
+        $itensParaValidar = [
+            'salarios' => $itens_salario,
+            'estadia' => $itens_estadia,
+            'consumos' => $itens_consumo,
+            'locacao' => $itens_locacao
+        ];
+
+        // 4. FLUXO DE SAÍDA
         $formatoSaida = $_POST['formato_saida'] ?? 'docx';
 
-        if ($formatoSaida === 'html') {
-            // --- FLUXO HTML (Salvar DB + Gerar Arquivo HTML + Redirecionar) ---
+        if ($formatoSaida === 'editor') {
+            $errosValidacao = validarDadosMinimos($id_cliente, $id_servico, $itensParaValidar);
             
-            // 1. Prepara dados para o gerador HTML (Injeta dados recém-salvos para consistência)
-            // O gerador espera $_POST, então atualizamos com o número gerado e dados calculados.
-            $_POST['numero_proposta'] = $num_proposta; 
-            $_POST['id_proposta_criada'] = $id_prop; 
+            if (!empty($errosValidacao)) {
+                $conn->rollback();
+                $errosHtml = implode('</li><li>', $errosValidacao);
+                $htmlErro = "
+                <!DOCTYPE html>
+                <html lang='pt-BR'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>Dados Incompletos - SGT Propostas</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                            background: linear-gradient(135deg, #0a0f1a 0%, #1a1f2e 100%);
+                            min-height: 100vh;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
+                        }
+                        .container {
+                            background: rgba(17, 24, 39, 0.95);
+                            border: 1px solid rgba(249, 115, 22, 0.3);
+                            border-radius: 20px;
+                            padding: 40px;
+                            max-width: 600px;
+                            width: 100%;
+                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                        }
+                        .icon {
+                            width: 80px;
+                            height: 80px;
+                            background: rgba(249, 115, 22, 0.15);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0 auto 24px;
+                            border: 2px solid rgba(249, 115, 22, 0.4);
+                        }
+                        .icon svg {
+                            width: 40px;
+                            height: 40px;
+                            color: #f97316;
+                        }
+                        h1 {
+                            color: #f8fafc;
+                            font-size: 24px;
+                            text-align: center;
+                            margin-bottom: 16px;
+                            font-weight: 700;
+                        }
+                        p.subtitle {
+                            color: #94a3b8;
+                            text-align: center;
+                            margin-bottom: 24px;
+                            font-size: 15px;
+                            line-height: 1.6;
+                        }
+                        .erros-box {
+                            background: rgba(239, 68, 68, 0.1);
+                            border: 1px solid rgba(239, 68, 68, 0.3);
+                            border-radius: 12px;
+                            padding: 20px;
+                            margin-bottom: 24px;
+                        }
+                        .erros-box h3 {
+                            color: #fca5a5;
+                            font-size: 13px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.05em;
+                            margin-bottom: 12px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .erros-box ul {
+                            list-style: none;
+                            padding-left: 0;
+                        }
+                        .erros-box li {
+                            color: #fecaca;
+                            padding: 8px 0;
+                            padding-left: 28px;
+                            position: relative;
+                            font-size: 14px;
+                            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+                        }
+                        .erros-box li:last-child {
+                            border-bottom: none;
+                        }
+                        .erros-box li::before {
+                            content: '✕';
+                            position: absolute;
+                            left: 0;
+                            color: #ef4444;
+                            font-weight: bold;
+                            width: 20px;
+                            height: 20px;
+                            background: rgba(239, 68, 68, 0.2);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 10px;
+                        }
+                        .botoes {
+                            display: flex;
+                            gap: 12px;
+                            flex-wrap: wrap;
+                        }
+                        .btn {
+                            flex: 1;
+                            min-width: 140px;
+                            padding: 14px 24px;
+                            border-radius: 12px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            text-decoration: none;
+                            text-align: center;
+                            transition: all 0.2s;
+                            cursor: pointer;
+                            border: none;
+                        }
+                        .btn-primary {
+                            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                            color: white;
+                            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+                        }
+                        .btn-primary:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+                        }
+                        .btn-secondary {
+                            background: rgba(255, 255, 255, 0.05);
+                            color: #e2e8f0;
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                        }
+                        .btn-secondary:hover {
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+                        .info-box {
+                            background: rgba(59, 130, 246, 0.1);
+                            border: 1px solid rgba(59, 130, 246, 0.3);
+                            border-radius: 10px;
+                            padding: 16px;
+                            margin-top: 20px;
+                        }
+                        .info-box p {
+                            color: #93c5fd;
+                            font-size: 13px;
+                            line-height: 1.6;
+                        }
+                        .info-box strong {
+                            color: #60a5fa;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='icon'>
+                            <svg fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' 
+                                      d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'/>
+                            </svg>
+                        </div>
+                        <h1>Proposta Incompleta</h1>
+                        <p class='subtitle'>
+                            Não é possível abrir o Editor Avançado porque faltam informações essenciais. 
+                            Complete os dados abaixo para continuar.
+                        </p>
+                        <div class='erros-box'>
+                            <h3>
+                                <svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>
+                                    <path d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z'/>
+                                </svg>
+                                Campos obrigatórios pendentes:
+                            </h3>
+                            <ul>
+                                <li>{$errosHtml}</li>
+                            </ul>
+                        </div>
+                        <div class='botoes'>
+                            <a href='javascript:history.back()' class='btn btn-primary'>
+                                ← Voltar e Completar
+                            </a>
+                            <a href='painel.php' class='btn btn-secondary'>
+                                Ir para Painel
+                            </a>
+                        </div>
+                        <div class='info-box'>
+                            <p>
+                                <strong>Dica:</strong> Preencha pelo menos o <strong>Cliente</strong>, 
+                                <strong>Tipo de Serviço</strong> e adicione um <strong>item de custo</strong> 
+                                (mão de obra, estadia ou equipamento) antes de acessar o editor.
+                            </p>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+                
+                ob_end_clean();
+                echo $htmlErro;
+                exit;
+            }
 
-            // --- INJEÇÃO DE DADOS PARA O GERADOR (FIX) ---
-            // Cliente (do Banco)
-            $_POST['nome_cliente_salvo'] = $cliente_info['nome_cliente'];
-            $_POST['email_salvo'] = $cliente_info['email'];
-            $_POST['telefone_salvo'] = $cliente_info['telefone'];
-            $_POST['celular_salvo'] = $cliente_info['celular'];
-            $_POST['whatsapp_salvo'] = $cliente_info['whatsapp'];
-            $_POST['empresa_cliente'] = $_POST['empresa_cliente'] ?? ($cliente_info['empresa'] ?? '');
-
-            // Financeiro (Calculado no salvar_proposta.php)
-            // É crucial passar JÁ FORMATADO pois o gerador HTML usa formatarMoeda() que espera float ou string limpa,
-            // mas aqui já temos os valores finais calculados ($final, $mob_val, etc).
-            $_POST['ValorProposta'] = 'R$ ' . number_format($final, 2, ',', '.');
-            $_POST['ValorExtenso'] = $extenso;
-            $_POST['mobilizacao_valor'] = 'R$ ' . number_format($mob_val, 2, ',', '.');
-            $_POST['mobilizacao_percentual'] = number_format($mob_perc, 0); // Sem decimais
-            $_POST['restante_valor'] = 'R$ ' . number_format($rest_val, 2, ',', '.');
-            $_POST['restante_percentual'] = number_format($rest_perc, 0);
-
-            // Dados da Empresa (Do Banco)
-            $_POST['Empresa'] = $emp['Empresa'];
-            $_POST['CNPJ'] = $emp['CNPJ'];
-            $_POST['Banco'] = $emp['Banco'];
-            $_POST['Agencia'] = $emp['Agencia'];
-            $_POST['Conta'] = $emp['Conta'];
-            $_POST['PIX'] = $emp['PIX'];
-            $_POST['Cidade'] = $emp['Cidade'];
-            $_POST['whatsapp'] = $emp['Whatsapp'];
-            $_POST['logo_empresa'] = $emp['logo_caminho']; // Caminho relativo
-            
-            // Meta Dates
-            $_POST['DataExtenso'] = dataExtenso(date('Y-m-d'));
-            $_POST['data_criacao'] = date('Y-m-d H:i:s');
-            // ----------------------------------------------
-
-            // 2. Captura o HTML
-            ob_start();
-            include 'gerar_proposta_html.php';
-            $htmlContent = ob_get_clean();
-
-            // 3. Ajusta Caminhos Relativos (Assets) para funcionar dentro de /propostas_html/
-            $htmlContent = str_replace('src="assets/', 'src="../assets/', $htmlContent);
-            $htmlContent = str_replace('src="uploads/', 'src="../uploads/', $htmlContent);
-            $htmlContent = str_replace('src="images/', 'src="../images/', $htmlContent);
-            $htmlContent = str_replace("src='assets/", "src='../assets/", $htmlContent);
-            $htmlContent = str_replace("src='uploads/", "src='../uploads/", $htmlContent);
-            $htmlContent = str_replace('href="assets/', 'href="../assets/', $htmlContent);
-
-            // 4. Salva Arquivo Físico
-            $nomeArquivoClean = preg_replace('/[^a-zA-Z0-9_-]/', '', $num_proposta);
-            $filename = 'proposta_' . $nomeArquivoClean . '.html';
-            $dirSaida = __DIR__ . '/propostas_html';
-            
-            if (!is_dir($dirSaida)) mkdir($dirSaida, 0755, true);
-            $path = $dirSaida . '/' . $filename;
-            
-            file_put_contents($path, $htmlContent);
-
-            // 5. Redireciona
-            ob_end_clean();
-            header("Location: propostas_html/" . $filename);
+            $_SESSION['id_proposta_ativa'] = $id_prop;
+            while (ob_get_level()) { ob_end_clean(); }
+            header("Location: editor_dinamico.php?id=" . $id_prop);
             exit;
-
+        } elseif ($formatoSaida === 'html') {
+            // Repassa dados para o gerador HTML
+            $_POST['id_proposta_criada'] = $id_prop;
+            $_POST['numero_proposta'] = $num_proposta;
+            require_once 'gerar_proposta_html.php';
+            exit;
         } else {
-            // --- FLUXO PADRÃO (DOCX) ---
-
-        if (!file_exists($pastaBase . $arquivoModeloNome)) {
-            // Tenta o Padrão
-            $arquivoModeloNome = 'ModeloPropostaPadrao.docx';
+            // DOCX
+            $_POST['id_proposta_criada'] = $id_prop;
+            require_once 'gerar_documento.php';
+            exit;
         }
-
-        // --- INTEGRAÇÃO MODELO DRONE (PERFECT MODEL) ---
-        // Se for Drone, força o uso do modelo especializado
-        if ($equip_drone !== 'Não' || stripos($serv_info['nome'], 'drone') !== false || stripos($serv_info['nome'], 'aero') !== false) {
-            $arquivoModeloDrone = 'ModeloPropostaDroneV2.docx';
-            $caminhoModeloDrone = $pastaBase . $arquivoModeloDrone;
-
-            // Se o modelo físico não existir, cria-o na hora usando a classe Gerador
-            if (!file_exists($caminhoModeloDrone)) {
-                require_once __DIR__ . '/classes/GeradorTemplateDrone.php';
-                try {
-                    \ProposalArchitect\Templates\GeradorTemplateDrone::gerar($caminhoModeloDrone);
-                } catch (Exception $e) {
-                    // Falha silenciosa, fallback para padrão
-                    error_log("Falha ao gerar template drone: " . $e->getMessage());
-                }
-            }
-            
-            // Se agora existe, usa ele!
-            if (file_exists($caminhoModeloDrone)) {
-                $arquivoModeloNome = $arquivoModeloDrone;
-            }
-        }
-        // ------------------------------------------------
-
-        if (!file_exists($pastaBase . $arquivoModeloNome)) {
-             throw new Exception("Modelo não encontrado: " . $arquivoModeloNome);
-        }
-
-        $template = new \PhpOffice\PhpWord\TemplateProcessor($pastaBase . $arquivoModeloNome);
-        
-        // Logo
-        // Logo
-        $caminhoLogo = '';
-        if (!empty($emp['logo_caminho'])) {
-            $caminhoLogo = __DIR__ . '/' . $emp['logo_caminho'];
-        }
-        
-        if (!empty($caminhoLogo) && is_file($caminhoLogo)) {
-            try { 
-                $template->setImageValue('logo_empresa', ['path' => $caminhoLogo, 'height' => 81, 'width' => 587, 'ratio' => true]); 
-            } catch (Exception $eImg) { 
-                $template->setValue('logo_empresa', ''); 
-            }
-        } else { 
-            $template->setValue('logo_empresa', ''); 
-        }
-
-        // Variáveis
-        $template->setValue('numero_proposta', $num_proposta);
-        $template->setValue('Cidade', $emp['Cidade']);
-        $template->setValue('DExrenso', dataExtenso(date('Y-m-d')));
-        $template->setValue('nome_cliente_salvo', $cliente_info['nome_cliente']);
-        $template->setValue('EmpresaCliente', htmlspecialchars($_POST['empresa_cliente'] ?? ''));
-        $template->setValue('Empresa', htmlspecialchars($emp['Empresa']));
-        $template->setValue('ValorProposta', number_format($final, 2, ',', '.'));
-        $template->setValue('ValorExtenso', $extenso);
-        $template->setValue('CNPJ', $emp['CNPJ']); $template->setValue('empresa_proponente_nome', $emp['Empresa']);
-        $template->setValue('empresa_proponente_cidade', $emp['Cidade']); $template->setValue('whatsapp', $emp['Whatsapp']);
-        $template->setValue('Veiculo', $equip_veiculo); $template->setValue('Estacao_Total', $equip_estacao);
-        $template->setValue('GPS', $equip_gps); $template->setValue('Drone', $equip_drone);
-        $template->setValue('mobilizacao_percentual', number_format($mob_perc, 2, ',','.')); 
-        $template->setValue('mobilizacao_valor', number_format($mob_val, 2, ',','.'));
-        $template->setValue('restante_percentual', number_format($rest_perc, 2, ',','.')); 
-        $template->setValue('restante_valor', number_format($rest_val, 2, ',','.'));
-        $template->setValue('Banco', $emp['Banco']); $template->setValue('Agencia', $emp['Agencia']);
-        $template->setValue('Conta', $emp['Conta']); $template->setValue('PIX', $emp['PIX']);
-        $template->setValue('endereco_obra', $p_end); $template->setValue('bairro_obra', $p_bairro);
-        $template->setValue('cidade_obra', $p_cid); $template->setValue('estado_obra', $p_uf);
-        $template->setValue('area_obra', $p_area); $template->setValue('tipo_levantamento', $p_tipo);
-        $template->setValue('finalidade', $p_fin); $template->setValue('prazo_execucao', $p_prazo);
-        $template->setValue('email_salvo', $cliente_info['email']); $template->setValue('telefone_salvo', $cliente_info['telefone']);
-        $template->setValue('celular_salvo', $cliente_info['celular']); $template->setValue('whatsapp_salvo', $cliente_info['whatsapp']);
-        
-        // --- NOVAS VARIÁVEIS (DRONE / DINÂMICO) ---
-        $template->setValue('dias_campo', $p_dc);
-        $template->setValue('dias_escritorio', $p_de);
-        
-        // Conteúdo (Strip Tags para evitar sujeira HTML no DOCX simples)
-        // Nota: Para formatação rica seria necessário usar setComplexBlock ou conversor HTML-to-Word
-        $template->setValue('apresentacao', strip_tags($_POST['apresentacao_content'] ?? '', '<br><p>')); 
-        $template->setValue('metodologia', strip_tags($_POST['metodologia_content'] ?? '', '<br><p>')); 
-        $template->setValue('documentacao', strip_tags($_POST['documentacao_content'] ?? '', '<br><p>')); 
-        $template->setValue('consideracoes_content', strip_tags($_POST['consideracoes_content'] ?? '', '<br><p>'));
-
-
-        $nomeEmpresaLimpo = limparStr(explode(' ', trim($emp['Empresa']))[0]);
-        $nomeClienteLimpo = limparStr(explode(' ', trim($cliente_info['nome_cliente']))[0]);
-        $nomeServicoLimpo = limparStr($serv_info['nome']);
-        
-        $nomeArquivoDownload = $nomeEmpresaLimpo . '-' . $nomeClienteLimpo . '-' . $nomeServicoLimpo . '-' . $num_proposta . '.docx';
-
-        $template->saveAs($pastaSaida . $nomeArquivoDownload);
-        
-        ob_end_clean();
-        header("Location: final.php?arquivo=" . urlencode($nomeArquivoDownload) . "&id=" . $id_prop);
-        exit;
-    } // Fecha bloco if geração DOCX
 
     } catch (Exception $e) {
-        $conn->rollback();
-        ob_end_clean();
-        die("<div style='font-family:sans-serif; text-align:center; margin-top:50px;'><h1 style='color:red'>Erro ao Salvar</h1><p>" . $e->getMessage() . "</p><a href='criar_proposta.php'>Voltar</a></div>");
+        if (isset($conn)) $conn->rollback();
+        while (ob_get_level()) { ob_end_clean(); }
+        error_log("ERRO salvar_proposta.php: " . $e->getMessage());
+        die("<div style='background:#fee2e2; border:2px solid #ef4444; padding:20px; border-radius:10px; font-family:sans-serif;'>
+                <h2 style='color:#b91c1c; margin-top:0;'>Erro ao Salvar</h2>
+                <p>Detalhes: <b>" . htmlspecialchars($e->getMessage()) . "</b></p>
+                <p><a href='javascript:history.back()' style='color:#b91c1c; font-weight:bold;'>← Voltar para Corrigir</a></p>
+             </div>");
     }
-} // Fecha POST
+}
 ?>

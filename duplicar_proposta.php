@@ -25,28 +25,9 @@ $res = $stmt->get_result();
 if ($res->num_rows === 0) die("Erro ao buscar proposta original.");
 $origem = $res->fetch_assoc();
 
-// 2. Gera Novo Número (Função local)
-function gerarNovoNumero($conn, $nomeEmpresa) {
-    $primeiroNome = explode(' ', trim($nomeEmpresa))[0];
-    $s = trim($primeiroNome);
-    if (function_exists('iconv')) $s = iconv('UTF-8', 'ASCII//TRANSLIT', $s);
-    $prefixo = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $s));
-    if (strlen($prefixo) < 2) $prefixo = 'PROP';
-    $ano = date('Y');
-    
-    $stmt = $conn->prepare("SELECT numero_proposta FROM Propostas WHERE numero_proposta LIKE CONCAT(?, '-', ?, '-%') ORDER BY id_proposta DESC LIMIT 1");
-    $stmt->bind_param('ss', $prefixo, $ano);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $num = 0;
-    if ($res && $row = $res->fetch_assoc()) {
-        $partes = explode('-', $row['numero_proposta']);
-        $num = intval(end($partes));
-    }
-    return $prefixo . '-' . $ano . '-' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
-}
-
-$novo_numero = gerarNovoNumero($conn, $origem['empresa_proponente_nome']);
+// 2. Gera Novo Número (Centralizado em salvar_proposta.php)
+require_once 'salvar_proposta.php';
+$novo_numero = gerarNumero($conn, $origem['empresa_proponente_nome']);
 
 // 3. Insere Nova Proposta (Cópia)
 // Removemos id_proposta (auto_inc) e atualizamos numero, data e status

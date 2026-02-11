@@ -1,0 +1,131 @@
+/**
+ * PRINT-LONGO.CSS - Estilos Específicos do Modelo Longo
+ * Sistema de Propostas GEOMETRPOLE
+ */
+
+/* ============================================
+   CAPA (MODELo LONGO)
+   ============================================ */
+.cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    page-break-after: always;
+    border-bottom: 5px solid var(--cor-primaria);
+    position: relative;
+}
+
+.cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(90deg, var(--cor-primaria), var(--cor-destaque));
+}
+
+.cover-logo {
+    width: 120px;
+    height: 120px;
+    background: var(--cor-primaria);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: var(--espacamento-xl);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cover h1 {
+    font-size: 32pt;
+    color: var(--cor-primaria);
+    font-weight: 700;
+    margin-bottom: var(--espacamento-xs);
+    letter-spacing: 2px;
+}
+
+.cover .subtitle {
+    font-size: 18pt;
+    color: var(--cor-texto-claro);
+    font-weight: 300;
+    margin-bottom: var(--espacamento-xl);
+}
+
+.cover .proposal-number {
+    background: var(--cor-primaria);
+    color: white;
+    padding: var(--espacamento-sm) var(--espacamento-lg);
+    border-radius: 30px;
+    font-size: var(--tamanho-grande);
+    margin-bottom: 60px;
+}
+
+.cover-client {
+    font-size: var(--tamanho-grande);
+    color: #555;
+    margin-bottom: var(--espacamento-xs);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cover-client-name {
+    font-size: 20pt;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin-bottom: var(--espacamento-xl);
+}
+
+.cover-date {
+    font-size: var(--tamanho-base);
+    color: var(--cor-texto-claro);
+}
+
+/* ============================================
+   SEÇÕES EXPANDIDAS (MODELO LONGO)
+   ============================================ */
+.modelo-longo .section {
+    margin-bottom: var(--espacamento-xxl);
+}
+
+.modelo-longo .section-title {
+    font-size: var(--tamanho-titulo);
+    padding: var(--espacamento-sm) var(--espacamento-lg);
+}
+
+/* Subseções numeradas */
+.modelo-longo .subsection-title {
+    font-size: var(--tamanho-grande);
+    margin-top: var(--espacamento-xl);
+}
+
+/* ============================================
+   PRINT AJUSTES ESPECÍFICOS
+   ============================================ */
+@media print {
+    .cover {
+        height: auto;
+        min-height: 100vh;
+        padding: var(--espacamento-xxl) 0;
+    }
+
+    .cover-logo {
+        width: 100px;
+        height: 100px;
+        font-size: 36px;
+    }
+
+    .cover h1 {
+        font-size: 28pt;
+    }
+
+    .modelo-longo .section {
+        margin-bottom: 30px;
+    }
+}

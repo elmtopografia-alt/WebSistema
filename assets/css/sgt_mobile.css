@@ -1,0 +1,49 @@
+/* --- SGT MOBILE FIXES (Kimi) --- */
+
+/* Touch Targets */
+@media (max-width: 768px) {
+    button, a.btn, input, select, .touch-target {
+        min-height: 48px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* Address Layout Responsive */
+.address-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.address-field {
+    flex: 1 1 200px;
+}
+
+.address-field-large { flex: 4 1 300px; }
+.address-field-medium { flex: 2 1 200px; }
+.address-field-small { flex: 1.5 1 150px; }
+.address-field-tiny { flex: 0.8 1 80px; }
+
+@media (max-width: 640px) {
+    .address-field {
+        flex: 1 1 100% !important;
+    }
+}
+
+/* Dropdown Mobile Fixes */
+@media (max-width: 768px) {
+    [id^="dropdown-"] {
+        position: fixed !important;
+        top: auto !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        bottom: 1rem !important;
+        width: auto !important;
+        border-radius: 16px !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5) !important;
+        z-index: 9999 !important;
+        background: #111827 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+}

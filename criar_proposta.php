@@ -60,7 +60,8 @@ if ($dados_cache === false) {
             'Tipo_Estadia' => ['id' => 'id_estadia', 'nome' => 'nome', 'valor' => 'valor_unitario_default'],
             'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
             'Tipo_Locacao' => ['id' => 'id_locacao', 'nome' => 'nome', 'valor' => 'valor_mensal_default'],
-            'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default']
+            'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default'],
+            'tipos_servico' => ['id' => 'id', 'nome' => 'nome', 'extra' => 'descricao', 'cor' => 'cor', 'icone' => 'icone']
         ];
 
         foreach ($tabelas as $tbl => $cols) {
@@ -72,6 +73,8 @@ if ($dados_cache === false) {
                 if (isset($cols['valor'])) $item['valor'] = (float)$row[$cols['valor']];
                 if (isset($cols['litro'])) $item['litro'] = (float)$row[$cols['litro']];
                 if (isset($cols['kml'])) $item['kml'] = (float)$row[$cols['kml']];
+                if (isset($cols['cor'])) $item['cor'] = $row[$cols['cor']];
+                if (isset($cols['icone'])) $item['icone'] = $row[$cols['icone']];
                 $arrays_js[$tbl][] = $item;
             }
         }

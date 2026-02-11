@@ -117,11 +117,30 @@ window.irParaEditor = function () {
     const createHidden = (name, value) => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = name + '[]'; // Array notation
+        input.name = name + (name.includes('formato_saida') ? '' : '[]'); // Array notation except for special flags
         input.value = value;
         input.className = 'legacy-hidden-mapper';
         form.appendChild(input);
     };
+
+    // 0. Validação de custo (Evitar proposta vazia)
+    const temSalario = document.querySelectorAll('#list-salarios .cost-item').length > 0;
+    const temEstadia = document.querySelectorAll('#list-estadia .cost-item').length > 0;
+    const temConsumo = document.querySelectorAll('#list-consumos .cost-item').length > 0;
+    const temLocacao = document.querySelectorAll('#list-locacao .cost-item').length > 0;
+    const temAdmin = document.querySelectorAll('#list-admin .cost-item').length > 0;
+
+    if (!temSalario && !temEstadia && !temConsumo && !temLocacao && !temAdmin) {
+        SGTUtils.showToast('Adicione pelo menos um item de custo (Salário, Estadia ou Equipamento)', 'error');
+        // Redireciona para aba de custos se necessário
+        if (typeof Wizard !== 'undefined' && Wizard.current !== 3) {
+            Wizard.goTo(3);
+        }
+        return;
+    }
+
+    // Sinalizar redirecionamento para o editor avançado após salvar
+    createHidden('formato_saida', 'editor');
 
     // 1. Salários
     document.querySelectorAll('#list-salarios .cost-item').forEach(row => {
@@ -170,7 +189,9 @@ window.irParaEditor = function () {
         createHidden('admin_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
     });
 
-    form.action = 'editor_dinamico.php';
+    // Define ação: Se existe id_proposta_original, é uma revisão
+    const idOriginal = document.querySelector('input[name="id_proposta_original"]')?.value;
+    form.action = idOriginal ? 'salvar_edicao_proposta.php' : 'salvar_proposta.php';
     form.submit();
 };
 

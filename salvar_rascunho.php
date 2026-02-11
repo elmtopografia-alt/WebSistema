@@ -7,6 +7,15 @@ header('Content-Type: application/json');
 
 require_once 'db.php';
 
+// Pre-flight check para a coluna unidade_area
+try {
+    $conn->query("SELECT unidade_area FROM Propostas LIMIT 1");
+} catch (mysqli_sql_exception $e) {
+    if (strpos($e->getMessage(), 'Unknown column') !== false) {
+        $conn->query("ALTER TABLE Propostas ADD COLUMN unidade_area VARCHAR(10) DEFAULT 'm²' AFTER area_obra");
+    }
+}
+
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         throw new Exception("Método inválido.");
@@ -31,18 +40,50 @@ try {
         $cliente_id = isset($data['id_cliente']) ? intval($data['id_cliente']) : null;
         $servico_id = !empty($data['id_servico']) ? intval($data['id_servico']) : (isset($data['tipo_servico']) ? intval($data['tipo_servico']) : null);
         
-        $stmtInit = $conn->prepare("INSERT INTO Propostas (id_criador, id_cliente, id_servico, status, data_criacao) VALUES (?, ?, ?, 'Rascunho', NOW())");
-        $stmtInit->bind_param('iii', $id_criador, $cliente_id, $servico_id);
+        // [FIX SGT] Gerar número de proposta para evitar duplicatas vazias no banco (Unique Constraint)
+        // Precisamos das funções de limpeza e geração
+        require_once 'salvar_proposta.php';
+        
+        $emp = $conn->query("SELECT Empresa FROM DadosEmpresa WHERE id_criador = $id_criador LIMIT 1")->fetch_assoc();
+        $num_proposta = gerarNumero($conn, ($emp['Empresa'] ?? 'SGT'));
+
+        $stmtInit = $conn->prepare("INSERT INTO Propostas (numero_proposta, id_criador, id_cliente, id_servico, status, data_criacao) VALUES (?, ?, ?, ?, 'Rascunho', NOW())");
+        $stmtInit->bind_param('siii', $num_proposta, $id_criador, $cliente_id, $servico_id);
+        
         if (!$stmtInit->execute()) {
             throw new Exception("Erro ao criar rascunho: " . $stmtInit->error);
         }
-        $id_proposta = $conn->insert_id;
+        $id_proposta = $stmtInit->insert_id;
+        error_log("DEBUG SGT: Rascunho criado com número $num_proposta. id_proposta = $id_proposta");
         $stmtInit->close();
     }
 
     // 2. Atualiza Campos Básicos na Tabela Propostas (opcional, se quiser salvar titulo, cliente, etc)
     // Para simplificar, vamos focar no CONTEÚDO PERSONALIZADO que é o crítico do editor.
     // Mas é bom atualizar variáveis chaves se vierem.
+    
+    // ATUALIZAÇÃO SGT: Persiste Área e Unidade no Rascunho se vierem no POST
+    if (isset($data['area']) || isset($data['unidade_area'])) {
+        $area = $data['area'] ?? null;
+        $unidade = $data['unidade_area'] ?? 'm²';
+        $sqlUp = "UPDATE Propostas SET area_obra = ?, unidade_area = ? WHERE id_proposta = ?";
+        try {
+            $stmtUp = $conn->prepare($sqlUp);
+            $stmtUp->execute([$area, $unidade, $id_proposta]);
+            $stmtUp->close();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'unidade_area') !== false) {
+                // Auto-fix: Cria a coluna se não existir
+                $conn->query("ALTER TABLE Propostas ADD COLUMN unidade_area VARCHAR(10) DEFAULT 'm²' AFTER area_obra");
+                // Retry
+                $stmtUp = $conn->prepare($sqlUp);
+                $stmtUp->execute([$area, $unidade, $id_proposta]);
+                $stmtUp->close();
+            } else {
+                throw $e;
+            }
+        }
+    }
     
     // 3. Salva Conteúdo dos Blocos
     $camposIgnorados = ['id_proposta_original', 'acao', 'total_custos_salarios', 'image']; // etc

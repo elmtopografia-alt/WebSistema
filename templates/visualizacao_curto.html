@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta ${NumeroProposta} - ${Empresa}</title>
+
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/print-curto.css">
+    <link rel="stylesheet" href="css/tema-dinamico.css">
+</head>
+
+<body class="modelo-curto">
+    <!-- Botão de Impressão -->
+    <button onclick="window.print()" class="btn-print no-print">
+        🖨️ Imprimir / Salvar PDF
+    </button>
+
+    <div class="print-hint no-print">
+        💡 <strong>Dica:</strong> Na tela de impressão, selecione "Salvar como PDF" para baixar o arquivo.
+    </div>
+
+    <div class="container">
+        <!-- CABEÇALHO -->
+        <header class="header-curto">
+            <h1>${Empresa}</h1>
+            <div class="subtitle">Proposta Técnica Comercial</div>
+            <div class="proposal-number">${NumeroProposta}</div>
+            <div class="date-location">BELO HORIZONTE, ${DataExtenso}</div>
+        </header>
+
+        <!-- DADOS DO CLIENTE -->
+        <section class="section">
+            <div class="section-title">Dados do Cliente</div>
+            <div class="info-grid">
+                <span class="info-label">NOME:</span>
+                <span class="info-value">${ClienteNome}</span>
+                <span class="info-label">E-MAIL:</span>
+                <span class="info-value">${ClienteEmail}</span>
+                <span class="info-label">CONTATO:</span>
+                <span class="info-value">${ClienteTelefone} / ${ClienteCelular}</span>
+            </div>
+        </section>
+
+        <!-- LOCAL DA OBRA -->
+        <section class="section">
+            <div class="section-title">Local da Obra</div>
+            <div class="info-grid">
+                <span class="info-label">ENDEREÇO:</span>
+                <span class="info-value">${EnderecoObra}</span>
+                <span class="info-label">BAIRRO:</span>
+                <span class="info-value">${BairroObra}</span>
+                <span class="info-label">CIDADE/UF:</span>
+                <span class="info-value">${CidadeObra}</span>
+                <span class="info-label">ÁREA ESTIMADA:</span>
+                <span class="info-value">${AreaEstimada} m²</span>
+            </div>
+        </section>
+
+        <!-- 1. APRESENTAÇÃO -->
+        <section class="section">
+            <div class="section-title">1. Apresentação</div>
+            <p>
+                A <strong>${Empresa}</strong> apresenta esta proposta técnica visando a execução de
+                levantamento topográfico planialtimétrico através de <strong>Aerofotogrametria com Drones</strong>.
+                Diferente de simples filmagens aéreas, este serviço trata-se de <strong>Engenharia de Precisão</strong>.
+            </p>
+        </section>
+
+        <!-- 2. FINALIDADE -->
+        <section class="section">
+            <div class="section-title">2. Finalidade</div>
+            <p>Obter mapeamento aéreo detalhado, ortomosaicos, modelos digitais e nuvens de pontos para análise e
+                planejamento.</p>
+        </section>
+
+        <!-- 3. ESCOPO DO SERVIÇO - DESTAQUE ESPECIAL -->
+        <section class="section">
+            <div class="section-title">3. Escopo do Serviço</div>
+            <div class="service-highlight">
+                ${EscopoServico}
+            </div>
+        </section>
+
+        <!-- 4. DOCUMENTAÇÃO -->
+        <section class="section">
+            <div class="section-title">4. Documentação Gerada</div>
+            <ul class="doc-list">
+                <li><strong>Ortomosaico Georreferenciado (TIF/JPG):</strong> "Foto" gigante da área em escala real</li>
+                <li><strong>MDT (Modelo Digital de Terreno):</strong> Representação 3D do solo para terraplenagem</li>
+                <li><strong>Curvas de Nível (DWG/DXF):</strong> Arquivo CAD com topografia do terreno</li>
+                <li><strong>Planta Topográfica (PDF):</strong> Mapa finalizado com legendas</li>
+                <li><strong>Relatório de Processamento:</strong> Comprovação da precisão alcançada</li>
+                <li><strong>ART:</strong> Registro no CREA</li>
+            </ul>
+        </section>
+
+        <!-- 5. METODOLOGIA -->
+        <section class="section">
+            <div class="section-title">5. Metodologia</div>
+            <ol class="method-steps">
+                <li><strong>Planejamento e Configuração de Voo</strong> (Escritório)</li>
+                <li><strong>Apoio Terrestre - Pontos de Controle</strong> (Campo)</li>
+                <li><strong>Execução do Voo e Captura de Dados</strong> (Campo)</li>
+                <li><strong>Processamento Fotogramétrico</strong> (Escritório)</li>
+                <li><strong>Vetorização e Desenho Técnico</strong> (Escritório - CAD)</li>
+            </ol>
+        </section>
+
+        <!-- 6. EQUIPAMENTOS -->
+        <section class="section">
+            <div class="section-title">6. Equipamentos</div>
+            <ul class="equipment-list">
+                ${Equipamentos}
+            </ul>
+        </section>
+
+        <!-- 7. INVESTIMENTO -->
+        <section class="section">
+            <div class="section-title">7. Investimento</div>
+            <div class="price-box">
+                <div class="price-label">Valor Total</div>
+                <div class="price-value">${ValorTotal}</div>
+                <div class="price-extenso">${ValorExtenso}</div>
+            </div>
+        </section>
+
+        <!-- 8. CONDIÇÕES -->
+        <section class="section">
+            <div class="section-title">8. Condições de Pagamento</div>
+            <table class="payment-table">
+                <tr>
+                    <th>Parcela</th>
+                    <th>Valor</th>
+                    <th>Condição</th>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>Mobilização (30%)</strong></td>
+                    <td><strong>${Sinal}</strong></td>
+                    <td>No aceite da proposta</td>
+                </tr>
+                <tr>
+                    <td>Entrega Final (70%)</td>
+                    <td>${ValorFinal}</td>
+                    <td>Na entrega dos produtos</td>
+                </tr>
+            </table>
+
+            <div class="banking-box">
+                <div class="section-title" style="margin-top: 0;">Dados Bancários</div>
+                <div class="banking-grid">
+                    <span class="banking-label">Banco:</span>
+                    <span class="banking-value">${Banco}</span>
+                    <span class="banking-label">Ag/Conta:</span>
+                    <span class="banking-value">${AgenciaConta}</span>
+                    <span class="banking-label">Pix:</span>
+                    <span class="banking-value">${Pix}</span>
+                    <span class="banking-label">Favorecido:</span>
+                    <span class="banking-value">${Favorecido}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. CONSIDERAÇÕES FINAIS -->
+        <section class="section">
+            <div class="section-title">9. Considerações Finais</div>
+            <div class="info-grid">
+                <span class="info-label">Validade:</span>
+                <span class="info-value">${Validade}</span>
+                <span class="info-label">Prazo de Início:</span>
+                <span class="info-value">Imediato após aceite</span>
+            </div>
+        </section>
+
+        <!-- ASSINATURAS -->
+        <section class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">${Empresa}</div>
+                <div class="signature-role">
+                    ${Engenheiro}<br>Engenheiro Responsável<br>CREA: ${EngenheiroCREA}
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">${ClienteNome}</div>
+                <div class="signature-role">Cliente / Contratante</div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

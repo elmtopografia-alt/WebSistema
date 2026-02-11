@@ -173,16 +173,7 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
         .step-panel.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         
-        /* Modificações Específicas de Edição */
-        .badge-edicao {
-            background-color: #ff9800;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            display: none; /* Ocultado conforme solicitação */
-        }
+        .badge-edicao { background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.2); display: flex; align-items: center; gap: 0.35rem; }
     </style>
 
     <!-- CSS Externo (Async) -->
@@ -193,6 +184,7 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" media="print" onload="this.media='all'">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/sgt_mobile.css?v=<?= time() ?>">
 </head>
 <body>
     <div class="ambient-glow"></div>
@@ -203,7 +195,9 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
             <a class="navbar-brand" href="painel.php">
                 <i class="bi bi-lightning-charge-fill text-warning"></i> SGT Propostas
-                <!-- Badge removido do topo para evitar comfusão -->
+                <span class="badge-edicao">
+                    <i class="bi bi-pencil-square"></i> Modo de Edição
+                </span>
             </a>
             <a href="painel.php" class="btn btn-outline" style="min-height: 36px; padding: 0.5rem 1rem;">
                 <i class="bi bi-x-lg"></i>
@@ -212,14 +206,11 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     </nav>
 
     <!-- FORM WIZARD -->
-    <form action="salvar_proposta.php" method="POST" id="form-proposta" novalidate>
+    <form action="salvar_edicao_proposta.php" method="POST" id="form-proposta" novalidate>
+        <input type="hidden" name="id_proposta_original" value="<?= $id_proposta ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
         <input type="hidden" name="form_complete" value="1">
         
-        <!-- ID DA PROPOSTA PARA UPDATE -->
-        <input type="hidden" name="id_proposta" value="<?= $id_proposta ?>">
-        <input type="hidden" name="id_proposta_original" value="<?= $id_proposta ?>">
-
         <div class="wizard-wrapper">
             <!-- PROGRESS -->
             <div class="wizard-progress">
@@ -494,5 +485,14 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof SGTUtils !== 'undefined') {
+                    SGTUtils.showToast('Modo de Edição ativado. Suas alterações gerarão uma nova revisão desta proposta.', 'info');
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

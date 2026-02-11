@@ -1,4 +1,7 @@
 <!-- HIDDENS -->
+<input type="hidden" name="id_proposta" id="hidden_id_proposta" value="<?= $id_proposta ?? ($_GET['id'] ?? '') ?>">
+<input type="hidden" name="id_proposta_original" id="hidden_id_proposta_original" value="<?= $id_proposta ?? ($_GET['id'] ?? '') ?>">
+<input type="hidden" name="id_proposta_criada" id="hidden_id_proposta_criada" value="<?= $id_proposta ?? ($_GET['id'] ?? '') ?>">
 <input type="hidden" name="total_custos_salarios" id="hidden_total_custos_salarios">
 <input type="hidden" name="total_custos_estadia" id="hidden_total_custos_estadia">
 <input type="hidden" name="total_custos_consumos" id="hidden_total_custos_consumos">

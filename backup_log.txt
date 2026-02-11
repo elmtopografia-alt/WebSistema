@@ -1,1 +1,62 @@
 [2026-02-10 18:00:02] Iniciando backup...
+[2026-02-10 18:00:02] GIT ADD: git : warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'temp_xml_extract/[Content_Types].xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/_rels/.rels', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'temp_xml_extract/docProps/app.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/docProps/core.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/docProps/custom.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/_rels/document.xml.rels', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'temp_xml_extract/word/comments.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/document.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/footer1.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/header1.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/numbering.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/settings.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/styles.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/webSettings.xml', LF will be replaced by CRLF the next time Git 
+touches it
+
+[2026-02-10 18:00:02] GIT COMMIT: [main 00265ef] Backup Di+â-írio Autom+â-ítico: 2026-02-10 18:00:02
+ 23 files changed, 225 insertions(+), 3 deletions(-)
+ create mode 100644 backup_log.txt
+ create mode 100644 debug_docx_content.php
+ create mode 100644 debug_docx_xml.php
+ create mode 100644 debug_post_injection.php
+ create mode 100644 temp_extract.zip
+ create mode 100644 temp_xml_extract/[Content_Types].xml
+ create mode 100644 temp_xml_extract/_rels/.rels
+ create mode 100644 temp_xml_extract/docProps/app.xml
+ create mode 100644 temp_xml_extract/docProps/core.xml
+ create mode 100644 temp_xml_extract/docProps/custom.xml
+ create mode 100644 temp_xml_extract/word/_rels/document.xml.rels
+ create mode 100644 temp_xml_extract/word/comments.xml
+ create mode 100644 temp_xml_extract/word/document.xml
+ create mode 100644 temp_xml_extract/word/fontTable.xml
+ create mode 100644 temp_xml_extract/word/footer1.xml
+ create mode 100644 temp_xml_extract/word/header1.xml
+ create mode 100644 temp_xml_extract/word/numbering.xml
+ create mode 100644 temp_xml_extract/word/settings.xml
+ create mode 100644 temp_xml_extract/word/styles.xml
+ create mode 100644 temp_xml_extract/word/theme/theme1.xml
+ create mode 100644 temp_xml_extract/word/webSettings.xml
+
+[2026-02-11 18:00:06] Iniciando backup...
