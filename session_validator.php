@@ -23,9 +23,23 @@ if (session_status() === PHP_SESSION_NONE) {
     }
 }
 
-// GERA TOKEN ANTI-CSRF (VACINA #1)
-if (empty($_SESSION['csrf_token'])) {
+// GERA TOKEN ANTI-CSRF COM PERSISTÊNCIA
+$csrfLifetime = 3600;
+$needsNewToken = empty($_SESSION['csrf_token']) 
+    || empty($_SESSION['csrf_created'])
+    || (time() - $_SESSION['csrf_created'] > $csrfLifetime);
+
+if ($needsNewToken) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_created'] = time();
+}
+
+function validarCsrf() {
+    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(403);
+        die(json_encode(['erro' => 'Token CSRF inválido']));
+    }
 }
 
 // 1. Verifica se a variável principal de sessão existe

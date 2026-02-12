@@ -60,3 +60,52 @@ touches it
  create mode 100644 temp_xml_extract/word/webSettings.xml
 
 [2026-02-11 18:00:06] Iniciando backup...
+[2026-02-11 18:00:06] GIT ADD: git : warning: in the working copy of 'duplicar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'editar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-11 18:00:06] GIT COMMIT: [main 0a6b5f6] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-11 18:00:06
+ 37 files changed, 9940 insertions(+), 1817 deletions(-)
+ create mode 100644 admin/auth_check.php
+ create mode 100644 admin/backup.php
+ create mode 100644 admin/dashboard_tipos.php
+ create mode 100644 admin/exportar.php
+ create mode 100644 admin/importar.php
+ create mode 100644 admin/login.php
+ create mode 100644 admin/logout.php
+ create mode 100644 admin/painel.php
+ create mode 100644 admin/temas.php
+ create mode 100644 assets/css/sgt_mobile.css
+ create mode 100644 check_schema.php
+ create mode 100644 config/database.php
+ create mode 100644 corrigir_propostas_vazias.php
+ create mode 100644 diag_launch.php
+ create mode 100644 editor_dinamico_v1_backup.php
+ create mode 100644 gerar_modelos_word.php
+ create mode 100644 instalador/install.php
+ delete mode 100644 salvar_proposta_verbose.php
+ create mode 100644 sugerir_tipo.php
+ create mode 100644 templates/css/print-curto.css
+ create mode 100644 templates/css/print-longo.css
+ create mode 100644 templates/css/print.css
+ create mode 100644 templates/visualizacao_curto.html
+ create mode 100644 templates/visualizacao_longo.html
+ create mode 100644 update_db_v2.php
+
+[2026-02-11 18:00:06] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   9407210..0a6b5f6  main -> main
+
+[2026-02-11 18:00:06] Backup conclu√≠do com sucesso.
+[2026-02-12 18:00:04] Iniciando backup...

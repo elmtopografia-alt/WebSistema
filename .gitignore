@@ -1,19 +1,52 @@
-*copy*
-ACESSO_SIMULADOR.php
-CalculadoraOrcamento.php
-SolarCalculator.php
-debug_login_total.php
-debug_salvar.php
-criar_usuarios_teste.php
-desktop.ini
-demanda (2).sql
-demanda estruturas.sql
-demanda.sql
+# ============================================
+# SGT PROPOSTAS - ARQUIVOS IGNORADOS
+# ============================================
 
-# Large Video Files
-*.mp4
-*.mkv
-*.avi
-*.mov
-Cena_07/
-Video_SGT/
+# CONFIGURAÇÃO E CREDENCIAIS
+.env
+.env.backup
+.env.local
+config/*.local.php
+
+# DEPENDÊNCIAS
+/vendor/
+composer.lock
+node_modules/
+
+# LOGS E CACHE
+/logs/
+*.log
+/cache/
+/temp/
+*.cache
+
+# UPLOADS E ARQUIVOS DO USUÁRIO
+/uploads/*
+!/uploads/.gitkeep
+/propostas_geradas/*
+!/propostas_geradas/.gitkeep
+
+# BACKUPS E LEGADOS
+*.LEGADO
+*.REMOVIDO
+*.bak
+*.old
+*.backup
+
+# IDE E SISTEMA
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# PHP
+phpunit.xml
+.phpunit.result.cache
+.php_cs.cache
+
+# NÃO IGNORAR (manter no repo)
+!.env.example
+!.gitkeep

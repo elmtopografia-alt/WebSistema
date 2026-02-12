@@ -12,7 +12,7 @@ use ProposalArchitect\Models\BaseProposalModel;
  */
 class StructureValidator
 {
-    private array $rules = [];
+    private $rules = [];
 
     public function __construct()
     {
@@ -24,7 +24,7 @@ class StructureValidator
         // Regra: Bloco comercial não pode vir antes de contexto técnico em modelos técnicos
         $this->rules[] = function (BaseProposalModel $model) {
             $sequence = $model->getOrderedBlocks();
-            $ids = array_map(fn($b) => $b->identifier, $sequence);
+            $ids = array_map(function($b) { return $b->identifier; }, $sequence);
 
             $investmentPos = array_search('investment', $ids);
             $scopePos = array_search('technical_scope', $ids);
@@ -41,7 +41,7 @@ class StructureValidator
         // Regra: Dados bancários devem estar presentes se houver condição de pagamento
         $this->rules[] = function (BaseProposalModel $model) {
             $sequence = $model->getOrderedBlocks();
-            $ids = array_map(fn($b) => $b->identifier, $sequence);
+            $ids = array_map(function($b) { return $b->identifier; }, $sequence);
 
             if (in_array('payment_terms', $ids) && !in_array('banking', $ids)) {
                 return "Condições de pagamento presentes sem dados bancários";

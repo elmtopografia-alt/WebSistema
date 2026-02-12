@@ -740,7 +740,7 @@ $icones = [
                     <i class="fas fa-star"></i> Temas do Sistema
                 </h2>
                 <div class="temas-grid">
-                    <?php foreach (array_filter($temas, fn($t) => $t['is_sistema']) as $tema): ?>
+                    <?php foreach (array_filter($temas, function($t) { return $t['is_sistema']; })) as $tema): ?>
                         <div class="tema-card sistema <?php echo $tema['ativo'] ? 'active' : ''; ?>">
                             <div class="tema-preview" style="background: linear-gradient(135deg, <?php echo $tema['cor_primaria']; ?> 0%, <?php echo $tema['cor_secundaria']; ?> 100%);">
                                 <?php if ($tema['ativo']): ?>

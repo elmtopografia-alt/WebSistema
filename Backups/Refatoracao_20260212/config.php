@@ -1,0 +1,84 @@
+<?php
+/**
+ * config.php
+ * Configuração central do SGT
+ * NÃO inicia sessão
+ * NÃO imprime nada
+ */
+
+// ==========================================================
+// PROTEÇÃO
+// ==========================================================
+if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
+    exit('acesso direto negado');
+}
+
+// ==========================================================
+// AMBIENTE
+// ==========================================================
+define('ENVIRONMENT', 'production'); // development | production
+define('SISTEMA_VERSAO', '01');
+
+// Define URL Base automaticamente
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'];
+$script = $_SERVER['SCRIPT_NAME'];
+$path = dirname($script);
+// Remove barras invertidas no Windows e garante barra final correta
+$path = str_replace('\\', '/', $path);
+$base = "$protocol://$host$path";
+// Remove barra final se existir para padronizar
+$base = rtrim($base, '/');
+
+define('BASE_URL', $base);
+
+if (ENVIRONMENT === 'development') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
+
+// ==========================================================
+// TIMEZONE / LOCALE
+// ==========================================================
+date_default_timezone_set('america/sao_paulo');
+setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
+mb_internal_encoding('utf-8');
+
+// ==========================================================
+// CREDENCIAIS
+// ==========================================================
+
+// PRODUÇÃO
+define('DB_PROD_HOST', 'demanda.mysql.dbaas.com.br');
+define('DB_PROD_NAME', 'demanda');
+define('DB_PROD_USER', 'demanda');
+define('DB_PROD_PASS', 'Qtamaqmde5202@');
+
+// DEMO
+define('DB_DEMO_HOST', 'proposta.mysql.dbaas.com.br');
+define('DB_DEMO_NAME', 'proposta');
+define('DB_DEMO_USER', 'proposta');
+define('DB_DEMO_PASS', 'Qtamaqmde5202@');
+
+// ==========================================================
+// E-MAIL (SMTP LOCAWEB)
+// ==========================================================
+define('SMTP_HOST', 'email-ssl.com.br'); // Host padrão da Locaweb
+define('SMTP_USER', 'admin.sgt@elmtopografia.com.br'); // E-mail de Autenticação (Admin)
+define('SMTP_PASS', 'Elm@8304063');        // SUBSTITUIR PELA SENHA DO ADMIN
+define('SMTP_PORT', 465); // 465 (SSL) ou 587 (TLS)
+define('SMTP_FROM_EMAIL', 'admin.sgt@elmtopografia.com.br'); // Remetente Padrão
+define('SMTP_FROM_NAME', 'SGT - Sistema de Gestão');
+
+// E-mail Financeiro (Para uso específico ou Reply-To)
+define('EMAIL_FINANCEIRO', 'financeiro.sgt@elmtopografia.com.br');
+
+// ==========================================================
+// FIM DAS CONFIGURAÇÕES
+// ==========================================================
+// Este arquivo não deve conter lógica de conexão.
+// Use db.php para obter a conexão com o banco.
+

@@ -5,7 +5,7 @@ require 'SGT_ETHICS_BIBLE.php';
 require 'conexao.php';
 
 final class Prospector {
-    private PDO $pdo;
+    private $pdo;
     
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
@@ -19,7 +19,7 @@ final class Prospector {
         if ($this->existe($site)) return ['status' => 'ignorado', 'motivo' => 'duplicata'];
         
         // Canal ético?
-        $canal = array_filter($dados['canais'] ?? [], fn($c) => SgtEthics::permitido($c));
+        $canal = array_filter($dados['canais'] ?? [], function($c) { return SgtEthics::permitido($c); });
         if (!$canal) return ['status' => 'rejeitado', 'motivo' => 'canal_nao_etico'];
         
         // Inserir

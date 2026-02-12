@@ -10,8 +10,8 @@ namespace ProposalArchitect\Infrastructure;
  */
 class StructureRegistry
 {
-    private static ?self $instance = null;
-    private array $cache = [];
+    private static $instance = null;
+    private $cache = [];
 
     public static function getInstance(): self
     {

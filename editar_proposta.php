@@ -206,7 +206,7 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     </nav>
 
     <!-- FORM WIZARD -->
-    <form action="salvar_edicao_proposta.php" method="POST" id="form-proposta" novalidate>
+    <form action="salvar_proposta.php" method="POST" id="form-proposta" novalidate>
         <input type="hidden" name="id_proposta_original" value="<?= $id_proposta ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
         <input type="hidden" name="form_complete" value="1">

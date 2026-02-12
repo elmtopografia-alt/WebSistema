@@ -191,7 +191,7 @@ window.irParaEditor = function () {
 
     // Define ação: Se existe id_proposta_original, é uma revisão
     const idOriginal = document.querySelector('input[name="id_proposta_original"]')?.value;
-    form.action = idOriginal ? 'salvar_edicao_proposta.php' : 'salvar_proposta.php';
+    form.action = 'salvar_proposta.php';
     form.submit();
 };
 

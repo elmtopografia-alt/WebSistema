@@ -48,29 +48,38 @@ setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
 mb_internal_encoding('utf-8');
 
 // ==========================================================
-// CREDENCIAIS
+// CREDENCIAIS (Carregadas de .env) - 2026-02-12
 // ==========================================================
 
-// PRODUÇÃO
-define('DB_PROD_HOST', 'demanda.mysql.dbaas.com.br');
-define('DB_PROD_NAME', 'demanda');
-define('DB_PROD_USER', 'demanda');
-define('DB_PROD_PASS', 'Qtamaqmde5202@');
+function loadEnv($var, $default = null) {
+    $val = getenv($var);
+    if ($val !== false) return $val;
+    if (isset($_ENV[$var])) return $_ENV[$var];
+    
+    static $envCache = null;
+    if ($envCache === null) {
+        $envFile = __DIR__ . '/.env';
+        $envCache = file_exists($envFile) ? parse_ini_file($envFile) : [];
+    }
+    if (isset($envCache[$var])) return $envCache[$var];
+    
+    if ($default === null) die("ERRO: Variável $var não configurada");
+    return $default;
+}
 
-// DEMO
-define('DB_DEMO_HOST', 'proposta.mysql.dbaas.com.br');
-define('DB_DEMO_NAME', 'proposta');
-define('DB_DEMO_USER', 'proposta');
-define('DB_DEMO_PASS', 'Qtamaqmde5202@');
-
-// ==========================================================
-// E-MAIL (SMTP LOCAWEB)
-// ==========================================================
-define('SMTP_HOST', 'email-ssl.com.br'); // Host padrão da Locaweb
-define('SMTP_USER', 'admin.sgt@elmtopografia.com.br'); // E-mail de Autenticação (Admin)
-define('SMTP_PASS', 'Elm@8304063');        // SUBSTITUIR PELA SENHA DO ADMIN
-define('SMTP_PORT', 465); // 465 (SSL) ou 587 (TLS)
-define('SMTP_FROM_EMAIL', 'admin.sgt@elmtopografia.com.br'); // Remetente Padrão
+define('DB_PROD_HOST', loadEnv('DB_PROD_HOST'));
+define('DB_PROD_NAME', loadEnv('DB_PROD_NAME'));
+define('DB_PROD_USER', loadEnv('DB_PROD_USER'));
+define('DB_PROD_PASS', loadEnv('DB_PROD_PASS'));
+define('DB_DEMO_HOST', loadEnv('DB_DEMO_HOST'));
+define('DB_DEMO_NAME', loadEnv('DB_DEMO_NAME'));
+define('DB_DEMO_USER', loadEnv('DB_DEMO_USER'));
+define('DB_DEMO_PASS', loadEnv('DB_DEMO_PASS'));
+define('SMTP_HOST', loadEnv('SMTP_HOST', 'email-ssl.com.br'));
+define('SMTP_USER', loadEnv('SMTP_USER'));
+define('SMTP_PASS', loadEnv('SMTP_PASS'));
+define('SMTP_PORT', intval(loadEnv('SMTP_PORT', 465)));
+define('SMTP_FROM_EMAIL', loadEnv('SMTP_USER')); 
 define('SMTP_FROM_NAME', 'SGT - Sistema de Gestão');
 
 // E-mail Financeiro (Para uso específico ou Reply-To)

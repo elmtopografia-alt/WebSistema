@@ -12,9 +12,9 @@ use ProposalArchitect\Models\BaseProposalModel;
  */
 class CustomModelBuilder
 {
-    private array $sequence = [];
-    private ?string $baseModel = null;
-    private array $metadata = [];
+    private $sequence = [];
+    private $baseModel = null;
+    private $metadata = [];
 
     public function basedOn(string $baseModelClass): self
     {
@@ -55,8 +55,8 @@ class CustomModelBuilder
     public function build(): BaseProposalModel
     {
         return new class($this->sequence, $this->metadata) extends BaseProposalModel {
-            private array $customSequence;
-            private array $customMetadata;
+            private $customSequence;
+            private $customMetadata;
 
             public function __construct(array $sequence, array $metadata)
             {

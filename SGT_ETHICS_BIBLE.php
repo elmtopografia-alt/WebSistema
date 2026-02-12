@@ -10,7 +10,7 @@ final class SgtEthics {
         return in_array($canal, self::ALLOWED, true);
     }
     
-    public static function validarUrl(string $url): string|false {
+    public static function validarUrl(string $url) {
         $url = filter_var($url, FILTER_VALIDATE_URL);
         return $url ?: false;
     }

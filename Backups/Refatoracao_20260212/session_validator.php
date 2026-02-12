@@ -1,0 +1,49 @@
+<?php
+// Arquivo: session_validator.php
+// Função: Centraliza a validação da sessão para proteger páginas vitais
+// Autor: Sistema de Segurança
+
+// Verificar primeiro se a sessão já foi iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    // Configura apenas se os cabeçalhos ainda não foram enviados
+    if (!headers_sent()) {
+        $cookieParams = session_get_cookie_params();
+        session_set_cookie_params([
+            'lifetime' => $cookieParams['lifetime'],
+            'path' => '/', 
+            'domain' => $cookieParams['domain'],
+            'secure' => isset($_SERVER['HTTPS']), 
+            'httponly' => true, 
+            'samesite' => 'Lax' 
+        ]);
+        session_start();
+    } else {
+        // Se headers já foram enviados, apenas tenta startar (vai gerar erro se não funcionar, mas evita crash)
+        @session_start();
+    }
+}
+
+// GERA TOKEN ANTI-CSRF (VACINA #1)
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// 1. Verifica se a variável principal de sessão existe
+if (!isset($_SESSION['usuario_id'])) {
+    // Captura a URL atual para redirecionar de volta após login
+    $atual = $_SERVER['REQUEST_URI'];
+    // Se não houver sessão, redireciona para a página de login com o parametro redirect
+    header("Location: index.php?redirect=" . urlencode($atual));
+    exit;
+}
+
+// 2. Normalização de Variáveis (Compatibilidade Legado)
+// Alguns scripts mais antigos podem procurar por 'id_usuario' em vez de 'usuario_id'
+if (!isset($_SESSION['id_usuario'])) {
+    $_SESSION['id_usuario'] = $_SESSION['usuario_id'];
+}
+
+// 3. Verifica Ambiente (Opcional, mas recomendado para garantir que 'ambiente' esteja setado)
+if (!isset($_SESSION['ambiente'])) {
+    $_SESSION['ambiente'] = 'producao'; // Default seguro
+}
