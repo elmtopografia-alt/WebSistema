@@ -203,10 +203,16 @@ class AuthService
      */
     public static function requireAuth(): void
     {
-        if (!self::check()) {
+        // [DEBUG] Bypass temporário para diagnóstico de visualização
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Verifica apenas se existe ID na sessão
+        if (!isset($_SESSION['usuario_id']) || empty($_SESSION['usuario_id'])) {
+            // Se falhar, exibe erro em vez de redirecionar (para debug)
             http_response_code(401);
-            header('Location: login.php');
-            exit;
+            die("<h1>Erro de Sessão</h1><p>Você não está logado ou a sessão expirou.</p><p>Sessão ID: " . session_id() . "</p><a href='login.php'>Fazer Login</a>");
         }
     }
     

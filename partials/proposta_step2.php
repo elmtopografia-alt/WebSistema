@@ -143,6 +143,87 @@
             </div>
         </div>
 
+        <!-- Novos Campos: Drone e Condições (Solicitados) -->
+        <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+            <label class="form-label mb-2"><i class="bi bi-geo-alt-fill text-warning"></i> Condições do Local e Voo</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                
+                <!-- 1. Acesso Local -->
+                <div>
+                    <label class="form-label" for="acesso_local">Acesso Local</label>
+                    <select name="acesso_local" id="acesso_local" class="form-select">
+                        <option value="">-- Selecione --</option>
+                        <option value="fácil – via asfaltada">Fácil – Via Asfaltada</option>
+                        <option value="médio – estrada de terra trafegável">Médio – Estrada de Terra</option>
+                        <option value="difícil – trilha / acesso restrito">Difícil – Trilha / Acesso Restrito</option>
+                        <option value="acesso controlado – portaria / vigilância">Acesso Controlado (Portaria)</option>
+                        <option value="somente pedestre">Somente Pedestre</option>
+                        <option value="acesso por propriedade privada">Acesso por Propriedade Privada</option>
+                        <option value="acesso por estrada vicinal">Acesso por Estrada Vicinal</option>
+                    </select>
+                </div>
+
+                <!-- 2. Cobertura Vegetal -->
+                <div>
+                    <label class="form-label" for="cobertura_vegetal">Cobertura Vegetal</label>
+                    <select name="cobertura_vegetal" id="cobertura_vegetal" class="form-select">
+                        <option value="">-- Selecione --</option>
+                        <option value="área limpa / solo exposto">Área Limpa / Solo Exposto</option>
+                        <option value="pastagem baixa">Pastagem Baixa</option>
+                        <option value="vegetação rasteira">Vegetação Rasteira</option>
+                        <option value="vegetação média (arbustos)">Vegetação Média (Arbustos)</option>
+                        <option value="vegetação densa">Vegetação Densa</option>
+                        <option value="mata fechada">Mata Fechada</option>
+                        <option value="área urbana">Área Urbana</option>
+                        <option value="área parcialmente arborizada">Área Parcialmente Arborizada</option>
+                        <option value="reflorestamento / eucalipto">Reflorestamento / Eucalipto</option>
+                        <option value="cultura agrícola">Cultura Agrícola</option>
+                    </select>
+                </div>
+
+                <!-- 3. Condições do Terreno -->
+                <div>
+                    <label class="form-label" for="tipo_terreno">Tipo de Terreno</label>
+                    <select name="tipo_terreno" id="tipo_terreno" class="form-select">
+                        <option value="">-- Selecione --</option>
+                        <option value="plano">Plano</option>
+                        <option value="levemente ondulado">Levemente Ondulado</option>
+                        <option value="ondulado">Ondulado</option>
+                        <option value="fortemente ondulado">Fortemente Ondulado</option>
+                        <option value="montanhoso">Montanhoso</option>
+                        <option value="terreno irregular">Terreno Irregular</option>
+                        <option value="área alagadiça">Área Alagadiça</option>
+                        <option value="solo arenoso">Solo Arenoso</option>
+                        <option value="solo argiloso">Solo Argiloso</option>
+                        <option value="área urbanizada">Área Urbanizada</option>
+                        <option value="área em terraplenagem">Área em Terraplenagem</option>
+                        <option value="presença de taludes">Presença de Taludes</option>
+                    </select>
+                </div>
+
+                <!-- 4. Restrições Aéreas -->
+                <div>
+                    <label class="form-label" for="restricoes_aereas">Restrições Aéreas</label>
+                    <select name="restricoes_aereas" id="restricoes_aereas" class="form-select">
+                        <option value="">-- Selecione --</option>
+                        <option value="nenhuma restrição aparente">Nenhuma Restrição Aparente</option>
+                        <option value="proximidade de rede elétrica">Rede Elétrica Próxima</option>
+                        <option value="proximidade de torres de comunicação">Torres de Comunicação</option>
+                        <option value="área urbana com edificações altas">Edificações Altas</option>
+                        <option value="presença de pessoas no entorno">Pessoas no Entorno</option>
+                        <option value="proximidade de rodovia">Proximidade de Rodovia</option>
+                        <option value="proximidade de aeroporto / heliponto">Aeroporto / Heliponto</option>
+                        <option value="área militar">Área Militar</option>
+                        <option value="área ambiental protegida">Área Ambiental Protegida</option>
+                        <option value="voo condicionado à autorização">Requer Autorização de Voo</option>
+                        <option value="espaço aéreo controlado">Espaço Aéreo Controlado</option>
+                        <option value="obstáculos verticais (árvores / postes)">Obstáculos Verticais</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
         <!-- Linha de Prazos (Agrupada) -->
         <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label mb-2">Cronograma (Dias Úteis)</label>

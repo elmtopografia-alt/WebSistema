@@ -33,31 +33,30 @@
 
         <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label" for="contato_obra">Contato na Obra</label>
-            <input type="text" name="contato_obra" id="contato_obra" class="form-control" placeholder="Ex: Sr. João (Vigia)">
+            <input type="text" name="contato_obra" id="contato_obra" class="form-control" placeholder="Ex: Sr. João (Vigia)" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
 
-        <!-- Endereço: Layout responsivo -->
-        <div class="form-group" style="grid-column: 1 / -1;">
+        <!-- Endereço: Layout Simplificamento -->
+        <div class="form-group" style="grid-column: 1 / -1; margin-top: 1rem;">
             <div class="address-row">
-                <!-- Endereço da Obra -->
-                <div class="address-field address-field-large">
-                    <label class="form-label" for="endereco">Endereço da Obra *</label>
-                    <input type="text" name="endereco" id="endereco" class="form-control" placeholder="Rua, número, complemento..." required autocomplete="off">
+                <div class="address-field address-field-main" style="flex: 2;">
+                    <label class="form-label" for="endereco_rua">Local da Obra (Logradouro/Rua) *</label>
+                    <input type="text" name="endereco" id="endereco_rua" class="form-control" placeholder="Rua, número, quilômetro..." required autocomplete="off">
                 </div>
-                <!-- Bairro -->
-                <div class="address-field address-field-small">
+                <div class="address-field address-field-small" style="flex: 1;">
                     <label class="form-label" for="bairro">Bairro</label>
-                    <input type="text" name="bairro" id="bairro" class="form-control" autocomplete="off">
+                    <input type="text" name="bairro" id="bairro" class="form-control" placeholder="Ex: Centro" autocomplete="off">
                 </div>
-                <!-- Cidade -->
+            </div>
+
+            <div class="address-row" style="margin-top: 0.75rem;">
                 <div class="address-field address-field-medium">
                     <label class="form-label" for="cidade">Cidade *</label>
                     <input type="text" name="cidade" id="cidade" class="form-control" required autocomplete="off">
                 </div>
-                <!-- Estado -->
                 <div class="address-field address-field-tiny">
                     <label class="form-label" for="estado">Estado</label>
-                    <select name="estado" id="estado" class="form-select" autocomplete="off">
+                    <select name="estado" id="estado" class="form-select" autocomplete="off" style="padding-right: 25px; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22%231e293b%22 class=%22bi bi-chevron-down%22 viewBox=%220 0 16 16%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px;">
                         <?php if (!empty($estados)): ?>
                             <?php foreach ($estados as $e): ?>
                                 <option value="<?= $e['sigla'] ?>" <?= $e['sigla'] === 'MG' ? 'selected' : '' ?>><?= $e['sigla'] ?> - <?= $e['nome'] ?></option>
@@ -67,5 +66,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>

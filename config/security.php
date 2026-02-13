@@ -60,7 +60,7 @@ function setupSecureSession(): void
     ini_set('session.cookie_samesite', 'Strict');
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
-    ini_set('session.gc_maxlifetime', (int)($_ENV['SESSION_LIFETIME'] ?? 120) * 60);
+    ini_set('session.gc_maxlifetime', (string)((int)($_ENV['SESSION_LIFETIME'] ?? 120) * 60));
     
     // Nome personalizado da sessão (não expõe que é PHP)
     session_name('sgt_session');

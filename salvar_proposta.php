@@ -16,9 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    error_log("FALHA: Acesso não-POST em salvar_proposta.");
-    header('Location: painel.php');
-    exit;
+    die("<h1>Erro: Método Inválido</h1><p>Este script espera uma requisição POST.</p><button onclick='history.back()'>Voltar</button>");
 }
 
 try {
@@ -32,25 +30,64 @@ try {
     // Processa o salvamento (toda a lógica centralizada no Repository)
     $id = $repo->salvar($_POST, $idOriginal);
     
+    // Detecta se é requisição AJAX (para evitar problemas com target=_blank e sessões)
+    $isAjax = !empty($_POST['ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+    
     // Redireciona conforme formato solicitado
     $formato = $_POST['formato_saida'] ?? 'docx';
     
+    // Define URL de destino
+    $redirectUrl = '';
     switch ($formato) {
         case 'editor':
             $_SESSION['id_proposta_ativa'] = $id;
-            header("Location: editor_dinamico.php?id=$id&success=1");
+            $redirectUrl = "editor_dinamico.php?id=$id&success=1";
             break;
         case 'html':
-            header("Location: gerar_proposta_html.php?id=$id");
+            $redirectUrl = "gerar_proposta_html.php?id=$id";
             break;
         default:
-            header("Location: proposta_sucesso.php?id=$id");
+            $redirectUrl = "proposta_sucesso.php?id=$id";
+    }
+
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true, 
+            'redirect' => $redirectUrl, 
+            'id' => $id
+        ]);
+        exit;
+    } else {
+        header("Location: $redirectUrl");
+        exit;
     }
     
 } catch (Throwable $e) {
-    error_log("FALHA CRITICA salvar_proposta: " . $e->getMessage() . " em " . $e->getFile() . " na linha " . $e->getLine());
-    $erro = urlencode("Erro Interno (Consulte Logs): " . $e->getMessage());
-    $back = $_SERVER['HTTP_REFERER'] ?? 'painel.php';
-    $sep = strpos($back, '?') !== false ? '&' : '?';
-    header("Location: {$back}{$sep}erro={$erro}");
+    // Detecta AJAX no erro também
+    $isAjax = !empty($_POST['ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+
+    if ($isAjax) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false, 
+            'error' => $e->getMessage(),
+            'debug' => $e->getFile() . ':' . $e->getLine()
+        ]);
+        exit;
+    }
+
+    // Modo Debug: Mostrar erro na tela
+    http_response_code(500);
+    echo "<div style='font-family:sans-serif;padding:20px;border:1px solid #ff0000;background:#fff0f0;color:#d00'>";
+    echo "<h3>Erro ao Processar Proposta</h3>";
+    echo "<p><strong>Mensagem:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><strong>Arquivo:</strong> " . $e->getFile() . ":" . $e->getLine() . "</p>";
+    echo "<hr>";
+    echo "<button onclick='window.history.back()' style='padding:10px 20px;cursor:pointer'>Voltar e Corrigir</button>";
+    echo "</div>";
+    
+    error_log("FALHA CRITICA salvar_proposta: " . $e->getMessage());
+    exit;
 }

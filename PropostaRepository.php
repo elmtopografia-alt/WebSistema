@@ -66,13 +66,27 @@ class PropostaRepository
         }
     }
     
-    private function buscarNumero($id) 
+    public function buscarNumero($id)
     {
-        $stmt = $this->conn->prepare("SELECT numero_proposta FROM Propostas WHERE id_proposta = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        return ($row = $res->fetch_assoc()) ? $row['numero_proposta'] : 'ERRO';
+        $id = (int)$id;
+        $sql = "SELECT numero_proposta FROM Propostas WHERE id_proposta = $id";
+        $res = $this->conn->query($sql);
+        $row = $res->fetch_assoc();
+        return $row['numero_proposta'] ?? '';
+    }
+
+    /**
+     * Busca dados completos de uma proposta pelo ID
+     */
+    public function buscarPorId($id)
+    {
+        $id = (int)$id;
+        $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente 
+                FROM Propostas p 
+                LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
+                WHERE p.id_proposta = $id";
+        $res = $this->conn->query($sql);
+        return $res ? $res->fetch_assoc() : null;
     }
 
     private function salvarConteudoPersonalizado($id, $dados) 
@@ -243,7 +257,7 @@ class PropostaRepository
         $isDemo = ($_SESSION['ambiente'] ?? 'producao') === 'demo' ? 1 : 0;
 
         // Extração de variáveis para bind_param (PHP 7.4 exige referências de variáveis)
-        $id_cliente = intval($dados['id_cliente']);
+        $id_cliente = !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null;
         $id_criador = $this->idCriador;
         $nome_cliente_salvo = $dados['nome_cliente_salvo'] ?? '';
         $empresa_cliente = $dados['empresa_cliente'] ?? '';
@@ -253,7 +267,7 @@ class PropostaRepository
         $whatsapp_salvo = $dados['whatsapp_salvo'] ?? '';
         $empresa_proponente_nome = $dados['empresa_proponente_nome'] ?? '';
         $empresa_proponente_cnpj = $dados['empresa_proponente_cnpj'] ?? '';
-        $id_servico = intval($dados['id_servico']);
+        $id_servico = !empty($dados['id_servico']) ? intval($dados['id_servico']) : null;
         $tipo_servico_id = intval($dados['tipo_servico_id'] ?? 0);
         $contato_obra = $dados['contato_obra'] ?? '';
         $finalidade = $dados['finalidade'] ?? '';
@@ -323,7 +337,7 @@ class PropostaRepository
         $stmt = $this->conn->prepare($sql);
 
         // Extração de variáveis para bind_param
-        $id_cliente = intval($dados['id_cliente']);
+        $id_cliente = !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null;
         $nome_cliente_salvo = $dados['nome_cliente_salvo'] ?? '';
         $empresa_cliente = $dados['empresa_cliente'] ?? '';
         $email_salvo = $dados['email_salvo'] ?? '';
@@ -437,7 +451,7 @@ class PropostaRepository
                 $qtd_l = $dados['locacao_qtd'][$i];
                 $val_l = $dados['locacao_valor'][$i];
                 $dias_l = $dados['locacao_dias'][$i];
-                $stmt->bind_param('iiiiddi', $id, $idL, $idMarca, $qtd_l, $val_l, $dias_l);
+                $stmt->bind_param('iiiidi', $id, $idL, $idMarca, $qtd_l, $val_l, $dias_l);
                 $stmt->execute();
             }
         }

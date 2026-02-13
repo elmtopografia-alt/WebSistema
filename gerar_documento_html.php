@@ -179,6 +179,7 @@ $vars = [
 
     // Empresa
     'Empresa' => $empresa['Empresa'] ?? 'ELM Topografia',
+    'empresa' => $empresa['Empresa'] ?? 'ELM Topografia',
     'CNPJ' => $empresa['CNPJ'] ?? '',
     'Banco' => $empresa['Banco'] ?? '',
     'Agencia' => $empresa['Agencia'] ?? '',
@@ -191,6 +192,14 @@ $vars = [
     'Cidade' => $empresa['Cidade'] ?? 'Belo Horizonte',
     'DExrenso' => dataPorExtenso(),
     'DataExtenso' => dataPorExtenso(),
+
+    // Variáveis Dinâmicas de Drone/Campo (Solicitadas pelo usuário)
+    'ClienteCidadeUF' => ($dados['cidade_obra'] ?? '') . '-' . ($dados['estado_obra'] ?? ''),
+    'TipoTerreno' => $dados['tipo_terreno'] ?? '',
+    'CoberturaVegetal' => $dados['cobertura_vegetal'] ?? '',
+    'AcessoLocal' => $dados['acesso_local'] ?? '',
+    'RestricoesAereas' => $dados['restricoes_aereas'] ?? '',
+
     // Fallbacks para variáveis aninhadas que podem não existir no POST direto
     'escopo_servico' => '', // Remove placeholder recursivo
 ];
@@ -207,7 +216,8 @@ foreach ($dados as $k => $v) {
 function substituir($texto, $vars)
 {
     foreach ($vars as $chave => $valor) {
-        $texto = str_replace('${' . $chave . '}', $valor, $texto);
+        // str_ireplace para suportar ${Empresa} e ${empresa} indiferente da caixa
+        $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
     }
     return $texto;
 }
@@ -295,8 +305,11 @@ function substituir($texto, $vars)
             border-bottom: 2px solid #1e293b;
             padding-bottom: 10px;
             margin-bottom: 30px;
-            font-size: 24pt;
+            font-size: 16pt;
             text-transform: uppercase;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
         }
 
         h2 {
@@ -402,17 +415,22 @@ function substituir($texto, $vars)
         <div class="content-wrap">
             <!-- HEADER COM LOGO -->
             <!-- HEADER COM LOGO -->
-            <div class="header-container" style="display: flex; justify-content: flex-start; align-items: center; gap: 40px; margin-bottom: 40px; border-bottom: 3px solid #b45f06; padding-bottom: 10px;">
-                <div style="flex: 0 0 auto; text-align: left;">
+            <!-- HEADER COM LOGO -->
+            <div class="header-container" style="display: flex; justify-content: flex-start; align-items: center; gap: 20px; margin-bottom: 40px; border-bottom: 3px solid #b45f06; padding-bottom: 15px;">
+                <div style="flex: 0 0 auto;">
                     <?php if (file_exists($logo)): ?>
-                        <!-- Altura padrão definida para 1.5cm (~56px) para manter proporção -->
-                        <img src="<?= $logo ?>" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
+                        <!-- Aumentado para 100px conforme preferência por destaque -->
+                        <img src="<?= $logo ?>" alt="Logo" style="max-height: 100px; width: auto; object-fit: contain; display: block;">
                     <?php else: ?>
-                        <div style="font-size: 20px; font-weight: bold; color: #b45f06;">LOGO</div>
+                        <!-- Fallback visual mais robusto -->
+                        <div style="font-size: 24px; font-weight: bold; color: #b45f06; border: 2px dashed #b45f06; padding: 10px;">LOGO AQUI</div>
                     <?php endif; ?>
                 </div>
-                <div style="flex: 1; text-align: left; color: #b45f06;">
-                    <h1 style="margin: 0; font-size: 18pt; border: none; padding: 0; white-space: nowrap;">PROPOSTA TÉCNICA E COMERCIAL</h1>
+                <div style="flex: 1; text-align: right; color: #b45f06;">
+                    <h1 style="margin: 0; font-size: 16pt; border: none; padding: 0; font-family: Arial, sans-serif; font-weight: bold; line-height: 1.2;">
+                        PROPOSTA TÉCNICA<br>
+                        <span style="font-size: 12pt; color: #333; font-weight: normal;"><?= strtoupper($vars['tipo_levantamento']) ?></span>
+                    </h1>
                 </div>
             </div>
 
@@ -558,25 +576,31 @@ function substituir($texto, $vars)
             }
 
             // 1. Apresentação
-            // 1. Apresentação
             $txtApresentacao = $dados['apresentacao_content'] ?? '';
 
-            // Aplica negrito com prioridade para o nome mais longo (para evitar negrito parcial)
-            // Cria array com variantes do nome
+            // 1. Primeiro subtitui placeholders para garantir que o nome da empresa atual esteja no texto
+            $txtApresentacao = substituir($txtApresentacao, $vars);
+
+            // 2. Tenta Limpar "Hardcoded": Se o texto ainda contiver o nome da empresa anterior (ELM) 
+            // mas o usuário for outro, podemos tentar trocar. (Opcional/Segurança)
+            if ($vars['Empresa'] !== 'ELM Serviços Topográficos Ltda.' && strpos($txtApresentacao, 'ELM Serviços Topográficos Ltda.') !== false) {
+                $txtApresentacao = str_replace('ELM Serviços Topográficos Ltda.', $vars['Empresa'], $txtApresentacao);
+            }
+
+            // 3. Aplica negrito com prioridade para o nome mais longo
             $variantesEmpresa = [
                 $vars['Empresa'],
                 'GeoMetrópole Engenharia e Topografia Ltda.',
                 'GeoMetrópole Engenharia e Topografia',
-                'GeoMetrópole'
+                'GeoMetrópole',
+                'ELM Serviços Topográficos Ltda.', // Caso hardcoded
+                'ELM Serviços Topográficos'
             ];
-            // Remove duplicatas e vazios
             $variantesEmpresa = array_unique(array_filter($variantesEmpresa));
-            // Ordena por tamanho (do maior para o menor)
             usort($variantesEmpresa, function ($a, $b) {
-                return strlen($b) - strlen($a);
+                return mb_strlen($b) - mb_strlen($a);
             });
 
-            // Cria regex: (Nome Completo|Nome Médio|Nome Curto)
             $patternEmpresa = '/(' . implode('|', array_map(function ($n) {
                 return preg_quote($n, '/');
             }, $variantesEmpresa)) . ')/u';
@@ -602,36 +626,44 @@ function substituir($texto, $vars)
             // 5. Metodologia
             renderBloco("5. Metodologia", $dados['metodologia_content'] ?? '', $vars);
 
-            // 6. Equipamentos
-            echo "<h3>6. Equipamentos Previstos</h3>";
-            echo "<ul>";
-            if (!empty($vars['Veiculo'])) echo "<li><strong>Veículo:</strong> {$vars['Veiculo']}</li>";
-            echo "<li><strong>Receptor GNSS:</strong> Par de Receptores GNSS RTK de Dupla Frequência</li>"; // Adicionado fixo como pedido
-            if (!empty($vars['Estacao_Total'])) echo "<li><strong>Estação Total:</strong> {$vars['Estacao_Total']}</li>";
-            // Só exibe Drone se NÃO for 'Não aplicável'
-            if (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false) {
-                echo "<li><strong>Drone:</strong> {$vars['Drone']}</li>";
+            // 6. Equipamentos (Dinamismo para Conferência)
+            $isConferencia = stripos($vars['tipo_levantamento'] ?? '', 'Conferência') !== false;
+            $hasEquip = !empty($vars['Veiculo']) || !$isConferencia || !empty($vars['Estacao_Total']) || (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false);
+
+            if ($hasEquip) {
+                echo "<h3>6. Equipamentos Previstos</h3>";
+                echo "<ul>";
+                if (!empty($vars['Veiculo'])) echo "<li><strong>Veículo:</strong> {$vars['Veiculo']}</li>";
+                
+                // Mostrar GNSS fixo apenas se NÃO for conferência (preserva padrão nos outros serviços)
+                if (!$isConferencia) {
+                    echo "<li><strong>Receptor GNSS:</strong> Par de Receptores GNSS RTK de Dupla Frequência</li>";
+                }
+                
+                if (!empty($vars['Estacao_Total'])) echo "<li><strong>Estação Total:</strong> {$vars['Estacao_Total']}</li>";
+                
+                // Só exibe Drone se NÃO for 'Não aplicável'
+                if (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false) {
+                    echo "<li><strong>Drone:</strong> {$vars['Drone']}</li>";
+                }
+                echo "</ul>";
             }
-            echo "</ul>";
 
-            // 7. Investimento
-            $investimentoTxt = $dados['investimento_texto'] ?? '';
-
-            // Ajuste de Layout: Valor em Negrito e Extenso na mesma linha
-            // Procura por: ${ValorProposta} [quebra de linha] (${ValorExtenso})
-            $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]+\s*(\(\$\{ValorExtenso\}\))/u', '<strong>$1</strong> $2', $investimentoTxt);
+            // Ajuste de Layout: Valor em Negrito e Extenso na mesma linha entre parênteses
+            $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\$\{ValorExtenso\})/u', '<strong>$1</strong> ($2)', $investimentoTxt);
+            $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\(\$\{ValorExtenso\}\))/u', '<strong>$1</strong> $2', $investimentoTxt);
 
             // Caso o usuário tenha salvo o texto já com os valores (sem placeholders), tenta ajustar também
-            // Ex: R$ 2.000,00 \n (dois mil reais)
-            $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]+\s*(\([^\)]+reais\))/iu', '<strong>$1</strong> $2', $investimentoTxt);
+            $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*\(([^\)]+reais)\)/iu', '<strong>$1</strong> ($2)', $investimentoTxt);
+            $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*([A-Z\s]+REAIS)/u', '<strong>$1</strong> ($2)', $investimentoTxt);
 
             renderBloco("7. Investimento", $investimentoTxt, $vars);
 
             if (empty($dados['investimento_texto'])) {
                 // Fallback se o texto vier vazio, exibe o padrão
                 echo "<h3>7. Investimento</h3>";
-                echo "<p class='highlight' style='font-size: 1.2em; font-weight: bold; background: #e2e8f0; padding: 10px;'>
-                  VALOR TOTAL DA PROPOSTA: {$vars['ValorProposta']} <span style='font-size: 0.9em; font-weight: normal;'>({$vars['ValorExtenso']})</span></p>";
+                echo "<p class='highlight' style='font-size: 1.1em; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                  VALOR TOTAL DA PROPOSTA: <strong>{$vars['ValorProposta']}</strong> ({$vars['ValorExtenso']})</p>";
             }
 
             // 8. Condições
@@ -668,12 +700,13 @@ function substituir($texto, $vars)
         </div> <!-- Fim content-wrap -->
 
         <div class="footer">
-            <p style="margin-bottom: 50px; font-size: 1.1em;">Atenciosamente,</p>
+            <p style="margin-bottom: 80px; font-size: 1.1pt;">Atenciosamente,</p>
 
-            <div style="border-top: 2px solid #333; width: 80%; margin: 20px auto 10px auto;"></div>
+            <div style="border-top: 1px solid #334155; width: 60%; margin: 20px auto 10px auto;"></div>
 
-            <strong style="font-size: 1.4em; color: #000; display: block; margin-bottom: 5px;"><?= $vars['Empresa'] ?></strong>
-            <span style="font-size: 1em; color: #666; text-transform: uppercase;"><?= $vars['empresa_proponente_cidade'] ?></span>
+            <div style="font-size: 10pt; color: #1e293b; text-align: center; margin-top: 10px;">
+                <strong><?= $vars['Empresa'] ?></strong> | <?= $vars['empresa_proponente_cidade'] ?> | Levantamentos Topográficos •
+            </div>
         </div>
 
     </div> <!-- Fim page-container -->

@@ -209,6 +209,32 @@ window.closeCalculator = function () {
     Calculator?.close();
 };
 
+/**
+ * Função global para calcular distância (Redireciona para Google Maps conforme preferência do usuário)
+ */
+window.verMapa = function () {
+    const endObra = document.querySelector('input[name="endereco"]').value;
+    const cidadeObra = document.querySelector('input[name="cidade"]').value;
+    const estadoObra = document.querySelector('select[name="estado"]').value;
+
+    if (!endObra || !cidadeObra) {
+        SGTUtils.showToast('Por favor, preencha o Endereço e Cidade da Obra no Passo 1.', 'warning');
+        return;
+    }
+
+    const enderecoEmpresa = window.SGT_DATA?.enderecoEmpresa;
+    if (!enderecoEmpresa) {
+        alert('Endereço da empresa não configurado.');
+        return;
+    }
+
+    const origem = encodeURIComponent(enderecoEmpresa);
+    const destino = encodeURIComponent(`${endObra}, ${cidadeObra} - ${estadoObra}`);
+
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}`;
+    window.open(url, '_blank');
+};
+
 /* --- CÁLCULO DE DISTÂNCIA E MAPA (Restaurado) --- */
 window.calcularDistancia = async (btn) => {
     const row = btn.closest('.cost-item');
@@ -273,7 +299,7 @@ window.calcularDistancia = async (btn) => {
             inputKm.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
-        alert(`Distância calculada: ${distanciaKm} km (Ida).\nDefinido ${kmTotal} km (Ida e Volta).`);
+        SGTUtils.showToast(`Distância calculada: ${distanciaKm} km (Ida). Definido ${kmTotal} km (Ida e Volta).`, 'success');
 
     } catch (error) {
         console.error(error);
@@ -282,27 +308,4 @@ window.calcularDistancia = async (btn) => {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
-};
-
-window.verMapa = (btn) => {
-    const endObra = document.querySelector('input[name="endereco"]').value;
-    const cidadeObra = document.querySelector('input[name="cidade"]').value;
-    const estadoObra = document.querySelector('select[name="estado"]').value;
-
-    if (!endObra || !cidadeObra) {
-        alert('Por favor, preencha o Endereço e Cidade da Obra no Passo 1.');
-        return;
-    }
-
-    const enderecoEmpresa = window.SGT_DATA?.enderecoEmpresa;
-    if (!enderecoEmpresa) {
-        alert('Endereço da empresa não configurado.');
-        return;
-    }
-
-    const origem = encodeURIComponent(enderecoEmpresa);
-    const destino = encodeURIComponent(`${endObra}, ${cidadeObra} - ${estadoObra}`);
-
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}`;
-    window.open(url, '_blank');
 };

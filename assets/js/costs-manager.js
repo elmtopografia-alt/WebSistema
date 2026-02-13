@@ -380,19 +380,19 @@ const CostsManager = {
                     </div>
                     <div>
                         <label class="form-label">Qtd</label>
-                        <input type="number" name="salarios[${id}][quantidade]" class="form-control" value="1" min="1" required>
+                        <input type="number" name="salarios[\${id}][quantidade]" class="form-control" value="1" min="1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Valor Unit.</label>
-                        <input type="number" name="salarios[${id}][valor]" class="form-control" step="0.01" required>
+                        <input type="number" name="salarios[\${id}][valor]" class="form-control" step="0.01" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Encargos %</label>
-                        <input type="number" name="salarios[${id}][encargos]" class="form-control" value="67" step="0.1" required>
+                        <input type="number" name="salarios[\${id}][encargos]" class="form-control" value="67" step="0.1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Dias</label>
-                        <input type="number" name="salarios[${id}][dias]" class="form-control" value="1" min="1" required>
+                        <input type="number" name="salarios[\${id}][dias]" class="form-control" value="1" min="1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Total</label>

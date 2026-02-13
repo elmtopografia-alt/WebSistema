@@ -97,7 +97,13 @@ function substituirVariaveis($texto, $variaveis)
 /**
  * Mapeia dados brutos para o mapa de variáveis do template
  */
+/**
+ * Mapeia dados brutos para o mapa de variáveis do template
+ */
 function getVariableMap($data, $conn) {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    $id_criador = $_SESSION['usuario_id'] ?? 0;
+
     $map = $data;
     $map['ValorProposta'] = formatarMoeda($data['valor_final_proposta'] ?? 0);
     $map['ValorExtenso'] = valorPorExtenso($data['valor_final_proposta'] ?? 0);
@@ -108,16 +114,48 @@ function getVariableMap($data, $conn) {
     $map['AreaEstimada'] = ($data['area_obra'] ?? '0') . ' ' . ($data['unidade_area'] ?? 'm²');
     $map['area_formatada'] = $map['AreaEstimada'];
     
-    // Dados da Empresa (Fallback se não vier no data)
-    if (empty($data['Empresa'])) {
-        $emp = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1")->fetch_assoc();
-        if ($emp) {
-            $map['Empresa'] = $emp['Empresa'];
-            $map['CNPJ'] = $emp['CNPJ'];
-            $map['whatsapp'] = $emp['Whatsapp'];
-            $map['logo_empresa'] = 'assets/' . ($emp['Logo'] ?? 'logo_sgt.png');
-        }
+    // Variáveis de Drone/Campo (Garantir Mapeamento)
+    $map['TipoTerreno'] = $data['tipo_terreno'] ?? 'Não informado';
+    $map['CoberturaVegetal'] = $data['cobertura_vegetal'] ?? 'Não informado';
+    $map['AcessoLocal'] = $data['acesso_local'] ?? 'Não informado';
+    $map['RestricoesAereas'] = $data['restricoes_aereas'] ?? 'Não informado';
+    
+    // Cidade/UF do Cliente (Obra)
+    $map['ClienteCidadeUF'] = ($data['cidade_obra'] ?? '') . '-' . ($data['estado_obra'] ?? '');
+    $map['ClienteBairro'] = $data['bairro_obra'] ?? ''; // Alias solicitado
+
+    // Equipamentos (Aliases Capitalizados)
+    $map['Drone'] = $data['drone'] ?? 'Não aplicável';
+    $map['Veiculo'] = $data['veiculo'] ?? 'Não incluso';
+    $map['Estacao_Total'] = $data['estacao_total'] ?? 'Não inclusa';
+    $map['GPS'] = 'Par de Receptores GNSS RTK de Dupla Frequência'; // Valor Padrão SGT
+
+    // Dados Bancários e Empresa (Prioridade: Sessão > Proposta > Geral)
+    $emp = null;
+    if ($id_criador > 0) {
+        $emp = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $id_criador LIMIT 1")->fetch_assoc();
     }
+    
+    // Se não achou pelo criador logado, tenta pegar qualquer um (fallback demo)
+    if (!$emp) {
+        $emp = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1")->fetch_assoc();
+    }
+
+    if ($emp) {
+        // Força sobrescrita se o dado na proposta estiver vazio OU se quisermos garantir o atual
+        $map['Empresa'] = $emp['Empresa'];
+        $map['empresa'] = $emp['Empresa']; // Case insensitive support
+        $map['CNPJ'] = $emp['CNPJ'];
+        $map['whatsapp'] = $emp['Whatsapp'];
+        $map['logo_empresa'] = 'assets/' . ($emp['Logo'] ?? 'logo_sgt.png');
+        
+        // Dados Bancários
+        $map['Banco'] = $emp['Banco'] ?? '';
+        $map['Agencia'] = $emp['Agencia'] ?? '';
+        $map['Conta'] = $emp['Conta'] ?? '';
+        $map['PIX'] = $emp['PIX'] ?? '';
+    }
+
     return $map;
 }
 
@@ -335,8 +373,9 @@ while ($row = $resContent->fetch_assoc()) {
 
 // Carrega Estrutura (Árvore de Blocos)
 try {
+    $serviceTypeId = isset($incomingData['id_servico']) ? (int)$incomingData['id_servico'] : 0;
     $loader = new DatabaseStructureLoader($conn);
-    $model = $loader->getVirtualModel();
+    $model = $loader->getVirtualModel($serviceTypeId);
     $treeBuilder = new HierarchyTreeBuilder();
     $structure = $treeBuilder->build($model);
     $metadata = $model->getModelMetadata();
@@ -487,6 +526,8 @@ $variaveis = getVariableMap($incomingData, $conn);
                 <form id="formProposta" method="POST" action="salvar_proposta.php">
                     <input type="hidden" name="id_proposta" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_proposta_original" value="<?= $id_prop ?>">
+                    <input type="hidden" name="id_cliente" value="<?= $incomingData['id_cliente'] ?? '' ?>">
+                    <input type="hidden" name="id_servico" value="<?= $incomingData['id_servico'] ?? '' ?>">
                     <input type="hidden" name="formato_saida" id="inputFormatoSaida" value="html">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     
@@ -503,9 +544,15 @@ $variaveis = getVariableMap($incomingData, $conn);
                             $borderColor = $borderColors[$node['category']] ?? 'border-l-slate-700';
 
                             // Resolução de Conteúdo
-                            $defaultContent = substituirVariaveis($node['default_content'] ?? '', $variaveis);
+                            $defaultContent = $node['default_content'] ?? '';
                             $userValue = $incomingData[$slug . '_content'] ?? ($incomingData[$slug] ?? '');
-                            $finalContent = (!empty($userValue)) ? $userValue : $defaultContent;
+                            
+                            // Define conteúdo base (usuário > padrão)
+                            $rawContent = (!empty($userValue)) ? $userValue : $defaultContent;
+                            
+                            // APLICA SUBSTITUIÇÃO DE VARIÁVEIS (FORÇADO)
+                            // Isso garante que mesmo se o usuário salvou um rascunho com ${Variaveis}, elas sejam processadas ao abrir o editor.
+                            $finalContent = substituirVariaveis($rawContent, $variaveis);
 
                             echo "<div id='block-{$slug}' class='glass-card rounded-2xl border-l-4 {$borderColor} block-card p-6 scroll-mt-24 mb-8'>";
                             
@@ -615,37 +662,130 @@ $variaveis = getVariableMap($incomingData, $conn);
     </div>
 
     <script>
+        // Função de Salvamento (Async sem travar a tela)
         async function salvarRascunho() {
             tinymce.triggerSave();
             const btn = document.querySelector('button[onclick="salvarRascunho()"]');
+            const originalContent = btn.innerHTML;
+            
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Salvando...';
 
             try {
                 const formData = new FormData(document.getElementById('formProposta'));
+                
+                // [FIX] Adicionar token CSRF manualmente se necessário
+                // formData.append('csrf_token', 'TOKEN_AQUI'); 
+
                 const response = await fetch('salvar_rascunho.php', { method: 'POST', body: formData });
-                if (response.ok) alert('✅ Rascunho atualizado com sucesso!');
-                else throw new Error('Falha no servidor');
+                
+                if (response.ok) {
+                    // Feedback visual sutil
+                    const icon = btn.querySelector('i');
+                    if(icon) {
+                        icon.className = 'bi bi-check-lg';
+                        setTimeout(() => { icon.className = 'bi bi-cloud-arrow-up'; }, 2000);
+                    }
+                    // Opcional: Toast sem alert modal
+                    // SGTUtils.showToast('Rascunho salvo!', 'success');
+                } else {
+                    throw new Error('Falha no servidor');
+                }
             } catch (e) {
-                alert('❌ Erro: ' + e.message);
+                console.error('Erro ao salvar:', e);
+                alert('Erro ao salvar rascunho. Tente novamente.');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-cloud-arrow-up"></i> Salvar Rascunho';
+                btn.innerHTML = originalContent;
             }
         }
 
         async function submitForm(formato) {
             tinymce.triggerSave();
-            const form = document.getElementById('formProposta');
-            document.getElementById('inputFormatoSaida').value = formato;
             
-            // Abre em nova aba para visualização
-            form.target = '_blank';
-            form.submit();
+            // UI Feedback: Encontra o botão clicado
+            // Nota: Se houver múltiplos botões, isso pode pegar o primeiro. Melhor passar 'this' no onclick, mas vamos buscar pelo formato.
+            // Ajuste: Botão visual web tem ícone eye.
+            let btn = null;
+            if (formato === 'html') btn = document.querySelector('button i.bi-eye')?.parentElement;
+            else if (formato === 'docx') btn = document.querySelector('button i.bi-file-word')?.parentElement;
+            
+            const originalContent = btn ? btn.innerHTML : '';
+            if(btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Processando...';
+            }
+
+            try {
+                const form = document.getElementById('formProposta');
+                const formData = new FormData(form);
+                formData.append('formato_saida', formato);
+                formData.append('ajax', '1'); // Solicita resposta JSON
+
+                const response = await fetch('salvar_proposta.php', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                // Tenta fazer parse do JSON
+                let data;
+                const text = await response.text();
+                try {
+                    data = JSON.parse(text);
+                } catch(e) {
+                    console.error('Resposta não-JSON:', text);
+                    throw new Error('Servidor retornou resposta inválida');
+                }
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Erro desconhecido ao processar');
+                }
+
+                // Lógica de Redirecionamento Inteligente
+                if (formato === 'html') {
+                    // Visualização Web: Abre em NOVA ABA
+                    window.open(data.redirect, '_blank');
+                } else if (formato === 'editor') {
+                    // Salvar apenas: Recarrega ou notifica
+                    // Se reload for necessário: window.location.reload();
+                    // Mas idealmente apenas notifica sucesso
+                    if (data.redirect.includes('success=1')) {
+                         // Opcional: Mostrar toast
+                         // alert('Salvo com sucesso!');
+                    }
+                } else {
+                    // Download/Sucesso: Redireciona a página atual
+                    window.location.href = data.redirect;
+                }
+
+            } catch (e) {
+                console.error('Erro ao processar:', e);
+                alert('Ocorreu um erro: ' + e.message);
+                
+                // Se falhar visualização, tenta fallback tradicional (debug)
+                if (formato === 'html' && confirm('Tentar método tradicional (pode falhar)?')) {
+                     const form = document.getElementById('formProposta');
+                     document.getElementById('inputFormatoSaida').value = formato;
+                     form.target = '_blank';
+                     form.submit();
+                }
+            } finally {
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+            }
         }
 
-        // Inicialização TinyMCE Dark
+        // Inicialização TinyMCE Dark (Simplificada e Segura)
         document.addEventListener("DOMContentLoaded", function() {
+            // Remove qualquer overlay residual
+            const loaders = document.querySelectorAll('.loading-spinner, .overlay-loading');
+            loaders.forEach(el => el.remove());
+
             tinymce.init({
                 selector: 'textarea',
                 height: 350,

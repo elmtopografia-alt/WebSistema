@@ -26,6 +26,9 @@ class BlockDefinition
     /** @var array */
     public $requiredVars;
 
+    /** @var string */
+    public $defaultContent;
+
     /** @var array */
     public $children;
 
@@ -36,6 +39,7 @@ class BlockDefinition
      * @param BlockCategory $category
      * @param bool $isRequired
      * @param array $requiredVars
+     * @param string $defaultContent
      * @param array $children
      */
     public function __construct(
@@ -45,6 +49,7 @@ class BlockDefinition
         $category = null,
         $isRequired = true,
         $requiredVars = [],
+        $defaultContent = '',
         $children = []
     ) {
         // Fallback para valor default de enum/objeto caso venha nulo
@@ -58,6 +63,7 @@ class BlockDefinition
         $this->category = $category;
         $this->isRequired = $isRequired;
         $this->requiredVars = $requiredVars;
+        $this->defaultContent = $defaultContent;
         $this->children = $children;
     }
 }

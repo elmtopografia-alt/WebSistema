@@ -140,13 +140,13 @@ class InputSanitizer
             if (is_array($value)) {
                 $sanitized[$safeKey] = self::array($value, $type);
             } else {
-                $sanitized[$safeKey] = match($type) {
-                    'html' => self::html((string)$value),
-                    'plain' => self::plain((string)$value),
-                    'int' => self::int($value),
-                    'float' => self::float($value),
-                    default => self::html((string)$value)
-                };
+                switch($type) {
+                    case 'html': $sanitized[$safeKey] = self::html((string)$value); break;
+                    case 'plain': $sanitized[$safeKey] = self::plain((string)$value); break;
+                    case 'int': $sanitized[$safeKey] = self::int($value); break;
+                    case 'float': $sanitized[$safeKey] = self::float($value); break;
+                    default: $sanitized[$safeKey] = self::html((string)$value); break;
+                }
             }
         }
         return $sanitized;

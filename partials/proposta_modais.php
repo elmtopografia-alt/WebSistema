@@ -37,51 +37,52 @@
 
 <!-- MODAL NOVO CLIENTE -->
 <div class="modal" id="modalNovoCliente">
-    <div class="modal-dialog glass">
-        <div class="modal-header" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(59, 130, 246, 0.1)); border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <h5 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: #fff;">
-                <i class="bi bi-person-plus-fill text-orange-400"></i> Novo Cliente
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h5 style="margin: 0; font-size: 1.125rem; font-weight: 700;">
+                <i class="bi bi-person-plus-fill"></i> Novo Cliente
             </h5>
-            <button type="button" class="btn-close-modal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+            <button type="button" class="btn-close-modal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
-        <div class="modal-body" style="padding: 1.5rem;">
+        <div class="modal-body">
             <form id="form-novo-cliente">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="acao" value="criar_ajax">
 
                 <div class="form-row cols-2">
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" style="color: #94a3b8;">Nome completo *</label>
-                        <input type="text" name="nome_cliente" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" required placeholder="Digite o nome completo">
+                        <label class="form-label">Nome completo *</label>
+                        <input type="text" name="nome_cliente" class="form-control" required placeholder="Digite o nome completo" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" style="color: #94a3b8;">Empresa (Opcional)</label>
-                        <input type="text" name="empresa" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" placeholder="Nome da empresa">
+                        <label class="form-label">Empresa (Opcional)</label>
+                        <input type="text" name="empresa" class="form-control" placeholder="Nome da empresa" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="color: #94a3b8;">CPF/CNPJ</label>
-                        <input type="text" name="cnpj_cpf" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" placeholder="000.000.000-00">
+                        <label class="form-label">CPF/CNPJ</label>
+                        <input type="text" name="cnpj_cpf" class="form-control" placeholder="000.000.000-00" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="color: #94a3b8;">E-mail</label>
-                        <input type="email" name="email" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" placeholder="email@exemplo.com">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" name="email" class="form-control" placeholder="email@exemplo.com" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="color: #94a3b8;">Celular *</label>
-                        <input type="tel" name="celular" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" placeholder="(31) 99999-9999" required>
+                        <label class="form-label">Celular *</label>
+                        <input type="tel" name="celular" class="form-control" placeholder="(31) 99999-9999" required autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="color: #94a3b8;">Telefone fixo</label>
-                        <input type="tel" name="telefone" class="form-control" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" placeholder="(31) 3333-3333">
+                        <label class="form-label">Telefone fixo</label>
+                        <input type="tel" name="telefone" class="form-control" placeholder="(31) 3333-3333" autocomplete="off">
                     </div>
                 </div>
             </form>
         </div>
-        <div class="modal-footer" style="padding: 1.25rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: flex-end; gap: 0.75rem;">
-            <button type="button" class="btn btn-outline btn-close-modal" style="border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; background: transparent;">Cancelar</button>
-            <button type="button" class="btn btn-success" id="btn-salvar-cliente" style="background: #10b981; border: none; font-weight: 600;">
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-close-modal">Cancelar</button>
+            <button type="button" class="btn btn-success" id="btn-salvar-cliente">
                 <i class="bi bi-check-lg"></i> Salvar Cliente
             </button>
         </div>
     </div>
 </div>
+

@@ -20,29 +20,60 @@ class DatabaseStructureLoader
     }
 
     /**
-     * Carrega a estrutura completa do banco de dados.
+     * Carrega a estrutura completa do banco de dados, incluindo conteúdos específicos.
+     * Prioriza service_type_blocks (especializado) e usa proposal_block_templates como fallback.
      * 
+     * @param int $serviceTypeId ID da modalidade da proposta
      * @return BlockDefinition[] Array de blocos raiz
      */
-    public function loadActiveStructure()
+    public function loadActiveStructure($serviceTypeId = 0)
     {
-        // 1. Buscar todos os templates ativos
-        $sql = "SELECT * FROM proposal_block_templates WHERE is_active = 1 ORDER BY id ASC";
+        $serviceTypeId = intval($serviceTypeId);
+        $blocks = [];
+
+        // 1. Tentar carregar da tabela especializada
+        if ($serviceTypeId > 0) {
+            $sql = "SELECT * FROM service_type_blocks 
+                    WHERE service_type_id = $serviceTypeId AND is_active = 1 
+                    ORDER BY display_order ASC";
+            $result = $this->mysqli->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $allowedVars = !empty($row['allowed_vars']) ? json_decode($row['allowed_vars'], true) : [];
+                    if (!is_array($allowedVars)) $allowedVars = [];
+
+                    // Mapeamento de categoria -> level sugerido (Heurística)
+                    $level = ($row['category'] == 'layout') ? 'root' : 'section';
+
+                    $block = new BlockDefinition(
+                        $row['block_slug'],
+                        $row['block_title'],
+                        $level,
+                        $row['category'],
+                        (bool)$row['is_required'],
+                        $allowedVars,
+                        $row['default_content'],
+                        []
+                    );
+                    $blocks[] = $block;
+                }
+                $result->free();
+                return $blocks;
+            }
+        }
+
+        // 2. Fallback para a tabela genérica (original)
+        $sql = "SELECT * FROM proposal_block_templates WHERE is_active = 1 ORDER BY `order` ASC";
         $result = $this->mysqli->query($sql);
 
         if (!$result) {
             throw new \Exception("Erro ao carregar templates: " . $this->mysqli->error);
         }
 
-        $blocks = [];
-
-        // 2. Hidratar objetos (MySQLi way)
         while ($row = $result->fetch_assoc()) {
             $json = json_decode($row['default_content_json'], true);
-
-            // Garantir defaults caso JSON falhe/esteja vazio
             $level = isset($json['level']) ? $json['level'] : 'root';
-            // Conversão forçada de string "1"/"0" para boolean
             $isRequired = isset($json['is_required']) ? (bool)$json['is_required'] : true;
             $allowedVars = isset($json['allowed_vars']) ? $json['allowed_vars'] : [];
 
@@ -53,30 +84,22 @@ class DatabaseStructureLoader
                 $row['category'],
                 $isRequired,
                 $allowedVars,
+                '', // Sem conteúdo padrão nesta tabela
                 []
             );
-
             $blocks[] = $block;
         }
-
-        $result->free(); // Liberar memória
+        $result->free();
 
         return $blocks;
     }
 
     /**
      * Converte os blocos carregados do banco em um "Modelo Virtual"
-     * para ser usado pelo validador e visualizador existente.
      */
-    /**
-     * Converte os blocos carregados do banco em um "Modelo Virtual"
-     * para ser usado pelo validador e visualizador existente.
-     */
-    public function getVirtualModel()
+    public function getVirtualModel($serviceTypeId = 0)
     {
-        $blocks = $this->loadActiveStructure();
-
-        // Retorna uma instância da classe concreta, compatível com PHP 5.6
+        $blocks = $this->loadActiveStructure($serviceTypeId);
         return new \ProposalArchitect\Models\DynamicProposalModel($blocks);
     }
 }

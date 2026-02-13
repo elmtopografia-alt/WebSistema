@@ -43,6 +43,7 @@ class HierarchyTreeBuilder
                 'level' => $levelName,
                 'category' => $block->category,
                 'required' => $block->isRequired,
+                'default_content' => $block->defaultContent,
                 'children' => []
             ];
 

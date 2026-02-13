@@ -1,0 +1,16 @@
+# REGRAS CRÍTICAS - ELM TOPOGRAFIA (SGT)
+
+## 🌎 AMBIENTE ÚNICO E OBRIGATÓRIO
+- **SEM SERVIDOR LOCAL:** Este projeto NÃO possui Apache/Nginx local.
+- **SEM BANCO LOCAL:** O MySQL nunca é 'localhost'. Use as credenciais de IP externo do `db.php`.
+- **DOMÍNIO:** Tudo acontece em `https://elmtopografia.com.br/Orcamento`.
+- **SINCRONIZAÇÃO:** O upload SFTP é instantâneo. Confie nos arquivos locais como espelho do servidor.
+
+## 🛡️ PROTOCOLO DE SEGURANÇA E BANCO
+- **NÃO TENTE CONEXÃO DIRETA:** A IA não consegue conectar via terminal ao banco remoto da Locaweb.
+- **DIAGNÓSTICO:** Para ver dados do banco, crie um arquivo `.php` de diagnóstico, salve-o (ele subirá via SFTP) e peça ao usuário para executá-lo no navegador.
+- **LEI ANTI-DOWNGRADE:** Nunca substitua o tema SGT (Dark/Glassmorphism) por padrões genéricos.
+
+## 🛠️ INSTRUÇÃO DE PARTIDA
+- SEMPRE leia `.agent/GEMINI.md` antes de qualquer alteração estrutural.
+- Em caso de erro persistente, REVERTA e analise via logs PHP no servidor.

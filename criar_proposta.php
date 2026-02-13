@@ -176,6 +176,7 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" media="print" onload="this.media='all'">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
     <div class="ambient-glow"></div>
@@ -281,6 +282,7 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     <script src="assets/js/costs-manager.js?v=<?= time() ?>"></script>
     <script src="assets/js/autosave.js?v=<?= time() ?>"></script>
     <script src="assets/js/proposta.js?v=<?= time() ?>"></script>
+    
 
 </body>
 </html>
