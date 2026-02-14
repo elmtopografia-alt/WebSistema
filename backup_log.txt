@@ -1131,3 +1131,51 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-02-12 18:00:04] Backup conclu√≠do com sucesso.
 [2026-02-13 18:00:03] Iniciando backup...
+[2026-02-13 18:00:03] GIT ADD: git : warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-02-13 18:00:03] GIT COMMIT: [main 9c720a5] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-13 18:00:03
+ 46 files changed, 3207 insertions(+), 188 deletions(-)
+ create mode 100644 .cursorrules
+ create mode 100644 assets/js/maps-integration.js
+ create mode 100644 checar_blocos_por_servico.php
+ create mode 100644 checar_colunas_banco.php
+ create mode 100644 check_table_cols.php
+ create mode 100644 colunas_servico_blocos.php
+ create mode 100644 colunas_variacao.php
+ create mode 100644 debug_variaveis.php
+ create mode 100644 diagnostico_link.php
+ create mode 100644 diagnostico_p117.php
+ create mode 100644 diagnostico_real_variacoes.php
+ create mode 100644 diagnostico_servicos.php
+ create mode 100644 diagnostico_tabelas.php
+ create mode 100644 diagnostico_templates.php
+ create mode 100644 diagnostico_variacoes.php
+ create mode 100644 diagnostico_variantes_7.php
+ create mode 100644 final_id_check.php
+ create mode 100644 fix_demo_db.php
+ create mode 100644 modelos_prod/.~lock.ModeloPropostaDrone.docx#
+ create mode 100644 povoar_conteudos.php
+ create mode 100644 teste_povoar.php
+ create mode 100644 teste_sessao.php
+ create mode 100644 teste_visualizacao_html.php
+ create mode 100644 teste_visualizacao_real.php
+ create mode 100644 update_drone_resources.php
+ create mode 100644 update_drone_templates.php
+
+[2026-02-13 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   6a5f907..9c720a5  main -> main
+
+[2026-02-13 18:00:03] Backup conclu√≠do com sucesso.
+[2026-02-14 18:00:05] Iniciando backup...

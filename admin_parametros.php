@@ -445,11 +445,11 @@ $arquivos_demo = listarArquivos('modelos_demo');
                                 <tbody class="divide-y divide-white/5">
                                     <?php foreach($servicos as $s): ?>
                                     <tr class="group hover:bg-white/5 transition-colors">
-                                        <td class="py-3 text-white font-medium"><?php echo $s['nome']; ?></td>
-                                        <td class="py-3 text-slate-400 text-xs"><?php echo substr($s['descricao'], 0, 40); ?>...</td>
+                                        <td class="py-3 text-white font-medium"><?php echo htmlspecialchars($s['nome'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="py-3 text-slate-400 text-xs"><?php echo htmlspecialchars(substr($s['descricao'], 0, 40), ENT_QUOTES, 'UTF-8'); ?>...</td>
                                         <td class="py-3 text-right">
                                             <?php if($is_admin): ?>
-                                            <button onclick="editServico(<?php echo $s['id_servico']; ?>, '<?php echo $s['nome']; ?>', '<?php echo $s['descricao']; ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
+                                            <button onclick="editServico(<?php echo $s['id_servico']; ?>, '<?php echo htmlspecialchars($s['nome'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($s['descricao'], ENT_QUOTES, 'UTF-8'); ?>')" class="text-slate-400 hover:text-brand-accent mr-2"><i class="ph ph-pencil-simple"></i></button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Excluir?');">
                                                 <input type="hidden" name="acao" value="del_servico"><input type="hidden" name="id" value="<?php echo $s['id_servico']; ?>">
                                                 <button class="text-slate-400 hover:text-red-400"><i class="ph ph-trash"></i></button>

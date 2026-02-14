@@ -1,8 +1,9 @@
 <?php
 
 /**
- * GERADOR DE DOCUMENTO HTML (Para impressão/PDF)
- * Renderiza a proposta em HTML limpo baseando-se nos dados do POST.
+ * GERADOR DE DOCUMENTO HTML PREMIUM (Para impressão/PDF)
+ * Renderiza a proposta em HTML elegante baseando-se nos dados do POST.
+ * Design premium com tipografia Inter + cores harmonizadas.
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -18,16 +19,13 @@ function formatarMoeda($valor)
     if (empty($valor)) return 'R$ 0,00';
     if (is_string($valor)) {
         if (strpos($valor, 'R$') === 0) {
-            // Se já tem R$, remove para garantir formatação limpa (evita R$ R$ 2.000,00)
             $valor = str_replace(['R$', ' '], '', $valor);
         } else {
             $valor = str_replace(['R$', ' '], '', $valor);
         }
-
-        // Se tiver vírgula, trata como decimal brasileiro
         if (strpos($valor, ',') !== false) {
-            $valor = str_replace('.', '', $valor); // Remove milhar
-            $valor = str_replace(',', '.', $valor); // Troca decimal
+            $valor = str_replace('.', '', $valor);
+            $valor = str_replace(',', '.', $valor);
         }
     }
     return 'R$ ' . number_format(floatval($valor), 2, ',', '.');
@@ -36,18 +34,9 @@ function formatarMoeda($valor)
 function dataPorExtenso()
 {
     $meses = [
-        1 => 'janeiro',
-        2 => 'fevereiro',
-        3 => 'março',
-        4 => 'abril',
-        5 => 'maio',
-        6 => 'junho',
-        7 => 'julho',
-        8 => 'agosto',
-        9 => 'setembro',
-        10 => 'outubro',
-        11 => 'novembro',
-        12 => 'dezembro'
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
     ];
     $dia = date('d');
     $mes = $meses[intval(date('m'))];
@@ -135,7 +124,7 @@ if (empty($empresa)) {
 }
 
 // Logo Logic
-$logo = 'assets/logo_sgt.png'; // Default
+$logo = 'assets/logo_sgt.png';
 if (!empty($empresa['logo_caminho']) && file_exists($empresa['logo_caminho'])) {
     $logo = $empresa['logo_caminho'];
 }
@@ -156,6 +145,7 @@ $vars = [
     'cidade_obra' => $dados['cidade_obra'] ?? '',
     'estado_obra' => $dados['estado_obra'] ?? '',
     'area_obra' => $dados['area_obra'] ?? '',
+    'unidade_area' => $dados['unidade_area'] ?? 'm²',
     'tipo_levantamento' => $dados['tipo_levantamento'] ?? '',
 
     // Técnico
@@ -163,14 +153,16 @@ $vars = [
     'escopo_servico' => isset($dados['escopo_content']) ? nl2br($dados['escopo_content']) : '',
 
     // Equipamentos
-    'Veiculo' => $dados['veiculo'] ?? '',
-    'Estacao_Total' => $dados['estacao_total'] ?? '',
-    'Drone' => $dados['drone'] ?? '',
+    'Veiculo' => $dados['veiculo'] ?? ($dados['equipamentos_veiculo_content'] ?? ''),
+    'Estacao_Total' => $dados['estacao_total'] ?? ($dados['equipamentos_estacao_total_content'] ?? ''),
+    'Drone' => $dados['drone'] ?? ($dados['equipamentos_drone_content'] ?? ''),
 
     // Financeiro
     'ValorProposta' => formatarMoeda($dados['valor_proposta'] ?? 0),
     'ValorExtenso' => $dados['valor_extenso'] ?? valorPorExtenso($dados['valor_proposta'] ?? 0),
     'prazo_execucao' => $dados['prazo_execucao'] ?? '',
+    'dias_campo' => $dados['dias_campo'] ?? '0',
+    'dias_escritorio' => $dados['dias_escritorio'] ?? '0',
 
     'mobilizacao_percentual' => $dados['mobilizacao_percentual'] ?? '',
     'mobilizacao_valor' => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
@@ -193,21 +185,20 @@ $vars = [
     'DExrenso' => dataPorExtenso(),
     'DataExtenso' => dataPorExtenso(),
 
-    // Variáveis Dinâmicas de Drone/Campo (Solicitadas pelo usuário)
+    // Variáveis Dinâmicas de Drone/Campo
     'ClienteCidadeUF' => ($dados['cidade_obra'] ?? '') . '-' . ($dados['estado_obra'] ?? ''),
     'TipoTerreno' => $dados['tipo_terreno'] ?? '',
     'CoberturaVegetal' => $dados['cobertura_vegetal'] ?? '',
     'AcessoLocal' => $dados['acesso_local'] ?? '',
     'RestricoesAereas' => $dados['restricoes_aereas'] ?? '',
 
-    // Fallbacks para variáveis aninhadas que podem não existir no POST direto
-    'escopo_servico' => '', // Remove placeholder recursivo
+    // Fallbacks
+    'escopo_servico' => '',
 ];
 
 // Limpeza de placeholders não encontrados
 foreach ($dados as $k => $v) {
-    // Se o próprio texto contém o placeholder dele mesmo, remove para evitar loop ou exibição feia
-    if (strpos($v, '${' . $k . '}') !== false) {
+    if (is_string($v) && strpos($v, '${' . $k . '}') !== false) {
         $dados[$k] = str_replace('${' . $k . '}', '', $v);
     }
 }
@@ -216,7 +207,6 @@ foreach ($dados as $k => $v) {
 function substituir($texto, $vars)
 {
     foreach ($vars as $chave => $valor) {
-        // str_ireplace para suportar ${Empresa} e ${empresa} indiferente da caixa
         $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
     }
     return $texto;
@@ -229,176 +219,352 @@ function substituir($texto, $vars)
 <head>
     <meta charset="UTF-8">
     <title>Proposta <?= str_replace('/', '-', $vars['numero_proposta']) ?> - <?= $vars['nome_cliente_salvo'] ?></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand: #b45f06;
+            --brand-light: #d4a574;
+            --brand-bg: #fdf8f3;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a68;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --surface: #f8fafc;
+            --accent-green: #059669;
+            --accent-blue: #2563eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #525659;
-            /* Fundo cinza PDF viewer style */
             margin: 0;
             padding: 20px;
+            font-size: 11pt;
+            line-height: 1.7;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
         }
 
         .page {
             background: white;
             width: 21cm;
             min-height: 29.7cm;
-            padding: 2cm;
+            padding: 2cm 2.2cm;
             margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
             position: relative;
-            box-sizing: border-box;
+            border-radius: 2px;
         }
 
         @media print {
-            body {
-                background: none;
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact;
-            }
-
-            .page {
-                width: 100%;
-                box-shadow: none;
-                margin: 0;
-                padding: 2cm;
-                border: none;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            /* Evitar quebra de página dentro de blocos se possível */
-            .bloco-secao,
-            table,
-            tr,
-            li,
-            h2,
-            h3 {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-
-            /* Evitar quebra logo após título */
-            h1,
-            h2,
-            h3 {
-                page-break-after: avoid;
-                break-after: avoid;
-            }
-
-            /* Footer sempre no final da folha se couber, ou na próxima */
-            .footer {
-                page-break-inside: avoid;
-            }
+            body { background: none; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page { width: 100%; box-shadow: none; margin: 0; padding: 2cm; border: none; border-radius: 0; }
+            .no-print { display: none !important; }
+            .bloco-secao, table, tr, li, h2, h3 { page-break-inside: avoid; break-inside: avoid; }
+            h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+            .footer { page-break-inside: avoid; }
         }
 
-        /* Estilos do Documento */
-        h1,
-        h2,
-        h3 {
-            color: #1e293b;
-        }
-
-        h1 {
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            font-size: 16pt;
-            text-transform: uppercase;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-        }
+        /* === TYPOGRAPHY === */
+        h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
 
         h2 {
-            font-size: 14pt;
-            margin-top: 30px;
-            border-bottom: 1px solid #e2e8f0;
-            color: #334155;
+            font-size: 12pt;
+            color: var(--brand);
+            margin-top: 28px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--brand-light);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            font-weight: 600;
         }
 
-        p,
-        li,
-        td {
-            line-height: 1.6;
-            color: #334155;
-            font-size: 11pt;
+        h3 { font-size: 11pt; color: var(--text-primary); margin-top: 20px; margin-bottom: 8px; }
+
+        p, li, td { line-height: 1.7; color: var(--text-secondary); font-size: 10.5pt; }
+
+        strong { color: var(--text-primary); font-weight: 600; }
+
+        /* === HEADER === */
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid var(--brand);
+            margin-bottom: 24px;
         }
 
-        .header {
+        .header-logo img {
+            max-height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-title {
+            flex: 1;
             text-align: right;
-            color: #64748b;
-            font-size: 10pt;
-            margin-bottom: 50px;
         }
 
-        /* Tabelas Simples */
+        .header-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20pt;
+            color: var(--brand);
+            margin: 0;
+            border: none;
+            padding: 0;
+            line-height: 1.2;
+            letter-spacing: 0.03em;
+        }
+
+        .header-title .subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 10pt;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* === META ROW === */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            font-size: 10pt;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .meta-row .numero {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--brand);
+            font-size: 10.5pt;
+            letter-spacing: 0.02em;
+        }
+
+        /* === INFO CARDS === */
+        .info-cards {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .info-card {
+            flex: 1;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            border-left: 3px solid var(--brand);
+        }
+
+        .info-card-title {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--brand);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 10pt;
+            margin-bottom: 2px;
+            color: var(--text-secondary);
+        }
+
+        .info-card .label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* === TABLES === */
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 12px 0 20px 0;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
         }
 
-        th,
-        td {
-            border: 1px solid #cbd5e1;
-            padding: 8px;
+        th, td {
+            padding: 10px 14px;
             text-align: left;
+            font-size: 10pt;
+            border-bottom: 1px solid var(--border-light);
         }
 
         th {
-            background-color: #f1f5f9;
-            color: #1e293b;
+            background: var(--text-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: none;
         }
 
-        .page-container {
-            /* min-height: 100vh; */
-            /* display: flex; */
-            /* flex-direction: column; */
-            /* Removido comportamento sticky para assinatura ficar junto ao texto */
-            display: block;
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: var(--surface); }
+
+        td strong { color: var(--brand); }
+
+        /* === CRONOGRAMA MINI CARDS === */
+        .cronograma-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 12px 0 16px 0;
         }
 
-        .content-wrap {
-            /* flex: 1; */
-        }
-
-        .footer {
-            margin-top: 30px;
-            /* Reduzido de 50px */
-            padding-top: 0;
-            border-top: none;
-            /* Removida linha divisória */
+        .crono-card {
             text-align: center;
-            font-size: 10pt;
-            color: #555;
+            padding: 14px 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .crono-card .crono-value {
+            font-size: 18pt;
+            font-weight: 700;
+            color: var(--brand);
+            line-height: 1;
+        }
+
+        .crono-card .crono-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* === INVESTMENT HIGHLIGHT === */
+        .invest-box {
+            background: linear-gradient(135deg, var(--brand-bg), #fff);
+            border: 2px solid var(--brand);
+            border-radius: 10px;
+            padding: 20px 24px;
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .invest-box .invest-label {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .invest-box .invest-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            font-weight: 700;
+            color: var(--brand);
+            line-height: 1.2;
+        }
+
+        .invest-box .invest-extenso {
+            font-size: 9.5pt;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* === EQUIPAMENTOS LIST === */
+        ul.equip-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        ul.equip-list li {
+            padding: 8px 14px;
+            border-left: 3px solid var(--brand-light);
+            margin-bottom: 6px;
+            background: var(--surface);
+            border-radius: 0 6px 6px 0;
+            font-size: 10.5pt;
+        }
+
+        ul.equip-list li strong { color: var(--text-primary); }
+
+        /* === SEÇÃO BLOCO === */
+        .bloco-secao {
+            margin-bottom: 20px;
             page-break-inside: avoid;
         }
 
+        .bloco-secao p, .bloco-secao div { font-size: 10.5pt; color: var(--text-secondary); line-height: 1.7; }
+        .bloco-secao ul, .bloco-secao ol { padding-left: 20px; margin: 8px 0; }
+        .bloco-secao li { margin-bottom: 4px; }
+
+        /* === FOOTER === */
+        .footer {
+            margin-top: 40px;
+            padding-top: 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .footer .atenciosamente {
+            font-size: 10.5pt;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 50px;
+        }
+
+        .footer .assinatura-linha {
+            width: 55%;
+            border-top: 1px solid var(--text-primary);
+            margin: 0 auto 10px auto;
+        }
+
+        .footer .empresa-info {
+            font-size: 9.5pt;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* === FAB BUTTON === */
         .btn-fab {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #2563eb;
+            background: var(--brand);
             color: white;
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(180, 95, 6, 0.35);
             text-decoration: none;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
             border: none;
             z-index: 1000;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .btn-fab:hover {
-            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(180, 95, 6, 0.45);
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -413,299 +579,268 @@ function substituir($texto, $vars)
 
     <div class="page page-container">
         <div class="content-wrap">
+
             <!-- HEADER COM LOGO -->
-            <!-- HEADER COM LOGO -->
-            <!-- HEADER COM LOGO -->
-            <div class="header-container" style="display: flex; justify-content: flex-start; align-items: center; gap: 20px; margin-bottom: 40px; border-bottom: 3px solid #b45f06; padding-bottom: 15px;">
-                <div style="flex: 0 0 auto;">
+            <div class="header-container">
+                <div class="header-logo">
                     <?php if (file_exists($logo)): ?>
-                        <!-- Aumentado para 100px conforme preferência por destaque -->
-                        <img src="<?= $logo ?>" alt="Logo" style="max-height: 100px; width: auto; object-fit: contain; display: block;">
+                        <img src="<?= $logo ?>" alt="Logo">
                     <?php else: ?>
-                        <!-- Fallback visual mais robusto -->
-                        <div style="font-size: 24px; font-weight: bold; color: #b45f06; border: 2px dashed #b45f06; padding: 10px;">LOGO AQUI</div>
+                        <div style="font-size: 20px; font-weight: bold; color: var(--brand); border: 2px dashed var(--brand); padding: 12px;">LOGO</div>
                     <?php endif; ?>
                 </div>
-                <div style="flex: 1; text-align: right; color: #b45f06;">
-                    <h1 style="margin: 0; font-size: 16pt; border: none; padding: 0; font-family: Arial, sans-serif; font-weight: bold; line-height: 1.2;">
-                        PROPOSTA TÉCNICA<br>
-                        <span style="font-size: 12pt; color: #333; font-weight: normal;"><?= strtoupper($vars['tipo_levantamento']) ?></span>
-                    </h1>
+                <div class="header-title">
+                    <h1>Proposta Técnica</h1>
+                    <div class="subtitle"><?= $vars['tipo_levantamento'] ?></div>
                 </div>
             </div>
 
-            <!-- CITY/DATE & NUMBER ROW -->
-            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; font-weight: normal; color: #000; font-size: 1.2em; text-transform: uppercase;">
-                <div>
-                    <?= strtoupper($vars['Cidade']) ?>, <?= strtoupper($vars['DataExtenso']) ?>
-                </div>
-                <div>
-                    Nº: <?= $vars['numero_proposta'] ?>
-                </div>
+            <!-- CIDADE/DATA & NÚMERO -->
+            <div class="meta-row">
+                <div><?= $vars['Cidade'] ?>, <?= $vars['DataExtenso'] ?></div>
+                <div class="numero">Nº <?= $vars['numero_proposta'] ?></div>
             </div>
-
-            <!-- TÍTULO -->
-            <!-- <h1>PROPOSTA DE SERVIÇOS</h1> -->
-            <!-- O usuário preferiu o título vindo do texto, removido daqui para evitar duplicação -->
 
             <!-- DADOS CLIENTE E OBRA -->
-            <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-                <div style="flex: 1; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                    <strong>DADOS DO CLIENTE</strong><br>
-                    Nome: <?= $vars['nome_cliente_salvo'] ?><br>
-                    E-mail: <?= $vars['email_salvo'] ?><br>
-                    Telefone: <?= $vars['telefone_salvo'] ?>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-title">Dados do Cliente</div>
+                    <p><span class="label">Nome:</span> <?= $vars['nome_cliente_salvo'] ?></p>
+                    <p><span class="label">E-mail:</span> <?= $vars['email_salvo'] ?></p>
+                    <p><span class="label">Telefone:</span> <?= $vars['telefone_salvo'] ?></p>
+                    <?php if (!empty($vars['celular_salvo'])): ?>
+                    <p><span class="label">WhatsApp:</span> <?= $vars['celular_salvo'] ?></p>
+                    <?php endif; ?>
                 </div>
-                <div style="flex: 1; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                    <strong>LOCAL DA OBRA</strong><br>
-                    <?= $vars['endereco_obra'] ?><br>
-                    <?= $vars['bairro_obra'] ?> - <?= $vars['cidade_obra'] ?>/<?= $vars['estado_obra'] ?><br>
-                    <strong>Área:</strong> <?= $vars['area_obra'] ?><br>
-                    <strong>Serviço:</strong> <?= $vars['tipo_levantamento'] ?>
+                <div class="info-card">
+                    <div class="info-card-title">Local da Obra</div>
+                    <p>● <span class="label">Endereço:</span> <?= $vars['endereco_obra'] ?></p>
+                    <p>● <span class="label">Bairro:</span> <?= $vars['bairro_obra'] ?></p>
+                    <p>● <span class="label">Cidade/Estado:</span> <?= $vars['cidade_obra'] ?> - <?= $vars['estado_obra'] ?></p>
+                    <p>● <span class="label">Área Estimada:</span> <?= $vars['area_obra'] ?> <?= $vars['unidade_area'] ?></p>
                 </div>
             </div>
 
             <!-- CONTEÚDO DINÂMICO (Vindo dos Blocos) -->
             <?php
-            // Recupera os textos dos inputs
-            $campos_texto = [
-                'apresentacao_content',
-                'finalidade_content', // Se existir, ou usa variáveis
-                'escopo_content',
-                'documentacao_content',
-                'metodologia_content',
-                'cronograma_obs', // Texto extra do cronograma
-                'investimento_texto', // Texto extra
-                'condicoes_texto',
-                'consideracoes_content'
-            ];
-
-            // Ordem de apresentação manual para garantir aderência ao modelo do usuário
-
             // Função para exibir bloco com título unificado
             function renderBloco($tituloOpicional, $texto, $vars, $debugName = '')
             {
-                // Remove o título do texto se ele já estiver lá (para evitar duplicação)
                 $textoClean = trim($texto);
                 if ($tituloOpicional) {
-                    // Regex mais flexível para espaços e caracteres invisíveis
                     $pattern = '/^' . preg_quote($tituloOpicional, '/') . '[:\s-]*/iu';
                     $textoClean = preg_replace($pattern, '', $textoClean);
                 }
-                // Remove marcadores de etapa duplicados se o título já os cobre (ajuste fino)
                 $textoClean = preg_replace('/^(\d+\.\s+)/', '', $textoClean);
 
-                // 1. Substitui variáveis
                 $conteudo = substituir($textoClean, $vars);
-
-                // 2. Remove placeholders residuais
                 $conteudo = str_replace('${escopo_servico}', '', $conteudo);
 
-                // 3. Aplica Limpezas no TEXTO PLANO (antes do nl2br)
-
-                // --- NORMALIZAÇÃO CRÍTICA PARA LIMPEZA ---
-                // Decodifica entidades HTML e remove caracteres invisíveis
+                // Limpezas de texto
                 $conteudo = html_entity_decode($conteudo);
                 $conteudo = str_replace(["\xc2\xa0", "&nbsp;"], ' ', $conteudo);
                 $conteudo = trim($conteudo);
-                // -----------------------------------------
-
-                // Remove linhas de assinatura (ex: _________)
                 $conteudo = preg_replace('/_+/', '', $conteudo);
 
-                // Remove COMBINAÇÃO: Empresa + [quebras] + Atenciosamente (Caso esteja no meio do bloco)
-                // Isso pega o caso específico que o usuário relatou
-
-                // "LINE KILLER": Remove qualquer linha que contenha o nome da empresa se logo abaixo vier "Atenciosamente"
-                // AGORA SUPORTA TAGS HTML E QUEBRAS DE LINHA MISTAS
-
-                // Padrão de quebra flexível: aceita \n, \r, espaços, <br>, <p>, </div>
                 $quebraPattern = '(?:[\r\n\s]|<br\s*\/?>|<\/p>|<p>|<div>|<\/div>)+';
-
-                // Opção A: GeoMetrópole Hardcoded
-                $conteudo = preg_replace('/GeoMetr[óo]pole.*?' . $quebraPattern . 'Atenciosamente/usi', 'Atenciosamente', $conteudo);
-
-                // Opção B: Nome da Empresa Variável
                 $empresaRegex = preg_quote(trim($vars['Empresa']), '/');
+                $conteudo = preg_replace('/GeoMetr[óo]pole.*?' . $quebraPattern . 'Atenciosamente/usi', 'Atenciosamente', $conteudo);
                 $conteudo = preg_replace('/' . $empresaRegex . '.*?' . $quebraPattern . 'Atenciosamente/usi', 'Atenciosamente', $conteudo);
-
-                // Limpeza residual (caso tenha sobrado apenas o nome no final)
                 $conteudo = preg_replace('/' . $empresaRegex . '[\s\.\-,]*$/ui', '', $conteudo);
-
-                // Remove "Atenciosamente" solto (Case Insensitive, com pontuação opcional)
                 $conteudo = preg_replace('/Atenciosamente[\.,\s]*/ui', '', $conteudo);
-
-                // Remove nome da empresa e cidade APENAS se estiverem no final (assinatura duplicada)
                 $conteudo = trim($conteudo);
-
-                // Regex 1: Tenta remover a variável da empresa exata no final
                 $conteudo = preg_replace('/' . $empresaRegex . '[\s\.\-,]*$/ui', '', $conteudo);
                 $conteudo = trim($conteudo);
-
-                // Regex 2: Fallback explícito para variações comuns no final
                 $conteudo = preg_replace('/GeoMetr[óo]pole\s+Engenharia\s+e\s+Topografia(\s+Ltda)?[\s\.\-,]*$/ui', '', $conteudo);
                 $conteudo = trim($conteudo);
-
                 $conteudo = preg_replace('/' . preg_quote($vars['Cidade'], '/') . '[\s\.\-]*$/u', '', $conteudo);
                 $conteudo = preg_replace('/' . preg_quote(strtoupper($vars['Cidade']), '/') . '[\s\.\-]*$/u', '', $conteudo);
                 $conteudo = trim($conteudo);
-
-                // Limpeza Específica para Condições de Pagamento (Remover cabeçalho de tabela texto plano)
                 $conteudo = preg_replace('/ETAPA\s*\|\s*%\s*\|\s*VALOR/i', '', $conteudo);
-
-                // Limpeza de R$ duplicado
                 $conteudo = str_replace('R$ R$', 'R$', $conteudo);
-
-                // 4. Formatações Finais
                 $conteudo = preg_replace('/(Etapa \d+:)/i', '<strong>$1</strong>', $conteudo);
 
-                // Converte quebras de linha em HTML por último, APENAS se não for HTML rico
-                // (Detecta tags de bloco comuns do TinyMCE: <p>, <div>, <ul>, <ol>)
                 if (strpos($conteudo, '<p') === false && strpos($conteudo, '<div') === false && strpos($conteudo, '<ul') === false) {
                     $conteudo = nl2br($conteudo);
                 }
 
-                echo "<div class='bloco-secao next-step-item' style='margin-bottom: 20px; page-break-inside: avoid;'>";
-                // Se o texto for muito curto ou vazio (só quebras de linha), não exibe nada
+                echo "<div class='bloco-secao'>";
                 if (strlen(trim(strip_tags($texto))) > 3) {
-                    // Sempre exibe o título formatado corretamente
                     echo "<h2>{$tituloOpicional}</h2>";
                     echo $conteudo;
                 }
                 echo "</div>";
             }
 
-            // 1. Apresentação
+            // === 1. APRESENTAÇÃO ===
             $txtApresentacao = $dados['apresentacao_content'] ?? '';
-
-            // 1. Primeiro subtitui placeholders para garantir que o nome da empresa atual esteja no texto
             $txtApresentacao = substituir($txtApresentacao, $vars);
-
-            // 2. Tenta Limpar "Hardcoded": Se o texto ainda contiver o nome da empresa anterior (ELM) 
-            // mas o usuário for outro, podemos tentar trocar. (Opcional/Segurança)
             if ($vars['Empresa'] !== 'ELM Serviços Topográficos Ltda.' && strpos($txtApresentacao, 'ELM Serviços Topográficos Ltda.') !== false) {
                 $txtApresentacao = str_replace('ELM Serviços Topográficos Ltda.', $vars['Empresa'], $txtApresentacao);
             }
-
-            // 3. Aplica negrito com prioridade para o nome mais longo
             $variantesEmpresa = [
-                $vars['Empresa'],
-                'GeoMetrópole Engenharia e Topografia Ltda.',
-                'GeoMetrópole Engenharia e Topografia',
-                'GeoMetrópole',
-                'ELM Serviços Topográficos Ltda.', // Caso hardcoded
-                'ELM Serviços Topográficos'
+                $vars['Empresa'], 'GeoMetrópole Engenharia e Topografia Ltda.',
+                'GeoMetrópole Engenharia e Topografia', 'GeoMetrópole',
+                'ELM Serviços Topográficos Ltda.', 'ELM Serviços Topográficos'
             ];
             $variantesEmpresa = array_unique(array_filter($variantesEmpresa));
-            usort($variantesEmpresa, function ($a, $b) {
-                return mb_strlen($b) - mb_strlen($a);
-            });
-
-            $patternEmpresa = '/(' . implode('|', array_map(function ($n) {
-                return preg_quote($n, '/');
-            }, $variantesEmpresa)) . ')/u';
-
-            // Substitui apenas se ainda não estiver em negrito
+            usort($variantesEmpresa, function ($a, $b) { return mb_strlen($b) - mb_strlen($a); });
+            $patternEmpresa = '/(' . implode('|', array_map(function ($n) { return preg_quote($n, '/'); }, $variantesEmpresa)) . ')/u';
             $txtApresentacao = preg_replace($patternEmpresa, '<strong>$1</strong>', $txtApresentacao);
-
             renderBloco("1. Apresentação", $txtApresentacao, $vars);
 
-            // 2. Finalidade
-            // Prioriza o conteúdo editado (content), se não existir usa a seleção (finalidade)
-            $textoFinalidade = !empty($dados['finalidade_descricao']) ? $dados['finalidade_descricao'] : ($dados['finalidade'] ?? '');
+            // === 2. FINALIDADE ===
+            $textoFinalidade = !empty($dados['finalidade_content']) ? $dados['finalidade_content'] 
+                : (!empty($dados['finalidade_descricao']) ? $dados['finalidade_descricao'] : ($dados['finalidade'] ?? ''));
             renderBloco("2. Finalidade", $textoFinalidade, $vars);
 
-            // 3. Escopo
+            // === 3. ESCOPO ===
             $textoEscopo = $dados['escopo_content'] ?? '';
             $textoEscopo = str_replace(['3. Escopo do Serviço', '${escopo_servico}'], '', $textoEscopo);
             renderBloco("3. Escopo do Serviço", $textoEscopo, $vars);
 
-            // 4. Documentação
+            // === 4. DOCUMENTAÇÃO ===
             renderBloco("4. Documentação Gerada", $dados['documentacao_content'] ?? '', $vars);
 
-            // 5. Metodologia
+            // === 5. METODOLOGIA ===
             renderBloco("5. Metodologia", $dados['metodologia_content'] ?? '', $vars);
 
-            // 6. Equipamentos (Dinamismo para Conferência)
+            // === 6. EQUIPAMENTOS ===
             $isConferencia = stripos($vars['tipo_levantamento'] ?? '', 'Conferência') !== false;
-            $hasEquip = !empty($vars['Veiculo']) || !$isConferencia || !empty($vars['Estacao_Total']) || (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false);
+            $hasEquip = !empty($vars['Veiculo']) || !$isConferencia || !empty($vars['Estacao_Total']) 
+                        || (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false);
 
             if ($hasEquip) {
-                echo "<h3>6. Equipamentos Previstos</h3>";
-                echo "<ul>";
+                echo "<h2>6. Equipamentos Previstos</h2>";
+                echo "<ul class='equip-list'>";
                 if (!empty($vars['Veiculo'])) echo "<li><strong>Veículo:</strong> {$vars['Veiculo']}</li>";
-                
-                // Mostrar GNSS fixo apenas se NÃO for conferência (preserva padrão nos outros serviços)
-                if (!$isConferencia) {
-                    echo "<li><strong>Receptor GNSS:</strong> Par de Receptores GNSS RTK de Dupla Frequência</li>";
-                }
-                
+                if (!$isConferencia) echo "<li><strong>Receptor GNSS:</strong> Par de Receptores GNSS RTK de Dupla Frequência</li>";
                 if (!empty($vars['Estacao_Total'])) echo "<li><strong>Estação Total:</strong> {$vars['Estacao_Total']}</li>";
-                
-                // Só exibe Drone se NÃO for 'Não aplicável'
                 if (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false) {
                     echo "<li><strong>Drone:</strong> {$vars['Drone']}</li>";
                 }
                 echo "</ul>";
             }
 
-            // Ajuste de Layout: Valor em Negrito e Extenso na mesma linha entre parênteses
-            $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\$\{ValorExtenso\})/u', '<strong>$1</strong> ($2)', $investimentoTxt);
-            $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\(\$\{ValorExtenso\}\))/u', '<strong>$1</strong> $2', $investimentoTxt);
+            // === 7. CRONOGRAMA ===
+            $prazo = $vars['prazo_execucao'] ?: (intval($vars['dias_campo']) + intval($vars['dias_escritorio'])) . ' dias úteis';
+            $hasCronograma = intval($vars['dias_campo']) > 0 || intval($vars['dias_escritorio']) > 0 || !empty($dados['cronograma_content']);
+            
+            // Extrai texto de investimento do cronograma para usar no bloco 8
+            $textoInvestDoCrono = '';
+            if (!empty($dados['cronograma_content'])) {
+                $cronoRaw = $dados['cronograma_content'];
+                // Captura frases de investimento (R$ + extenso + custo-benefício)
+                if (preg_match('/(R\$\s?[\d\.,]+\s*\([^)]*reais[^)]*\))/iu', $cronoRaw, $m)) {
+                    $textoInvestDoCrono .= $m[1] . "\n";
+                }
+                if (preg_match('/(Este investimento[^.]*\.)/iu', $cronoRaw, $m)) {
+                    $textoInvestDoCrono .= $m[1];
+                }
+                if (preg_match('/(custo-benef[ií]cio[^.]*\.)/iu', $cronoRaw, $m)) {
+                    $textoInvestDoCrono .= ' ' . $m[1];
+                }
+                $textoInvestDoCrono = trim($textoInvestDoCrono);
+            }
+            
+            if ($hasCronograma) {
+                echo "<h2>7. Cronograma de Execução</h2>";
 
-            // Caso o usuário tenha salvo o texto já com os valores (sem placeholders), tenta ajustar também
-            $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*\(([^\)]+reais)\)/iu', '<strong>$1</strong> ($2)', $investimentoTxt);
-            $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*([A-Z\s]+REAIS)/u', '<strong>$1</strong> ($2)', $investimentoTxt);
-
-            renderBloco("7. Investimento", $investimentoTxt, $vars);
-
-            if (empty($dados['investimento_texto'])) {
-                // Fallback se o texto vier vazio, exibe o padrão
-                echo "<h3>7. Investimento</h3>";
-                echo "<p class='highlight' style='font-size: 1.1em; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;'>
-                  VALOR TOTAL DA PROPOSTA: <strong>{$vars['ValorProposta']}</strong> ({$vars['ValorExtenso']})</p>";
+                // Tabela de Etapas Premium
+                echo "<table>";
+                echo "<tr><th>Etapa</th><th>Descrição</th><th>Prazo Estimado</th></tr>";
+                echo "<tr><td><strong>1. Mobilização</strong></td><td>Planejamento, análise DECEA e ida a campo</td><td>Até 02 dias</td></tr>";
+                echo "<tr><td><strong>2. Campo (GCPs)</strong></td><td>Instalação de pontos de controle terrestre</td><td>01 dia</td></tr>";
+                echo "<tr><td><strong>3. Campo (Voo)</strong></td><td>Execução do voo de mapeamento</td><td>01 dia</td></tr>";
+                echo "<tr><td><strong>4. Processamento</strong></td><td>Geração da nuvem de pontos e ortomosaico</td><td>03 a 05 dias</td></tr>";
+                echo "<tr><td><strong>5. CAD/Vetorização</strong></td><td>Desenho técnico e curvas de nível</td><td>03 a 05 dias</td></tr>";
+                echo "<tr style='background: var(--surface); font-weight: 600;'><td colspan='2'><strong>TOTAL ESTIMADO</strong></td><td><strong>{$prazo}</strong></td></tr>";
+                echo "</table>";
+                
+                // Texto adicional do cronograma (sem parte de investimento)
+                if (!empty($dados['cronograma_content'])) {
+                    $cronoTexto = $dados['cronograma_content'];
+                    $cronoTexto = preg_replace('/R\$\s?[\d\.,]+\s*\([^)]*reais[^)]*\)/iu', '', $cronoTexto);
+                    $cronoTexto = preg_replace('/Este investimento[^.]*\./iu', '', $cronoTexto);
+                    $cronoTexto = preg_replace('/custo-benef[ií]cio[^.]*\./iu', '', $cronoTexto);
+                    $cronoTexto = preg_replace('/VALOR TOTAL DA PROPOSTA[^.]*\./iu', '', $cronoTexto);
+                    $cronoTexto = trim($cronoTexto);
+                    
+                    if (!empty($cronoTexto) && strlen(strip_tags($cronoTexto)) > 5) {
+                        $cronoTexto = substituir($cronoTexto, $vars);
+                        if (strpos($cronoTexto, '<p') === false) $cronoTexto = nl2br($cronoTexto);
+                        echo "<div class='bloco-secao'>{$cronoTexto}</div>";
+                    }
+                }
             }
 
-            // 8. Condições
-            // O texto do bloco Condições geralmente traz a tabela ou descrição. 
-            // Se o usuário colou texto, usamos ele. Se não, montamos a tabela.
-            $condicoesTxt = $dados['condicoes_texto'] ?? '';
-            if (!empty($condicoesTxt)) {
-                renderBloco("8. Condições de Pagamento", $condicoesTxt, $vars);
+            // === 8. INVESTIMENTO ===
+            $investimentoTxt = $dados['investimento_content'] ?? ($dados['investimento_texto'] ?? '');
+            
+            // Se tem conteúdo editado, renderiza como bloco
+            if (!empty($investimentoTxt) && strlen(trim(strip_tags($investimentoTxt))) > 5) {
+                $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\$\{ValorExtenso\})/u', '<strong>$1</strong> ($2)', $investimentoTxt);
+                $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\(\$\{ValorExtenso\}\))/u', '<strong>$1</strong> $2', $investimentoTxt);
+                $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*\(([^\)]+reais)\)/iu', '<strong>$1</strong> ($2)', $investimentoTxt);
+                renderBloco("8. Investimento", $investimentoTxt, $vars);
             } else {
-                echo "<h3>8. Condições de Pagamento</h3>";
-                echo "<table style='width: 60%;'>";
-                echo "<tr><th>Etapa</th><th>%</th><th>Valor</th></tr>";
-                echo "<tr><td>Mobilização (Aceite)</td><td><b>{$vars['mobilizacao_percentual']}%</b></td><td>{$vars['mobilizacao_valor']}</td></tr>";
-                echo "<tr><td>Entrega Final</td><td><b>{$vars['restante_percentual']}%</b></td><td>{$vars['restante_valor']}</td></tr>";
+                echo "<h2>8. Investimento</h2>";
+            }
+            
+            // Texto de investimento extraído do cronograma (antes do quadro de valor)
+            if (!empty($textoInvestDoCrono)) {
+                $textoInvestDoCrono = substituir($textoInvestDoCrono, $vars);
+                if (strpos($textoInvestDoCrono, '<p') === false) {
+                    $textoInvestDoCrono = "<p>{$textoInvestDoCrono}</p>";
+                }
+                echo "<div class='bloco-secao'>{$textoInvestDoCrono}</div>";
+            }
+            
+            // Quadro de destaque do valor
+            echo "<div class='invest-box'>";
+            echo "<div class='invest-label'>Valor Total da Proposta</div>";
+            echo "<div class='invest-value'>{$vars['ValorProposta']}</div>";
+            echo "<div class='invest-extenso'>({$vars['ValorExtenso']})</div>";
+            echo "</div>";
+
+
+            // === 9. CONDIÇÕES DE PAGAMENTO ===
+            $condicoesTxt = $dados['condicoes_content'] ?? ($dados['condicoes_texto'] ?? '');
+            if (!empty($condicoesTxt) && strlen(trim(strip_tags($condicoesTxt))) > 5) {
+                renderBloco("9. Condições de Pagamento", $condicoesTxt, $vars);
+            } else {
+                echo "<h2>9. Condições de Pagamento</h2>";
+                echo "<table>";
+                echo "<tr><th>Etapa</th><th style='text-align:center;'>%</th><th style='text-align:right;'>Valor</th></tr>";
+                echo "<tr><td>Mobilização (Aceite da Proposta)</td><td style='text-align:center;'><strong>{$vars['mobilizacao_percentual']}%</strong></td><td style='text-align:right;'>{$vars['mobilizacao_valor']}</td></tr>";
+                echo "<tr><td>Entrega Final</td><td style='text-align:center;'><strong>{$vars['restante_percentual']}%</strong></td><td style='text-align:right;'>{$vars['restante_valor']}</td></tr>";
                 echo "</table>";
             }
 
-            // 9. Dados Bancários
-            renderBloco("9. Dados Bancários", $dados['dados_bancarios_content'] ?? '', $vars);
-            // Fallback para dados bancários se o texto estiver vazio
-            if (empty($dados['dados_bancarios_content']) && empty($dados['dados_bancarios'])) {
-                echo "<h3>9. Dados Bancários</h3>";
-                echo "<p>
-                Banco: {$vars['Banco']}<br>
-                Agência: {$vars['Agencia']} | Conta: {$vars['Conta']}<br>
-                PIX: {$vars['PIX']}
-                </p>";
+            // === 10. DADOS BANCÁRIOS ===
+            $dadosBancariosTxt = $dados['dados_bancarios_content'] ?? ($dados['dados_bancarios'] ?? '');
+            if (!empty($dadosBancariosTxt) && strlen(trim(strip_tags($dadosBancariosTxt))) > 5) {
+                renderBloco("10. Dados Bancários", $dadosBancariosTxt, $vars);
+            } else {
+                echo "<h2>10. Dados Bancários</h2>";
+                echo "<div class='info-card' style='border-left-color: var(--accent-green);'>";
+                echo "<p><span class='label'>Banco:</span> {$vars['Banco']}</p>";
+                echo "<p><span class='label'>Agência:</span> {$vars['Agencia']} &nbsp;|&nbsp; <span class='label'>Conta:</span> {$vars['Conta']}</p>";
+                echo "<p><span class='label'>PIX:</span> {$vars['PIX']}</p>";
+                echo "</div>";
             }
 
-            // 10. Considerações
-            renderBloco("10. Considerações Finais", $dados['consideracoes_content'] ?? '', $vars);
+            // === 11. CONSIDERAÇÕES FINAIS ===
+            renderBloco("11. Considerações Finais", $dados['consideracoes_content'] ?? '', $vars);
             ?>
 
         </div> <!-- Fim content-wrap -->
 
         <div class="footer">
-            <p style="margin-bottom: 80px; font-size: 1.1pt;">Atenciosamente,</p>
-
-            <div style="border-top: 1px solid #334155; width: 60%; margin: 20px auto 10px auto;"></div>
-
-            <div style="font-size: 10pt; color: #1e293b; text-align: center; margin-top: 10px;">
-                <strong><?= $vars['Empresa'] ?></strong> | <?= $vars['empresa_proponente_cidade'] ?> | Levantamentos Topográficos •
+            <p class="atenciosamente">Atenciosamente,</p>
+            <div class="assinatura-linha"></div>
+            <div class="empresa-info">
+                <strong><?= $vars['Empresa'] ?></strong> &nbsp;•&nbsp; <?= $vars['empresa_proponente_cidade'] ?> &nbsp;•&nbsp; Levantamentos Topográficos
             </div>
         </div>
 

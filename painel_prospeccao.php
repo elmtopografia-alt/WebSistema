@@ -253,12 +253,20 @@ $kpi = $pdo->query("
         <!-- Content Grid (Cards Layout instead of Table for Modern Feel) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <?php foreach($leads as $l): 
-                $badgeColor = match($l['status_envio']) {
-                    'ENVIADO' => 'text-green-400 bg-green-500/10 border-green-500/20',
-                    'FALHA' => 'text-red-400 bg-red-500/10 border-red-500/20',
-                    'IGNORADO' => 'text-slate-400 bg-slate-500/10 border-slate-500/20',
-                    default => 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20'
-                };
+                switch ($l['status_envio']) {
+                    case 'ENVIADO':
+                        $badgeColor = 'text-green-400 bg-green-500/10 border-green-500/20';
+                        break;
+                    case 'FALHA':
+                        $badgeColor = 'text-red-400 bg-red-500/10 border-red-500/20';
+                        break;
+                    case 'IGNORADO':
+                        $badgeColor = 'text-slate-400 bg-slate-500/10 border-slate-500/20';
+                        break;
+                    default:
+                        $badgeColor = 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
+                        break;
+                }
                 
                 $dataF = date('d/m H:i', strtotime($l['data_captura']));
             ?>

@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3><i class="fa-solid fa-building text-primary me-2"></i>Minha Empresa</h3>
             <a href="index.php" class="btn btn-secondary">Voltar</a>
         </div>
+        </div>
 
         <?= $msg ?>
 

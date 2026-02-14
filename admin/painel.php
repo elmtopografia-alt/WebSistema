@@ -621,6 +621,12 @@ $espacamentos = ['10px', '15px', '20px', '25px', '30px'];
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="../admin_parametros.php" class="nav-link">
+                        <i class="fas fa-list-check"></i>
+                        Cadastros e Parâmetros
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="fas fa-cog"></i>
                         Configurações

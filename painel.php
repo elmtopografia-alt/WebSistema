@@ -592,7 +592,7 @@ try {
             <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
                 <i class="ph ph-lightning"></i> Ações Rápidas
             </h2>
-            <div class="quick-actions">
+            <div class="quick-actions" style="grid-template-columns: repeat(5, 1fr);">
                 <a href="criar_proposta.php" class="quick-action-btn group">
                     <i class="ph ph-plus-circle text-green-400 group-hover:text-green-300"></i>
                     <span>Nova Proposta</span>
@@ -605,9 +605,13 @@ try {
                     <i class="ph ph-chart-pie-slice text-purple-400 group-hover:text-purple-300"></i>
                     <span>Relatórios</span>
                 </a>
-                <a href="clientes.php" class="quick-action-btn group">
+                <a href="meus_clientes.php" class="quick-action-btn group">
                     <i class="ph ph-users-three text-orange-400 group-hover:text-orange-300"></i>
                     <span>Clientes</span>
+                </a>
+                <a href="admin_parametros.php" class="quick-action-btn group">
+                    <i class="ph ph-gear text-slate-400 group-hover:text-white"></i>
+                    <span>Admin</span>
                 </a>
             </div>
         </div>

@@ -76,18 +76,35 @@ class PropostaRepository
     }
 
     /**
-     * Busca dados completos de uma proposta pelo ID
-     */
-    public function buscarPorId($id)
-    {
-        $id = (int)$id;
-        $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente 
-                FROM Propostas p 
-                LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
-                WHERE p.id_proposta = $id";
-        $res = $this->conn->query($sql);
-        return $res ? $res->fetch_assoc() : null;
+ * Busca dados completos de uma proposta pelo ID
+ */
+public function buscarPorId($id)
+{
+    $id = (int)$id;
+    $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente 
+            FROM Propostas p 
+            LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
+            WHERE p.id_proposta = $id";
+    $res = $this->conn->query($sql);
+    $dados = $res ? $res->fetch_assoc() : null;
+    
+    if (!$dados) return null;
+    
+    // Mapeamento de colunas DB → nomes esperados pelo renderizador HTML
+    $dados['valor_proposta'] = $dados['valor_final_proposta'] ?? 0;
+    $dados['valor_extenso'] = $dados['Valor_proposta_extenso'] ?? '';
+    
+    // Carrega conteúdos personalizados dos blocos (editor dinâmico)
+    $sql2 = "SELECT block_id, conteudo_texto FROM Proposta_Conteudo_Personalizado WHERE id_proposta = $id";
+    $res2 = $this->conn->query($sql2);
+    if ($res2) {
+        while ($row = $res2->fetch_assoc()) {
+            $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
+        }
     }
+    
+    return $dados;
+}
 
     private function salvarConteudoPersonalizado($id, $dados) 
     {
@@ -109,6 +126,47 @@ class PropostaRepository
             'salarios' => 0, 'estadia' => 0, 'consumos' => 0,
             'locacao' => 0, 'admin' => 0
         ];
+        
+        // Detecta se veio do editor dinâmico (sem itens de custo)
+        $temItensCusto = !empty($dados['salario_id_funcao']) || !empty($dados['estadia_id']) 
+                       || !empty($dados['consumo_id']) || !empty($dados['locacao_id']) 
+                       || !empty($dados['admin_id']);
+        
+        // Se NÃO tem itens de custo mas tem id_proposta, preserva valores do banco
+        if (!$temItensCusto && !empty($dados['id_proposta'])) {
+            $idProp = (int)$dados['id_proposta'];
+            $res = $this->conn->query("SELECT valor_final_proposta, Valor_proposta_extenso, 
+                mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor,
+                total_custos_salarios, total_custos_estadia, total_custos_consumos, 
+                total_custos_locacao, total_custos_admin,
+                percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto
+                FROM Propostas WHERE id_proposta = $idProp");
+            $existente = $res ? $res->fetch_assoc() : null;
+            
+            if ($existente && floatval($existente['valor_final_proposta']) > 0) {
+                return [
+                    'itens_total' => [
+                        'salarios' => floatval($existente['total_custos_salarios']),
+                        'estadia' => floatval($existente['total_custos_estadia']),
+                        'consumos' => floatval($existente['total_custos_consumos']),
+                        'locacao' => floatval($existente['total_custos_locacao']),
+                        'admin' => floatval($existente['total_custos_admin'])
+                    ],
+                    'operacional' => floatval($existente['total_custos_salarios']) + floatval($existente['total_custos_estadia']) 
+                                    + floatval($existente['total_custos_consumos']) + floatval($existente['total_custos_locacao']) 
+                                    + floatval($existente['total_custos_admin']),
+                    'lucro' => floatval($existente['valor_lucro']),
+                    'subtotal' => floatval($existente['subtotal_com_lucro']),
+                    'final' => floatval($existente['valor_final_proposta']),
+                    'mobilizacao' => [
+                        'mobilizacao_valor' => floatval($existente['mobilizacao_valor']),
+                        'restante_percentual' => floatval($existente['restante_percentual']),
+                        'restante_valor' => floatval($existente['restante_valor'])
+                    ],
+                    'extenso' => $existente['Valor_proposta_extenso'] ?? ''
+                ];
+            }
+        }
         
         if (!empty($dados['salario_id_funcao'])) {
             foreach ($dados['salario_id_funcao'] as $i => $id) {
@@ -272,12 +330,12 @@ class PropostaRepository
         $contato_obra = $dados['contato_obra'] ?? '';
         $finalidade = $dados['finalidade'] ?? '';
         $tipo_levantamento = $dados['tipo_levantamento'] ?? '';
-        $area_obra = $dados['area_obra'] ?? '';
+        $area_obra = $dados['area_obra'] ?? ($dados['area'] ?? '');
         $unidade_area = $dados['unidade_area'] ?? 'm²';
-        $endereco_obra = $dados['endereco_obra'] ?? '';
-        $bairro_obra = $dados['bairro_obra'] ?? '';
-        $cidade_obra = $dados['cidade_obra'] ?? '';
-        $estado_obra = $dados['estado_obra'] ?? '';
+        $endereco_obra = $dados['endereco_obra'] ?? ($dados['endereco'] ?? '');
+        $bairro_obra = $dados['bairro_obra'] ?? ($dados['bairro'] ?? '');
+        $cidade_obra = $dados['cidade_obra'] ?? ($dados['cidade'] ?? '');
+        $estado_obra = $dados['estado_obra'] ?? ($dados['estado'] ?? '');
         $prazo_execucao = $dados['prazo_execucao'] ?? '';
         $dias_campo = intval($dados['dias_campo'] ?? 0);
         $dias_escritorio = intval($dados['dias_escritorio'] ?? 0);
@@ -349,12 +407,12 @@ class PropostaRepository
         $contato_obra = $dados['contato_obra'] ?? '';
         $finalidade = $dados['finalidade'] ?? '';
         $tipo_levantamento = $dados['tipo_levantamento'] ?? '';
-        $area_obra = $dados['area_obra'] ?? '';
+        $area_obra = $dados['area_obra'] ?? ($dados['area'] ?? '');
         $unidade_area = $dados['unidade_area'] ?? 'm²';
-        $endereco_obra = $dados['endereco_obra'] ?? '';
-        $bairro_obra = $dados['bairro_obra'] ?? '';
-        $cidade_obra = $dados['cidade_obra'] ?? '';
-        $estado_obra = $dados['estado_obra'] ?? '';
+        $endereco_obra = $dados['endereco_obra'] ?? ($dados['endereco'] ?? '');
+        $bairro_obra = $dados['bairro_obra'] ?? ($dados['bairro'] ?? '');
+        $cidade_obra = $dados['cidade_obra'] ?? ($dados['cidade'] ?? '');
+        $estado_obra = $dados['estado_obra'] ?? ($dados['estado'] ?? '');
         $prazo_execucao = $dados['prazo_execucao'] ?? '';
         $dias_campo = intval($dados['dias_campo'] ?? 0);
         $dias_escritorio = intval($dados['dias_escritorio'] ?? 0);

@@ -117,9 +117,11 @@ try {
                     <p class="text-sm text-slate-400">Total: <strong class="text-white"><?php echo count($clientes); ?></strong> cadastrados</p>
                 </div>
             </div>
-            <a href="form_cliente.php" class="px-6 py-3 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 transition-all hover:scale-105 flex items-center gap-2">
-                <i class="ph ph-user-plus text-xl"></i> Novo Cliente
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="form_cliente.php" class="px-6 py-3 bg-brand-action hover:bg-brand-accent text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 transition-all hover:scale-105 flex items-center gap-2">
+                    <i class="ph ph-user-plus text-xl"></i> Novo Cliente
+                </a>
+            </div>
         </div>
 
         <?php if(isset($_GET['msg']) && $_GET['msg'] == 'sucesso'): ?>

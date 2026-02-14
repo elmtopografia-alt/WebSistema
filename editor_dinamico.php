@@ -396,31 +396,10 @@ $variaveis = getVariableMap($incomingData, $conn);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS Tailwind estático (substituiu cdn.tailwindcss.com que causava loop com TinyMCE) -->
+    <link rel="stylesheet" href="assets/css/editor-tailwind.css?v=<?= time() ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: '#0a0f1a',
-                        surface: '#111827',
-                        primary: '#f97316',
-                        secondary: '#3b82f6',
-                        tech: '#0ea5e9',
-                        financial: '#10b981',
-                        presentation: '#8b5cf6',
-                        legal: '#94a3b8'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Exo 2', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
         body {
@@ -535,6 +514,9 @@ $variaveis = getVariableMap($incomingData, $conn);
                     function renderFormBlocks($nodes, $model, $incomingData, $variaveis) {
                         foreach ($nodes as $node) {
                             $slug = $node['id'];
+                            
+                            // [REFATORAÇÃO] Filtra blocos duplicados ou removidos
+                            if (in_array($slug, ['recursos_equipamentos', 'cronograma_drone', 'investimento-extra'])) continue;
                             $borderColors = [
                                 'presentation' => 'border-l-presentation',
                                 'technical' => 'border-l-tech',
@@ -584,6 +566,7 @@ $variaveis = getVariableMap($incomingData, $conn);
                                     renderField('endereco_obra', 'Endereço Completo', 'text', $variaveis['endereco_obra'], true);
                                     renderField('bairro_obra', 'Bairro', 'text', $variaveis['bairro_obra']);
                                     renderField('cidade_obra', 'Cidade', 'text', $variaveis['cidade_obra']);
+                                    renderField('estado_obra', 'Estado (UF)', 'text', $variaveis['estado_obra']);
                                     echo "<div class='md:col-span-2'>";
                                     echo "<label class='block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1'>Área e Unidade</label>";
                                     echo "<div class='flex items-stretch'>";
@@ -598,15 +581,161 @@ $variaveis = getVariableMap($incomingData, $conn);
                                     break;
 
                                 case 'cronograma':
-                                    echo '<div class="col-span-2 grid grid-cols-4 gap-3 mb-2">';
-                                    renderStat('Dias Campo', $variaveis['dias_campo'], 'text-secondary');
-                                    renderStat('Dias Escritório', $variaveis['dias_escritorio'], 'text-secondary');
-                                    renderStat('Área Total', $variaveis['area_formatada'], 'text-tech');
-                                    renderStat('Prazo Total', $variaveis['prazo_execucao'], 'text-primary');
-                                    echo '</div>';
-                                    renderField('dias_campo', 'Dias de Campo', 'number', $variaveis['dias_campo']);
-                                    renderField('dias_escritorio', 'Dias Escritório', 'number', $variaveis['dias_escritorio']);
-                                    if (!empty($finalContent)) renderField($slug . '_content', 'Observações', 'textarea', $finalContent, true);
+                                    echo '<div class="col-span-2">';
+                                    
+                                    // Alerta
+                                    echo '<div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
+                                        <p class="text-xs text-amber-200">
+                                            <i class="bi bi-exclamation-triangle-fill mr-1"></i>
+                                            O cumprimento dos prazos depende de condições climáticas favoráveis (ausência de chuva e ventos superiores a 30 km/h).
+                                        </p>
+                                    </div>';
+
+                                    // Tabela Fixa
+                                    echo '<div class="overflow-x-auto mb-4">
+                                        <table class="w-full text-sm text-left text-slate-300">
+                                            <thead class="text-xs text-slate-400 uppercase bg-white/5">
+                                                <tr>
+                                                    <th class="px-4 py-3 rounded-l-lg">Etapa</th>
+                                                    <th class="px-4 py-3">Descrição</th>
+                                                    <th class="px-4 py-3 rounded-r-lg">Prazo Estimado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr class="hover:bg-white/5">
+                                                    <td class="px-4 py-3 font-medium text-white">1. Mobilização</td>
+                                                    <td class="px-4 py-3">Planejamento, análise DECEA e ida a campo</td>
+                                                    <td class="px-4 py-3">Até 02 dias</td>
+                                                </tr>
+                                                <tr class="hover:bg-white/5">
+                                                    <td class="px-4 py-3 font-medium text-white">2. Campo (GCPs)</td>
+                                                    <td class="px-4 py-3">Instalação de pontos de controle terrestre</td>
+                                                    <td class="px-4 py-3">01 dia</td>
+                                                </tr>
+                                                <tr class="hover:bg-white/5">
+                                                    <td class="px-4 py-3 font-medium text-white">3. Campo (Voo)</td>
+                                                    <td class="px-4 py-3">Execução do voo de mapeamento</td>
+                                                    <td class="px-4 py-3">01 dia</td>
+                                                </tr>
+                                                <tr class="hover:bg-white/5">
+                                                    <td class="px-4 py-3 font-medium text-white">4. Processamento</td>
+                                                    <td class="px-4 py-3">Geração da nuvem de pontos e ortomosaico</td>
+                                                    <td class="px-4 py-3">03 a 05 dias</td>
+                                                </tr>
+                                                <tr class="hover:bg-white/5">
+                                                    <td class="px-4 py-3 font-medium text-white">5. CAD/Vetorização</td>
+                                                    <td class="px-4 py-3">Desenho técnico e curvas de nível</td>
+                                                    <td class="px-4 py-3">03 a 05 dias</td>
+                                                </tr>
+                                                <tr class="bg-primary/10 font-semibold">
+                                                    <td colspan="2" class="px-4 py-3 text-white rounded-l-lg">TOTAL ESTIMADO</td>
+                                                    <td class="px-4 py-3 text-primary rounded-r-lg">
+                                                        <span id="prazo-total-display">'. (intval($variaveis['dias_campo'] ?? 0) + intval($variaveis['dias_escritorio'] ?? 0)) .' dias úteis</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>';
+
+                                    // Campos Editáveis
+                                    echo '<div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Campo</label>
+                                            <input type="number" name="dias_campo" id="input-dias-campo" value="'. htmlspecialchars($variaveis['dias_campo'] ?? '0') .'" min="1" max="30"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
+                                                onchange="atualizarPrazoTotal()">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Escritório</label>
+                                            <input type="number" name="dias_escritorio" id="input-dias-escritorio" value="'. htmlspecialchars($variaveis['dias_escritorio'] ?? '0') .'" min="1" max="30"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
+                                                onchange="atualizarPrazoTotal()">
+                                        </div>
+                                    </div>';
+
+                                    // Observações
+                                    $obsContent = htmlspecialchars($incomingData['cronograma_content'] ?? '');
+                                    echo '<div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Observações Adicionais</label>
+                                        <textarea name="cronograma_content" id="ed-cronograma-obs" rows="3"
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-primary/50 text-sm transition-all"
+                                            placeholder="Informações complementares sobre prazos, dependências ou condições especiais...">'. $obsContent .'</textarea>
+                                    </div>';
+                                    
+                                    echo '</div>'; // close col-span-2
+                                    break;
+
+                                case 'equipamentos':
+                                    echo '<div class="col-span-2">';
+                                    
+                                    // Carregar Defaults
+                                    $configEquip = require 'config/equipamentos_servico.php';
+                                    $nomeServico = mb_strtolower($incomingData['nome_servico'] ?? '');
+                                    $tipo = 'padrao';
+                                    if (strpos($nomeServico, 'drone') !== false || strpos($nomeServico, 'fotogrametria') !== false) $tipo = 'drone_fotogrametria';
+                                    elseif (strpos($nomeServico, 'geo') !== false) $tipo = 'georreferenciamento';
+                                    elseif (strpos($nomeServico, 'topografia') !== false) $tipo = 'topografia_tradicional';
+                                    elseif (strpos($nomeServico, 'cadastral') !== false) $tipo = 'levantamento_cadastral';
+                                    
+                                    $defaults = $configEquip[$tipo] ?? $configEquip['padrao'];
+                                    
+                                    // Valores (Salvos ou Padrão) - Usando $variaveis se disponível (mapeado de $incomingData) ou direto de $incomingData
+                                    // $variaveis mapeia Estacao_Total, GPS etc, mas pode ser diferente dos names dos inputs.
+                                    // Vamos usar $incomingData direto para os names específicos ou $defaults
+                                    
+                                    $val = [
+                                        'estacao_total' => $incomingData['equipamentos_estacao_total_content'] ?? $defaults['estacao_total'],
+                                        'gps' => $incomingData['equipamentos_gps_content'] ?? $defaults['gps'],
+                                        'drone' => $incomingData['equipamentos_drone_content'] ?? $defaults['drone'],
+                                        'veiculo' => $incomingData['equipamentos_veiculo_content'] ?? $defaults['veiculo']
+                                    ];
+
+                                    // Lista Automática
+                                    echo '<div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-4">
+                                        <ul class="space-y-3 text-sm text-slate-300">
+                                            <li class="flex gap-3">
+                                                <span class="text-tech font-bold min-w-[120px]">Estação Total:</span>
+                                                <span id="equip-estacao-total">'. htmlspecialchars($val['estacao_total']) .'</span>
+                                            </li>
+                                            <li class="flex gap-3">
+                                                <span class="text-tech font-bold min-w-[120px]">GPS:</span>
+                                                <span id="equip-gps">'. htmlspecialchars($val['gps']) .'</span>
+                                            </li>
+                                            <li class="flex gap-3">
+                                                <span class="text-tech font-bold min-w-[120px]">Drone:</span>
+                                                <span id="equip-drone">'. htmlspecialchars($val['drone']) .'</span>
+                                            </li>
+                                            <li class="flex gap-3">
+                                                <span class="text-tech font-bold min-w-[120px]">Veículo:</span>
+                                                <span id="equip-veiculo">'. htmlspecialchars($val['veiculo']) .'</span>
+                                            </li>
+                                        </ul>
+                                    </div>';
+                                    
+                                    // Override UI
+                                    $overrideContent = $incomingData['equipamentos_override_content'] ?? '';
+                                    echo '<div class="mt-4">
+                                        <label class="flex items-center gap-2 cursor-pointer mb-3">
+                                            <input type="checkbox" id="check-override-equip" name="equipamentos_override_ativo" value="1" 
+                                                class="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-primary/50"
+                                                onchange="toggleEquipOverride()" '. (!empty($overrideContent) ? 'checked' : '') .'>
+                                            <span class="text-sm text-slate-400">Personalizar equipamentos</span>
+                                        </label>
+                                        
+                                        <div id="equip-override-area" class="'. (!empty($overrideContent) ? '' : 'hidden') .'">
+                                            <textarea name="equipamentos_override_content" id="ed-equipamentos_override" 
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 text-sm transition-all"
+                                                rows="6" placeholder="Cole aqui o texto personalizado de equipamentos...">'. htmlspecialchars($overrideContent) .'</textarea>
+                                        </div>
+                                    </div>';
+                                    
+                                    // Hidden Fields (Renamed to _content)
+                                    echo '<input type="hidden" name="equipamentos_estacao_total_content" value="'. htmlspecialchars($val['estacao_total']) .'">';
+                                    echo '<input type="hidden" name="equipamentos_gps_content" value="'. htmlspecialchars($val['gps']) .'">';
+                                    echo '<input type="hidden" name="equipamentos_drone_content" value="'. htmlspecialchars($val['drone']) .'">';
+                                    echo '<input type="hidden" name="equipamentos_veiculo_content" value="'. htmlspecialchars($val['veiculo']) .'">';
+                                    
+                                    echo '</div>'; // close col-span-2
                                     break;
 
                                 case 'investimento':
@@ -799,6 +928,62 @@ $variaveis = getVariableMap($incomingData, $conn);
                 },
                 content_style: 'body { font-family:Inter,sans-serif; font-size:14px; background-color: #111827; color: #e2e8f0; }'
             });
+        });
+        // Script Personalizado para Equipamentos e Cronograma
+        function toggleEquipOverride() {
+            const checkbox = document.getElementById('check-override-equip');
+            const area = document.getElementById('equip-override-area');
+            if(checkbox && area) {
+                if (checkbox.checked) {
+                    area.classList.remove('hidden');
+                } else {
+                    area.classList.add('hidden');
+                }
+            }
+        }
+
+        function atualizarPrazoTotal() {
+            const campo = parseInt(document.getElementById('input-dias-campo').value) || 0;
+            const escritorio = parseInt(document.getElementById('input-dias-escritorio').value) || 0;
+            const total = campo + escritorio;
+            const display = document.getElementById('prazo-total-display');
+            if(display) {
+                display.textContent = total + ' dias úteis';
+            }
+        }
+
+        // Carregar Equipamentos via AJAX (Complemento ao PHP)
+        document.addEventListener('DOMContentLoaded', function() {
+            const idServico = document.querySelector('input[name="id_servico"]')?.value;
+            
+            // Só busca se não tiver valores já preenchidos (ex: edição) ou se quisermos forçar update
+            // O PHP já preenche, mas o AJAX garante atualização se mudar o serviço (futuro) ou se PHP falhar no match
+            const temValores = document.querySelector('input[name="equipamentos_gps_content"]')?.value;
+
+            if (idServico && !temValores) {
+                fetch(`ajax/get_equipamentos_servico.php?id_servico=${idServico}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            if(document.getElementById('equip-estacao-total')) document.getElementById('equip-estacao-total').textContent = data.estacao_total;
+                            if(document.getElementById('equip-gps')) document.getElementById('equip-gps').textContent = data.gps;
+                            if(document.getElementById('equip-drone')) document.getElementById('equip-drone').textContent = data.drone;
+                            if(document.getElementById('equip-veiculo')) document.getElementById('equip-veiculo').textContent = data.veiculo;
+                            
+                            // Atualizar hidden fields
+                            const inEstacao = document.querySelector('input[name="equipamentos_estacao_total_content"]');
+                            const inGps = document.querySelector('input[name="equipamentos_gps_content"]');
+                            const inDrone = document.querySelector('input[name="equipamentos_drone_content"]');
+                            const inVeiculo = document.querySelector('input[name="equipamentos_veiculo_content"]');
+
+                            if(inEstacao) inEstacao.value = data.estacao_total;
+                            if(inGps) inGps.value = data.gps;
+                            if(inDrone) inDrone.value = data.drone;
+                            if(inVeiculo) inVeiculo.value = data.veiculo;
+                        }
+                    })
+                    .catch(console.error);
+            }
         });
     </script>
 </body>
