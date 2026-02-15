@@ -1,0 +1,683 @@
+/* ============================================
+   TEMA CLÁSSICO - SGT Propostas (CORRIGIDO)
+   Visual profissional com títulos azuis
+   ============================================ */
+
+.proposta-wrapper.tema-classica {
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 40px 50px;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.6;
+  color: #1f2937;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* ============================================
+   TÍTULOS - LINHA AZUL (não marrom)
+   ============================================ */
+
+.proposta-wrapper.tema-classica h1,
+.proposta-wrapper.tema-classica h2,
+.proposta-wrapper.tema-classica h3,
+.proposta-wrapper.tema-classica h4,
+.proposta-wrapper.tema-classica h5,
+.proposta-wrapper.tema-classica h6 {
+  color: #1e40af !important;
+  font-weight: 700;
+}
+
+/* H1 - Linha inferior AZUL */
+.proposta-wrapper.tema-classica h1 {
+  font-size: 2rem;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #3b82f6 !important;
+  /* AZUL em vez de marrom */
+  letter-spacing: -0.01em;
+}
+
+/* H2 - Linha lateral AZUL */
+.proposta-wrapper.tema-classica h2 {
+  font-size: 1.5rem;
+  margin-top: 35px;
+  margin-bottom: 15px;
+  padding-left: 16px;
+  border-left: 5px solid #3b82f6 !important;
+  /* AZUL em vez de marrom */
+  border-bottom: none !important;
+  /* Remove qualquer linha inferior marrom */
+  line-height: 1.3;
+}
+
+/* H3 - Elemento decorativo AZUL */
+.proposta-wrapper.tema-classica h3 {
+  font-size: 1.25rem;
+  color: #1e3a8a !important;
+  margin-top: 28px;
+  margin-bottom: 12px;
+  position: relative;
+  padding-left: 12px;
+  border-bottom: none !important;
+  /* Remove linha marrom */
+}
+
+.proposta-wrapper.tema-classica h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: #60a5fa;
+  /* AZUL claro */
+  border-radius: 2px;
+}
+
+/* H4 sem linhas extras */
+.proposta-wrapper.tema-classica h4 {
+  color: #2563eb !important;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 22px;
+  margin-bottom: 10px;
+  border-bottom: none !important;
+}
+
+/* Remove TODAS as bordas marrom dos títulos */
+.proposta-wrapper.tema-classica h1::after,
+.proposta-wrapper.tema-classica h2::after,
+.proposta-wrapper.tema-classica h3::after,
+.proposta-wrapper.tema-classica h4::after {
+  border-color: #3b82f6 !important;
+}
+
+/* ============================================
+   EQUIPAMENTOS - Garantir que apareçam
+   ============================================ */
+
+.proposta-wrapper.tema-classica ul,
+.proposta-wrapper.tema-classica ol {
+  margin: 18px 0;
+  padding-left: 28px;
+  display: block !important;
+  /* Garante visibilidade */
+  visibility: visible !important;
+}
+
+.proposta-wrapper.tema-classica li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  display: list-item !important;
+  /* Força exibição como item de lista */
+  visibility: visible !important;
+  color: #1f2937 !important;
+  /* Cor normal do texto */
+}
+
+/* Específico para lista de equipamentos */
+.proposta-wrapper.tema-classica ul li,
+.proposta-wrapper.tema-classica ol li {
+  color: #1f2937 !important;
+}
+
+.proposta-wrapper.tema-classica ul li::marker {
+  color: #3b82f6 !important;
+  /* Marcador AZUL */
+  font-size: 1.3em;
+}
+
+.proposta-wrapper.tema-classica ol li::marker {
+  color: #1e40af !important;
+  /* Números AZUL escuro */
+  font-weight: 600;
+}
+
+/* ============================================
+   INVESTIMENTO - Quadro AZUL (não marrom)
+   ============================================ */
+
+/* CORREÇÃO ESPECÍFICA - INVESTIMENTO */
+
+/* FORÇAR qualquer elemento dentro da seção de investimento a ter borda azul */
+.proposta-wrapper.tema-classica h2:contains("INVESTIMENTO")+div,
+.proposta-wrapper.tema-classica h2:contains("Investimento")+div,
+.proposta-wrapper.tema-classica h3:contains("INVESTIMENTO")+div,
+.proposta-wrapper.tema-classica h3:contains("Investimento")+div,
+.proposta-wrapper.tema-classica *[class*="investimento"],
+.proposta-wrapper.tema-classica *[class*="Investimento"],
+.proposta-wrapper.tema-classica *[id*="investimento"],
+.proposta-wrapper.tema-classica *[id*="Investimento"],
+/* ADICIONADO: Seletores específicos para .invest-box */
+.proposta-wrapper.tema-classica .invest-box,
+.proposta-wrapper.tema-classica .invest-value,
+.proposta-wrapper.tema-classica .invest-extenso {
+  border: 2px solid #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  background: #ffffff !important;
+  /* Fundo branco ou use #eff6ff para azul claro */
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin: 20px 0 !important;
+}
+
+.proposta-wrapper.tema-classica .invest-box {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Se o quadro for uma tabela */
+.proposta-wrapper.tema-classica table[class*="investimento"],
+.proposta-wrapper.tema-classica table[class*="Investimento"],
+.proposta-wrapper.tema-classica .investimento table,
+.proposta-wrapper.tema-classica .Investimento table {
+  border: 2px solid #3b82f6 !important;
+  background: #ffffff !important;
+}
+
+/* CÉLULAS da tabela de investimento */
+.proposta-wrapper.tema-classica table[class*="investimento"] td,
+.proposta-wrapper.tema-classica table[class*="Investimento"] td,
+.proposta-wrapper.tema-classica .investimento table td,
+.proposta-wrapper.tema-classica .Investimento table td {
+  border: 1px solid #3b82f6 !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* VALOR MONETÁRIO - FORÇAR AZUL */
+.proposta-wrapper.tema-classica *[class*="investimento"] strong,
+.proposta-wrapper.tema-classica *[class*="Investimento"] strong,
+.proposta-wrapper.tema-classica *[class*="investimento"] b,
+.proposta-wrapper.tema-classica *[class*="Investimento"] b,
+.proposta-wrapper.tema-classica *[class*="valor"] strong,
+.proposta-wrapper.tema-classica *[class*="Valor"] strong,
+.proposta-wrapper.tema-classica *[class*="total"] strong,
+.proposta-wrapper.tema-classica *[class*="Total"] strong,
+.proposta-wrapper.tema-classica .investimento strong,
+.proposta-wrapper.tema-classica .Investimento strong,
+.proposta-wrapper.tema-classica .investimento b,
+.proposta-wrapper.tema-classica .Investimento b,
+/* ADICIONADO: Seletores específicos para .invest-box */
+.proposta-wrapper.tema-classica .invest-value,
+.proposta-wrapper.tema-classica .invest-extenso {
+  color: #1e40af !important;
+  /* AZUL escuro */
+  font-weight: 700 !important;
+}
+
+.proposta-wrapper.tema-classica .invest-value {
+  font-size: 2.2rem !important;
+  border: none !important;
+  /* Remove borda do texto */
+  padding: 0 !important;
+  margin: 10px 0 !important;
+  background: transparent !important;
+  text-align: center !important;
+}
+
+.proposta-wrapper.tema-classica .invest-extenso {
+  font-size: 1rem !important;
+  font-style: italic !important;
+  color: #1e3a8a !important;
+  /* Azul um pouco mais claro/diferente para contraste */
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  text-align: center !important;
+}
+
+/* Se o valor estiver em span, div ou p */
+.proposta-wrapper.tema-classica .investimento span,
+.proposta-wrapper.tema-classica .Investimento span,
+.proposta-wrapper.tema-classica .investimento div,
+.proposta-wrapper.tema-classica .Investimento div,
+.proposta-wrapper.tema-classica .investimento p,
+.proposta-wrapper.tema-classica .Investimento p {
+  color: #1e40af !important;
+}
+
+/* ESPECÍFICO para texto que começa com R$ */
+.proposta-wrapper.tema-classica *:contains("R$") {
+  color: #1e40af !important;
+}
+
+/* Seletor de atributo para qualquer elemento com texto R$ */
+.proposta-wrapper.tema-classica [innerHTML*="R$"],
+.proposta-wrapper.tema-classica [textContent*="R$"] {
+  color: #1e40af !important;
+}
+
+/* ============================================
+   CONDIÇÕES DE PAGAMENTO - Valores monetários
+   ============================================ */
+
+/* Valores em negrito mas cor normal do texto (não marrom) */
+.proposta-wrapper.tema-classica strong,
+.proposta-wrapper.tema-classica b {
+  color: #1f2937 !important;
+  /* Cor normal do texto (cinza escuro) */
+  font-weight: 700 !important;
+  /* Mantém negrito */
+}
+
+/* EXCEÇÃO: Títulos e valores principais mantêm azul */
+.proposta-wrapper.tema-classica h1 strong,
+.proposta-wrapper.tema-classica h2 strong,
+.proposta-wrapper.tema-classica h3 strong,
+.proposta-wrapper.tema-classica h4 strong,
+.proposta-wrapper.tema-classica .valor-proposta strong,
+.proposta-wrapper.tema-classica .box-investimento strong {
+  color: inherit !important;
+  /* Herda azul do pai */
+}
+
+/* Específico para seção de condições de pagamento */
+.proposta-wrapper.tema-classica .condicoes-pagamento strong,
+.proposta-wrapper.tema-classica .pagamento strong,
+.proposta-wrapper.tema-classica [class*="condicoes"] strong,
+.proposta-wrapper.tema-classica [class*="pagamento"] strong {
+  color: #1f2937 !important;
+  /* Cor normal */
+  font-weight: 700 !important;
+  /* Negrito mantido */
+}
+
+/* Se houver tabela de condições de pagamento */
+.proposta-wrapper.tema-classica table strong,
+.proposta-wrapper.tema-classica table b {
+  color: #1f2937 !important;
+  /* Cor normal em tabelas */
+  font-weight: 700 !important;
+}
+
+/* ============================================
+   TABELAS GERAIS
+   ============================================ */
+
+.proposta-wrapper.tema-classica table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 25px 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 10pt;
+}
+
+.proposta-wrapper.tema-classica th {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  border: none;
+}
+
+.proposta-wrapper.tema-classica td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #374151;
+}
+
+.proposta-wrapper.tema-classica tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.proposta-wrapper.tema-classica tr:last-child td {
+  border-bottom: none;
+}
+
+.proposta-wrapper.tema-classica tr:hover {
+  background-color: #eff6ff;
+  transition: background-color 0.2s ease;
+}
+
+/* ============================================
+   DESTAQUES E BOXES
+   ============================================ */
+
+.proposta-wrapper.tema-classica blockquote,
+.proposta-wrapper.tema-classica .destaque,
+.proposta-wrapper.tema-classica .info-box {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border-left: 5px solid #1e40af !important;
+  padding: 20px 24px;
+  margin: 25px 0;
+  border-radius: 0 8px 8px 0;
+  color: #1e3a8a !important;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove qualquer vestígio de marrom */
+.proposta-wrapper.tema-classica blockquote,
+.proposta-wrapper.tema-classica .destaque,
+.proposta-wrapper.tema-classica .info-box,
+.proposta-wrapper.tema-classica .alerta,
+.proposta-wrapper.tema-classica .sucesso {
+  border-color: #1e40af !important;
+}
+
+/* ============================================
+   PARÁGRAFOS E TEXTO
+   ============================================ */
+
+.proposta-wrapper.tema-classica p {
+  margin-bottom: 16px;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  line-height: 1.7;
+  color: #1f2937;
+}
+
+/* ============================================
+   ASSINATURAS
+   ============================================ */
+
+.proposta-wrapper.tema-classica .assinaturas {
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+  page-break-inside: avoid;
+}
+
+.proposta-wrapper.tema-classica .assinatura-box {
+  flex: 1;
+  text-align: center;
+  border-top: 2px solid #9ca3af;
+  padding-top: 20px;
+  margin-top: 80px;
+}
+
+.proposta-wrapper.tema-classica .assinatura-linha {
+  border-bottom: 1px solid #374151;
+  margin-bottom: 8px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.proposta-wrapper.tema-classica .assinatura-nome {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.proposta-wrapper.tema-classica .assinatura-cargo {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* ============================================
+   PRINT E RESPONSIVO
+   ============================================ */
+
+@media print {
+  .proposta-wrapper.tema-classica {
+    box-shadow: none;
+    padding: 20px 30px;
+    max-width: 100%;
+  }
+
+  .proposta-wrapper.tema-classica h1,
+  .proposta-wrapper.tema-classica h2,
+  .proposta-wrapper.tema-classica h3,
+  .proposta-wrapper.tema-classica .valor-proposta strong,
+  .proposta-wrapper.tema-classica .box-investimento strong {
+    color: #1e40af !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .proposta-wrapper.tema-classica th {
+    background: #1e40af !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .proposta-wrapper.tema-classica .assinaturas {
+    page-break-inside: avoid;
+  }
+
+  .proposta-wrapper.tema-classica h2,
+  .proposta-wrapper.tema-classica h3 {
+    page-break-after: avoid;
+  }
+
+  .proposta-wrapper.tema-classica table {
+    page-break-inside: avoid;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .proposta-wrapper.tema-classica {
+    padding: 25px;
+    font-size: 10pt;
+  }
+
+  .proposta-wrapper.tema-classica h1 {
+    font-size: 1.6rem;
+  }
+
+  .proposta-wrapper.tema-classica h2 {
+    font-size: 1.3rem;
+  }
+
+  .proposta-wrapper.tema-classica .assinaturas {
+    flex-direction: column;
+    gap: 30px;
+  }
+}
+
+/* ============================================
+   RESET DE CORES MARROM/DOURADO (garantia nuclear)
+   ============================================ */
+
+/* Remover QUALQUER cor marrom, dourado, laranja ou bege */
+.proposta-wrapper.tema-classica * {
+  border-color: #3b82f6 !important;
+  /* Força borda azul em TODOS */
+}
+
+/* Exceções para não quebrar o layout */
+.proposta-wrapper.tema-classica img,
+.proposta-wrapper.tema-classica input,
+.proposta-wrapper.tema-classica textarea,
+.proposta-wrapper.tema-classica select {
+  border-color: inherit !important;
+}
+
+/* FORÇAR fundo branco em boxes que estão com fundo bege */
+.proposta-wrapper.tema-classica div[style*="background"],
+.proposta-wrapper.tema-classica div[style*="bgcolor"],
+.proposta-wrapper.tema-classica table[style*="background"],
+.proposta-wrapper.tema-classica td[style*="background"] {
+  background: #ffffff !important;
+  /* Ou #eff6ff para azul bem claro */
+}
+
+/* Seletor nuclear - captura TUDO que pode ter cor marrom */
+.proposta-wrapper.tema-classica [style*="color: rgb(139"],
+.proposta-wrapper.tema-classica [style*="color: rgb(160"],
+.proposta-wrapper.tema-classica [style*="color: rgb(180"],
+.proposta-wrapper.tema-classica [style*="color: rgb(205"],
+.proposta-wrapper.tema-classica [style*="color: #8B"],
+.proposta-wrapper.tema-classica [style*="color: #A0"],
+.proposta-wrapper.tema-classica [style*="color: #B8"],
+.proposta-wrapper.tema-classica [style*="color: #CD"],
+.proposta-wrapper.tema-classica [style*="color: #D4"],
+.proposta-wrapper.tema-classica [style*="color: #DAA"],
+.proposta-wrapper.tema-classica [style*="color: #F4"],
+.proposta-wrapper.tema-classica [style*="color: #FF8"] {
+  color: #1e40af !important;
+  /* Converte para azul */
+}
+
+/* Bordas marrom para azul */
+.proposta-wrapper.tema-classica [style*="border-color: rgb(139"],
+.proposta-wrapper.tema-classica [style*="border-color: rgb(160"],
+.proposta-wrapper.tema-classica [style*="border-color: rgb(180"],
+.proposta-wrapper.tema-classica [style*="border-color: rgb(205"],
+.proposta-wrapper.tema-classica [style*="border-color: #8B"],
+.proposta-wrapper.tema-classica [style*="border-color: #A0"],
+.proposta-wrapper.tema-classica [style*="border-color: #B8"],
+.proposta-wrapper.tema-classica [style*="border-color: #CD"],
+.proposta-wrapper.tema-classica [style*="border-color: #D4"],
+.proposta-wrapper.tema-classica [style*="border-color: #DAA"],
+.proposta-wrapper.tema-classica [style*="border-color: #F4"],
+.proposta-wrapper.tema-classica [style*="border: 1px solid #"],
+.proposta-wrapper.tema-classica [style*="border: 2px solid #"],
+.proposta-wrapper.tema-classica [style*="border-color"] {
+  border-color: #3b82f6 !important;
+}
+
+/* Específico para bordas inferiores */
+.proposta-wrapper.tema-classica h1[style*="border-bottom"],
+.proposta-wrapper.tema-classica h2[style*="border-bottom"],
+.proposta-wrapper.tema-classica h3[style*="border-bottom"] {
+  border-bottom-color: #3b82f6 !important;
+}
+
+/* ============================================
+   FORÇAR EXIBIÇÃO DOS EQUIPAMENTOS
+   ============================================ */
+
+/* Reset TOTAL para listas de equipamentos */
+.proposta-wrapper.tema-classica ul,
+.proposta-wrapper.tema-classica ol,
+.proposta-wrapper.tema-classica li {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  position: static !important;
+  clip: auto !important;
+  clip-path: none !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Específico para seção de equipamentos */
+.proposta-wrapper.tema-classica h2:contains("Equipamentos")+ul,
+.proposta-wrapper.tema-classica h2:contains("EQUIPAMENTOS")+ul,
+.proposta-wrapper.tema-classica h3:contains("Equipamentos")+ul,
+.proposta-wrapper.tema-classica h3:contains("EQUIPAMENTOS")+ul,
+.proposta-wrapper.tema-classica h2:contains("Equipamentos")+ol,
+.proposta-wrapper.tema-classica h2:contains("EQUIPAMENTOS")+ol,
+.proposta-wrapper.tema-classica *[class*="equipamento"] ul,
+.proposta-wrapper.tema-classica *[class*="equipamento"] ol,
+.proposta-wrapper.tema-classica *[class*="Equipamento"] ul,
+.proposta-wrapper.tema-classica *[class*="Equipamento"] ol {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin: 15px 0 !important;
+  padding-left: 30px !important;
+  list-style: disc !important;
+}
+
+/* Itens da lista de equipamentos */
+.proposta-wrapper.tema-classica h2:contains("Equipamentos")+ul li,
+.proposta-wrapper.tema-classica h2:contains("EQUIPAMENTOS")+ul li,
+.proposta-wrapper.tema-classica *[class*="equipamento"] li,
+.proposta-wrapper.tema-classica *[class*="Equipamento"] li {
+  display: list-item !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  margin-bottom: 8px !important;
+  color: #1f2937 !important;
+  font-size: 11pt !important;
+  line-height: 1.6 !important;
+}
+
+/* Se os equipamentos estiverem em tabela */
+.proposta-wrapper.tema-classica table[class*="equipamento"],
+.proposta-wrapper.tema-classica table[class*="Equipamento"],
+.proposta-wrapper.tema-classica h2:contains("Equipamentos")+table,
+.proposta-wrapper.tema-classica h2:contains("EQUIPAMENTOS")+table {
+  display: table !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 20px 0 !important;
+}
+
+.proposta-wrapper.tema-classica table[class*="equipamento"] tr,
+.proposta-wrapper.tema-classica table[class*="Equipamento"] tr,
+.proposta-wrapper.tema-classica table[class*="equipamento"] td,
+.proposta-wrapper.tema-classica table[class*="Equipamento"] td {
+  display: table-row !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+}
+
+/* Se estiver em divs */
+.proposta-wrapper.tema-classica *[class*="equipamento"] div,
+.proposta-wrapper.tema-classica *[class*="Equipamento"] div,
+.proposta-wrapper.tema-classica .lista-equipamentos div,
+.proposta-wrapper.tema-classica .equipamentos-lista div {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  margin: 5px 0 !important;
+  padding: 5px 0 !important;
+}
+
+/* Forçar bullets/numbers visíveis */
+.proposta-wrapper.tema-classica ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+}
+
+.proposta-wrapper.tema-classica ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+}
+
+.proposta-wrapper.tema-classica li::marker {
+  color: #3b82f6 !important;
+  font-size: 1.2em !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Remover qualquer classe ou estilo que esconda */
+.proposta-wrapper.tema-classica .hidden,
+.proposta-wrapper.tema-classica .hide,
+.proposta-wrapper.tema-classica .invisible,
+.proposta-wrapper.tema-classica .d-none,
+.proposta-wrapper.tema-classica [hidden],
+.proposta-wrapper.tema-classica [style*="display: none"],
+.proposta-wrapper.tema-classica [style*="visibility: hidden"],
+.proposta-wrapper.tema-classica [style*="opacity: 0"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Específico para o número "6." - seção de equipamentos */
+.proposta-wrapper.tema-classica h2:nth-of-type(6)+*,
+.proposta-wrapper.tema-classica h3:nth-of-type(6)+* {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

@@ -440,6 +440,9 @@ $variaveis = getVariableMap($incomingData, $conn);
     <!-- Header -->
     <header class="glass border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-4">
+            <a href="painel.php" class="text-slate-400 hover:text-white hover:bg-white/5 p-2 rounded-xl transition-all mr-1" title="Voltar ao Painel">
+                <i class="bi bi-arrow-left text-2xl"></i>
+            </a>
             <div class="bg-primary/20 text-primary p-2 rounded-xl border border-primary/30">
                 <i class="bi bi-pencil-square text-xl"></i>
             </div>
