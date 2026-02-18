@@ -1,0 +1,913 @@
+Modelo_HTML
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta Levantamento Drone - Estrutura</title>
+    <style>
+        /* ============================================
+           VARIÁVEIS CSS - Sistema de Design
+           ============================================ */
+        :root {
+            /* Cores Primárias */
+            --cor-primaria: #2563eb;
+            --cor-primaria-hover: #1d4ed8;
+            --cor-primaria-light: #dbeafe;
+
+            /* Cores de Status */
+            --cor-sucesso: #10b981;
+            --cor-sucesso-light: #d1fae5;
+            --cor-alerta: #f59e0b;
+            --cor-alerta-light: #fef3c7;
+            --cor-erro: #ef4444;
+            --cor-erro-light: #fee2e2;
+
+            /* Cores Neutras */
+            --cor-fundo: #f8fafc;
+            --cor-branco: #ffffff;
+            --cor-borda: #e2e8f0;
+            --cor-texto: #1e293b;
+            --cor-texto-secundario: #64748b;
+
+            /* Sombras */
+            --sombra-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --sombra-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --sombra-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+            /* Espaçamento */
+            --espaco-xs: 0.5rem;
+            --espaco-sm: 0.75rem;
+            --espaco-md: 1rem;
+            --espaco-lg: 1.5rem;
+            --espaco-xl: 2rem;
+
+            /* Bordas */
+            --raio-sm: 0.375rem;
+            --raio-md: 0.5rem;
+            --raio-lg: 0.75rem;
+
+            /* Transições */
+            --transicao: all 0.2s ease-in-out;
+        }
+
+        /* ============================================
+           RESET E BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           TOPO INSTITUCIONAL - LOGO + TÍTULO
+           ============================================ */
+        .topo-institucional {
+            background: linear-gradient(135deg, var(--cor-branco) 0%, var(--cor-fundo) 100%);
+            border-bottom: 3px solid var(--cor-primaria);
+            padding: var(--espaco-xl) 0;
+            margin-bottom: var(--espaco-xl);
+            box-shadow: var(--sombra-md);
+        }
+
+        .topo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--espaco-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--espaco-xl);
+        }
+
+        /* Área da Logo */
+        .logo-area {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--espaco-md);
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 80px;
+            background: var(--cor-primaria-light);
+            border: 2px dashed var(--cor-primaria);
+            border-radius: var(--raio-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cor-primaria);
+            font-size: 0.75rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-placeholder::before {
+            content: "LOGO";
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        /* Quando tiver imagem real, substitua por: */
+        .logo-img {
+            max-width: 150px;
+            max-height: 90px;
+            object-fit: contain;
+        }
+
+        /* Área do Título */
+        .titulo-area {
+            flex: 1;
+            text-align: right;
+        }
+
+        .titulo-principal {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--cor-primaria);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--espaco-xs);
+            line-height: 1.2;
+        }
+
+        .titulo-sub {
+            font-size: 1.125rem;
+            color: var(--cor-texto-secundario);
+            font-weight: 500;
+        }
+
+        .titulo-linha {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--cor-primaria) 0%, var(--cor-sucesso) 100%);
+            margin-left: auto;
+            margin-top: var(--espaco-sm);
+            border-radius: 2px;
+        }
+
+        /* ============================================
+           CONTAINER PRINCIPAL - MIRROR DO SISTEMA
+           ============================================ */
+        .container-proposta {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--espaco-md) var(--espaco-xl);
+        }
+
+        /* Header da Proposta */
+        .proposta-header {
+            background: var(--cor-branco);
+            border-radius: var(--raio-lg);
+            padding: var(--espaco-xl);
+            margin-bottom: var(--espaco-lg);
+            box-shadow: var(--sombra-md);
+            border-left: 4px solid var(--cor-primaria);
+        }
+
+        .proposta-titulo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--cor-texto);
+            margin-bottom: var(--espaco-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--espaco-sm);
+        }
+
+        .proposta-titulo::before {
+            content: "🚁";
+            font-size: 1.75rem;
+        }
+
+        .proposta-meta {
+            display: flex;
+            gap: var(--espaco-lg);
+            color: var(--cor-texto-secundario);
+            font-size: 0.875rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--espaco-xs);
+        }
+
+        /* ============================================
+           SUB-CONTAINERS POR SEÇÃO
+           ============================================ */
+
+        /* Seção Genérica */
+        .secao-container {
+            background: var(--cor-branco);
+            border-radius: var(--raio-lg);
+            margin-bottom: var(--espaco-lg);
+            box-shadow: var(--sombra-sm);
+            border: 1px solid var(--cor-borda);
+            overflow: hidden;
+            transition: var(--transicao);
+        }
+
+        .secao-container:hover {
+            box-shadow: var(--sombra-md);
+        }
+
+        /* Header da Seção */
+        .secao-header {
+            background: linear-gradient(135deg, var(--cor-primaria-light) 0%, var(--cor-branco) 100%);
+            padding: var(--espaco-md) var(--espaco-lg);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .secao-header:hover {
+            background: linear-gradient(135deg, var(--cor-primaria-light) 0%, #f1f5f9 100%);
+        }
+
+        .secao-titulo {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--cor-primaria);
+            display: flex;
+            align-items: center;
+            gap: var(--espaco-sm);
+        }
+
+        /* Ícones por seção */
+        .secao-titulo.dados-cliente::before {
+            content: "👤";
+        }
+
+        .secao-titulo.dados-imovel::before {
+            content: "🏞️";
+        }
+
+        .secao-titulo.escopo-servico::before {
+            content: "📋";
+        }
+
+        .secao-titulo.equipamentos::before {
+            content: "🛸";
+        }
+
+        .secao-titulo.cronograma::before {
+            content: "📅";
+        }
+
+        .secao-titulo.investimento::before {
+            content: "💰";
+        }
+
+        .secao-titulo.termos::before {
+            content: "⚖️";
+        }
+
+        .secao-badge {
+            background: var(--cor-primaria);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Corpo da Seção */
+        .secao-body {
+            padding: var(--espaco-lg);
+        }
+
+        /* Grid para campos */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--espaco-md);
+        }
+
+        /* Grupo de Campo */
+        .campo-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--espaco-xs);
+        }
+
+        .campo-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--cor-texto-secundario);
+        }
+
+        .campo-input {
+            padding: var(--espaco-sm) var(--espaco-md);
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-md);
+            font-size: 0.875rem;
+            transition: var(--transicao);
+            background: var(--cor-fundo);
+        }
+
+        .campo-input:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px var(--cor-primaria-light);
+        }
+
+        /* ============================================
+           COMPONENTES ESPECÍFICOS
+           ============================================ */
+
+        /* Cards de Equipamento */
+        .equipamento-card {
+            border: 2px solid var(--cor-borda);
+            border-radius: var(--raio-md);
+            padding: var(--espaco-md);
+            display: flex;
+            align-items: center;
+            gap: var(--espaco-md);
+            cursor: pointer;
+            transition: var(--transicao);
+        }
+
+        .equipamento-card:hover {
+            border-color: var(--cor-primaria);
+            background: var(--cor-primaria-light);
+        }
+
+        .equipamento-card.selecionado {
+            border-color: var(--cor-primaria);
+            background: var(--cor-primaria-light);
+            position: relative;
+        }
+
+        .equipamento-card.selecionado::after {
+            content: "✓";
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--cor-primaria);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Timeline do Cronograma */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--cor-borda);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: var(--espaco-lg);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--cor-primaria);
+            border: 3px solid var(--cor-branco);
+            box-shadow: var(--sombra-sm);
+        }
+
+        /* Tabela de Investimento */
+        .tabela-investimento {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--espaco-md);
+        }
+
+        .tabela-investimento th,
+        .tabela-investimento td {
+            padding: var(--espaco-sm) var(--espaco-md);
+            text-align: left;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-investimento th {
+            background: var(--cor-fundo);
+            font-weight: 600;
+            color: var(--cor-texto-secundario);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tabela-investimento tr:hover {
+            background: var(--cor-fundo);
+        }
+
+        .valor-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            text-align: right;
+            margin-top: var(--espaco-md);
+            padding-top: var(--espaco-md);
+            border-top: 2px solid var(--cor-primaria);
+        }
+
+        /* ============================================
+           AÇÕES DA PROPOSTA
+           ============================================ */
+        .acoes-container {
+            position: sticky;
+            bottom: 0;
+            background: var(--cor-branco);
+            padding: var(--espaco-md) var(--espaco-lg);
+            border-top: 1px solid var(--cor-borda);
+            box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 calc(-1 * var(--espaco-md));
+            margin-top: var(--espaco-xl);
+        }
+
+        .btn {
+            padding: var(--espaco-sm) var(--espaco-lg);
+            border-radius: var(--raio-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transicao);
+            border: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--espaco-xs);
+        }
+
+        .btn-primario {
+            background: var(--cor-primaria);
+            color: white;
+        }
+
+        .btn-primario:hover {
+            background: var(--cor-primaria-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--sombra-md);
+        }
+
+        .btn-secundario {
+            background: var(--cor-branco);
+            color: var(--cor-texto);
+            border: 1px solid var(--cor-borda);
+        }
+
+        .btn-secundario:hover {
+            background: var(--cor-fundo);
+        }
+
+        /* ============================================
+           UTILITÁRIOS
+           ============================================ */
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .topo-container {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--espaco-md);
+            }
+
+            .titulo-area {
+                text-align: center;
+            }
+
+            .titulo-linha {
+                margin: var(--espaco-sm) auto 0;
+            }
+
+            .titulo-principal {
+                font-size: 1.5rem;
+            }
+
+            .container-proposta {
+                margin: 1rem auto;
+            }
+
+            .proposta-header {
+                padding: var(--espaco-md);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .acoes-container {
+                flex-direction: column;
+                gap: var(--espaco-md);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOPO INSTITUCIONAL - LOGO + TÍTULO -->
+    <header class="topo-institucional">
+        <div class="topo-container">
+
+            <!-- ÁREA DA LOGO -->
+            <div class="logo-area">
+                <!-- Opção 1: Placeholder (enquanto não tem a imagem) -->
+                <div class="logo-placeholder" title="Área reservada para logo da empresa">
+                    <!-- Substitua por: <img src="caminho/logo.png" class="logo-img" alt="Logo Empresa"> -->
+                </div>
+
+                <!-- Opção 2: Com imagem real (descomente quando tiver) -->
+                <!-- <img src="assets/img/logo-empresa.png" class="logo-img" alt="Nome da Empresa"> -->
+            </div>
+
+            <!-- ÁREA DO TÍTULO -->
+            <div class="titulo-area">
+                <h1 class="titulo-principal">Proposta Técnica Comercial</h1>
+                <div class="titulo-sub">Levantamento Topográfico com Drone</div>
+                <div class="titulo-linha"></div>
+            </div>
+
+        </div>
+    </header>
+
+    <div class="container-proposta">
+
+        <!-- HEADER DA PROPOSTA (INFORMAÇÕES OPERACIONAIS) -->
+        <div class="proposta-header">
+            <h2 class="proposta-titulo">Levantamento Aerofotogramétrico</h2>
+            <div class="proposta-meta">
+                <span class="meta-item">📄 Nº <strong>PROP-2024-001</strong></span>
+                <span class="meta-item">📅 Emissão: <strong>17/02/2026</strong></span>
+                <span class="meta-item">⏱️ Validade: <strong>30 dias</strong></span>
+                <span class="meta-item">👤 Consultor: <strong>Eng. Responsável</strong></span>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 1: DADOS DO CLIENTE -->
+        <div class="secao-container" id="secao-cliente">
+            <div class="secao-header" onclick="toggleSecao('cliente')">
+                <h3 class="secao-titulo dados-cliente">Dados do Cliente</h3>
+                <span class="secao-badge">Obrigatório</span>
+            </div>
+            <div class="secao-body" id="body-cliente">
+                <div class="form-grid">
+                    <div class="campo-grupo">
+                        <label class="campo-label">Razão Social / Nome</label>
+                        <input type="text" class="campo-input" placeholder="Nome completo do cliente">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">CNPJ / CPF</label>
+                        <input type="text" class="campo-input" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">E-mail</label>
+                        <input type="email" class="campo-input" placeholder="contato@empresa.com">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Telefone</label>
+                        <input type="tel" class="campo-input" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 2: DADOS DO IMÓVEL -->
+        <div class="secao-container" id="secao-imovel">
+            <div class="secao-header" onclick="toggleSecao('imovel')">
+                <h3 class="secao-titulo dados-imovel">Dados do Imóvel / Área</h3>
+                <span class="secao-badge">Obrigatório</span>
+            </div>
+            <div class="secao-body" id="body-imovel">
+                <div class="form-grid">
+                    <div class="campo-grupo">
+                        <label class="campo-label">Endereço Completo</label>
+                        <input type="text" class="campo-input" placeholder="Rua, número, bairro, cidade, UF">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Área Aproximada (hectares)</label>
+                        <input type="number" class="campo-input" placeholder="0,00">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Tipo de Terreno</label>
+                        <select class="campo-input">
+                            <option>Plano</option>
+                            <option>Acidentado</option>
+                            <option>Misto</option>
+                            <option>Floresta</option>
+                            <option>Urbano</option>
+                        </select>
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Acesso ao Local</label>
+                        <select class="campo-input">
+                            <option>Fácil - Estrada pavimentada</option>
+                            <option>Moderado - Estrada de terra</option>
+                            <option>Difícil - Trilha/Off-road</option>
+                            <option>Helicóptero/Embarcação</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 3: ESCOPO DO SERVIÇO -->
+        <div class="secao-container" id="secao-escopo">
+            <div class="secao-header" onclick="toggleSecao('escopo')">
+                <h3 class="secao-titulo escopo-servico">Escopo do Serviço</h3>
+                <span class="secao-badge">Obrigatório</span>
+            </div>
+            <div class="secao-body" id="body-escopo">
+                <div class="form-grid">
+                    <div class="campo-grupo">
+                        <label class="campo-label">Tipo de Levantamento</label>
+                        <select class="campo-input">
+                            <option>Topográfico Planimétrico</option>
+                            <option>Topográfico Altimétrico</option>
+                            <option>Topográfico Completo</option>
+                            <option>Ortofoto de Alta Resolução</option>
+                            <option>Modelo Digital de Elevação (MDE)</option>
+                            <option>Mapeamento 3D</option>
+                        </select>
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Escala do Levantamento</label>
+                        <select class="campo-input">
+                            <option>1:500</option>
+                            <option>1:1000</option>
+                            <option>1:2000</option>
+                            <option>1:5000</option>
+                            <option>1:10000</option>
+                        </select>
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Curva de Nível (metros)</label>
+                        <input type="text" class="campo-input" placeholder="Ex: 1 em 1 metro">
+                    </div>
+                    <div class="campo-grupo">
+                        <label class="campo-label">Datum Horizontal</label>
+                        <select class="campo-input">
+                            <option>SIRGAS 2000</option>
+                            <option>SAD 69</option>
+                            <option>Córrego Alegre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 4: EQUIPAMENTOS -->
+        <div class="secao-container" id="secao-equipamentos">
+            <div class="secao-header" onclick="toggleSecao('equipamentos')">
+                <h3 class="secao-titulo equipamentos">Equipamentos Utilizados</h3>
+                <span class="secao-badge">Selecionar</span>
+            </div>
+            <div class="secao-body" id="body-equipamentos">
+                <div class="form-grid">
+                    <div class="equipamento-card selecionado" onclick="toggleEquipamento(this)">
+                        <div style="font-size: 2rem;">🛸</div>
+                        <div>
+                            <strong>DJI Matrice 300 RTK</strong>
+                            <div style="font-size: 0.875rem; color: var(--cor-texto-secundario);">
+                                Precisão centimétrica | Tempo voo: 55min
+                            </div>
+                        </div>
+                    </div>
+                    <div class="equipamento-card" onclick="toggleEquipamento(this)">
+                        <div style="font-size: 2rem;">📷</div>
+                        <div>
+                            <strong>Zenmuse P1 (Sensor Full Frame)</strong>
+                            <div style="font-size: 0.875rem; color: var(--cor-texto-secundario);">
+                                45MP | Gimbal estabilizado
+                            </div>
+                        </div>
+                    </div>
+                    <div class="equipamento-card" onclick="toggleEquipamento(this)">
+                        <div style="font-size: 2rem;">📡</div>
+                        <div>
+                            <strong>Estação Base GNSS</strong>
+                            <div style="font-size: 0.875rem; color: var(--cor-texto-secundario);">
+                                RTK para correção em tempo real
+                            </div>
+                        </div>
+                    </div>
+                    <div class="equipamento-card" onclick="toggleEquipamento(this)">
+                        <div style="font-size: 2rem;">🎯</div>
+                        <div>
+                            <strong>Marcadores de Controle de Qualidade</strong>
+                            <div style="font-size: 0.875rem; color: var(--cor-texto-secundario);">
+                                GCPs (Ground Control Points)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 5: CRONOGRAMA -->
+        <div class="secao-container" id="secao-cronograma">
+            <div class="secao-header" onclick="toggleSecao('cronograma')">
+                <h3 class="secao-titulo cronograma">Cronograma de Execução</h3>
+                <span class="secao-badge">5 dias úteis</span>
+            </div>
+            <div class="secao-body" id="body-cronograma">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Dia 1 - Planejamento e Logística</strong>
+                        <div style="color: var(--cor-texto-secundario); font-size: 0.875rem;">
+                            Análise do terreno, check-list de equipamentos, liberação de voo (DECEA/ANAC)
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Dia 2 - Voo de Campo</strong>
+                        <div style="color: var(--cor-texto-secundario); font-size: 0.875rem;">
+                            Execução do levantamento aéreo, coleta de dados GNSS, fotogrametria
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Dia 3-4 - Processamento</strong>
+                        <div style="color: var(--cor-texto-secundario); font-size: 0.875rem;">
+                            Triangulação aerofotogramétrica, geração de ortofoto, vetorização
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Dia 5 - Entrega</strong>
+                        <div style="color: var(--cor-texto-secundario); font-size: 0.875rem;">
+                            Relatório técnico, arquivos DWG/PDF, ortofoto georreferenciada
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 6: INVESTIMENTO -->
+        <div class="secao-container" id="secao-investimento">
+            <div class="secao-header" onclick="toggleSecao('investimento')">
+                <h3 class="secao-titulo investimento">Investimento</h3>
+                <span class="secao-badge">R$ 0,00</span>
+            </div>
+            <div class="secao-body" id="body-investimento">
+                <table class="tabela-investimento">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Descrição</th>
+                            <th>Qtd</th>
+                            <th>Valor Unit.</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Levantamento Topográfico com Drone</td>
+                            <td>1</td>
+                            <td>R$ 0,00</td>
+                            <td>R$ 0,00</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Processamento Fotogramétrico</td>
+                            <td>1</td>
+                            <td>R$ 0,00</td>
+                            <td>R$ 0,00</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Deslocamento e Logística</td>
+                            <td>1</td>
+                            <td>R$ 0,00</td>
+                            <td>R$ 0,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="valor-total">
+                    TOTAL: R$ 0,00
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 7: TERMOS -->
+        <div class="secao-container" id="secao-termos">
+            <div class="secao-header" onclick="toggleSecao('termos')">
+                <h3 class="secao-titulo termos">Termos e Condições</h3>
+                <span class="secao-badge">Leitura</span>
+            </div>
+            <div class="secao-body" id="body-termos">
+                <div class="campo-grupo">
+                    <label class="campo-label">Condições de Pagamento</label>
+                    <select class="campo-input">
+                        <option>50% entrada + 50% na entrega</option>
+                        <option>30/60/90 dias</option>
+                        <option>À vista (5% desconto)</option>
+                    </select>
+                </div>
+                <div
+                    style="margin-top: var(--espaco-md); padding: var(--espaco-md); background: var(--cor-fundo); border-radius: var(--raio-md); font-size: 0.875rem; color: var(--cor-texto-secundario);">
+                    <strong>Observações:</strong><br>
+                    • Preço válido por 30 dias<br>
+                    • Não inclui taxas cartoriais<br>
+                    • Sujeito a condições meteorológicas<br>
+                    • Liberação de voo sob responsabilidade do cliente
+                </div>
+            </div>
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="acoes-container">
+            <button class="btn btn-secundario" onclick="salvarRascunho()">
+                💾 Salvar Rascunho
+            </button>
+            <div style="display: flex; gap: var(--espaco-md);">
+                <button class="btn btn-secundario" onclick="visualizarPDF()">
+                    👁️ Visualizar
+                </button>
+                <button class="btn btn-primario" onclick="gerarProposta()">
+                    ✨ Gerar Proposta PDF
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Toggle seções (colapsar/expandir)
+        function toggleSecao(id) {
+            const body = document.getElementById(`body-${id}`);
+            body.classList.toggle('hidden');
+        }
+
+        // Toggle seleção de equipamento
+        function toggleEquipamento(element) {
+            element.classList.toggle('selecionado');
+        }
+
+        // Ações dos botões
+        function salvarRascunho() {
+            alert('Rascunho salvo com sucesso!');
+        }
+
+        function visualizarPDF() {
+            alert('Abrindo visualização...');
+        }
+
+        function gerarProposta() {
+            alert('Gerando PDF da proposta...');
+        }
+    </script>
+
+</body>
+
+</html>

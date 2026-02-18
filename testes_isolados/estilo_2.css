@@ -1,0 +1,226 @@
+/* ============================================
+   TEMA DRONE - Azul Tecnológico
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --brand: #0ea5e9;
+    --brand-light: #38bdf8;
+    --brand-dark: #0369a1;
+    --brand-bg: #f0f9ff;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+    --border-light: #e2e8f0;
+    --surface: #f8fafc;
+}
+
+/* Header tech */
+.header-proposta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 2px solid var(--brand);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.header-proposta::after {
+    content: "VANT";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--brand);
+    color: white;
+    padding: 4px 12px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 0 0 0 6px;
+}
+
+.logo-placeholder {
+    width: 100px;
+    height: 60px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 9pt;
+    border-radius: 4px;
+}
+
+.titulo-area h1 {
+    font-size: 20pt;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.subtitulo {
+    color: var(--brand);
+    font-size: 10pt;
+    margin-top: 2px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+/* Meta */
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    background: var(--surface);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    font-size: 9.5pt;
+    border-left: 3px solid var(--brand);
+}
+
+.numero-proposta {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--brand-dark);
+}
+
+/* Dados em cards */
+.secao-dados {
+    margin-bottom: 20px;
+}
+
+.secao-dados h2 {
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.secao-dados h2::before {
+    content: "▸";
+    color: var(--brand-light);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.info-item {
+    background: var(--surface);
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.info-item .label {
+    display: block;
+    font-size: 8pt;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.info-item .valor {
+    font-size: 10pt;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Blocos */
+.bloco-secao {
+    margin-bottom: 20px;
+    padding-left: 16px;
+    border-left: 2px solid var(--border);
+    page-break-inside: avoid;
+}
+
+.bloco-secao h2 {
+    color: var(--brand-dark);
+    font-size: 12pt;
+    margin-left: -16px;
+    padding-left: 16px;
+    border-left: 2px solid var(--brand);
+}
+
+/* Valor estilo dashboard */
+.secao-valor {
+    margin: 28px 0;
+}
+
+.box-valor {
+    background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+    color: white;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.3);
+}
+
+.valor-principal {
+    font-size: 28pt;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.02em;
+}
+
+.valor-extenso {
+    font-size: 10pt;
+    opacity: 0.9;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Tabelas tech */
+th {
+    background: var(--brand-bg);
+    color: var(--brand-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--brand);
+}
+
+tr:hover td {
+    background: var(--surface);
+}
+
+/* Footer */
+.footer-proposta {
+    margin-top: 40px;
+    text-align: center;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.assinatura-linha {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-size: 12pt;
+}
+
+.empresa-nome {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.empresa-info {
+    font-size: 9pt;
+    color: var(--text-muted);
+    margin-top: 4px;
+}

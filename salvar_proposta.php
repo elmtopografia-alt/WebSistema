@@ -46,6 +46,11 @@ try {
         case 'html':
             $redirectUrl = "gerar_proposta_html.php?id=$id";
             break;
+        // Novo formato de teste: usa o motor premium isolado (crm-propostas)
+        case 'html_premium':
+        case 'premium':
+            $redirectUrl = "gerar_proposta_premium.php?id=$id";
+            break;
         default:
             $redirectUrl = "proposta_sucesso.php?id=$id";
     }

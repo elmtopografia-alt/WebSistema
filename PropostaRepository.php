@@ -100,6 +100,8 @@ public function buscarPorId($id)
     if ($res2) {
         while ($row = $res2->fetch_assoc()) {
             $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
+            // Alias para facilitar no DOCX (sem o sufixo _content no contexto)
+            $dados[$row['block_id']] = $row['conteudo_texto'];
         }
     }
     
@@ -308,7 +310,8 @@ public function buscarPorId($id)
             valor_desconto, valor_final_proposta, Valor_proposta_extenso,
             mobilizacao_percentual, mobilizacao_valor, 
             restante_percentual, restante_valor, status,
-            tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps
+            tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps,
+            modelo_docx
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         
         $stmt = $this->conn->prepare($sql);
@@ -360,8 +363,9 @@ public function buscarPorId($id)
         $acesso = $dados['acesso_local'] ?? null;
         $restr = $dados['restricoes_aereas'] ?? null;
         $gps = $dados['coordenadas_gps'] ?? null;
+        $modelo_docx = $dados['modelo_docx'] ?? null;
 
-        $stmt->bind_param('siiissssssssiissssssssssiiddddddddddsddddssssss',
+        $stmt->bind_param('siiissssssssiissssssssssiiddddddddddsddddsssssss',
             $numero, $id_cliente, $id_criador, $isDemo,
             $nome_cliente_salvo, $empresa_cliente, $email_salvo, $telefone_salvo, $celular_salvo, $whatsapp_salvo,
             $empresa_proponente_nome, $empresa_proponente_cnpj,
@@ -371,7 +375,8 @@ public function buscarPorId($id)
             $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin,
             $perc_lucro, $val_lucro, $subtotal, $val_desconto, $val_final, $val_extenso,
             $mob_perc, $mob_val, $rest_perc, $rest_val,
-            $status, $tipo_terreno, $veg, $acesso, $restr, $gps
+            $status, $tipo_terreno, $veg, $acesso, $restr, $gps,
+            $modelo_docx
         );
         
         $stmt->execute();
@@ -389,7 +394,8 @@ public function buscarPorId($id)
             total_custos_salarios=?, total_custos_estadia=?, total_custos_consumos=?, total_custos_locacao=?, total_custos_admin=?,
             percentual_lucro=?, valor_lucro=?, subtotal_com_lucro=?, valor_desconto=?, valor_final_proposta=?, Valor_proposta_extenso=?,
             mobilizacao_percentual=?, mobilizacao_valor=?, restante_percentual=?, restante_valor=?,
-            tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?, data_atualizacao=NOW()
+            tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?, 
+            modelo_docx=?, data_atualizacao=NOW()
             WHERE id_proposta=?";
         
         $stmt = $this->conn->prepare($sql);
@@ -437,8 +443,9 @@ public function buscarPorId($id)
         $acesso = $dados['acesso_local'] ?? null;
         $restr = $dados['restricoes_aereas'] ?? null;
         $gps = $dados['coordenadas_gps'] ?? null;
+        $modelo_docx = $dados['modelo_docx'] ?? null;
 
-        $stmt->bind_param('issssssiissssssssssiisddddddddddsddddsssssi',
+        $stmt->bind_param('issssssiissssssssssiisddddddddddsddddsssssssi',
             $id_cliente, $nome_cliente_salvo, $empresa_cliente, $email_salvo, $telefone_salvo, $celular_salvo, $whatsapp_salvo,
             $id_servico, $tipo_servico_id, $contato_obra, $finalidade, $tipo_levantamento,
             $area_obra, $unidade_area, $endereco_obra, $bairro_obra, $cidade_obra, $estado_obra,
@@ -448,6 +455,7 @@ public function buscarPorId($id)
             $perc_lucro, $val_lucro, $subtotal, $val_desconto, $val_final, $val_extenso,
             $mob_perc, $mob_val, $rest_perc, $rest_val,
             $tipo_terreno, $veg, $acesso, $restr, $gps,
+            $modelo_docx,
             $id
         );
         $stmt->execute();

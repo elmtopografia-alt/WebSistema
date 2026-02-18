@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta Drone - Modelo Moderno Azul</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+
+    <!-- 1. TEMA CLÁSSICO (Base / Reset) -->
+    <link rel="stylesheet" href="assets/css/tema_proposta.css">
+
+    <!-- 2. TEMA MODERNO AZUL (Sua personalização) -->
+    <link rel="stylesheet" href="assets/css/tema_moderno_azul.css">
+</head>
+
+<body class="tema-classica"> <!-- Classe necessária para ativação de alguns scripts/estilos -->
+
+    <!-- Botão Flutuante -->
+    <button class="btn-fab no-print" onclick="window.print()" title="Imprimir">🖨️</button>
+
+    <!-- Adicionado 'proposta-wrapper' para herdar estilos do tema clássico -->
+    <div class="page proposta-wrapper tema-classica">
+
+        <!-- HEADER -->
+        <div class="header-container">
+            <div class="header-logo">
+                <div class="logo-placeholder">LOGO</div>
+            </div>
+            <div class="header-title">
+                <h1>Proposta Técnica</h1>
+                <div class="subtitle">Levantamento Topográfico com Drone</div>
+            </div>
+        </div>
+
+        <!-- META -->
+        <div class="meta-row">
+            <div>São Paulo, 17 de Fevereiro de 2026</div>
+            <div class="numero">Nº PROP-2026-098</div>
+        </div>
+
+        <!-- INFO CARDS -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card-title">Dados do Cliente</div>
+                <p><span class="label">Nome:</span> Empresa Cliente Ltda</p>
+                <p><span class="label">E-mail:</span> contato@cliente.com.br</p>
+                <p><span class="label">Telefone:</span> (11) 99999-9999</p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Local da Obra</div>
+                <p>● <span class="label">Endereço:</span> Av. Paulista, 1000</p>
+                <p>● <span class="label">Cidade:</span> São Paulo - SP</p>
+                <p>● <span class="label">Área:</span> 50.00 ha</p>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO (Simulado) -->
+        <div class="bloco-secao">
+            <h2>1. Escopo do Serviço</h2>
+            <p>Realização de levantamento aerofotogramétrico com drone de alta precisão para geração de ortomosaico e
+                curvas de nível.</p>
+        </div>
+
+        <div class="bloco-secao">
+            <h2>2. Equipamentos Utilizados</h2>
+            <ul>
+                <li>Drone DJI Mavic 3 Enterprise (RTK)</li>
+                <li>Base GNSS Emlid Reach RS2+</li>
+                <li>Software de Processamento Agisoft Metashape</li>
+            </ul>
+        </div>
+
+        <div class="bloco-secao">
+            <h2>3. Cronograma</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Etapa</th>
+                        <th>Descrição</th>
+                        <th>Prazo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Planejamento</td>
+                        <td>Análise de área e plano de voo</td>
+                        <td>1 dia</td>
+                    </tr>
+                    <tr>
+                        <td>Execução</td>
+                        <td>Voo e coleta de pontos de controle</td>
+                        <td>2 dias</td>
+                    </tr>
+                    <tr>
+                        <td>Processamento</td>
+                        <td>Geração de nuvem de pontos e ortofoto</td>
+                        <td>3 dias</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- INVESTMENT HIGHLIGHT -->
+        <div class="invest-box">
+            <div class="invest-label">Investimento Total Estimado</div>
+            <div class="invest-value">R$ 4.500,00</div>
+            <div class="invest-extenso">Quatro mil e quinhentos reais</div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p class="atenciosamente">Atenciosamente,</p>
+            <div class="assinatura-linha"></div>
+            <div class="empresa-info">
+                <strong>SGT Topografia</strong> &nbsp;•&nbsp; São Paulo/SP &nbsp;•&nbsp; Soluções em Geotecnologia
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

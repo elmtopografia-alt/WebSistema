@@ -33,6 +33,13 @@ require_once 'db.php';
 use ProposalArchitect\Infrastructure\HierarchyTreeBuilder;
 use ProposalArchitect\Infrastructure\DatabaseStructureLoader;
 
+// --- INTEGRAÇÃO DOCX ---
+require_once 'renderizador_modelo_docx.php';
+$docxRenderer = new RenderizadorModeloDOCX($conn);
+$modelosDisponiveis = $docxRenderer->listarModelos();
+$modeloDocxAtivo = $_GET['modelo_docx'] ?? null;
+// -----------------------
+
 // =====================================================
 // 2. FUNÇÕES AUXILIARES E FORMATAÇÃO
 // =====================================================
@@ -460,6 +467,31 @@ $variaveis = getVariableMap($incomingData, $conn);
                 <i class="bi bi-eye"></i>
                 Visualizar Web
             </button>
+            <a href="gerar_proposta_premium.php?id=<?= (int)$id_prop ?>" target="_blank" class="px-4 py-2 text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/20 transition-all flex items-center gap-2" title="Layout Premium (piloto)">
+                <i class="bi bi-sparkles"></i>
+                Piloto
+            </a>
+            <div class="dropdown">
+                <button type="button" class="px-4 py-2 text-sm font-bold text-white bg-slate-800 border border-white/10 rounded-xl hover:bg-slate-700 transition-all flex items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" id="dropdownModelos">
+                    <i class="bi bi-file-earmark-richtext"></i>
+                    <?= $modeloDocxAtivo ? str_replace('_', ' ', $modeloDocxAtivo) : 'Modelo Padrão' ?>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark bg-slate-900 border border-white/10 p-2 shadow-2xl" aria-labelledby="dropdownModelos">
+                    <li><a class="dropdown-item rounded-lg py-2 hover:bg-white/5 active:bg-primary" href="?id=<?= $id_prop ?>">📂 Modelo Tradicional (SGT)</a></li>
+                    <li><hr class="dropdown-divider border-white/5"></li>
+                    <li class="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Modelos DOCX</li>
+                    <?php if (empty($modelosDisponiveis)): ?>
+                        <li class="px-3 py-2 text-xs italic text-slate-500">Nenhum modelo gerado</li>
+                    <?php else: ?>
+                        <?php foreach ($modelosDisponiveis as $mod): ?>
+                            <li><a class="dropdown-item rounded-lg py-2 hover:bg-white/5 <?= ($modeloDocxAtivo === $mod['id']) ? 'bg-primary/20 text-primary' : '' ?>" href="?id=<?= $id_prop ?>&modelo_docx=<?= $mod['id'] ?>">📄 <?= $mod['nome'] ?></a></li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <li><hr class="dropdown-divider border-white/5"></li>
+                    <li><a class="dropdown-item rounded-lg py-2 text-emerald-400 hover:bg-emerald-500/10" href="gerador_upload_docx.php" target="_blank"><i class="bi bi-plus-circle me-1"></i> Criar Novo do Word</a></li>
+                </ul>
+            </div>
+
             <button type="button" onclick="submitForm('docx')" class="px-5 py-2 text-sm font-bold text-white bg-primary rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
                 <i class="bi bi-file-earmark-word"></i>
                 Gerar Word
@@ -506,10 +538,50 @@ $variaveis = getVariableMap($incomingData, $conn);
             <div class="max-w-3xl mx-auto space-y-10 pb-20">
 
                 <form id="formProposta" method="POST" action="salvar_proposta.php">
+                    <?php 
+                    // SE HOUVER MODELO DOCX ATIVO, RENDERIZA CABEÇALHO DE VARIÁVEIS DO DOCX
+                    if ($modeloDocxAtivo): 
+                        $metadataDocx = $docxRenderer->obterMetadata($modeloDocxAtivo);
+                    ?>
+                        <div class="glass-card rounded-2xl border-l-4 border-l-emerald-500 p-6 mb-10 shadow-xl shadow-emerald-950/20">
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl border border-emerald-500/30">
+                                        <i class="bi bi-magic text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-white">Modo Word Ativo: <?= str_replace('_', ' ', $modeloDocxAtivo) ?></h3>
+                                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Variáveis detectadas no documento original preenchidas aqui</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold uppercase">Edição Direta</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <?php 
+                                // Lista apenas variáveis que NÃO são do sistema (as manuais)
+                                $chavesSistema = require 'config_chaves_sistema.php';
+                                foreach ($metadataDocx['variaveis'] as $var): 
+                                    if (isset($chavesSistema[$var])) continue; // Pula as automáticas
+                                    $label = ucwords(str_replace('_', ' ', $var));
+                                    $valor = $incomingData[$var . '_content'] ?? $incomingData[$var] ?? '';
+                                ?>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1"><?= $label ?></label>
+                                        <input type="text" name="<?= $var ?>_content" value="<?= htmlspecialchars($valor) ?>" 
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-emerald-100 focus:outline-none focus:border-emerald-500/50 text-sm transition-all"
+                                            placeholder="Valor para {<?= $var ?>}">
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                     <input type="hidden" name="id_proposta" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_proposta_original" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_cliente" value="<?= $incomingData['id_cliente'] ?? '' ?>">
                     <input type="hidden" name="id_servico" value="<?= $incomingData['id_servico'] ?? '' ?>">
+                    <input type="hidden" name="modelo_docx" value="<?= htmlspecialchars($modeloDocxAtivo ?? '') ?>">
                     <input type="hidden" name="formato_saida" id="inputFormatoSaida" value="html">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     

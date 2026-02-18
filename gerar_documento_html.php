@@ -1,5 +1,4 @@
 <?php
-
 /**
  * GERADOR DE DOCUMENTO HTML PREMIUM (Para impressão/PDF)
  * Renderiza a proposta em HTML elegante baseando-se nos dados do POST.
@@ -110,6 +109,62 @@ function valorPorExtenso($valor = 0)
     return $rt;
 }
 
+// Função Helper para substituir variáveis (Movida para o topo para garantir escopo global)
+function substituir($texto, $vars)
+{
+    foreach ($vars as $chave => $valor) {
+        // Previne erro se valor for array
+        if (is_array($valor) || is_object($valor)) continue;
+        
+        $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
+    }
+    return $texto;
+}
+
+/**
+ * Remove valor monetário e texto de investimento de blocos que NÃO são o bloco 8 (Investimento).
+ */
+function limparConteudoInvestimentoDeBloco($texto)
+{
+    if (empty($texto) || !is_string($texto)) return $texto;
+    $t = $texto;
+    // 1) R$ X.XXX,XX com ou sem (valor por extenso)
+    $t = preg_replace_callback('/R\$\s*([\d\.,]+)(?:\s*\([^)]+\))?/iu', function ($m) {
+        $v = (float) str_replace(',', '.', str_replace('.', '', $m[1]));
+        return ($v >= 0) ? '' : $m[0];
+    }, $t);
+    // 2) Linha ou bloco contendo só valor por extenso
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', "\n", $t);
+    // 3) Parágrafo "Este investimento traduz-se..."
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*Este investimento[^<]*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace('/Este investimento[^.]*\./iu', '', $t);
+    // 4) Linha com apenas R$ X.XXX,XX
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*R\$\s*[\d\.,]+\s*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', "\n", $t);
+    // 5) Remove parágrafos vazios
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*(?:&nbsp;|\s)*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace("/\n\s*\n+/", "\n", $t);
+    return trim($t);
+}
+
+/**
+ * Remove APENAS linhas duplicadas de valor do bloco Investimento.
+ */
+function removerValorDuplicadoDoInvestimento($texto)
+{
+    if (empty($texto) || !is_string($texto)) return $texto;
+    $t = $texto;
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*R\$\s*[\d\.,]+\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace('/<(?:p|div)[^>]*>\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
+    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+\s*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $t);
+    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', '', $t);
+    $t = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $t);
+    $t = preg_replace('/\$\{ValorProposta\}\s*\(\$\{ValorExtenso\}\)/u', '', $t);
+    $t = preg_replace("/\n\s*\n+/", "\n", $t);
+    return trim($t);
+}
+
 // 1. Receber Dados
 $dados = $_POST;
 
@@ -119,7 +174,7 @@ if (empty($dados) && !empty($_GET['id'])) {
     $conn = Database::getProd();
     
     // Busca dados da proposta
-    $res = $conn->query("SELECT * FROM Propostas WHERE id = $id_proposta LIMIT 1");
+    $res = $conn->query("SELECT * FROM Propostas WHERE id_proposta = $id_proposta LIMIT 1");
     if ($res && $res->num_rows > 0) {
         $proposta = $res->fetch_assoc();
         
@@ -161,6 +216,18 @@ if (empty($dados) && !empty($_GET['id'])) {
         }
     } else {
         die("Proposta não encontrada.");
+    }
+
+    // --- BUSCA CONTEÚDO PERSONALIZADO (Do Editor) ---
+    // Adicionado para carregar os textos editados na aba "Equipamentos"
+    $sqlPersonalizado = "SELECT block_id, conteudo_texto FROM Proposta_Conteudo_Personalizado WHERE id_proposta = $id_proposta";
+    $resPersonalizado = $conn->query($sqlPersonalizado);
+    if ($resPersonalizado) {
+        while ($row = $resPersonalizado->fetch_assoc()) {
+            // Mapeia o block_id (ex: equipamentos_veiculo_content) para o array de dados
+            // IMPORTANTE: Adiciona _content para bater com o padrão esperado
+            $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
+        }
     }
 }
 
@@ -208,10 +275,11 @@ $vars = [
     'escopo_servico' => isset($dados['escopo_content']) ? nl2br($dados['escopo_content']) : '',
 
     // Equipamentos: Tenta concatenar Marca + Modelo se a variável principal estiver vazia
-    'Veiculo' => !empty($dados['veiculo']) ? $dados['veiculo'] : trim(($dados['marca_veiculo'] ?? '') . ' ' . ($dados['modelo_veiculo'] ?? '')),
-    'Estacao_Total' => !empty($dados['estacao_total']) ? $dados['estacao_total'] : trim(($dados['marca_estacao_total'] ?? '') . ' ' . ($dados['modelo_estacao_total'] ?? '')),
-    'GPS' => !empty($dados['gps']) ? $dados['gps'] : trim(($dados['marca_gps'] ?? '') . ' ' . ($dados['modelo_gps'] ?? '')),
-    'Drone' => !empty($dados['drone']) ? $dados['drone'] : trim(($dados['marca_drone'] ?? '') . ' ' . ($dados['modelo_drone'] ?? '')),
+    // Equipamentos: Prioridade para Texto do Editor > Concatenação Marca+Modelo > Vazio
+    'Veiculo' => !empty($dados['equipamentos_veiculo_content']) ? strip_tags($dados['equipamentos_veiculo_content']) : trim(($dados['marca_veiculo'] ?? '') . ' ' . ($dados['modelo_veiculo'] ?? '')),
+    'Estacao_Total' => !empty($dados['equipamentos_estacao_total_content']) ? strip_tags($dados['equipamentos_estacao_total_content']) : trim(($dados['marca_estacao_total'] ?? '') . ' ' . ($dados['modelo_estacao_total'] ?? '')),
+    'GPS' => !empty($dados['equipamentos_gps_content']) ? strip_tags($dados['equipamentos_gps_content']) : trim(($dados['marca_gps'] ?? '') . ' ' . ($dados['modelo_gps'] ?? '')),
+    'Drone' => !empty($dados['equipamentos_drone_content']) ? strip_tags($dados['equipamentos_drone_content']) : trim(($dados['marca_drone'] ?? '') . ' ' . ($dados['modelo_drone'] ?? '')),
 
     // Financeiro
     'ValorProposta' => formatarMoeda($dados['valor_proposta'] ?? 0),
@@ -252,67 +320,9 @@ $vars = [
     'escopo_servico' => '',
 ];
 
-// Limpeza de placeholders não encontrados
-foreach ($dados as $k => $v) {
-    if (is_string($v) && strpos($v, '${' . $k . '}') !== false) {
-        $dados[$k] = str_replace('${' . $k . '}', '', $v);
-    }
-}
+// (Funções helpers movidas para evitar erro de escopo)
 
-// Função Helper para substituir variáveis
-function substituir($texto, $vars)
-{
-    foreach ($vars as $chave => $valor) {
-        $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
-    }
-    return $texto;
-}
-
-/**
- * Remove valor monetário e texto de investimento de blocos que NÃO são o bloco 8 (Investimento).
- * Usado para cronograma, metodologia, documentação etc., onde esse conteúdo aparece por engano.
- */
-function limparConteudoInvestimentoDeBloco($texto)
-{
-    if (empty($texto) || !is_string($texto)) return $texto;
-    $t = $texto;
-    // 1) R$ X.XXX,XX com ou sem (valor por extenso) - em qualquer posição
-    $t = preg_replace_callback('/R\$\s*([\d\.,]+)(?:\s*\([^)]+\))?/iu', function ($m) {
-        $v = (float) str_replace(',', '.', str_replace('.', '', $m[1]));
-        return ($v >= 0) ? '' : $m[0];
-    }, $t);
-    // 2) Linha ou bloco contendo só valor por extenso: (trezentos ... reais)
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', "\n", $t);
-    // 3) Parágrafo "Este investimento traduz-se em produtividade multiplicada..."
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*Este investimento[^<]*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace('/Este investimento[^.]*\./iu', '', $t);
-    // 4) Linha com apenas R$ X.XXX,XX
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*R\$\s*[\d\.,]+\s*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', "\n", $t);
-    // 5) Remove parágrafos/tags vazios
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*(?:&nbsp;|\s)*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace("/\n\s*\n+/", "\n", $t);
-    return trim($t);
-}
-
-/**
- * Remove APENAS linhas duplicadas de valor do bloco Investimento (bloco 8).
- * Mantém o texto "Este investimento..." pois pertence a este bloco.
- */
-function removerValorDuplicadoDoInvestimento($texto)
-{
-    if (empty($texto) || !is_string($texto)) return $texto;
-    $t = $texto;
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*R\$\s*[\d\.,]+\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace('/<(?:p|div)[^>]*>\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
-    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+\s*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $t);
-    $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', '', $t);
-    $t = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $t);
-    $t = preg_replace('/\$\{ValorProposta\}\s*\(\$\{ValorExtenso\}\)/u', '', $t);
-    $t = preg_replace("/\n\s*\n+/", "\n", $t);
-    return trim($t);
-}
+// (Funções movidas para o topo)
 
 // Pré-processa blocos que NÃO devem conter valor/investimento (evita confusão bloco 7 vs 8)
 $blocosParaLimpar = ['cronograma_content', 'metodologia_content', 'documentacao_content', 'consideracoes_content'];
@@ -349,7 +359,53 @@ if (isset($dados['data_criacao']) && !empty($dados['data_criacao'])) {
 
 $classeTema = TemaProposta::getClasse($dataCriacao);
 // Link do CSS do tema (apenas se for clássico para economizar request, ou sempre se preferir)
+// Link do CSS do tema (apenas se for clássico para economizar request, ou sempre se preferir)
 $cssTemaPath = 'assets/css/tema_proposta.css';
+
+// === MODO PILOTO (Drone - HTML Web/Bootstrap) ===
+// Permite testar templates adicionando &piloto=drone ou &piloto=novo na URL
+if (isset($_GET['piloto'])) {
+    $modo = $_GET['piloto'];
+    $caminhoPiloto = '';
+
+    if ($modo === 'drone') {
+        $caminhoPiloto = __DIR__ . '/proposta_drone_piloto.php'; // Versão Bootstrap Simples
+    } elseif ($modo === 'novo') {
+        $caminhoPiloto = __DIR__ . '/proposta_drone_novo.php';   // Versão Dashboard (Novo Pedido)
+    }
+    
+    if ($caminhoPiloto && file_exists($caminhoPiloto)) {
+        // Carrega o HTML executando o PHP (para cache busting do CSS funcionar)
+        ob_start();
+        include $caminhoPiloto;
+        $conteudoTemplate = ob_get_clean();
+        
+        if ($conteudoTemplate) {
+            // SUBSTITUIÇÃO ROBUSTA COM REGEX (Pega {{variavel}} ou {{ variavel }} ou {{  VARIAVEL  }})
+            foreach ($vars as $chave => $valor) {
+                // Previne erro se valor for array
+                if (is_array($valor) || is_object($valor)) continue;
+                
+                // Regex: {{ (espaços opcionais) chave (espaços opcionais) }}
+                // Ignora maiúsculas/minúsculas na chave para facilitar
+                $pattern = '/\{\{\s*' . preg_quote($chave, '/') . '\s*\}\}/i';
+                $conteudoTemplate = preg_replace($pattern, strval($valor), $conteudoTemplate);
+            }
+            
+            // Limpa variáveis não encontradas para não mostrar lixo na tela
+            $conteudoTemplate = preg_replace('/\{\{\s*.*?\s*\}\}/', '', $conteudoTemplate);
+            
+            // Injeta Bootstrap se não tiver (Somente para o piloto simples antigo)
+            if ($modo === 'drone' && strpos($conteudoTemplate, 'bootstrap') === false) {
+                 $bootstrapLink = '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">';
+                 $conteudoTemplate = str_replace('</head>', $bootstrapLink . "\n</head>", $conteudoTemplate);
+            }
+    
+            echo $conteudoTemplate;
+            exit; // IMPORTANTE: Para aqui
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

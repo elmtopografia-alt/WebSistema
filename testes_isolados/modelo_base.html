@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta #[NÚMERO] - [EMPRESA]</title>
+    
+    <!-- Fonte base: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================
+           CSS BASE - NÃO ALTERE (copie para todos)
+           ============================================ */
+        
+        /* Reset */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Variáveis padrão (serão sobrescritas pelo tema) */
+        :root {
+            --brand: #2563eb;
+            --brand-light: #60a5fa;
+            --brand-bg: #eff6ff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --surface: #f8fafc;
+        }
+        
+        /* Layout A4 */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #525659;
+            padding: 20px;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .page {
+            background: white;
+            width: 21cm;
+            min-height: 29.7cm;
+            padding: 2cm 2.2cm;
+            margin: 0 auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        
+        /* Print */
+        @media print {
+            body { background: none; padding: 0; margin: 0; }
+            .page { 
+                width: 100%; 
+                box-shadow: none; 
+                margin: 0; 
+                padding: 2cm;
+                min-height: auto;
+            }
+            .no-print { display: none !important; }
+            .bloco-secao, table, tr { page-break-inside: avoid; }
+            h1, h2, h3 { page-break-after: avoid; }
+        }
+        
+        /* Tipografia base */
+        h1 { font-size: 24pt; font-weight: 700; margin-bottom: 16px; }
+        h2 { 
+            font-size: 14pt; 
+            font-weight: 600; 
+            margin-top: 24px; 
+            margin-bottom: 12px;
+            color: var(--brand);
+        }
+        h3 { font-size: 12pt; font-weight: 600; margin-top: 16px; margin-bottom: 8px; }
+        p, li { font-size: 10.5pt; line-height: 1.7; margin-bottom: 8px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        
+        /* Tabelas base */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 10pt;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--surface);
+            font-weight: 600;
+            color: var(--brand);
+            text-transform: uppercase;
+            font-size: 9pt;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Botão FAB */
+        .btn-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--brand);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .btn-fab:hover { transform: translateY(-2px); }
+        
+        /* ============================================
+           ÁREA DE CUSTOMIZAÇÃO DO TEMA
+           Cole abaixo o CSS específico do tema
+           ============================================ */
+        
+        /* [COLE AQUI O CSS DO TEMA ESCOLHIDO] */
+        
+    </style>
+</head>
+<body>
+
+    <!-- Botão Imprimir -->
+    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">🖨️</button>
+
+    <div class="page">
+        
+        <!-- ============================================
+             ESTRUTURA DA PROPOSTA
+             ============================================ -->
+        
+        <!-- HEADER -->
+        <header class="header-proposta">
+            <div class="logo-area">
+                <!-- Substitua pela logo da empresa -->
+                <div class="logo-placeholder">[LOGO]</div>
+            </div>
+            <div class="titulo-area">
+                <h1>Proposta Técnica</h1>
+                <p class="subtitulo">[Tipo de Serviço]</p>
+            </div>
+        </header>
+
+        <!-- META (Data e Número) -->
+        <div class="meta-row">
+            <span>[CIDADE], [DATA EXTENSA]</span>
+            <span class="numero-proposta">Nº [NÚMERO]</span>
+        </div>
+
+        <!-- DADOS DO CLIENTE -->
+        <section class="secao-dados">
+            <h2>Dados do Cliente</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Nome:</span>
+                    <span class="valor">[NOME CLIENTE]</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">E-mail:</span>
+                    <span class="valor">[EMAIL]</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Telefone:</span>
+                    <span class="valor">[TELEFONE]</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCAL DA OBRA -->
+        <section class="secao-dados">
+            <h2>Local da Obra</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Endereço:</span>
+                    <span class="valor">[ENDEREÇO]</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Bairro:</span>
+                    <span class="valor">[BAIRRO]</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Cidade/UF:</span>
+                    <span class="valor">[CIDADE - UF]</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTEÚDO DINÂMICO (Blocos do CRM) -->
+        <div class="conteudo-blocos">
+            
+            <!-- Bloco 1 -->
+            <div class="bloco-secao">
+                <h2>1. [Título do Bloco]</h2>
+                <p>[Conteúdo do bloco vindo do CRM...]</p>
+            </div>
+
+            <!-- Bloco 2 -->
+            <div class="bloco-secao">
+                <h2>2. [Título do Bloco]</h2>
+                <p>[Conteúdo...]</p>
+            </div>
+
+        </div>
+
+        <!-- VALOR -->
+        <section class="secao-valor">
+            <h2>Investimento</h2>
+            <div class="box-valor">
+                <div class="valor-principal">R$ [VALOR]</div>
+                <div class="valor-extenso">([VALOR POR EXTENSO])</div>
+            </div>
+        </section>
+
+        <!-- CONDIÇÕES -->
+        <section class="secao-condicoes">
+            <h2>Condições de Pagamento</h2>
+            <table>
+                <tr>
+                    <th>Etapa</th>
+                    <th>Percentual</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>[DESCRIÇÃO]</td>
+                    <td>[%]</td>
+                    <td>R$ [VALOR]</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer-proposta">
+            <p class="assinatura-linha">_______________________________</p>
+            <p class="empresa-nome">[NOME DA EMPRESA]</p>
+            <p class="empresa-info">[CNPJ] • [TELEFONE] • [EMAIL]</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

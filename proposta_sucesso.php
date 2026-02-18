@@ -72,6 +72,13 @@ $url_destino = 'final.php';
                         <a href="painel.php" class="btn btn-outline-secondary w-100">Voltar</a>
                     </div>
                 </div>
+                <?php if ($id_proposta > 0): ?>
+                <div class="mt-3">
+                    <a href="gerar_proposta_premium.php?id=<?php echo (int)$id_proposta; ?>" target="_blank" class="btn btn-outline-info btn-sm w-100">
+                        <i class="bi bi-sparkles"></i> Ver em layout piloto
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
 
         <?php else: ?>

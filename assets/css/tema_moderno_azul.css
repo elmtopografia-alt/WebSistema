@@ -1,0 +1,303 @@
+/* ==========================================================================
+   TEMA MODERNO - ADAPTADO PARA AZUL PROFISSIONAL (tema_moderno_azul.css)
+   Baseado no CSS da Proposta 98/Moderno, mas com palette de cores alterada.
+   ========================================================================== */
+
+:root {
+    /* Palette AZUL (Substituindo o Laranja/Marrom original) */
+    --brand: #1e40af;       /* Azul Royal Escuro (Era #b45f06) */
+    --brand-light: #60a5fa; /* Azul Claro (Era #d4a574) */
+    --brand-bg: #eff6ff;    /* Fundo Azulado (Era #fdf8f3) */
+    
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --surface: #ffffff;
+    
+    --accent-green: #059669;
+    --accent-blue: #2563eb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #cbd5e1; /* Fundo mais neutro para destaque da folha */
+    margin: 0;
+    padding: 20px;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    background: white;
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 2cm 2.2cm;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+    border-radius: 2px;
+}
+
+@media print {
+    body { background: none; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { width: 100%; box-shadow: none; margin: 0; padding: 2cm; border: none; border-radius: 0; }
+    .no-print { display: none !important; }
+    .bloco-secao, table, tr, li, h2, h3 { page-break-inside: avoid; break-inside: avoid; }
+    h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+    .footer { page-break-inside: avoid; }
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+
+h2 {
+    font-size: 12pt;
+    color: var(--brand);
+    margin-top: 28px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--brand-light);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+h3 { font-size: 11pt; color: var(--text-primary); margin-top: 20px; margin-bottom: 8px; }
+
+p, li, td { line-height: 1.7; color: var(--text-secondary); font-size: 10.5pt; }
+
+strong { color: var(--text-primary); font-weight: 600; }
+
+/* === HEADER === */
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 3px solid var(--brand);
+    margin-bottom: 24px;
+}
+
+.header-logo img {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Placeholder para logo caso imagem não exista */
+.logo-placeholder {
+    width: 120px;
+    height: 60px;
+    background: var(--brand-bg);
+    border: 1px dashed var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand);
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.header-title {
+    flex: 1;
+    text-align: right;
+}
+
+.header-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20pt;
+    color: var(--brand);
+    margin: 0;
+    border: none;
+    padding: 0;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+}
+
+.header-title .subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+}
+
+/* === META ROW === */
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    font-size: 10pt;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.meta-row .numero {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--brand);
+    font-size: 10.5pt;
+    letter-spacing: 0.02em;
+}
+
+/* === INFO CARDS === */
+.info-cards {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.info-card {
+    flex: 1;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    border-left: 3px solid var(--brand);
+}
+
+.info-card-title {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+    margin-bottom: 8px;
+}
+
+.info-card p {
+    font-size: 10pt;
+    margin-bottom: 2px;
+    color: var(--text-secondary);
+}
+
+.info-card .label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* === TABLES === */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 12px 0 20px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+th, td {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10pt;
+    border-bottom: 1px solid var(--border-light);
+}
+
+th {
+    background: transparent;
+    color: var(--brand);
+    border: 1px solid var(--brand);
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: none;
+    border-bottom: 2px solid var(--brand);
+}
+
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: var(--surface); }
+
+td strong { color: var(--brand); }
+
+/* === INVESTMENT HIGHLIGHT === */
+.invest-box {
+    background: linear-gradient(135deg, var(--brand-bg), #fff);
+    border: 2px solid var(--brand);
+    border-radius: 10px;
+    padding: 20px 24px;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.invest-box .invest-label {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.invest-box .invest-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 26pt;
+    font-weight: 700;
+    color: var(--brand);
+    line-height: 1.2;
+}
+
+.invest-box .invest-extenso {
+    font-size: 9.5pt;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* === FOOTER === */
+.footer {
+    margin-top: 60px;
+    padding-top: 0;
+    text-align: center;
+    page-break-inside: avoid;
+}
+
+.footer .atenciosamente {
+    font-size: 10.5pt;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 40px;
+}
+
+.footer .assinatura-linha {
+    width: 50%;
+    border-top: 1px solid var(--text-primary);
+    margin: 0 auto 10px auto;
+}
+
+.footer .empresa-info {
+    font-size: 9.5pt;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* Botão Flutuante (Apenas Visualização) */
+.btn-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--brand);
+    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0, 0.35);
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+}

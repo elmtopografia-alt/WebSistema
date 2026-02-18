@@ -1,0 +1,43 @@
+Chaves.txt1. 📂 Dados da Proposta (Essenciais)
+${numero_proposta} – Número oficial (Ex: SGT-2026-001).
+${status} – Situação atual (Ex: Em elaboração).
+${finalidade} – O objetivo do trabalho.
+${tipo_levantamento} – Tipo técnico (Ex: Planialtimétrico).
+2. 👥 Dados do Cliente
+${nome_cliente_salvo} – Nome do cliente/empresa.
+${email_salvo} – E-mail do contratante.
+${telefone_salvo} / ${celular_salvo} – Contatos telefônicos.
+${whatsapp_salvo} – Número de celular principal.
+3. 📍 Localização e Características (Drone/Campo)
+${endereco_obra} – Rua, Número, etc.
+${bairro_obra} / ${ClienteBairro} – Bairro da obra.
+${cidade_obra} – Nome da cidade.
+${estado_obra} – UF (ex: MG).
+${ClienteCidadeUF} – Cidade-UF combinado (ex: "Belo Horizonte-MG").
+${AreaEstimada} – Área com unidade (ex: "10 ha").
+${unidade_area} – Apenas o símbolo (m², ha, km²).
+${TipoTerreno} – (Passo 2) – Relevo do local.
+${CoberturaVegetal} – (Passo 2) – Vegetação existente.
+${AcessoLocal} – (Passo 2) – Condição de chegada.
+${RestricoesAereas} – (Passo 2) – Restrições do DECEA.
+4. 🛠️ Equipamentos (Puxa do Editor/Wizard)
+${Veiculo} – Marca/Modelo da caminhonete.
+${Drone} – Aeronave selecionada.
+${GPS} – Receptor GNSS.
+${Estacao_Total} – Instrumento topográfico.
+5. 💰 Valores e Prazos
+${ValorProposta} – Valor total formatado (R$ 0,00).
+${ValorExtenso} – Valor total escrito por extenso.
+${prazo_execucao} – Prazo total estimado.
+${dias_campo} / ${dias_escritorio} – Prazos parciais.
+${mobilizacao_percentual} / ${mobilizacao_valor} – Valor da entrada.
+${restante_percentual} / ${restante_valor} – Valor da parcela final.
+6. 🏢 Seus Dados (DadosEmpresa)
+${Empresa} – Nome da sua empresa/escritório.
+${CNPJ} – Seu CNPJ.
+${whatsapp} – Seu contato comercial.
+${Banco} / ${Agencia} / ${Conta} / ${PIX} – Dados para pagamento.
+${logo_empresa} – Link interno para sua logo.
+7. 📅 Auxiliares
+${DataExtenso} – Data de hoje (Ex: 17 de Fevereiro de 2026).
+${DataHoje} – Data em formato simples.

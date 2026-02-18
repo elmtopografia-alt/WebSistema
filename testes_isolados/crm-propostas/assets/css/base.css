@@ -1,0 +1,195 @@
+/* ============================================
+   CSS BASE - SGT Propostas
+   Aplica em TODOS os temas
+   ============================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Layout A4 */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #525659;
+    padding: 20px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    background: white;
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 2cm 2.2cm;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+@media print {
+    body {
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page {
+        width: 100%;
+        box-shadow: none;
+        margin: 0;
+        padding: 2cm;
+        min-height: auto;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    h1,
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+
+    .bloco-secao,
+    table,
+    tr {
+        page-break-inside: avoid;
+    }
+}
+
+/* Tipografia base */
+h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: var(--brand);
+}
+
+h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+p,
+li {
+    font-size: 10.5pt;
+    line-height: 1.7;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Botão FAB */
+.btn-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--brand);
+    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-fab:hover {
+    transform: translateY(-2px);
+}
+
+/* Componentes comuns */
+.bloco-secao {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 10.5pt;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 100px;
+}
+
+.info-value {
+    color: var(--text-secondary);
+}
+
+/* Tabelas base */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--brand);
+    text-transform: uppercase;
+    font-size: 9pt;
+    letter-spacing: 0.05em;
+}
+
+/* Footer base */
+.footer-proposta {
+    margin-top: 40px;
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.linha-assinatura {
+    width: 60%;
+    margin: 0 auto 10px;
+    border-bottom: 1px solid var(--text-primary);
+    padding-bottom: 40px;
+}
+
+.footer-empresa {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.footer-info {
+    font-size: 9pt;
+    color: var(--text-muted);
+    margin-top: 4px;
+}

@@ -638,7 +638,7 @@ function getZapLink($numero, $handle) {
                         <?php endif; ?>
                         
                         <!-- Ações Rápidas -->
-                        <div class="grid grid-cols-4 gap-1 mb-2">
+                        <div class="grid grid-cols-5 gap-1 mb-2">
                             <!-- Linha 1 -->
                              <a href="<?= $whatsappLink ?>" target="_blank" 
                                 class="col-span-1 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] py-2 rounded text-center transition-colors flex items-center justify-center p-1"
@@ -649,6 +649,11 @@ function getZapLink($numero, $handle) {
                                class="col-span-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 py-2 rounded text-center transition-colors flex items-center justify-center p-1"
                                title="Ver Proposta (Impressão)">
                                 <i class="ph ph-eye text-lg"></i>
+                            </a>
+                            <a href="gerar_proposta_premium.php?id=<?= $cardId ?>" target="_blank" 
+                               class="col-span-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 rounded text-center transition-colors flex items-center justify-center p-1"
+                               title="Layout Premium (piloto)">
+                                <i class="ph ph-sparkle text-lg"></i>
                             </a>
                             <a href="editar_proposta.php?id=<?= $cardId ?>" target="_blank" 
                                class="col-span-1 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 py-2 rounded text-center transition-colors flex items-center justify-center p-1"

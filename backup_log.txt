@@ -1220,3 +1220,60 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-02-14 18:00:05] Backup conclu√≠do com sucesso.
 [2026-02-15 18:00:02] Iniciando backup...
+[2026-02-15 18:00:02] GIT ADD: 
+[2026-02-15 18:00:02] GIT COMMIT: [main a243a37] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-15 18:00:02
+ 7 files changed, 1041 insertions(+), 58 deletions(-)
+ create mode 100644 assets/css/tema_proposta.css
+ create mode 100644 classes/TemaProposta.php
+ create mode 100644 debug_proposta_data.php
+ create mode 100644 teste_regex.php
+
+[2026-02-15 18:00:02] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   6fd524d..a243a37  main -> main
+
+[2026-02-15 18:00:02] Backup conclu√≠do com sucesso.
+[2026-02-16 18:00:04] Iniciando backup...
+[2026-02-17 18:00:02] Iniciando backup...
+[2026-02-17 18:00:02] GIT ADD: git : fatal: Unable to create 'F:/Site/Sistema Proposta/SistemaWeb/.git/index.lock': File exists.
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: Unable t...': File exists.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+
+[2026-02-17 18:00:02] GIT COMMIT: git : fatal: Unable to create 'F:/Site/Sistema Proposta/SistemaWeb/.git/index.lock': File exists.
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:37 caractere:5
++     git commit -m "Backup Di√°rio Autom√°tico: $timestamp" 2>&1 | Out ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: Unable t...': File exists.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+
+[2026-02-17 18:00:02] GIT PUSH: git : Everything up-to-date
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Everything up-to-date:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-02-17 18:00:02] Backup conclu√≠do com sucesso.

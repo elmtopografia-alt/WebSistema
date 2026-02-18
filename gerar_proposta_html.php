@@ -27,7 +27,19 @@ if (isset($_GET['id']) && (empty($_POST) || !isset($_POST['id_servico']))) {
     }
 }
 
-// 2. Chama o renderizador oficial (que já contém os ajustes de layout do usuário)
+// 2. INTEGRAÇÃO DOCX: Se houver modelo_docx, usa o renderizador especializado
+$modeloDocx = $_POST['modelo_docx'] ?? null;
+
+if ($modeloDocx) {
+    require_once 'renderizador_modelo_docx.php';
+    require_once 'db.php';
+    
+    $renderer = new RenderizadorModeloDOCX(Database::getProd());
+    echo $renderer->renderizar($modeloDocx, $_SESSION['usuario_id'] ?? 0, $_POST);
+    exit;
+}
+
+// 3. Caso contrário, chama o renderizador oficial tradicional
 if (file_exists('gerar_documento_html.php')) {
     require_once 'gerar_documento_html.php';
 } else {

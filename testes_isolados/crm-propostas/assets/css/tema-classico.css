@@ -1,0 +1,163 @@
+/* ============================================
+   TEMA CLÁSSICO - Marrom/Elegante
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --brand: #b45f06;
+    --brand-light: #d4a574;
+    --brand-dark: #92400e;
+    --brand-bg: #fdf8f3;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a68;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --surface: #f8fafc;
+}
+
+/* Header clássico */
+.header-proposta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--brand);
+    margin-bottom: 24px;
+}
+
+.header-logo img {
+    max-height: 80px;
+    width: auto;
+}
+
+.header-titulo {
+    flex: 1;
+    text-align: right;
+}
+
+.header-titulo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22pt;
+    color: var(--brand);
+    margin: 0;
+}
+
+.header-subtitulo {
+    color: var(--text-muted);
+    font-size: 11pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+}
+
+/* Meta */
+.header-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    font-size: 10pt;
+    color: var(--text-muted);
+}
+
+.numero-proposta {
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: 0.02em;
+}
+
+/* Cards de dados */
+.dados-cliente,
+.dados-obra {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--brand);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+
+.dados-cliente h2,
+.dados-obra h2 {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+    margin-top: 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+}
+
+/* Seções */
+.bloco-secao h2 {
+    font-size: 12pt;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 1.5px solid var(--brand-light);
+    padding-bottom: 6px;
+    color: var(--brand);
+}
+
+/* Box de investimento */
+.box-investimento {
+    background: linear-gradient(135deg, var(--brand-bg), #fff);
+    border: 2px solid var(--brand);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.box-investimento .valor {
+    font-family: 'Playfair Display', serif;
+    font-size: 26pt;
+    font-weight: 700;
+    color: var(--brand);
+}
+
+.box-investimento .extenso {
+    font-size: 10pt;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 6px;
+}
+
+/* Tabelas específicas */
+.tabela-prazos th {
+    background: transparent;
+    color: var(--brand);
+    border-bottom: 2px solid var(--brand);
+}
+
+.tabela-prazos tr:last-child td {
+    font-weight: 600;
+    color: var(--brand);
+    border-top: 2px solid var(--brand);
+}
+
+/* Listas estilizadas */
+.lista-equipamentos li {
+    border-left: 3px solid var(--brand-light);
+    background: var(--surface);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    list-style: none;
+}
+
+/* Dados bancários */
+.dados-bancarios {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-green, #059669);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.dados-bancarios li {
+    list-style: none;
+    margin-bottom: 4px;
+}

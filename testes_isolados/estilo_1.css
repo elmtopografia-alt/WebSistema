@@ -1,0 +1,181 @@
+/* ============================================
+   TEMA CLÁSSICO - Marrom/Elegante
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --brand: #b45f06;
+    --brand-light: #d4a574;
+    --brand-bg: #fdf8f3;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a68;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --surface: #f8fafc;
+}
+
+/* Header */
+.header-proposta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--brand);
+    margin-bottom: 24px;
+}
+
+.logo-placeholder {
+    width: 120px;
+    height: 80px;
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 10pt;
+}
+
+.titulo-area {
+    flex: 1;
+    text-align: right;
+}
+
+.titulo-area h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22pt;
+    color: var(--brand);
+    margin: 0;
+    font-weight: 700;
+}
+
+.subtitulo {
+    color: var(--text-muted);
+    font-size: 11pt;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Meta */
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    font-size: 10pt;
+    color: var(--text-muted);
+}
+
+.numero-proposta {
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: 0.02em;
+}
+
+/* Seções de dados */
+.secao-dados {
+    margin-bottom: 20px;
+}
+
+.secao-dados h2 {
+    font-size: 11pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid var(--brand-light);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+}
+
+.info-item {
+    display: flex;
+    gap: 8px;
+    font-size: 10.5pt;
+}
+
+.info-item .label {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 80px;
+}
+
+.info-item .valor {
+    color: var(--text-secondary);
+}
+
+/* Blocos de conteúdo */
+.bloco-secao {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+}
+
+.bloco-secao h2 {
+    color: var(--brand);
+    font-size: 12pt;
+    border-bottom: 1.5px solid var(--brand-light);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+}
+
+/* Valor destacado */
+.secao-valor {
+    margin: 24px 0;
+}
+
+.box-valor {
+    background: linear-gradient(135deg, var(--brand-bg), #fff);
+    border: 2px solid var(--brand);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+}
+
+.valor-principal {
+    font-family: 'Playfair Display', serif;
+    font-size: 26pt;
+    font-weight: 700;
+    color: var(--brand);
+    line-height: 1.2;
+}
+
+.valor-extenso {
+    font-size: 10pt;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 6px;
+}
+
+/* Footer */
+.footer-proposta {
+    margin-top: 40px;
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.assinatura-linha {
+    width: 60%;
+    margin: 0 auto 10px;
+    border-bottom: 1px solid var(--text-primary);
+    padding-bottom: 40px;
+}
+
+.empresa-nome {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 11pt;
+}
+
+.empresa-info {
+    font-size: 9pt;
+    color: var(--text-muted);
+    margin-top: 4px;
+}

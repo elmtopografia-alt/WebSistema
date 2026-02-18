@@ -1,0 +1,524 @@
+template_html
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Proposta
+        <?= htmlspecialchars($numero_proposta) ?> -
+        <?= htmlspecialchars($cliente_nome) ?>
+    </title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --brand: #b45f06;
+            --brand-light: #d4a574;
+            --brand-bg: #fdf8f3;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a68;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --surface: #f8fafc;
+            --accent-green: #059669;
+            --accent-blue: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #525659;
+            margin: 0;
+            padding: 20px;
+            font-size: 11pt;
+            line-height: 1.7;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            background: white;
+            width: 21cm;
+            min-height: 29.7cm;
+            padding: 2cm 2.2cm;
+            margin: 0 auto;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        @media print {
+            body {
+                background: none;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .page {
+                width: 100%;
+                box-shadow: none;
+                margin: 0;
+                padding: 2cm;
+                border: none;
+                border-radius: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .bloco-secao,
+            table,
+            tr,
+            li,
+            h2,
+            h3 {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            h1,
+            h2,
+            h3 {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+
+            .footer {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* TYPOGRAPHY */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 12pt;
+            color: var(--brand);
+            margin-top: 28px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--brand-light);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 11pt;
+            color: var(--text-primary);
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        p,
+        li,
+        td {
+            line-height: 1.7;
+            color: var(--text-secondary);
+            font-size: 10.5pt;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* HEADER */
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid var(--brand);
+            margin-bottom: 24px;
+        }
+
+        .header-logo img {
+            max-height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: right;
+        }
+
+        .header-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20pt;
+            color: var(--brand);
+            margin: 0;
+            border: none;
+            padding: 0;
+            line-height: 1.2;
+            letter-spacing: 0.03em;
+        }
+
+        .header-title .subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 10pt;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* META ROW */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            font-size: 10pt;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .meta-row .numero {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--brand);
+            font-size: 10.5pt;
+            letter-spacing: 0.02em;
+        }
+
+        /* INFO CARDS */
+        .info-cards {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .info-card {
+            flex: 1;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            border-left: 3px solid var(--brand);
+        }
+
+        .info-card.success {
+            border-left-color: var(--accent-green);
+        }
+
+        .info-card-title {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--brand);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 10pt;
+            margin-bottom: 2px;
+            color: var(--text-secondary);
+        }
+
+        .info-card .label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 12px 0 20px 0;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th,
+        td {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10pt;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        th {
+            background: transparent;
+            color: var(--brand);
+            font-weight: 600;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 2px solid var(--brand);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) td {
+            background: var(--surface);
+        }
+
+        tr.total-row td {
+            border-top: 2px solid var(--brand);
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        td strong {
+            color: var(--brand);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* EQUIPAMENTOS LIST */
+        ul.equip-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        ul.equip-list li {
+            padding: 8px 14px;
+            border-left: 3px solid var(--brand-light);
+            margin-bottom: 6px;
+            background: var(--surface);
+            border-radius: 0 6px 6px 0;
+            font-size: 10.5pt;
+        }
+
+        ul.equip-list li strong {
+            color: var(--text-primary);
+        }
+
+        /* INVESTMENT BOX */
+        .invest-box {
+            background: linear-gradient(135deg, var(--brand-bg), #fff);
+            border: 2px solid var(--brand);
+            border-radius: 10px;
+            padding: 20px 24px;
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .invest-box .invest-label {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .invest-box .invest-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            font-weight: 700;
+            color: var(--brand);
+            line-height: 1.2;
+        }
+
+        .invest-box .invest-extenso {
+            font-size: 9.5pt;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* SEÇÃO BLOCO */
+        .bloco-secao {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .bloco-secao p,
+        .bloco-secao div {
+            font-size: 10.5pt;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .bloco-secao ul,
+        .bloco-secao ol {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .bloco-secao li {
+            margin-bottom: 4px;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+            padding-top: 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .footer .atenciosamente {
+            font-size: 10.5pt;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 50px;
+        }
+
+        .footer .assinatura-linha {
+            width: 55%;
+            border-top: 1px solid var(--text-primary);
+            margin: 0 auto 10px auto;
+        }
+
+        .footer .empresa-info {
+            font-size: 9.5pt;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* FAB BUTTON */
+        .btn-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--brand);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(180, 95, 6, 0.35);
+            text-decoration: none;
+            font-size: 22px;
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-fab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(180, 95, 6, 0.45);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Botão Flutuante -->
+    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">
+        🖨️
+    </button>
+
+    <div class="page">
+        <div class="content-wrap">
+
+            <!-- HEADER -->
+            <div class="header-container">
+                <div class="header-logo">
+                    <img src="<?= $logo_empresa ?>" alt="Logo">
+                </div>
+                <div class="header-title">
+                    <h1>Proposta Técnica</h1>
+                    <div class="subtitle">
+                        <?= $tipo_servico ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- META -->
+            <div class="meta-row">
+                <div>
+                    <?= $cidade_empresa ?>,
+                    <?= $data_formatada ?>
+                </div>
+                <div class="numero">Nº
+                    <?= $numero_proposta ?>
+                </div>
+            </div>
+
+            <!-- INFO CARDS -->
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-title">Dados do Cliente</div>
+                    <p><span class="label">Nome:</span>
+                        <?= htmlspecialchars($cliente_nome) ?>
+                    </p>
+                    <p><span class="label">E-mail:</span>
+                        <?= htmlspecialchars($cliente_email) ?>
+                    </p>
+                    <p><span class="label">Telefone:</span>
+                        <?= $cliente_telefone ?>
+                    </p>
+                    <?php if($cliente_whatsapp): ?>
+                    <p><span class="label">WhatsApp:</span>
+                        <?= $cliente_whatsapp ?>
+                    </p>
+                    <?php endif; ?>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Local da Obra</div>
+                    <p>● <span class="label">Endereço:</span>
+                        <?= $obra_endereco ?>
+                    </p>
+                    <p>● <span class="label">Bairro:</span>
+                        <?= $obra_bairro ?>
+                    </p>
+                    <p>● <span class="label">Cidade/Estado:</span>
+                        <?= $obra_cidade ?> -
+                        <?= $obra_estado ?>
+                    </p>
+                    <p>● <span class="label">Área Estimada:</span>
+                        <?= $obra_area ?> ha
+                    </p>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO DINÂMICO -->
+            <?= $conteudo_blocos ?>
+
+        </div>
+
+        <div class="footer">
+            <p class="atenciosamente">Atenciosamente,</p>
+            <div class="assinatura-linha"></div>
+            <div class="empresa-info">
+                <strong>
+                    <?= $nome_empresa ?>
+                </strong> &nbsp;•&nbsp;
+                <?= $cidade_empresa ?> &nbsp;•&nbsp;
+                <?= $slogan_empresa ?>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

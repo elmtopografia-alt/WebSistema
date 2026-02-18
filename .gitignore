@@ -50,3 +50,17 @@ phpunit.xml
 # NÃO IGNORAR (manter no repo)
 !.env.example
 !.gitkeep
+
+# Desenvolvimento e Diagnóstico
+debug_*.php
+diagnostico_*.php
+teste_*.php
+run_updates.php
+check_schema_columns.php
+migrate_docx_column_v2.php
+equipamentos_mapper.php
+
+# Arquivos Gerados e Manutenção
+modelos_gerados/
+propostas/
+backup_log.txt
