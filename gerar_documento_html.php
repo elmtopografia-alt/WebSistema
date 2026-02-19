@@ -13,8 +13,14 @@ if (session_status() === PHP_SESSION_NONE) {
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
-require_once 'config.php';
-require_once 'db.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/ConnectionManager.php';
+require_once __DIR__ . '/PropostaRepository.php';
+
+// [NOVO] Autoload do Composer
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 
 // Formatação Auxiliar
 function formatarMoeda($valor)
@@ -109,40 +115,33 @@ function valorPorExtenso($valor = 0)
     return $rt;
 }
 
-// Função Helper para substituir variáveis (Movida para o topo para garantir escopo global)
+// Função Helper para substituir variáveis
 function substituir($texto, $vars)
 {
     foreach ($vars as $chave => $valor) {
-        // Previne erro se valor for array
         if (is_array($valor) || is_object($valor)) continue;
-        
         $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
     }
     return $texto;
 }
 
 /**
- * Remove valor monetário e texto de investimento de blocos que NÃO são o bloco 8 (Investimento).
+ * Remove valor monetário e texto de investimento de blocos indesejados.
  */
 function limparConteudoInvestimentoDeBloco($texto)
 {
     if (empty($texto) || !is_string($texto)) return $texto;
     $t = $texto;
-    // 1) R$ X.XXX,XX com ou sem (valor por extenso)
     $t = preg_replace_callback('/R\$\s*([\d\.,]+)(?:\s*\([^)]+\))?/iu', function ($m) {
         $v = (float) str_replace(',', '.', str_replace('.', '', $m[1]));
         return ($v >= 0) ? '' : $m[0];
     }, $t);
-    // 2) Linha ou bloco contendo só valor por extenso
     $t = preg_replace('/<(?:p|div)[^>]*>\s*\([^)]*[Rr]eais\)\s*<\/(?:p|div)>/iu', '', $t);
     $t = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', "\n", $t);
-    // 3) Parágrafo "Este investimento traduz-se..."
     $t = preg_replace('/<(?:p|div)[^>]*>\s*Este investimento[^<]*<\/(?:p|div)>/iu', '', $t);
     $t = preg_replace('/Este investimento[^.]*\./iu', '', $t);
-    // 4) Linha com apenas R$ X.XXX,XX
     $t = preg_replace('/<(?:p|div)[^>]*>\s*R\$\s*[\d\.,]+\s*<\/(?:p|div)>/iu', '', $t);
     $t = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', "\n", $t);
-    // 5) Remove parágrafos vazios
     $t = preg_replace('/<(?:p|div)[^>]*>\s*(?:&nbsp;|\s)*<\/(?:p|div)>/iu', '', $t);
     $t = preg_replace("/\n\s*\n+/", "\n", $t);
     return trim($t);
@@ -165,85 +164,20 @@ function removerValorDuplicadoDoInvestimento($texto)
     return trim($t);
 }
 
-// 1. Receber Dados
+// 1. Carregamento Unificado de Dados
+$repo = new PropostaRepository();
 $dados = $_POST;
 
-// SE NÃO TEM POST, TENTA CARREGAR DO BANCO PELO ID (GET)
 if (empty($dados) && !empty($_GET['id'])) {
-    $id_proposta = intval($_GET['id']);
-    $conn = Database::getProd();
-    
-    // Busca dados da proposta
-    $res = $conn->query("SELECT * FROM Propostas WHERE id_proposta = $id_proposta LIMIT 1");
-    if ($res && $res->num_rows > 0) {
-        $proposta = $res->fetch_assoc();
-        
-        // Decodifica o JSON do conteúdo (se existir) para mesclar com os campos planos
-        $conteudoJson = json_decode($proposta['conteudo_json'] ?? '{}', true);
-        if (is_array($conteudoJson)) {
-            $proposta = array_merge($proposta, $conteudoJson);
-        }
-        
-        $dados = $proposta;
-
-        // --- BUSCA EQUIPAMENTOS (Proposta_Locacao) ---
-        // O editor salva os equipamentos na tabela Proposta_Locacao. 
-        // Precisamos buscar lá para preencher Veiculo, GPS, etc.
-        $sqlEquip = "SELECT pl.*, tl.nome as nome_tipo, m.nome_marca 
-                     FROM Proposta_Locacao pl 
-                     LEFT JOIN Tipo_Locacao tl ON pl.id_locacao = tl.id_locacao 
-                     LEFT JOIN Marcas m ON pl.id_marca = m.id_marca 
-                     WHERE pl.id_proposta = $id_proposta";
-        $resEquip = $conn->query($sqlEquip);
-        
-        if ($resEquip) {
-            while ($row = $resEquip->fetch_assoc()) {
-                $nomeTipo = mb_strtolower($row['nome_tipo'] ?? '', 'UTF-8');
-                $marca = $row['nome_marca'] ?? '';
-                // Mapeamento baseado no nome do tipo de locação (ajuste conforme nomes reais no banco)
-                if (strpos($nomeTipo, 'veículo') !== false || strpos($nomeTipo, 'caminhonete') !== false) {
-                    $dados['marca_veiculo'] = $marca;
-                    // Se tiver modelo salvo em outro lugar, concatenaria aqui, mas só temos marca por enquanto
-                } elseif (strpos($nomeTipo, 'total') !== false || strpos($nomeTipo, 'estação') !== false) {
-                    $dados['marca_estacao_total'] = $marca;
-                    $dados['modelo_estacao_total'] = $row['modelo'] ?? ''; // Se houver campo modelo na tabela
-                } elseif (strpos($nomeTipo, 'gps') !== false || strpos($nomeTipo, 'gnss') !== false || strpos($nomeTipo, 'rtk') !== false) {
-                    $dados['marca_gps'] = $marca;
-                } elseif (strpos($nomeTipo, 'drone') !== false || strpos($nomeTipo, 'vante') !== false) {
-                    $dados['marca_drone'] = $marca;
-                }
-            }
-        }
-    } else {
-        die("Proposta não encontrada.");
-    }
-
-    // --- BUSCA CONTEÚDO PERSONALIZADO (Do Editor) ---
-    // Adicionado para carregar os textos editados na aba "Equipamentos"
-    $sqlPersonalizado = "SELECT block_id, conteudo_texto FROM Proposta_Conteudo_Personalizado WHERE id_proposta = $id_proposta";
-    $resPersonalizado = $conn->query($sqlPersonalizado);
-    if ($resPersonalizado) {
-        while ($row = $resPersonalizado->fetch_assoc()) {
-            // Mapeia o block_id (ex: equipamentos_veiculo_content) para o array de dados
-            // IMPORTANTE: Adiciona _content para bater com o padrão esperado
-            $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
-        }
-    }
+    $id = intval($_GET['id']);
+    $dados = $repo->buscarPorId($id);
+    if (!$dados) die("Proposta não encontrada.");
 }
 
-// 2. Dados da Empresa (Fallback)
-$conn = Database::getProd();
-$empresa = [];
-$id_usuario = isset($_SESSION['usuario_id']) ? intval($_SESSION['usuario_id']) : 0;
-
-if ($id_usuario > 0) {
-    $res = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $id_usuario LIMIT 1");
-    $empresa = $res->fetch_assoc() ?: [];
-}
-if (empty($empresa)) {
-    $res = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1");
-    $empresa = $res->fetch_assoc() ?: [];
-}
+// 2. Dados da Empresa e Lookup
+$idUsuarioRef = $_SESSION['usuario_id'] ?? ($dados['id_criador'] ?? 0);
+$lookup = $repo->getAllLookupData($idUsuarioRef);
+$empresa = $lookup['empresa'];
 
 // Logo Logic
 $logo = 'assets/logo_sgt.png';
@@ -274,17 +208,18 @@ $vars = [
     'finalidade' => $dados['finalidade'] ?? '',
     'escopo_servico' => isset($dados['escopo_content']) ? nl2br($dados['escopo_content']) : '',
 
-    // Equipamentos: Tenta concatenar Marca + Modelo se a variável principal estiver vazia
-    // Equipamentos: Prioridade para Texto do Editor > Concatenação Marca+Modelo > Vazio
-    'Veiculo' => !empty($dados['equipamentos_veiculo_content']) ? strip_tags($dados['equipamentos_veiculo_content']) : trim(($dados['marca_veiculo'] ?? '') . ' ' . ($dados['modelo_veiculo'] ?? '')),
-    'Estacao_Total' => !empty($dados['equipamentos_estacao_total_content']) ? strip_tags($dados['equipamentos_estacao_total_content']) : trim(($dados['marca_estacao_total'] ?? '') . ' ' . ($dados['modelo_estacao_total'] ?? '')),
-    'GPS' => !empty($dados['equipamentos_gps_content']) ? strip_tags($dados['equipamentos_gps_content']) : trim(($dados['marca_gps'] ?? '') . ' ' . ($dados['modelo_gps'] ?? '')),
-    'Drone' => !empty($dados['equipamentos_drone_content']) ? strip_tags($dados['equipamentos_drone_content']) : trim(($dados['marca_drone'] ?? '') . ' ' . ($dados['modelo_drone'] ?? '')),
+    // Equipamentos
+    'Veiculo' => $dados['marca_veiculo'] ?? '',
+    'Estacao_Total' => $dados['marca_estacao_total'] ?? '',
+    'GPS' => $dados['marca_gps'] ?? '',
+    'Drone' => $dados['marca_drone'] ?? '',
+    'Softwares' => $dados['softwares_content'] ?? 'Softwares de Processamento de Precisão',
 
     // Financeiro
     'ValorProposta' => formatarMoeda($dados['valor_proposta'] ?? 0),
     'ValorExtenso' => $dados['valor_extenso'] ?? valorPorExtenso($dados['valor_proposta'] ?? 0),
     'prazo_execucao' => $dados['prazo_execucao'] ?? '',
+    'prazos_content' => $dados['prazos_content'] ?? ($dados['cronograma_content'] ?? ''),
     'dias_campo' => $dados['dias_campo'] ?? '0',
     'dias_escritorio' => $dados['dias_escritorio'] ?? '0',
 
@@ -292,6 +227,8 @@ $vars = [
     'mobilizacao_valor' => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
     'restante_percentual' => (100 - intval($dados['mobilizacao_percentual'] ?? 0)),
     'restante_valor' => formatarMoeda($dados['restante_valor'] ?? 0),
+    'mobilizacao_valor_total' => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
+    'restante_valor_total' => formatarMoeda($dados['restante_valor'] ?? 0),
 
     // Empresa
     'Empresa' => $empresa['Empresa'] ?? 'ELM Topografia',
@@ -308,6 +245,7 @@ $vars = [
     'Cidade' => $empresa['Cidade'] ?? 'Belo Horizonte',
     'DExrenso' => dataPorExtenso(),
     'DataExtenso' => dataPorExtenso(),
+    'logo' => $logo,
 
     // Variáveis Dinâmicas de Drone/Campo
     'ClienteCidadeUF' => ($dados['cidade_obra'] ?? '') . '-' . ($dados['estado_obra'] ?? ''),
@@ -316,27 +254,33 @@ $vars = [
     'AcessoLocal' => $dados['acesso_local'] ?? '',
     'RestricoesAereas' => $dados['restricoes_aereas'] ?? '',
 
-    // Fallbacks
-    'escopo_servico' => '',
+    // --- OS 14 ITENS DO EDITOR DINAMICO (Mapeamento Oficial) ---
+    // Dados da Empresa (Tabela DadosEmpresa via $empresa)
+    'empresa_nome'      => $empresa['Empresa'] ?? 'ELM Topografia',
+    'empresa_cnpj'      => $empresa['CNPJ'] ?? '',
+    'empresa_endereco'  => $empresa['Endereco'] ?? '',
+    'empresa_cidade'    => $empresa['Cidade'] ?? '',
+    'empresa_uf'        => $empresa['Estado'] ?? '',
+    'empresa_telefone'  => $empresa['Telefone'] ?? '',
+    'empresa_whatsapp'  => $empresa['Whatsapp'] ?? '',
+    'logo_empresa'      => $logo,
+    // 'logo'              => $logo, // Já existe acima
+    // 'empresa_logo'      => $logo, // Já existe acima
+    
+    // Dados do Usuário (Tabela Usuarios via $lookup)
+    'usuario_nome'      => $_SESSION['nome_completo'] ?? $lookup['usuario']['nome_completo'] ?? 'Profissional SGT',
+    'usuario_email'     => $_SESSION['usuario'] ?? $lookup['usuario']['usuario'] ?? '',
+    
+    // Metadados do Sistema
+    'data_hoje'         => date('d/m/Y'),
+    // 'numero_proposta'   => $dados['numero_proposta'] ?? '000/0000', // Já existe acima
 ];
 
-// (Funções helpers movidas para evitar erro de escopo)
-
-// (Funções movidas para o topo)
-
-// Pré-processa blocos que NÃO devem conter valor/investimento (evita confusão bloco 7 vs 8)
-$blocosParaLimpar = ['cronograma_content', 'metodologia_content', 'documentacao_content', 'consideracoes_content'];
-foreach ($blocosParaLimpar as $key) {
-    if (!empty($dados[$key])) {
-        $dados[$key] = limparConteudoInvestimentoDeBloco($dados[$key]);
-    }
-}
-if (!empty($dados['investimento_content'])) {
-    $dados['investimento_content'] = removerValorDuplicadoDoInvestimento($dados['investimento_content']);
-}
-if (!empty($dados['investimento_texto'])) {
-    $dados['investimento_texto'] = removerValorDuplicadoDoInvestimento($dados['investimento_texto']);
-}
+// 4. Carregador de Estrutura de Blocos (Caminho Absoluto)
+require_once __DIR__ . '/src/ProposalArchitect/Infrastructure/DatabaseStructureLoader.php';
+$structureLoader = new \ProposalArchitect\Infrastructure\DatabaseStructureLoader(ConnectionManager::get());
+$idServico = intval($dados['id_servico'] ?? 0);
+$blocosEstrutura = $structureLoader->loadActiveStructure($idServico);
 
 ?>
 <?php
@@ -414,6 +358,9 @@ if (isset($_GET['piloto'])) {
     <meta charset="UTF-8">
     <title>Proposta <?= str_replace('/', '-', $vars['numero_proposta']) ?> - <?= $vars['nome_cliente_salvo'] ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <!-- CSS TEMA LEGADO (Se necessário) -->
     <link rel="stylesheet" href="<?= $cssTemaPath ?>">
@@ -772,10 +719,18 @@ if (isset($_GET['piloto'])) {
 
 <body class="<?= $classeTema ?>">
 
-    <!-- Botão Flutuante Imprimir/Salvar -->
-    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">
-        <i class="fas fa-print"></i>
-    </button>
+    <!-- Barra de Ferramentas Flutuante -->
+    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; font-family: 'Inter', sans-serif;">
+        <a href="painel.php" style="background: #1e293b; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="ph ph-arrow-left"></i> Voltar ao Painel
+        </a>
+        <a href="editor_dinamico.php?id=<?= $id ?>" style="background: #f97316; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 15px rgba(249,115,22,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="ph ph-pencil-simple"></i> Editar Proposta
+        </a>
+        <button onclick="window.print()" style="background: var(--brand); color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 15px rgba(180, 95, 6, 0.3); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="ph ph-printer"></i> Imprimir / PDF
+        </button>
+    </div>
 
     <div class="proposta-wrapper <?= $classeTema ?>">
         <div class="page page-container">
@@ -824,224 +779,117 @@ if (isset($_GET['piloto'])) {
 
             <!-- CONTEÚDO DINÂMICO (Vindo dos Blocos) -->
             <?php
-            // Função para exibir bloco com título unificado
-            function renderBloco($tituloOpicional, $texto, $vars, $debugName = '')
-            {
-                $textoClean = trim($texto);
-                if ($tituloOpicional) {
-                    $pattern = '/^' . preg_quote($tituloOpicional, '/') . '[:\s-]*/iu';
-                    $textoClean = preg_replace($pattern, '', $textoClean);
-                }
-                $textoClean = preg_replace('/^(\d+\.\s+)/', '', $textoClean);
-
-                $conteudo = substituir($textoClean, $vars);
-                $conteudo = str_replace('${escopo_servico}', '', $conteudo);
-
-                // Limpezas de texto
-                $conteudo = html_entity_decode($conteudo);
-                $conteudo = str_replace(["\xc2\xa0", "&nbsp;"], ' ', $conteudo);
-                $conteudo = trim($conteudo);
-                $conteudo = preg_replace('/_+/', '', $conteudo);
-
-                $quebraPattern = '(?:[\r\n\s]|<br\s*\/?>|<\/p>|<p>|<div>|<\/div>)+';
-                $empresaRegex = preg_quote(trim($vars['Empresa']), '/');
-                $conteudo = preg_replace('/GeoMetr[óo]pole.*?' . $quebraPattern . 'Atenciosamente/usi', 'Atenciosamente', $conteudo);
-                $conteudo = preg_replace('/' . $empresaRegex . '.*?' . $quebraPattern . 'Atenciosamente/usi', 'Atenciosamente', $conteudo);
-                $conteudo = preg_replace('/' . $empresaRegex . '[\s\.\-,]*$/ui', '', $conteudo);
-                $conteudo = preg_replace('/Atenciosamente[\.,\s]*/ui', '', $conteudo);
-                $conteudo = trim($conteudo);
-                $conteudo = preg_replace('/' . $empresaRegex . '[\s\.\-,]*$/ui', '', $conteudo);
-                $conteudo = trim($conteudo);
-                $conteudo = preg_replace('/GeoMetr[óo]pole\s+Engenharia\s+e\s+Topografia(\s+Ltda)?[\s\.\-,]*$/ui', '', $conteudo);
-                $conteudo = trim($conteudo);
-                $conteudo = preg_replace('/' . preg_quote($vars['Cidade'], '/') . '[\s\.\-]*$/u', '', $conteudo);
-                $conteudo = preg_replace('/' . preg_quote(strtoupper($vars['Cidade']), '/') . '[\s\.\-]*$/u', '', $conteudo);
-                $conteudo = trim($conteudo);
-                $conteudo = preg_replace('/ETAPA\s*\|\s*%\s*\|\s*VALOR/i', '', $conteudo);
-                $conteudo = str_replace('R$ R$', 'R$', $conteudo);
-                $conteudo = preg_replace('/(Etapa \d+:)/i', '<strong>$1</strong>', $conteudo);
-
-                if (strpos($conteudo, '<p') === false && strpos($conteudo, '<div') === false && strpos($conteudo, '<ul') === false) {
-                    $conteudo = nl2br($conteudo);
-                }
-
-                echo "<div class='bloco-secao'>";
-                if (strlen(trim(strip_tags($texto))) > 3) {
-                    echo "<h2>{$tituloOpicional}</h2>";
-                    echo $conteudo;
-                }
-                echo "</div>";
-            }
-
-            // === 1. APRESENTAÇÃO ===
-            $txtApresentacao = $dados['apresentacao_content'] ?? '';
-            $txtApresentacao = substituir($txtApresentacao, $vars);
-            if ($vars['Empresa'] !== 'ELM Serviços Topográficos Ltda.' && strpos($txtApresentacao, 'ELM Serviços Topográficos Ltda.') !== false) {
-                $txtApresentacao = str_replace('ELM Serviços Topográficos Ltda.', $vars['Empresa'], $txtApresentacao);
-            }
-            $variantesEmpresa = [
-                $vars['Empresa'], 'GeoMetrópole Engenharia e Topografia Ltda.',
-                'GeoMetrópole Engenharia e Topografia', 'GeoMetrópole',
-                'ELM Serviços Topográficos Ltda.', 'ELM Serviços Topográficos'
-            ];
-            $variantesEmpresa = array_unique(array_filter($variantesEmpresa));
-            usort($variantesEmpresa, function ($a, $b) { return mb_strlen($b) - mb_strlen($a); });
-            $patternEmpresa = '/(' . implode('|', array_map(function ($n) { return preg_quote($n, '/'); }, $variantesEmpresa)) . ')/u';
-            $txtApresentacao = preg_replace($patternEmpresa, '<strong>$1</strong>', $txtApresentacao);
-            renderBloco("1. Apresentação", $txtApresentacao, $vars);
-
-            // === 2. FINALIDADE ===
-            $textoFinalidade = !empty($dados['finalidade_content']) ? $dados['finalidade_content'] 
-                : (!empty($dados['finalidade_descricao']) ? $dados['finalidade_descricao'] : ($dados['finalidade'] ?? ''));
-            renderBloco("2. Finalidade", $textoFinalidade, $vars);
-
-            // === 3. ESCOPO ===
-            $textoEscopo = $dados['escopo_content'] ?? '';
-            $textoEscopo = str_replace(['3. Escopo do Serviço', '${escopo_servico}'], '', $textoEscopo);
-            renderBloco("3. Escopo do Serviço", $textoEscopo, $vars);
-
-            // === 4. DOCUMENTAÇÃO ===
-            renderBloco("4. Documentação Gerada", $dados['documentacao_content'] ?? '', $vars);
-
-            // === 5. METODOLOGIA ===
-            renderBloco("5. Metodologia", $dados['metodologia_content'] ?? '', $vars);
-
-            // === 6. EQUIPAMENTOS ===
-            // === 6. EQUIPAMENTOS ===
-            /* 
-             * TENTATIVA 2: Forçar a exibição do bloco se houver QUALQUER conteúdo.
-             * Se não houver vars individuais, tenta usar o bloco de texto salvo.
+            /**
+             * LOOP DINÂMICO DE RENDERIZAÇÃO (Universo SGT - 14 Pontos)
              */
-            
-            // Monta lista de itens válidos das variáveis
-            $listaEquipamentos = [];
-            if (!empty($vars['Veiculo'])) $listaEquipamentos[] = "<strong>Veículo:</strong> {$vars['Veiculo']}";
-            if (!empty($vars['GPS'])) $listaEquipamentos[] = "<strong>Receptor GNSS:</strong> {$vars['GPS']}";
-            if (!empty($vars['Estacao_Total'])) $listaEquipamentos[] = "<strong>Estação Total:</strong> {$vars['Estacao_Total']}";
-            if (!empty($vars['Drone']) && stripos($vars['Drone'], 'Não aplicável') === false) {
-                $listaEquipamentos[] = "<strong>Drone:</strong> {$vars['Drone']}";
-            }
-            if (!empty($vars['Softwares'])) $listaEquipamentos[] = "<strong>Softwares:</strong> {$vars['Softwares']}";
-
-            // Verifica se tem conteúdo TEXTUAL salvo (fallback)
-            $textoEquipamentosSalvo = $dados['equipamentos_content'] ?? ($dados['equipamentos_texto'] ?? '');
-            $temTextoSalvo = !empty($textoEquipamentosSalvo) && strlen(strip_tags($textoEquipamentosSalvo)) > 5;
-
-            // Se tiver itens na lista OU texto salvo, IMPRIME O TÍTULO
-            if (count($listaEquipamentos) > 0 || $temTextoSalvo) {
-                echo "<h2>6. Equipamentos Previstos</h2>";
+            function renderConteudoBloco($slug, $titulo, $conteudo, $vars, $dados)
+            {
+                // 1. Substitui Variáveis
+                $html = substituir($conteudo, $vars);
                 
-                // Prioridade 1: Lista estruturada das variáveis
-                if (count($listaEquipamentos) > 0) {
+                // 2. Formatação Premium (Markdown Simples para HTML)
+                if (strpos($html, '<p') === false && strpos($html, '<ul') === false) {
+                    // Negritos (Markdown: **texto**)
+                    $html = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $html);
+                    // Listas (Markdown: - item)
+                    $html = preg_replace('/^- (.*)/m', '<li>$1</li>', $html);
+                    if (strpos($html, '<li>') !== false) {
+                        $html = "<ul style='padding-left: 20px; list-style-type: disc; margin-bottom: 20px;'>" . $html . "</ul>";
+                        $html = str_replace("</li>\n", "</li>", $html); // Limpa quebras extras em listas
+                    } else {
+                        $html = nl2br($html);
+                    }
+                }
+
+                // 3. Limpezas Adicionais
+                $html = html_entity_decode($html);
+                $html = str_replace(["\xc2\xa0", "&nbsp;"], ' ', $html);
+                $html = trim($html);
+
+                // 4. Lógica Especializada por Slug
+                echo "<div class='bloco-secao' id='block-{$slug}'>";
+                
+                // Título do Bloco (Exceto cabeçalho/rodape/assinatura que geralmente são visuais)
+                $ignoreTitles = ['cabecalho', 'rodape', 'assinatura', 'dados_cliente', 'local_obra'];
+                if (!in_array($slug, $ignoreTitles)) {
+                    echo "<h2>{$titulo}</h2>";
+                }
+
+                // Renderização de Conteúdo Base
+                echo $html;
+
+                // --- COMPONENTES ESPECIALIZADOS (Injeção de Tabelas/Gráficos) ---
+
+                // Ponto 8: Equipamentos Previstos (Injeção de Lista Estruturada se vazio)
+                if ($slug === 'equipamentos' && strlen(strip_tags($html)) < 10) {
                     echo "<ul class='equip-list' style='padding-left: 40px; list-style-type: disc; margin-bottom: 20px; font-family: \"Inter\", sans-serif; font-size: 14px; color: #334155;'>";
-                    foreach ($listaEquipamentos as $item) {
-                         echo "<li style='margin-bottom: 5px;'>{$item}</li>";
-                    }
+                    if (!empty($vars['GPS'])) echo "<li style='margin-bottom: 5px;'><strong>Receptor GNSS:</strong> {$vars['GPS']} (Precisão Centimétrica)</li>";
+                    if (!empty($vars['Estacao_Total'])) echo "<li style='margin-bottom: 5px;'><strong>Estação Total:</strong> {$vars['Estacao_Total']}</li>";
+                    if (!empty($vars['Drone'])) echo "<li style='margin-bottom: 5px;'><strong>Drone:</strong> {$vars['Drone']}</li>";
+                    echo "<li style='margin-bottom: 5px;'><strong>Softwares:</strong> {$vars['Softwares']}</li>";
                     echo "</ul>";
-                } 
-                // Prioridade 2: Se não tiver lista mas tiver texto salvo
-                elseif ($temTextoSalvo) {
-                     echo "<div class='bloco-secao'>{$textoEquipamentosSalvo}</div>";
                 }
-            } else {
-                // FALLBACK FINAL: Se tudo falhar, imprime o bloco padrão para não sumir o item 6
-                echo "<h2>6. Equipamentos Previstos</h2>";
-                echo "<ul class='equip-list' style='padding-left: 40px; list-style-type: disc; margin-bottom: 20px; font-family: \"Inter\", sans-serif; font-size: 14px; color: #334155;'>";
-                echo "<li style='margin-bottom: 5px;'><strong>Estação Total:</strong> Nível de precisão angular 2\"</li>";
-                echo "<li style='margin-bottom: 5px;'><strong>Receptor GNSS:</strong> Dupla frequência L1/L2</li>";
-                echo "<li style='margin-bottom: 5px;'><strong>Softwares:</strong> Processamento e desenho</li>";
-                echo "<li style='margin-bottom: 5px;'><strong>Acessórios:</strong> Tripés, bastões e prismas</li>";
-                echo "</ul>";
-            }
 
-            // === 7. CRONOGRAMA ===
-            $prazo = $vars['prazo_execucao'] ?: (intval($vars['dias_campo']) + intval($vars['dias_escritorio'])) . ' dias úteis';
-            $hasCronograma = intval($vars['dias_campo']) > 0 || intval($vars['dias_escritorio']) > 0 || !empty($dados['cronograma_content']);
-            
-            // Texto de investimento vindo do cronograma removido para evitar duplicidade.
-            $textoInvestDoCrono = '';
-            
-            if ($hasCronograma) {
-                echo "<h2>7. Cronograma de Execução</h2>";
-
-                // Tabela de Etapas Premium
-                echo "<table>";
-                echo "<tr><th>Etapa</th><th>Descrição</th><th>Prazo Estimado</th></tr>";
-                echo "<tr><td><strong>1. Mobilização</strong></td><td>Planejamento, análise DECEA e ida a campo</td><td>Até 02 dias</td></tr>";
-                echo "<tr><td><strong>2. Campo (GCPs)</strong></td><td>Instalação de pontos de controle terrestre</td><td>01 dia</td></tr>";
-                echo "<tr><td><strong>3. Campo (Voo)</strong></td><td>Execução do voo de mapeamento</td><td>01 dia</td></tr>";
-                echo "<tr><td><strong>4. Processamento</strong></td><td>Geração da nuvem de pontos e ortomosaico</td><td>03 a 05 dias</td></tr>";
-                echo "<tr><td><strong>5. CAD/Vetorização</strong></td><td>Desenho técnico e curvas de nível</td><td>03 a 05 dias</td></tr>";
-                echo "<tr style='border-top: 2px solid var(--brand); color: var(--brand); font-weight: 700;'><td colspan='2'>TOTAL ESTIMADO</td><td>{$prazo}</td></tr>";
-                echo "</table>";
-                
-                if (!empty($dados['cronograma_content'])) {
-                    $cronoTexto = $dados['cronograma_content'];
-                    // Já limpo no pré-processamento; sem valor nem texto de investimento
-                    
-                    if (!empty($cronoTexto) && strlen(strip_tags($cronoTexto)) > 5) {
-                        $cronoTexto = substituir($cronoTexto, $vars);
-                        if (strpos($cronoTexto, '<p') === false) $cronoTexto = nl2br($cronoTexto);
-                        echo "<div class='bloco-secao'>{$cronoTexto}</div>";
+                // Ponto 9: Prazos / Cronograma (Injeção de Tabela)
+                if ($slug === 'prazos') {
+                    $obsPrazos = $vars['prazos_content'] ?? '';
+                    if (!empty($obsPrazos) && strlen(strip_tags($obsPrazos)) > 5) {
+                        echo "<div style='margin-bottom: 12px; font-style: italic; color: var(--text-muted);'>" . nl2br($obsPrazos) . "</div>";
                     }
+
+                    $prazoTotal = $vars['prazo_execucao'] ?: (intval($vars['dias_campo'] ?? 0) + intval($vars['dias_escritorio'] ?? 0)) . ' dias úteis';
+                    echo "<table>";
+                    echo "<tr><th>Etapa</th><th>Descrição</th><th>Prazo Estimado</th></tr>";
+                    echo "<tr><td><strong>1. Campo</strong></td><td>Levantamento, voo ou rastreio geodésico</td><td>" . ($vars['dias_campo'] ?: 'A confirmar') . " dias</td></tr>";
+                    echo "<tr><td><strong>2. Escritório</strong></td><td>Processamento, desenho e relatórios</td><td>" . ($vars['dias_escritorio'] ?: 'A confirmar') . " dias</td></tr>";
+                    echo "<tr style='border-top: 2px solid var(--brand); color: var(--brand); font-weight: 700;'><td colspan='2'>TOTAL ESTIMADO</td><td>{$prazoTotal}</td></tr>";
+                    echo "</table>";
                 }
+
+                // Ponto 10: Investimento (Invest Box Premium)
+                if ($slug === 'investimento') {
+                    echo "<div class='invest-box'>";
+                    echo "<div class='invest-label'>Valor Total da Proposta</div>";
+                    echo "<div class='invest-value'>{$vars['ValorProposta']}</div>";
+                    echo "<div class='invest-extenso'>({$vars['ValorExtenso']})</div>";
+                    echo "</div>";
+                }
+
+                // Ponto 11: Condições Pagamento (Tabela Financeira)
+                if ($slug === 'condicoes_pagamento' && strlen(strip_tags($html)) < 10) {
+                    echo "<table>";
+                    echo "<tr><td>Etapa</td><td style='text-align:center;'>%</td><td style='text-align:right;'>Valor</td></tr>";
+                    echo "<tr><td>Mobilização (Aceite da Proposta)</td><td style='text-align:center;'>" . number_format((float)$vars['mobilizacao_percentual'], 0) . "%</td><td style='text-align:right;'><strong>{$vars['mobilizacao_valor_total']}</strong></td></tr>";
+                    echo "<tr><td>Entrega Final</td><td style='text-align:center;'>" . number_format((float)$vars['restante_percentual'], 0) . "%</td><td style='text-align:right;'><strong>{$vars['restante_valor_total']}</strong></td></tr>";
+                    echo "</table>";
+                }
+
+                // Ponto 12: Dados Bancários (Info Card Verde)
+                if ($slug === 'dados_bancarios' && strlen(strip_tags($html)) < 10) {
+                    echo "<div class='info-card' style='border-left-color: var(--accent-green);'>";
+                    echo "<p><span class='label'>Banco:</span> {$vars['Banco']} &nbsp;|&nbsp; <span class='label'>Agência:</span> {$vars['Agencia']}</p>";
+                    echo "<p><span class='label'>Conta:</span> {$vars['Conta']} &nbsp;|&nbsp; <span class='label'>PIX:</span> {$vars['PIX']}</p>";
+                    echo "</div>";
+                }
+
+                echo "</div>"; // Fim bloco-secao
             }
 
-            // === 8. INVESTIMENTO ===
-            $investimentoTxt = $dados['investimento_content'] ?? ($dados['investimento_texto'] ?? '');
+            // --- EXECUÇÃO DO LOOP DINÂMICO ---
+            foreach ($blocosEstrutura as $def) {
+                // Recupera conteúdo salvo para este bloco na proposta
+                $slug = $def->id;
+                $conteudoSalvo = $dados[$slug . '_content'] ?? $def->defaultContent;
+                
+                // Pular blocos de layout que renderizamos fora do loop principal de texto
+                if ($slug === 'cabecalho' || $slug === 'rodape' || $slug === 'assinatura') continue;
+                
+                // Se for dados do cliente ou obra, já renderizamos lá em cima de forma fixa, 
+                // para manter o design de "Info Cards".
+                if ($slug === 'dados_cliente' || $slug === 'local_obra') continue;
 
-            // Remove linhas duplicadas de valor – o invest-box abaixo é a ÚNICA fonte de "Valor Total da Proposta"
-            $investimentoTxt = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+\s*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $investimentoTxt);
-            $investimentoTxt = preg_replace('/^[\r\n\s]*R\$\s*[\d\.,]+[\r\n\s]*/imu', '', $investimentoTxt);
-            $investimentoTxt = preg_replace('/^[\r\n\s]*\([^)]*[Rr]eais\)[\r\n\s]*/imu', '', $investimentoTxt);
-            $investimentoTxt = preg_replace('/^[\r\n\s]*\$\{ValorProposta\}\s*[\r\n]*\s*\(\$\{ValorExtenso\}\)[\r\n\s]*/imu', '', $investimentoTxt);
-            $investimentoTxt = preg_replace("/\n\s*\n+/", "\n", $investimentoTxt);
-            
-            // Se tem conteúdo editado, renderiza como bloco
-            if (!empty($investimentoTxt) && strlen(trim(strip_tags($investimentoTxt))) > 5) {
-                $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\$\{ValorExtenso\})/u', '<strong>$1</strong> ($2)', $investimentoTxt);
-                $investimentoTxt = preg_replace('/(\$\{ValorProposta\})\s*[\r\n]*\s*(\(\$\{ValorExtenso\}\))/u', '<strong>$1</strong> $2', $investimentoTxt);
-                $investimentoTxt = preg_replace('/(R\$\s?[\d\.,]+)\s*[\r\n]*\s*\(([^\)]+reais)\)/iu', '<strong>$1</strong> ($2)', $investimentoTxt);
-                renderBloco("8. Investimento", $investimentoTxt, $vars);
-            } else {
-                echo "<h2>8. Investimento</h2>";
+                renderConteudoBloco($slug, $def->name, $conteudoSalvo, $vars, $dados);
             }
-
-            echo "<div class='invest-box'>";
-            echo "<div class='invest-label'>Valor Total da Proposta</div>";
-            echo "<div class='invest-value'>{$vars['ValorProposta']}</div>";
-            echo "<div class='invest-extenso'>({$vars['ValorExtenso']})</div>";
-            echo "</div>";
-
-
-            // === 9. CONDIÇÕES DE PAGAMENTO ===
-            $condicoesTxt = $dados['condicoes_content'] ?? ($dados['condicoes_texto'] ?? '');
-            if (!empty($condicoesTxt) && strlen(trim(strip_tags($condicoesTxt))) > 5) {
-                renderBloco("9. Condições de Pagamento", $condicoesTxt, $vars);
-            } else {
-                echo "<h2>9. Condições de Pagamento</h2>";
-                echo "<table>";
-                echo "<tr><td>Etapa</td><td style='text-align:center;'>%</td><td style='text-align:right;'>Valor</td></tr>";
-                echo "<tr><td>Mobilização (Aceite da Proposta)</td><td style='text-align:center;'>" . number_format((float)$vars['mobilizacao_percentual'], 0) . "%</td><td style='text-align:right;'><strong>{$vars['mobilizacao_valor']}</strong></td></tr>";
-                echo "<tr><td>Entrega Final</td><td style='text-align:center;'>" . number_format((float)$vars['restante_percentual'], 0) . "%</td><td style='text-align:right;'><strong>{$vars['restante_valor']}</strong></td></tr>";
-                echo "</table>";
-            }
-
-            // === 10. DADOS BANCÁRIOS ===
-            $dadosBancariosTxt = $dados['dados_bancarios_content'] ?? ($dados['dados_bancarios'] ?? '');
-            if (!empty($dadosBancariosTxt) && strlen(trim(strip_tags($dadosBancariosTxt))) > 5) {
-                renderBloco("10. Dados Bancários", $dadosBancariosTxt, $vars);
-            } else {
-                echo "<h2>10. Dados Bancários</h2>";
-                echo "<div class='info-card' style='border-left-color: var(--accent-green);'>";
-                echo "<p><span class='label'>Banco:</span> {$vars['Banco']}</p>";
-                echo "<p><span class='label'>Agência:</span> {$vars['Agencia']} &nbsp;|&nbsp; <span class='label'>Conta:</span> {$vars['Conta']}</p>";
-                echo "<p><span class='label'>PIX:</span> {$vars['PIX']}</p>";
-                echo "</div>";
-            }
-
-            // === 11. CONSIDERAÇÕES FINAIS ===
-            renderBloco("11. Considerações Finais", $dados['consideracoes_content'] ?? '', $vars);
             ?>
 
         </div> <!-- Fim content-wrap -->

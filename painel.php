@@ -3,15 +3,12 @@
 // ARQUIVO: painel.php (ATUALIZADO 28/01/2026 - Visual Clean UI)
 // ==========================================================
 
-// 1. FORÇA MOSTRAR ERROS
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// 1. CONFIGURAÇÕES ORIGINAIS (Caminhos Absolutos)
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/ConnectionManager.php';
+require_once __DIR__ . '/PropostaRepository.php';
+require_once __DIR__ . '/session_validator.php';
 
-require_once 'config.php';
-require_once 'ConnectionManager.php';
-require_once 'PropostaRepository.php';
-require_once 'session_validator.php';
 
 // 1. Identifica contexto
 $id_usuario = $_SESSION['usuario_id'];

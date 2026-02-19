@@ -1,6 +1,6 @@
-require_once 'session_validator.php';
-require_once 'config.php';
-require_once 'PropostaRepository.php';
+require_once __DIR__ . '/session_validator.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/PropostaRepository.php';
 
 header('Content-Type: application/json');
 

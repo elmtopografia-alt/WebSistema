@@ -655,7 +655,7 @@ function getZapLink($numero, $handle) {
                                title="Layout Premium (piloto)">
                                 <i class="ph ph-sparkle text-lg"></i>
                             </a>
-                            <a href="editar_proposta.php?id=<?= $cardId ?>" target="_blank" 
+                            <a href="editar_proposta.php?id=<?= $cardId ?>" 
                                class="col-span-1 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 py-2 rounded text-center transition-colors flex items-center justify-center p-1"
                                title="Editar Proposta">
                                 <i class="ph ph-pencil-simple text-lg"></i>

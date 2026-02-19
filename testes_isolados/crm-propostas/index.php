@@ -1,6 +1,6 @@
 <?php
 define('SGT_PROPOSTAS', true);
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 $tema_atual = $_GET['preview'] ?? 'classico';
 ?>

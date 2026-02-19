@@ -22,6 +22,11 @@ define('SGT_CONFIG', SGT_ROOT . '/config');
 require_once SGT_CONFIG . '/database.php';
 require_once SGT_CONFIG . '/security.php';
 
+// Carrega Autoloader do Composer (SE EXISTIR)
+if (file_exists(SGT_ROOT . '/vendor/autoload.php')) {
+    require_once SGT_ROOT . '/vendor/autoload.php';
+}
+
 use function SGT\Config\loadEnv;
 use function SGT\Config\setupSecurityHeaders;
 use function SGT\Config\startSecureSession;
@@ -47,22 +52,25 @@ setupSecurityHeaders();
 startSecureSession();
 
 /**
- * Autoloader PSR-4 Simplificado
+ * Autoloader PSR-4 Simplificado (Suporte SGT e ProposalArchitect)
  */
 spl_autoload_register(function ($class) {
-    $prefix = 'SGT\\';
-    $base_dir = SGT_SRC . '/';
+    $map = [
+        'SGT\\' => SGT_SRC . '/',
+        'ProposalArchitect\\' => SGT_SRC . '/ProposalArchitect/'
+    ];
     
-    $len = strlen($prefix);
-    if (strncmp($prefix, $class, $len) !== 0) {
-        return;
-    }
-    
-    $relative_class = substr($class, $len);
-    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-    
-    if (file_exists($file)) {
-        require $file;
+    foreach ($map as $prefix => $base_dir) {
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) continue;
+        
+        $relative_class = substr($class, $len);
+        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+        
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
     }
 });
 

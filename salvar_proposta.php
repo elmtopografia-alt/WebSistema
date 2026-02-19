@@ -4,10 +4,10 @@
  * Único endpoint para criar, editar e revisar propostas
  */
 
-require_once 'session_validator.php';
-require_once 'ConnectionManager.php';
-require_once 'PropostaRepository.php';
-require_once 'config.php';
+require_once __DIR__ . '/session_validator.php';
+require_once __DIR__ . '/ConnectionManager.php';
+require_once __DIR__ . '/PropostaRepository.php';
+require_once __DIR__ . '/config.php';
 
 // Debug de Entrada
 error_log("--- ACESSO salvar_proposta.php [" . $_SERVER['REQUEST_METHOD'] . "] ---");

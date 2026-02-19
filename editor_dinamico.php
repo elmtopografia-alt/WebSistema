@@ -6,13 +6,13 @@
  * Permite editar blocos de texto dinâmicos e salvar rascunhos.
  */
 
-// 1. INICIALIZAÇÃO E SEGURANÇA
-require_once 'session_validator.php';
-require_once 'config.php';
-require_once 'PropostaRepository.php';
+// 1. INICIALIZAÇÃO E SEGURANÇA (Caminhos Absolutos)
+require_once __DIR__ . '/session_validator.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/PropostaRepository.php';
 
 // --- INTEGRAÇÃO DOCX ---
-require_once 'renderizador_modelo_docx.php';
+require_once __DIR__ . '/renderizador_modelo_docx.php';
 try {
     $repo = new PropostaRepository();
     $docxRenderer = new RenderizadorModeloDOCX($repo->getConn());
@@ -598,7 +598,7 @@ try {
                                     echo "</div>";
                                     break;
 
-                                case 'cronograma':
+                                case 'prazos':
                                     echo '<div class="col-span-2">';
                                     
                                     // Alerta
@@ -621,29 +621,14 @@ try {
                                             </thead>
                                             <tbody class="divide-y divide-white/5">
                                                 <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">1. Mobilização</td>
-                                                    <td class="px-4 py-3">Planejamento, análise DECEA e ida a campo</td>
-                                                    <td class="px-4 py-3">Até 02 dias</td>
+                                                    <td class="px-4 py-3 font-medium text-white">1. Campo (Levantamento)</td>
+                                                    <td class="px-4 py-3">Rastreio geodésico, voo ou topografia</td>
+                                                    <td class="px-4 py-3"><span id="display-campo">'. intval($variaveis['dias_campo'] ?? 0) .'</span> dias</td>
                                                 </tr>
                                                 <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">2. Campo (GCPs)</td>
-                                                    <td class="px-4 py-3">Instalação de pontos de controle terrestre</td>
-                                                    <td class="px-4 py-3">01 dia</td>
-                                                </tr>
-                                                <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">3. Campo (Voo)</td>
-                                                    <td class="px-4 py-3">Execução do voo de mapeamento</td>
-                                                    <td class="px-4 py-3">01 dia</td>
-                                                </tr>
-                                                <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">4. Processamento</td>
-                                                    <td class="px-4 py-3">Geração da nuvem de pontos e ortomosaico</td>
-                                                    <td class="px-4 py-3">03 a 05 dias</td>
-                                                </tr>
-                                                <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">5. CAD/Vetorização</td>
-                                                    <td class="px-4 py-3">Desenho técnico e curvas de nível</td>
-                                                    <td class="px-4 py-3">03 a 05 dias</td>
+                                                    <td class="px-4 py-3 font-medium text-white">2. Escritório (Processamento)</td>
+                                                    <td class="px-4 py-3">Processamento, cálculos e plantas</td>
+                                                    <td class="px-4 py-3"><span id="display-escritorio">'. intval($variaveis['dias_escritorio'] ?? 0) .'</span> dias</td>
                                                 </tr>
                                                 <tr class="bg-primary/10 font-semibold">
                                                     <td colspan="2" class="px-4 py-3 text-white rounded-l-lg">TOTAL ESTIMADO</td>
@@ -659,25 +644,25 @@ try {
                                     echo '<div class="grid grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Campo</label>
-                                            <input type="number" name="dias_campo" id="input-dias-campo" value="'. htmlspecialchars($variaveis['dias_campo'] ?? '0') .'" min="1" max="30"
+                                            <input type="number" name="dias_campo" id="input-dias-campo" value="'. htmlspecialchars($variaveis['dias_campo'] ?? '0') .'" min="0" max="90"
                                                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                                onchange="atualizarPrazoTotal()">
+                                                onchange="atualizarInterfacePrazos()">
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Escritório</label>
-                                            <input type="number" name="dias_escritorio" id="input-dias-escritorio" value="'. htmlspecialchars($variaveis['dias_escritorio'] ?? '0') .'" min="1" max="30"
+                                            <input type="number" name="dias_escritorio" id="input-dias-escritorio" value="'. htmlspecialchars($variaveis['dias_escritorio'] ?? '0') .'" min="0" max="90"
                                                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                                onchange="atualizarPrazoTotal()">
+                                                onchange="atualizarInterfacePrazos()">
                                         </div>
                                     </div>';
 
-                                    // Observações
-                                    $obsContent = htmlspecialchars($incomingData['cronograma_content'] ?? '');
+                                    // Observações (Fallback para cronograma)
+                                    $prazosContent = htmlspecialchars($incomingData['prazos_content'] ?? ($incomingData['cronograma_content'] ?? ''));
                                     echo '<div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Observações Adicionais</label>
-                                        <textarea name="cronograma_content" id="ed-cronograma-obs" rows="3"
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Observações Adicionais (Opcional)</label>
+                                        <textarea name="prazos_content" id="ed-prazos-obs" rows="3"
                                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                            placeholder="Informações complementares sobre prazos, dependências ou condições especiais...">'. $obsContent .'</textarea>
+                                            placeholder="Informações complementares sobre prazos...">'. $prazosContent .'</textarea>
                                     </div>';
                                     
                                     echo '</div>'; // close col-span-2
@@ -960,10 +945,16 @@ try {
             }
         }
 
-        function atualizarPrazoTotal() {
+        function atualizarInterfacePrazos() {
             const campo = parseInt(document.getElementById('input-dias-campo').value) || 0;
             const escritorio = parseInt(document.getElementById('input-dias-escritorio').value) || 0;
             const total = campo + escritorio;
+            
+            // Atualiza os displays na tabela
+            if(document.getElementById('display-campo')) document.getElementById('display-campo').textContent = campo;
+            if(document.getElementById('display-escritorio')) document.getElementById('display-escritorio').textContent = escritorio;
+            
+            // Atualiza o total
             const display = document.getElementById('prazo-total-display');
             if(display) {
                 display.textContent = total + ' dias úteis';

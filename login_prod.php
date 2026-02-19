@@ -3,6 +3,10 @@
 // Função: Login Clientes com MIGRAÇÃO AUTOMÁTICA PARA HASH (Segurança Bancária).
 
 session_start();
+// Configurações de erro originais (silenciosas para produção se necessário)
+// ini_set('display_errors', 0); 
+
+
 require_once 'config.php';
 require_once 'db.php';
 
@@ -82,7 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $erro = "Usuário não encontrado.";
             }
-        } catch (Exception $e) { $erro = "Erro técnico."; }
+        } catch (Throwable $e) { 
+            if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+                $erro = "Erro técnico: " . $e->getMessage(); 
+            } else {
+                $erro = "Erro técnico. Consulte o administrador.";
+            }
+        }
     }
 }
 ?>

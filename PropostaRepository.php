@@ -78,14 +78,19 @@ public function buscarPorId($id)
 {
     $id = (int)$id;
     $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente,
-                   s.nome as nome_servico, d.Empresa as nome_empresa, d.email_comercial_padrao as email_empresa
+                   s.nome as nome_servico, d.Empresa as nome_empresa
             FROM Propostas p 
             LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
             LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
             LEFT JOIN DadosEmpresa d ON p.id_criador = d.id_criador
             WHERE p.id_proposta = $id";
     $res = $this->conn->query($sql);
-    $dados = $res ? $res->fetch_assoc() : null;
+    if (!$res) {
+        error_log("PropostaRepository::buscarPorId SQL FAIL: " . ($this->conn->error ?? 'erro desconhecido'));
+        error_log("SQL: " . $sql);
+        return null;
+    }
+    $dados = $res->fetch_assoc();
     
     if (!$dados) return null;
     
@@ -101,6 +106,8 @@ public function buscarPorId($id)
             $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
             $dados[$row['block_id']] = $row['conteudo_texto'];
         }
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: falha ao buscar Proposta_Conteudo_Personalizado: " . ($this->conn->error ?? 'erro desconhecido'));
     }
 
     // Carrega Itens de Custo
@@ -109,19 +116,39 @@ public function buscarPorId($id)
     ];
 
     $res = $this->conn->query("SELECT * FROM Proposta_Salarios WHERE id_proposta = $id");
-    while($row = $res->fetch_assoc()) $dados['itens']['salarios'][] = $row;
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['salarios'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Salarios indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
 
     $res = $this->conn->query("SELECT * FROM Proposta_Estadia WHERE id_proposta = $id");
-    while($row = $res->fetch_assoc()) $dados['itens']['estadia'][] = $row;
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['estadia'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Estadia indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
 
     $res = $this->conn->query("SELECT * FROM Proposta_Consumos WHERE id_proposta = $id");
-    while($row = $res->fetch_assoc()) $dados['itens']['consumo'][] = $row;
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['consumo'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Consumos indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
 
     $res = $this->conn->query("SELECT * FROM Proposta_Locacao WHERE id_proposta = $id");
-    while($row = $res->fetch_assoc()) $dados['itens']['locacao'][] = $row;
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['locacao'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Locacao indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
 
     $res = $this->conn->query("SELECT * FROM Proposta_Custos_Administrativos WHERE id_proposta = $id");
-    while($row = $res->fetch_assoc()) $dados['itens']['admin'][] = $row;
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['admin'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Custos_Administrativos indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
     
     return $dados;
 }
@@ -148,11 +175,11 @@ public function getKPIs($idUsuario)
 
     while ($row = $res->fetch_assoc()) {
         $st = mb_strtolower($row['status']);
-        if (str_contains($st, 'exclu') || str_contains($st, 'arquiv')) continue;
+        if (strpos($st, 'exclu') !== false || strpos($st, 'arquiv') !== false) continue;
 
-        if (str_contains($st, 'aprov') || str_contains($st, 'conclu') || str_contains($st, 'aceit')) $kpi['aprovada'] += $row['qtd'];
-        elseif (str_contains($st, 'envia')) $kpi['enviada'] += $row['qtd'];
-        elseif (str_contains($st, 'cancel') || str_contains($st, 'perdid')) $kpi['cancelada'] += $row['qtd'];
+        if (strpos($st, 'aprov') !== false || strpos($st, 'conclu') !== false || strpos($st, 'aceit') !== false) $kpi['aprovada'] += $row['qtd'];
+        elseif (strpos($st, 'envia') !== false) $kpi['enviada'] += $row['qtd'];
+        elseif (strpos($st, 'cancel') !== false || strpos($st, 'perdid') !== false) $kpi['cancelada'] += $row['qtd'];
         else $kpi['elaborada'] += $row['qtd'];
     }
     return $kpi;
@@ -275,13 +302,15 @@ public function getAllLookupData($idUsuario)
         }
     }
 
-    // 5. Empresa Endereço
+    // 5. Empresa (Dados e Endereço)
+    $data['empresa'] = [];
     $data['empresa_endereco'] = '';
-    $stmt = $this->conn->prepare("SELECT Endereco, Cidade, Estado FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
+    $stmt = $this->conn->prepare("SELECT * FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
     $stmt->bind_param('i', $idUsuario);
     $stmt->execute();
     $res = $stmt->get_result();
     if ($row = $res->fetch_assoc()) {
+        $data['empresa'] = $row;
         $data['empresa_endereco'] = implode(', ', array_filter([$row['Endereco'], $row['Cidade'], $row['Estado']]));
     }
 
@@ -540,7 +569,7 @@ public function getAllLookupData($idUsuario)
             restante_percentual, restante_valor, status,
             tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps,
             modelo_docx
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         
         $stmt = $this->conn->prepare($sql);
         $isDemo = ($_SESSION['ambiente'] ?? 'producao') === 'demo' ? 1 : 0;
@@ -673,7 +702,7 @@ public function getAllLookupData($idUsuario)
         $gps = $dados['coordenadas_gps'] ?? null;
         $modelo_docx = $dados['modelo_docx'] ?? null;
 
-        $stmt->bind_param('issssssiissssssssssiisddddddddddsddddsssssssi',
+        $stmt->bind_param('issssssiissssssssssiisddddddddddsddddssssssi',
             $id_cliente, $nome_cliente_salvo, $empresa_cliente, $email_salvo, $telefone_salvo, $celular_salvo, $whatsapp_salvo,
             $id_servico, $tipo_servico_id, $contato_obra, $finalidade, $tipo_levantamento,
             $area_obra, $unidade_area, $endereco_obra, $bairro_obra, $cidade_obra, $estado_obra,
@@ -815,6 +844,8 @@ public function getAllLookupData($idUsuario)
                 $stmt->execute();
             }
         }
+    }
+
     /**
      * Remove uma proposta e seu arquivo DOCX físico
      */
@@ -846,6 +877,8 @@ public function getAllLookupData($idUsuario)
         }
 
         return false;
+    }
+
     /**
      * Clona uma proposta e todos os seus itens de custo
      */

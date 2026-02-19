@@ -8,10 +8,10 @@
 define('SGT_PROPOSTAS', true);
 
 // 1. Carrega configurações do sistema isolado
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 // 2. Carrega conexão e configurações do sistema real (CRM)
-require_once '../../db.php';
+require_once __DIR__ . '/../../db.php';
 
 if (!isset($conn)) {
     die("Erro: Conexão com o banco de dados não disponível.");
