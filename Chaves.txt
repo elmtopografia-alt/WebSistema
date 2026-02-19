@@ -38,6 +38,7 @@ ${CNPJ} – Seu CNPJ.
 ${whatsapp} – Seu contato comercial.
 ${Banco} / ${Agencia} / ${Conta} / ${PIX} – Dados para pagamento.
 ${logo_empresa} – Link interno para sua logo.
+${logo} – URL da logomarca da empresa.
 7. 📅 Auxiliares
 ${DataExtenso} – Data de hoje (Ex: 17 de Fevereiro de 2026).
 ${DataHoje} – Data em formato simples.

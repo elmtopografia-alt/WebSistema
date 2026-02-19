@@ -7,36 +7,19 @@
  */
 
 // 1. INICIALIZAÇÃO E SEGURANÇA
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-ob_start();
-
-// ========== DEBUG KIMI (Adaptado para Windows) ==========
-$logDebugStr = [
-    'arquivo' => 'editor_dinamico.php',
-    'hora' => date('Y-m-d H:i:s'),
-    'get_id' => $_GET['id'] ?? 'NÃO RECEBIDO',
-    'get_todos' => $_GET,
-    'session_id' => $_SESSION['id_proposta_ativa'] ?? 'NÃO TEM NA SESSÃO'
-];
-file_put_contents(__DIR__ . '/debug_editor.log', json_encode($logDebugStr, JSON_PRETTY_PRINT) . "\n\n", FILE_APPEND);
-// ========== FIM DEBUG ==========
-require_once 'vendor/autoload.php';
-require_once 'db.php'; 
-
-use ProposalArchitect\Infrastructure\HierarchyTreeBuilder;
-use ProposalArchitect\Infrastructure\DatabaseStructureLoader;
+require_once 'session_validator.php';
+require_once 'config.php';
+require_once 'PropostaRepository.php';
 
 // --- INTEGRAÇÃO DOCX ---
 require_once 'renderizador_modelo_docx.php';
-$docxRenderer = new RenderizadorModeloDOCX($conn);
-$modelosDisponiveis = $docxRenderer->listarModelos();
+try {
+    $repo = new PropostaRepository();
+    $docxRenderer = new RenderizadorModeloDOCX($repo->getConn());
+    $modelosDisponiveis = $docxRenderer->listarModelos();
+} catch (Exception $e) {
+    error_log("Erro ao inicializar repositório no editor: " . $e->getMessage());
+}
 $modeloDocxAtivo = $_GET['modelo_docx'] ?? null;
 // -----------------------
 
@@ -95,7 +78,7 @@ function substituirVariaveis($texto, $variaveis)
     if (empty($texto)) return '';
     foreach ($variaveis as $chave => $valor) {
         if (!is_array($valor)) {
-            $texto = str_replace('${' . $chave . '}', $valor, $texto);
+            $texto = str_replace('${' . $chave . '}', (string)$valor, $texto);
         }
     }
     return $texto;
@@ -104,17 +87,11 @@ function substituirVariaveis($texto, $variaveis)
 /**
  * Mapeia dados brutos para o mapa de variáveis do template
  */
-/**
- * Mapeia dados brutos para o mapa de variáveis do template
- */
-function getVariableMap($data, $conn) {
-    if (session_status() === PHP_SESSION_NONE) session_start();
-    $id_criador = $_SESSION['usuario_id'] ?? 0;
-
+function getVariableMap($data) {
     $map = $data;
     $map['ValorProposta'] = formatarMoeda($data['valor_final_proposta'] ?? 0);
     $map['ValorExtenso'] = valorPorExtenso($data['valor_final_proposta'] ?? 0);
-    $map['DataExtenso'] = dataPorExtenso();
+    $map['DataExtenso'] = dataPorExtenso($data['data_criacao'] ?? null);
     
     // Novas chaves para Área e Unidade
     $map['unidade'] = $data['unidade_area'] ?? 'm²';
@@ -137,31 +114,13 @@ function getVariableMap($data, $conn) {
     $map['Estacao_Total'] = $data['estacao_total'] ?? 'Não inclusa';
     $map['GPS'] = 'Par de Receptores GNSS RTK de Dupla Frequência'; // Valor Padrão SGT
 
-    // Dados Bancários e Empresa (Prioridade: Sessão > Proposta > Geral)
-    $emp = null;
-    if ($id_criador > 0) {
-        $emp = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $id_criador LIMIT 1")->fetch_assoc();
-    }
-    
-    // Se não achou pelo criador logado, tenta pegar qualquer um (fallback demo)
-    if (!$emp) {
-        $emp = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1")->fetch_assoc();
-    }
-
-    if ($emp) {
-        // Força sobrescrita se o dado na proposta estiver vazio OU se quisermos garantir o atual
-        $map['Empresa'] = $emp['Empresa'];
-        $map['empresa'] = $emp['Empresa']; // Case insensitive support
-        $map['CNPJ'] = $emp['CNPJ'];
-        $map['whatsapp'] = $emp['Whatsapp'];
-        $map['logo_empresa'] = 'assets/' . ($emp['Logo'] ?? 'logo_sgt.png');
-        
-        // Dados Bancários
-        $map['Banco'] = $emp['Banco'] ?? '';
-        $map['Agencia'] = $emp['Agencia'] ?? '';
-        $map['Conta'] = $emp['Conta'] ?? '';
-        $map['PIX'] = $emp['PIX'] ?? '';
-    }
+    // Dados da Empresa (Já vêm do Join no Repository)
+    $map['Empresa'] = $data['nome_empresa'] ?? 'SGT Topografia';
+    $map['empresa'] = $map['Empresa'];
+    $map['CNPJ'] = $data['empresa_proponente_cnpj'] ?? '';
+    // $map['whatsapp'] = $data['Whatsapp']; // Seria bom ter no Join também se for vital
+    $map['logo_empresa'] = 'assets/logo_sgt.png'; // Fallback
+    $map['logo'] = $map['logo_empresa'];
 
     return $map;
 }
@@ -345,52 +304,36 @@ if (!$id_prop) {
 // Guarda na sessão para garantir consistência
 $_SESSION['id_proposta_ativa'] = $id_prop;
 
-$conn = Database::getProd();
-
-// Carrega dados da proposta
-$sql = "SELECT p.*, c.nome_cliente, c.email as email_salvo, c.telefone as telefone_salvo, 
-        c.celular as celular_salvo, ts.nome as nome_servico 
-        FROM Propostas p 
-        LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
-        LEFT JOIN Tipo_Servicos ts ON p.id_servico = ts.id_servico
-        WHERE p.id_proposta = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_prop);
-$stmt->execute();
-$incomingData = $stmt->get_result()->fetch_assoc();
-
-if (!$incomingData) {
-    mostrarErroEditor("Proposta não encontrada", "Não conseguimos localizar os dados desta proposta no banco de dados.", true, ["ID: {$id_prop}"]);
-}
-
-// Validação de dados mínimos no carregamento
-$dadosFaltantes = [];
-if (empty($incomingData['id_cliente'])) $dadosFaltantes[] = "Cliente não selecionado";
-if (empty($incomingData['id_servico'])) $dadosFaltantes[] = "Tipo de serviço não definido";
-
-if (!empty($dadosFaltantes)) {
-    mostrarErroEditor("Dados Incompletos", "Esta proposta ainda não possui todas as informações básicas salvas.", false, $dadosFaltantes);
-}
-
-// Carrega conteúdos personalizados
-$resContent = $conn->query("SELECT block_id, conteudo_texto FROM Proposta_Conteudo_Personalizado WHERE id_proposta = $id_prop");
-while ($row = $resContent->fetch_assoc()) {
-    $incomingData[$row['block_id'] . '_content'] = $row['conteudo_texto'];
-}
-
-// Carrega Estrutura (Árvore de Blocos)
+// 3. CARREGAMENTO DE DADOS COM REPOSITÓRIO
 try {
-    $serviceTypeId = isset($incomingData['id_servico']) ? (int)$incomingData['id_servico'] : 0;
-    $loader = new DatabaseStructureLoader($conn);
+    $incomingData = $repo->buscarPorId($id_prop);
+
+    if (!$incomingData) {
+        mostrarErroEditor("Proposta não encontrada", "Não conseguimos localizar os dados desta proposta no banco de dados.", true, ["ID: {$id_prop}"]);
+    }
+
+    // Validação de dados mínimos
+    $dadosFaltantes = [];
+    if (empty($incomingData['id_cliente'])) $dadosFaltantes[] = "Cliente não selecionado";
+    if (empty($incomingData['id_servico'])) $dadosFaltantes[] = "Tipo de serviço não definido";
+
+    if (!empty($dadosFaltantes)) {
+        mostrarErroEditor("Dados Incompletos", "Esta proposta ainda não possui todas as informações básicas salvas.", false, $dadosFaltantes);
+    }
+
+    // Carrega Estrutura (Árvore de Blocos)
+    $serviceTypeId = (int)$incomingData['id_servico'];
+    $loader = new ProposalArchitect\Infrastructure\DatabaseStructureLoader($repo->getConn());
     $model = $loader->getVirtualModel($serviceTypeId);
-    $treeBuilder = new HierarchyTreeBuilder();
+    $treeBuilder = new ProposalArchitect\Infrastructure\HierarchyTreeBuilder();
     $structure = $treeBuilder->build($model);
     $metadata = $model->getModelMetadata();
-} catch (Exception $e) {
-    mostrarErroEditor("Erro de Estrutura", "Houve uma falha ao carregar os blocos da proposta.", true, [$e->getMessage()]);
-}
 
-$variaveis = getVariableMap($incomingData, $conn);
+    $variaveis = getVariableMap($incomingData);
+
+} catch (Exception $e) {
+    mostrarErroEditor("Erro no Sistema", "Houve uma falha ao carregar os dados da proposta.", true, [$e->getMessage()]);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

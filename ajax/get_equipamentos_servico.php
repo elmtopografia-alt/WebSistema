@@ -17,18 +17,18 @@ $id_servico = $_GET['id_servico'] ?? 0;
 // Como não sei se tem coluna 'tipo' ou 'slug', vou assumir 'nome' e fazer um match manual similar ao que planejei antes, mas o usuário mandou um código que faz `SELECT tipo FROM servicos`.
 // Vou verificar as colunas de Tipo_Servicos.
 
-require_once '../db.php'; // Fallback para conexão se config/database.php não for o correto para conexão direta simples.
-// Mas `config/database.php` deve retornar uma conexão PDO ou mysqli?
-// `db.php` retorna `Database::getProd()`.
-// Vou usar `db.php` que sei que funciona.
+require_once '../ConnectionManager.php';
 
-$conn = Database::getProd();
-$sql = "SELECT nome FROM Tipo_Servicos WHERE id_servico = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_servico);
-$stmt->execute();
-$res = $stmt->get_result();
-$servico = $res->fetch_assoc();
+try {
+    $is_demo = (isset($_SESSION['ambiente']) && $_SESSION['ambiente'] === 'demo');
+    $conn = ConnectionManager::get($is_demo ? 'demo' : 'producao');
+
+    $sql = "SELECT nome FROM Tipo_Servicos WHERE id_servico = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_servico);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $servico = $res->fetch_assoc();
 
 if (!$servico) {
     echo json_encode(['success' => false, 'error' => 'Serviço não encontrado']);

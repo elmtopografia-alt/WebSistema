@@ -7,8 +7,8 @@
 
 require_once 'session_validator.php';
 require_once 'config.php';
-require_once 'db.php';
-// require_once 'valida_demo.php'; // Temporariamente desativado para teste
+require_once 'ConnectionManager.php';
+require_once 'PropostaRepository.php';
 
 $id_usuario = $_SESSION['usuario_id'] ?? 0;
 if (!$id_usuario) {
@@ -16,22 +16,14 @@ if (!$id_usuario) {
     exit;
 }
 
-// Debug temporário
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 // ==================== LIMPEZA DE RASCUNHO (NOVA PROPOSTA) ====================
 if (isset($_GET['nova']) && $_GET['nova'] == '1') {
-    // Limpa dados de sessão relacionados à proposta
     unset($_SESSION['dados_proposta']);
     unset($_SESSION['id_proposta_edicao']);
-    
-    // Flag para o JavaScript limpar o localStorage
     $limpar_rascunho_js = true;
 }
-// =============================================================================
 
-// ==================== CACHE E DADOS ====================
+// ==================== CACHE E DADOS (Refatorado via Repo) ====================
 $cache_key = "proposta_dados_{$id_usuario}";
 $dados_cache = false;
 
@@ -41,81 +33,14 @@ if (function_exists('apcu_fetch')) {
 
 if ($dados_cache === false) {
     try {
-        $ambiente = $_SESSION['ambiente'] ?? 'producao';
-        $conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
-
-        // 1. Clientes
-        $stmt = $conn->prepare("SELECT id_cliente, nome_cliente, telefone, celular FROM Clientes WHERE id_criador = ? ORDER BY nome_cliente ASC LIMIT 500");
-        $stmt->bind_param('i', $id_usuario);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $clientes = [];
-        while ($row = $res->fetch_assoc()) $clientes[] = $row;
-
-        // 2. Tabelas Auxiliares (Serviços, etc)
-        $arrays_js = [];
-        $tabelas = [
-            'Tipo_Servicos' => ['id' => 'id_servico', 'nome' => 'nome', 'extra' => 'descricao'],
-            'Tipo_Funcoes' => ['id' => 'id_funcao', 'nome' => 'nome', 'valor' => 'salario_base_default'],
-            'Tipo_Estadia' => ['id' => 'id_estadia', 'nome' => 'nome', 'valor' => 'valor_unitario_default'],
-            'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
-            'Tipo_Locacao' => ['id' => 'id_locacao', 'nome' => 'nome', 'valor' => 'valor_mensal_default'],
-            'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default'],
-            'tipos_servico' => ['id' => 'id', 'nome' => 'nome', 'extra' => 'descricao', 'cor' => 'cor', 'icone' => 'icone']
-        ];
-
-        foreach ($tabelas as $tbl => $cols) {
-            $r = $conn->query("SELECT * FROM {$tbl} ORDER BY nome ASC");
-            $arrays_js[$tbl] = [];
-            while ($row = $r->fetch_assoc()) {
-                $item = ['id' => $row[$cols['id']], 'nome' => $row[$cols['nome']]];
-                if (isset($cols['extra'])) $item['descricao'] = $row[$cols['extra']];
-                if (isset($cols['valor'])) $item['valor'] = (float)$row[$cols['valor']];
-                if (isset($cols['litro'])) $item['litro'] = (float)$row[$cols['litro']];
-                if (isset($cols['kml'])) $item['kml'] = (float)$row[$cols['kml']];
-                if (isset($cols['cor'])) $item['cor'] = $row[$cols['cor']];
-                if (isset($cols['icone'])) $item['icone'] = $row[$cols['icone']];
-                $arrays_js[$tbl][] = $item;
-            }
-        }
-
-        // 3. Estados
-        $estados = [];
-        $r = $conn->query("SELECT sigla, nome FROM estados ORDER BY nome ASC");
-        while ($row = $r->fetch_assoc()) $estados[] = $row;
-
-        // 4. Marcas
-        $marcas_por_tipo = [];
-        $r = $conn->query("SELECT id_marca, id_locacao, nome_marca FROM Marcas ORDER BY nome_marca ASC");
-        while ($row = $r->fetch_assoc()) {
-            $marcas_por_tipo[$row['id_locacao']][] = ['id' => $row['id_marca'], 'nome' => $row['nome_marca']];
-        }
-
-        // 5. Empresa Endereço
-        $empresa_endereco = '';
-        $stmt_emp = $conn->prepare("SELECT Endereco, Cidade, Estado FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
-        $stmt_emp->bind_param('i', $id_usuario);
-        $stmt_emp->execute();
-        $res_emp = $stmt_emp->get_result();
-        if ($row = $res_emp->fetch_assoc()) {
-            $empresa_endereco = implode(', ', array_filter([$row['Endereco'], $row['Cidade'], $row['Estado']]));
-        }
-
-        $dados_cache = [
-            'clientes' => $clientes,
-            'arrays_js' => $arrays_js,
-            'estados' => $estados,
-            'marcas' => $marcas_por_tipo,
-            'empresa_endereco' => $empresa_endereco
-        ];
-
+        $repo = new PropostaRepository();
+        $dados_cache = $repo->getAllLookupData($id_usuario);
+        
         if (function_exists('apcu_store')) apcu_store($cache_key, $dados_cache, 300);
 
     } catch (Exception $e) {
         die("Erro ao carregar dados: " . $e->getMessage());
     }
-} else {
-    extract($dados_cache);
 }
 
 // Variáveis para a View

@@ -1,4 +1,3 @@
-<?php
 /**
  * GERADOR DE PROPOSTA HTML - PONTE DE DADOS
  * Este arquivo prepara os dados e chama o renderizador oficial.
@@ -6,9 +5,8 @@
 
 require_once 'gerar_proposta_html.WRAPPER.php';
 require_once 'PropostaRepository.php';
+require_once 'ConnectionManager.php';
 
-// 1. Se veio um ID via GET mas não tem POST (clique direto em link)
-// Ou se o POST está vazio, buscamos os dados persistidos no banco.
 // 1. Se veio um ID via GET mas não tem POST (clique direto em link)
 // Ou se o POST está vazio, buscamos os dados persistidos no banco.
 if (isset($_GET['id']) && (empty($_POST) || !isset($_POST['id_servico']))) {
@@ -32,9 +30,8 @@ $modeloDocx = $_POST['modelo_docx'] ?? null;
 
 if ($modeloDocx) {
     require_once 'renderizador_modelo_docx.php';
-    require_once 'db.php';
     
-    $renderer = new RenderizadorModeloDOCX(Database::getProd());
+    $renderer = new RenderizadorModeloDOCX(ConnectionManager::get());
     echo $renderer->renderizar($modeloDocx, $_SESSION['usuario_id'] ?? 0, $_POST);
     exit;
 }

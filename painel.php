@@ -9,122 +9,54 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'config.php';
-require_once 'db.php';
+require_once 'ConnectionManager.php';
+require_once 'PropostaRepository.php';
 require_once 'session_validator.php';
 
-// Identifica o usuário
+// 1. Identifica contexto
 $id_usuario = $_SESSION['usuario_id'];
 $nome_usuario = $_SESSION['usuario_nome'] ?? 'Usuário';
 $ambiente = $_SESSION['ambiente'] ?? 'producao';
-
-// Lógica para Menu
-$is_demo = ($ambiente === 'demo');
-$modo_suporte = isset($_SESSION['admin_original_id']);
 $primeiro_nome = explode(' ', trim($nome_usuario))[0];
 
+$repo = new PropostaRepository();
+
 // =========================================================================
-// 2. MOTOR DE ATUALIZAÇÃO (AJAX) - Mantido Original
+// 2. MOTOR DE ATUALIZAÇÃO (AJAX) - Refatorado
 // =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_acao'])) {
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
+    while (ob_get_level()) ob_end_clean();
     header('Content-Type: application/json');
 
     try {
-        // Lógica de Conexão Ajustada para Ambiente
-        $conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
-
         $id = intval($_POST['id']);
         $acao = $_POST['ajax_acao'];
+        $sucesso = false;
 
         if ($acao === 'mudar_status') {
-            $status = $_POST['status'];
-            $status_banco = $status;
-            if (strpos($status, 'Aceita') !== false) $status_banco = 'Aprovada';
-
-            $sql = "UPDATE Propostas SET status = ? WHERE id_proposta = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $status_banco, $id);
-
-            if ($stmt->execute()) {
-                echo json_encode(['sucesso' => true]);
-            } else {
-                echo json_encode(['sucesso' => false, 'msg' => 'Erro SQL: ' . $conn->error]);
-            }
+            $sucesso = $repo->atualizarStatus($id, $_POST['status']);
         } elseif ($acao === 'mudar_data') {
-            $nova_data = $_POST['nova_data'];
-            if (empty($nova_data)) throw new Exception("Data inválida.");
-
-            $sql = "UPDATE Propostas SET data_criacao = CONCAT(?, ' ', DATE_FORMAT(data_criacao, '%H:%i:%s')) WHERE id_proposta = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $nova_data, $id);
-
-            if ($stmt->execute()) {
-                echo json_encode(['sucesso' => true]);
-            } else {
-                echo json_encode(['sucesso' => false, 'msg' => 'Erro SQL: ' . $conn->error]);
-            }
-        } else {
-            echo json_encode(['sucesso' => false, 'msg' => 'Ação desconhecida.']);
+            $sucesso = $repo->atualizarData($id, $_POST['nova_data']);
         }
+
+        echo json_encode(['sucesso' => $sucesso]);
     } catch (Exception $e) {
-        echo json_encode(['sucesso' => false, 'msg' => 'Erro PHP: ' . $e->getMessage()]);
+        echo json_encode(['sucesso' => false, 'msg' => $e->getMessage()]);
     }
     exit;
 }
 
 // =========================================================================
-// 3. CARREGAMENTO DA TELA
+// 3. CARREGAMENTO DOS DADOS (REPOSITÓRIO)
 // =========================================================================
 try {
-    $conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
-
-    // A. KPIs (Mês Atual) - OTIMIZADO (SARGable)
-    $kpi = ['elaborada' => 0, 'enviada' => 0, 'aprovada' => 0, 'cancelada' => 0];
-    
-    // Calcula o primeiro e último dia do mês atual via PHP para permitir uso de índice no SQL
-    $inicio_mes = date('Y-m-01 00:00:00');
-    $fim_mes = date('Y-m-t 23:59:59');
-
-    $sqlKPI = "SELECT status, count(*) as qtd 
-               FROM Propostas 
-               WHERE id_criador = ? 
-               AND data_criacao BETWEEN ? AND ?
-               GROUP BY status";
-               
-    $stmtKPI = $conn->prepare($sqlKPI);
-    $stmtKPI->bind_param('iss', $id_usuario, $inicio_mes, $fim_mes);
-    $stmtKPI->execute();
-    $resKPI = $stmtKPI->get_result();
-
-    while ($row = $resKPI->fetch_assoc()) {
-        $st = mb_strtolower($row['status']);
-        
-        // Ignora status "Excluída" ou "Arquivada" nos KPIs
-        if (strpos($st, 'exclu') !== false || strpos($st, 'arquiv') !== false) {
-            continue;
-        }
-
-        if (strpos($st, 'aprov') !== false || strpos($st, 'conclu') !== false || strpos($st, 'aceit') !== false) $kpi['aprovada'] += $row['qtd'];
-        elseif (strpos($st, 'envia') !== false) $kpi['enviada'] += $row['qtd'];
-        elseif (strpos($st, 'cancel') !== false || strpos($st, 'perdid') !== false) $kpi['cancelada'] += $row['qtd'];
-        else $kpi['elaborada'] += $row['qtd'];
-    }
-
-    // B. Lista de Propostas
-    $sqlLista = "SELECT p.*, c.nome_cliente, d.Empresa as nome_empresa_proponente
-                 FROM Propostas p 
-                 LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
-                 LEFT JOIN DadosEmpresa d ON p.id_criador = d.id_criador
-                 WHERE p.id_criador = ? 
-                 ORDER BY p.data_criacao DESC LIMIT 50";
-    $stmtLista = $conn->prepare($sqlLista);
-    $stmtLista->bind_param('i', $id_usuario);
-    $stmtLista->execute();
-    $resultLista = $stmtLista->get_result();
+    $kpi = $repo->getKPIs($id_usuario);
+    $resultLista = $repo->listarRecentes($id_usuario);
 } catch (Exception $e) {
-    die("<h1>Erro Crítico de Banco:</h1> " . $e->getMessage());
+    die("<div class='glass-card p-8 rounded-2xl m-8'>
+            <h1 class='text-red-400 font-bold text-2xl mb-4'>Erro no Sistema</h1>
+            <p class='text-slate-300'>" . $e->getMessage() . "</p>
+         </div>");
 }
 ?>
 

@@ -7,7 +7,8 @@
 
 require_once 'session_validator.php';
 require_once 'config.php';
-require_once 'db.php';
+require_once 'ConnectionManager.php';
+require_once 'PropostaRepository.php';
 
 $id_usuario = $_SESSION['usuario_id'] ?? 0;
 if (!$id_usuario) {
@@ -15,136 +16,41 @@ if (!$id_usuario) {
     exit;
 }
 
-// Verifica ID da proposta
-if (!isset($_GET['id'])) { header("Location: index.php"); exit; }
+if (!isset($_GET['id'])) { header("Location: painel.php"); exit; }
 $id_proposta = intval($_GET['id']);
 
-// Debug temporário
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-// ==================== CARREGAMENTO DE DADOS (CACHE / DB) ====================
-$cache_key = "proposta_dados_edit_{$id_usuario}_{$id_proposta}";
-$dados_cache = false; // Desabilitado cache específico de edição por enquanto para garantir dados frescos
-
-if ($dados_cache === false) {
-    try {
-        $ambiente = $_SESSION['ambiente'] ?? 'producao';
-        $conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
-
-        // 1. Clientes (Para o Select)
-        $stmtClientes = $conn->prepare("SELECT id_cliente, nome_cliente, telefone, celular FROM Clientes WHERE id_criador = ? ORDER BY nome_cliente ASC LIMIT 500");
-        $stmtClientes->bind_param('i', $id_usuario);
-        $stmtClientes->execute();
-        $resClientes = $stmtClientes->get_result();
-        $clientes = [];
-        while ($row = $resClientes->fetch_assoc()) $clientes[] = $row;
-
-        // 2. Tabelas Auxiliares (Serviços, etc - IGUAL AO CRIAR)
-        $arrays_js = [];
-        $tabelas = [
-            'Tipo_Servicos' => ['id' => 'id_servico', 'nome' => 'nome', 'extra' => 'descricao'],
-            'Tipo_Funcoes' => ['id' => 'id_funcao', 'nome' => 'nome', 'valor' => 'salario_base_default'],
-            'Tipo_Estadia' => ['id' => 'id_estadia', 'nome' => 'nome', 'valor' => 'valor_unitario_default'],
-            'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
-            'Tipo_Locacao' => ['id' => 'id_locacao', 'nome' => 'nome', 'valor' => 'valor_mensal_default'],
-            'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default']
-        ];
-
-        foreach ($tabelas as $tbl => $cols) {
-            $r = $conn->query("SELECT * FROM {$tbl} ORDER BY nome ASC");
-            $arrays_js[$tbl] = [];
-            while ($row = $r->fetch_assoc()) {
-                $item = ['id' => $row[$cols['id']], 'nome' => $row[$cols['nome']]];
-                if (isset($cols['extra'])) $item['descricao'] = $row[$cols['extra']];
-                if (isset($cols['valor'])) $item['valor'] = (float)$row[$cols['valor']];
-                if (isset($cols['litro'])) $item['litro'] = (float)$row[$cols['litro']];
-                if (isset($cols['kml'])) $item['kml'] = (float)$row[$cols['kml']];
-                $arrays_js[$tbl][] = $item;
-            }
-        }
-
-        // 3. Estados
-        $estados = [];
-        $r = $conn->query("SELECT sigla, nome FROM estados ORDER BY nome ASC");
-        while ($row = $r->fetch_assoc()) $estados[] = $row;
-
-        // 4. Marcas
-        $marcas_por_tipo = [];
-        $r = $conn->query("SELECT id_marca, id_locacao, nome_marca FROM Marcas ORDER BY nome_marca ASC");
-        while ($row = $r->fetch_assoc()) {
-            $marcas_por_tipo[$row['id_locacao']][] = ['id' => $row['id_marca'], 'nome' => $row['nome_marca']];
-        }
-
-        // 5. Empresa Endereço
-        $empresa_endereco = '';
-        $stmt_emp = $conn->prepare("SELECT Endereco, Cidade, Estado FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
-        $stmt_emp->bind_param('i', $id_usuario);
-        $stmt_emp->execute();
-        $res_emp = $stmt_emp->get_result();
-        if ($row = $res_emp->fetch_assoc()) {
-            $empresa_endereco = implode(', ', array_filter([$row['Endereco'], $row['Cidade'], $row['Estado']]));
-        }
-
-        // ==================== DADOS DA PROPOSTA (O QUE MUDA) ====================
-        
-        // A. Dados Principais
-        $stmtProp = $conn->prepare("SELECT * FROM Propostas WHERE id_proposta = ? AND id_criador = ?");
-        $stmtProp->bind_param('ii', $id_proposta, $id_usuario);
-        $stmtProp->execute();
-        $resProp = $stmtProp->get_result();
-        
-        if ($resProp->num_rows === 0) {
-            die("<div class='alert alert-danger'>Proposta não encontrada ou acesso negado.</div>");
-        }
-        $proposta = $resProp->fetch_assoc();
-
-        // B. Itens Relacionados
-        $itens_salarios = []; $r = $conn->query("SELECT * FROM Proposta_Salarios WHERE id_proposta = $id_proposta"); while($row=$r->fetch_assoc()) $itens_salarios[] = $row;
-        $itens_estadia = []; $r = $conn->query("SELECT * FROM Proposta_Estadia WHERE id_proposta = $id_proposta"); while($row=$r->fetch_assoc()) $itens_estadia[] = $row;
-        $itens_consumo = []; $r = $conn->query("SELECT * FROM Proposta_Consumos WHERE id_proposta = $id_proposta"); while($row=$r->fetch_assoc()) $itens_consumo[] = $row;
-        $itens_locacao = []; $r = $conn->query("SELECT * FROM Proposta_Locacao WHERE id_proposta = $id_proposta"); while($row=$r->fetch_assoc()) $itens_locacao[] = $row;
-        $itens_admin = []; $r = $conn->query("SELECT * FROM Proposta_Custos_Administrativos WHERE id_proposta = $id_proposta"); while($row=$r->fetch_assoc()) $itens_admin[] = $row;
-
-
-        $dados_cache = [
-            'clientes' => $clientes,
-            'arrays_js' => $arrays_js,
-            'estados' => $estados,
-            'marcas' => $marcas_por_tipo,
-            'empresa_endereco' => $empresa_endereco,
-            'proposta_atual' => $proposta,
-            'itens_atuais' => [
-                'salarios' => $itens_salarios,
-                'estadia' => $itens_estadia,
-                'consumo' => $itens_consumo,
-                'locacao' => $itens_locacao,
-                'admin' => $itens_admin
-            ]
-        ];
-
-    } catch (Exception $e) {
-        die("Erro ao carregar dados: " . $e->getMessage());
+// ==================== CARREGAMENTO DE DADOS (Refatorado via Repo) ====================
+try {
+    $repo = new PropostaRepository();
+    
+    // 1. Dados de Apoio (Lookup)
+    $dados_lookup = $repo->getAllLookupData($id_usuario);
+    
+    // 2. Dados da Proposta Principal + Itens
+    $proposta_atual = $repo->buscarPorId($id_proposta);
+    
+    if (!$proposta_atual || $proposta_atual['id_criador'] != $id_usuario) {
+        die("<div class='alert alert-danger'>Proposta não encontrada ou acesso negado.</div>");
     }
+
+    // Variáveis para a View (Compatibilidade com Partials)
+    $clientes = $dados_lookup['clientes'] ?? [];
+    $servicos = $dados_lookup['arrays_js']['Tipo_Servicos'] ?? [];
+    $estados = $dados_lookup['estados'] ?? [];
+    $tipos_funcao = $dados_lookup['arrays_js']['Tipo_Funcoes'] ?? [];
+    $tipos_estadia = $dados_lookup['arrays_js']['Tipo_Estadia'] ?? [];
+    $tipos_consumo = $dados_lookup['arrays_js']['Tipo_Consumo'] ?? [];
+    $tipos_locacao = $dados_lookup['arrays_js']['Tipo_Locacao'] ?? [];
+    $tipos_admin = $dados_lookup['arrays_js']['Tipo_Custo_Admin'] ?? [];
+    $marcas_por_tipo = $dados_lookup['marcas'] ?? [];
+    $empresa_endereco = $dados_lookup['empresa_endereco'] ?? '';
+    
+    // Itens Populados
+    $itens_atuais = $proposta_atual['itens'];
+
+} catch (Exception $e) {
+    die("Erro ao carregar dados: " . $e->getMessage());
 }
-
-// Variáveis para a View
-$clientes = $dados_cache['clientes'] ?? [];
-$servicos = $dados_cache['arrays_js']['Tipo_Servicos'] ?? [];
-$estados = $dados_cache['estados'] ?? [];
-
-// Variáveis JS Globais
-$tipos_funcao = $dados_cache['arrays_js']['Tipo_Funcoes'] ?? [];
-$tipos_estadia = $dados_cache['arrays_js']['Tipo_Estadia'] ?? [];
-$tipos_consumo = $dados_cache['arrays_js']['Tipo_Consumo'] ?? [];
-$tipos_locacao = $dados_cache['arrays_js']['Tipo_Locacao'] ?? [];
-$tipos_admin = $dados_cache['arrays_js']['Tipo_Custo_Admin'] ?? [];
-$marcas_por_tipo = $dados_cache['marcas'] ?? [];
-$empresa_endereco = $dados_cache['empresa_endereco'] ?? '';
-
-// Dados da Proposta Atual (para o JS popular)
-$proposta_atual = $dados_cache['proposta_atual'];
-$itens_atuais = $dados_cache['itens_atuais'];
 
 // CSRF
 if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

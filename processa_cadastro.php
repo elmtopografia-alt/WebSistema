@@ -4,25 +4,16 @@
 
 session_start();
 require_once 'config.php';
+require_once 'ConnectionManager.php';
 
-// Exibe erros apenas se necessário para debug
-ini_set('display_errors', 0);
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+// 1. Conexão centralizada com Produção
+try {
+    $conn = ConnectionManager::get('producao');
+} catch (Exception $e) {
+    $_SESSION['erro_cadastro'] = "Erro de conexão com o servidor.";
     header("Location: cadastrar.php");
     exit;
 }
-
-// 1. Conexão Explícita com Produção
-// Como é um novo cadastro, forçamos a entrada no banco principal (Demanda)
-$conn = new mysqli(DB_PROD_HOST, DB_PROD_USER, DB_PROD_PASS, DB_PROD_NAME);
-
-if ($conn->connect_error) {
-    $_SESSION['erro_cadastro'] = "Erro de conexão com o servidor. Tente mais tarde.";
-    header("Location: cadastrar.php");
-    exit;
-}
-$conn->set_charset("utf8mb4");
 
 // 2. Sanitização
 $nome = strip_tags(trim($_POST['nome'] ?? ''));

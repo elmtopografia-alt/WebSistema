@@ -4,28 +4,22 @@
 // VERSÃO: 2.0 (Glassmorphism + Wizard)
 
 require_once 'config.php';
-require_once 'db.php';
+require_once 'ConnectionManager.php';
+require_once 'PropostaRepository.php';
 require_once 'session_validator.php';
 
 $id_usuario = $_SESSION['usuario_id'];
-$ambiente = $_SESSION['ambiente'] ?? 'producao';
-$conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
+$repo = new PropostaRepository();
 
-// 1. Buscar Clientes (Top 50 recentes + Ordem Alfabética)
-// Otimizado: Pegamos ID, Nome, Empresa e Foto/Inicial
-$sql_clientes = "SELECT id_cliente, nome_cliente, empresa FROM Clientes WHERE id_criador = ? ORDER BY id_cliente DESC LIMIT 50";
-$stmt = $conn->prepare($sql_clientes);
-$stmt->bind_param('i', $id_usuario);
-$stmt->execute();
-$res_clientes = $stmt->get_result();
+// 1. Buscar Clientes via Repositório
+$res_clientes = $repo->listarClientes($id_usuario);
 $clientes = [];
 while ($row = $res_clientes->fetch_assoc()) {
     $clientes[] = $row;
 }
 
-// 2. Buscar Serviços
-$sql_servicos = "SELECT id_servico, nome, descricao FROM Tipo_Servicos ORDER BY nome ASC";
-$res_servicos = $conn->query($sql_servicos);
+// 2. Buscar Serviços via Repositório
+$res_servicos = $repo->listarTipoServicos();
 $servicos = [];
 if ($res_servicos) {
     while ($row = $res_servicos->fetch_assoc()) {

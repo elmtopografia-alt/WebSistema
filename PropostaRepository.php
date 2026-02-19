@@ -20,10 +20,6 @@ class PropostaRepository
         
         if (session_status() === PHP_SESSION_NONE) @session_start();
         $this->idCriador = $_SESSION['usuario_id'] ?? 0;
-        
-        if ($this->idCriador === 0) {
-            throw new Exception('Usuário não autenticado');
-        }
     }
     
     /**
@@ -81,9 +77,12 @@ class PropostaRepository
 public function buscarPorId($id)
 {
     $id = (int)$id;
-    $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente 
+    $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente,
+                   s.nome as nome_servico, d.Empresa as nome_empresa, d.email_comercial_padrao as email_empresa
             FROM Propostas p 
             LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
+            LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
+            LEFT JOIN DadosEmpresa d ON p.id_criador = d.id_criador
             WHERE p.id_proposta = $id";
     $res = $this->conn->query($sql);
     $dados = $res ? $res->fetch_assoc() : null;
@@ -100,12 +99,193 @@ public function buscarPorId($id)
     if ($res2) {
         while ($row = $res2->fetch_assoc()) {
             $dados[$row['block_id'] . '_content'] = $row['conteudo_texto'];
-            // Alias para facilitar no DOCX (sem o sufixo _content no contexto)
             $dados[$row['block_id']] = $row['conteudo_texto'];
         }
     }
+
+    // Carrega Itens de Custo
+    $dados['itens'] = [
+        'salarios' => [], 'estadia' => [], 'consumo' => [], 'locacao' => [], 'admin' => []
+    ];
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Salarios WHERE id_proposta = $id");
+    while($row = $res->fetch_assoc()) $dados['itens']['salarios'][] = $row;
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Estadia WHERE id_proposta = $id");
+    while($row = $res->fetch_assoc()) $dados['itens']['estadia'][] = $row;
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Consumos WHERE id_proposta = $id");
+    while($row = $res->fetch_assoc()) $dados['itens']['consumo'][] = $row;
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Locacao WHERE id_proposta = $id");
+    while($row = $res->fetch_assoc()) $dados['itens']['locacao'][] = $row;
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Custos_Administrativos WHERE id_proposta = $id");
+    while($row = $res->fetch_assoc()) $dados['itens']['admin'][] = $row;
     
     return $dados;
+}
+
+/**
+ * Retorna KPIs de propostas do usuário no mês atual
+ */
+public function getKPIs($idUsuario)
+{
+    $kpi = ['elaborada' => 0, 'enviada' => 0, 'aprovada' => 0, 'cancelada' => 0];
+    $inicio_mes = date('Y-m-01 00:00:00');
+    $fim_mes = date('Y-m-t 23:59:59');
+
+    $sql = "SELECT status, count(*) as qtd 
+            FROM Propostas 
+            WHERE id_criador = ? 
+            AND data_criacao BETWEEN ? AND ?
+            GROUP BY status";
+               
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param('iss', $idUsuario, $inicio_mes, $fim_mes);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    while ($row = $res->fetch_assoc()) {
+        $st = mb_strtolower($row['status']);
+        if (str_contains($st, 'exclu') || str_contains($st, 'arquiv')) continue;
+
+        if (str_contains($st, 'aprov') || str_contains($st, 'conclu') || str_contains($st, 'aceit')) $kpi['aprovada'] += $row['qtd'];
+        elseif (str_contains($st, 'envia')) $kpi['enviada'] += $row['qtd'];
+        elseif (str_contains($st, 'cancel') || str_contains($st, 'perdid')) $kpi['cancelada'] += $row['qtd'];
+        else $kpi['elaborada'] += $row['qtd'];
+    }
+    return $kpi;
+}
+
+/**
+ * Lista propostas recentes do usuário
+ */
+public function listarRecentes($idUsuario, $limit = 50)
+{
+    $sql = "SELECT p.*, c.nome_cliente, d.Empresa as nome_empresa_proponente
+            FROM Propostas p 
+            LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
+            LEFT JOIN DadosEmpresa d ON p.id_criador = d.id_criador
+            WHERE p.id_criador = ? 
+            ORDER BY p.data_criacao DESC LIMIT ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param('ii', $idUsuario, $limit);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+/**
+ * Atualiza apenas o status de uma proposta
+ */
+public function atualizarStatus($idProposta, $novoStatus)
+{
+    $id = (int)$idProposta;
+    $status_banco = $novoStatus;
+    if (strpos($novoStatus, 'Aceita') !== false) $status_banco = 'Aprovada';
+
+    $stmt = $this->conn->prepare("UPDATE Propostas SET status = ? WHERE id_proposta = ?");
+    $stmt->bind_param("si", $status_banco, $id);
+    return $stmt->execute();
+}
+
+/**
+ * Atualiza a data de criação de uma proposta
+ */
+public function atualizarData($idProposta, $novaData)
+{
+    $id = (int)$idProposta;
+    $stmt = $this->conn->prepare("UPDATE Propostas SET data_criacao = CONCAT(?, ' ', DATE_FORMAT(data_criacao, '%H:%i:%s')) WHERE id_proposta = ?");
+    $stmt->bind_param("si", $novaData, $id);
+    return $stmt->execute();
+}
+
+/**
+ * Lista clientes do usuário
+ */
+public function listarClientes($idUsuario, $limit = 500)
+{
+    $stmt = $this->conn->prepare("SELECT id_cliente, nome_cliente, empresa, telefone, celular, email FROM Clientes WHERE id_criador = ? ORDER BY nome_cliente ASC LIMIT ?");
+    $stmt->bind_param('ii', $idUsuario, $limit);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+/**
+ * Lista tipos de serviços disponíveis
+ */
+public function listarTipoServicos()
+{
+    $sql = "SELECT id_servico, nome, descricao FROM Tipo_Servicos ORDER BY nome ASC";
+    return $this->conn->query($sql);
+}
+
+/**
+ * Retorna todos os dados de apoio para o wizard de criação
+ */
+public function getAllLookupData($idUsuario)
+{
+    $data = [];
+    
+    // 1. Clientes
+    $data['clientes'] = [];
+    $res = $this->listarClientes($idUsuario);
+    while($row = $res->fetch_assoc()) $data['clientes'][] = $row;
+    
+    // 2. Tabelas Auxiliares
+    $tabelas = [
+        'Tipo_Servicos' => ['id' => 'id_servico', 'nome' => 'nome', 'extra' => 'descricao'],
+        'Tipo_Funcoes' => ['id' => 'id_funcao', 'nome' => 'nome', 'valor' => 'salario_base_default'],
+        'Tipo_Estadia' => ['id' => 'id_estadia', 'nome' => 'nome', 'valor' => 'valor_unitario_default'],
+        'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
+        'Tipo_Locacao' => ['id' => 'id_locacao', 'nome' => 'nome', 'valor' => 'valor_mensal_default'],
+        'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default'],
+        'tipos_servico' => ['id' => 'id', 'nome' => 'nome', 'extra' => 'descricao', 'cor' => 'cor', 'icone' => 'icone']
+    ];
+
+    $data['arrays_js'] = [];
+    foreach ($tabelas as $tbl => $cols) {
+        $r = $this->conn->query("SELECT * FROM {$tbl} ORDER BY nome ASC");
+        $data['arrays_js'][$tbl] = [];
+        if ($r) {
+            while ($row = $r->fetch_assoc()) {
+                $item = ['id' => $row[$cols['id']], 'nome' => $row[$cols['nome']]];
+                if (isset($cols['extra'])) $item['descricao'] = $row[$cols['extra']];
+                if (isset($cols['valor'])) $item['valor'] = (float)$row[$cols['valor']];
+                if (isset($cols['litro'])) $item['litro'] = (float)$row[$cols['litro']];
+                if (isset($cols['kml'])) $item['kml'] = (float)$row[$cols['kml']];
+                if (isset($cols['cor'])) $item['cor'] = $row[$cols['cor']];
+                if (isset($cols['icone'])) $item['icone'] = $row[$cols['icone']];
+                $data['arrays_js'][$tbl][] = $item;
+            }
+        }
+    }
+
+    // 3. Estados
+    $data['estados'] = [];
+    $r = $this->conn->query("SELECT sigla, nome FROM estados ORDER BY nome ASC");
+    if ($r) while ($row = $r->fetch_assoc()) $data['estados'][] = $row;
+
+    // 4. Marcas
+    $data['marcas'] = [];
+    $r = $this->conn->query("SELECT id_marca, id_locacao, nome_marca FROM Marcas ORDER BY nome_marca ASC");
+    if ($r) {
+        while ($row = $r->fetch_assoc()) {
+            $data['marcas'][$row['id_locacao']][] = ['id' => $row['id_marca'], 'nome' => $row['nome_marca']];
+        }
+    }
+
+    // 5. Empresa Endereço
+    $data['empresa_endereco'] = '';
+    $stmt = $this->conn->prepare("SELECT Endereco, Cidade, Estado FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
+    $stmt->bind_param('i', $idUsuario);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        $data['empresa_endereco'] = implode(', ', array_filter([$row['Endereco'], $row['Cidade'], $row['Estado']]));
+    }
+
+    return $data;
 }
 
     private function salvarConteudoPersonalizado($id, $dados) 
@@ -130,9 +310,11 @@ public function buscarPorId($id)
         ];
         
         // Detecta se veio do editor dinâmico (sem itens de custo)
-        $temItensCusto = !empty($dados['salario_id_funcao']) || !empty($dados['estadia_id']) 
-                       || !empty($dados['consumo_id']) || !empty($dados['locacao_id']) 
-                       || !empty($dados['admin_id']);
+        $temItensCusto = !empty($dados['salario_id_funcao']) || !empty($dados['salarios'])
+                       || !empty($dados['estadia_id']) || !empty($dados['estadias'])
+                       || !empty($dados['consumo_id']) || !empty($dados['consumos']) 
+                       || !empty($dados['locacao_id']) || !empty($dados['locacoes']) 
+                       || !empty($dados['admin_id']) || !empty($dados['admin']);
         
         // Se NÃO tem itens de custo mas tem id_proposta, preserva valores do banco
         if (!$temItensCusto && !empty($dados['id_proposta'])) {
@@ -170,6 +352,7 @@ public function buscarPorId($id)
             }
         }
         
+        // Salários (Equipe)
         if (!empty($dados['salario_id_funcao'])) {
             foreach ($dados['salario_id_funcao'] as $i => $id) {
                 if (!$id) continue;
@@ -180,8 +363,18 @@ public function buscarPorId($id)
                     intval($dados['salario_dias'][$i] ?? 1)
                 );
             }
+        } elseif (!empty($dados['salarios'])) {
+            foreach($dados['salarios'] as $s) {
+                $items['salarios'] += $this->calc->calcularSalarios(
+                    floatval($s['quantidade'] ?? 1),
+                    floatval($s['valor'] ?? 0),
+                    floatval($s['encargos'] ?? 67),
+                    intval($s['dias'] ?? 1)
+                );
+            }
         }
         
+        // Estadia
         if (!empty($dados['estadia_id'])) {
             foreach ($dados['estadia_id'] as $i => $id) {
                 if (!$id) continue;
@@ -191,8 +384,17 @@ public function buscarPorId($id)
                     intval($dados['estadia_dias'][$i] ?? 1)
                 );
             }
+        } elseif (!empty($dados['estadias'])) {
+            foreach($dados['estadias'] as $e) {
+                $items['estadia'] += $this->calc->calcularEstadia(
+                    floatval($e['quantidade'] ?? 1),
+                    floatval($e['valor'] ?? 0),
+                    intval($e['noites'] ?? 1)
+                );
+            }
         }
         
+        // Consumos
         if (!empty($dados['consumo_id'])) {
             foreach ($dados['consumo_id'] as $i => $id) {
                 if (!$id) continue;
@@ -203,8 +405,18 @@ public function buscarPorId($id)
                     floatval($dados['consumo_km_total'][$i] ?? 0)
                 );
             }
+        } elseif (!empty($dados['consumos'])) {
+            foreach($dados['consumos'] as $c) {
+                $items['consumos'] += $this->calc->calcularConsumos(
+                    floatval($c['quantidade'] ?? 1),
+                    floatval($c['kml'] ?? 10),
+                    floatval($c['valor_litro'] ?? 0),
+                    floatval($c['km'] ?? 0)
+                );
+            }
         }
         
+        // Locação (Equipamentos)
         if (!empty($dados['locacao_id'])) {
             foreach ($dados['locacao_id'] as $i => $id) {
                 if (!$id) continue;
@@ -214,14 +426,30 @@ public function buscarPorId($id)
                     intval($dados['locacao_dias'][$i] ?? 1)
                 );
             }
+        } elseif (!empty($dados['locacoes'])) {
+            foreach($dados['locacoes'] as $l) {
+                $items['locacao'] += $this->calc->calcularLocacao(
+                    floatval($l['quantidade'] ?? 1),
+                    floatval($l['valor'] ?? 0),
+                    intval($l['dias'] ?? 1)
+                );
+            }
         }
         
+        // Admin
         if (!empty($dados['admin_id'])) {
             foreach ($dados['admin_id'] as $i => $id) {
                 if (!$id) continue;
                 $items['admin'] += $this->calc->calcularAdmin(
                     floatval($dados['admin_qtd'][$i] ?? 1),
                     floatval($dados['admin_valor'][$i] ?? 0)
+                );
+            }
+        } elseif (!empty($dados['admin'])) {
+            foreach($dados['admin'] as $a) {
+                $items['admin'] += $this->calc->calcularAdmin(
+                    floatval($a['quantidade'] ?? 1),
+                    floatval($a['valor'] ?? 0)
                 );
             }
         }
@@ -471,6 +699,7 @@ public function buscarPorId($id)
     
     private function insertItens($id, $dados) 
     {
+        // 1. Salários
         if (!empty($dados['salario_id_funcao'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
             foreach($dados['salario_id_funcao'] as $i => $idFuncao) {
@@ -483,7 +712,19 @@ public function buscarPorId($id)
                 $stmt->bind_param('iisiddi', $id, $idFuncao, $nome_s, $qtd_s, $val_s, $f, $dias_s);
                 $stmt->execute();
             }
+        } elseif (!empty($dados['salarios'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
+            foreach($dados['salarios'] as $s) {
+                $idF = intval($s['funcao']);
+                if (!$idF) continue;
+                $nome = $s['funcao_nome'] ?? 'Profissional';
+                $f = 1 + (floatval($s['encargos'] ?? 67) / 100);
+                $stmt->bind_param('iisiddi', $id, $idF, $nome, $s['quantidade'], $s['valor'], $f, $s['dias']);
+                $stmt->execute();
+            }
         }
+
+        // 2. Estadia
         if (!empty($dados['estadia_id'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
             foreach($dados['estadia_id'] as $i => $idE) {
@@ -495,7 +736,18 @@ public function buscarPorId($id)
                 $stmt->bind_param('iisddi', $id, $idE, $nome_e, $qtd_e, $val_e, $dias_e);
                 $stmt->execute();
             }
+        } elseif (!empty($dados['estadias'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
+            foreach($dados['estadias'] as $e) {
+                $idE = intval($e['tipo']);
+                if (!$idE) continue;
+                $nome = $e['tipo_nome'] ?? 'Estadia';
+                $stmt->bind_param('iisddi', $id, $idE, $nome, $e['quantidade'], $e['valor'], $e['noites']);
+                $stmt->execute();
+            }
         }
+
+        // 3. Consumos
         if (!empty($dados['consumo_id'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
             foreach($dados['consumo_id'] as $i => $idC) {
@@ -508,7 +760,18 @@ public function buscarPorId($id)
                 $stmt->bind_param('iisdddd', $id, $idC, $nome_c, $qtd_c, $kml_c, $val_c, $km_c);
                 $stmt->execute();
             }
+        } elseif (!empty($dados['consumos'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
+            foreach($dados['consumos'] as $c) {
+                $idC = intval($c['tipo']);
+                if (!$idC) continue;
+                $nome = $c['tipo_nome'] ?? 'Combustível';
+                $stmt->bind_param('iisdddd', $id, $idC, $nome, $c['quantidade'], $c['kml'], $c['valor_litro'], $c['km']);
+                $stmt->execute();
+            }
         }
+
+        // 4. Locação
         if (!empty($dados['locacao_id'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
             foreach($dados['locacao_id'] as $i => $idL) {
@@ -520,7 +783,18 @@ public function buscarPorId($id)
                 $stmt->bind_param('iiiidi', $id, $idL, $idMarca, $qtd_l, $val_l, $dias_l);
                 $stmt->execute();
             }
+        } elseif (!empty($dados['locacoes'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
+            foreach($dados['locacoes'] as $l) {
+                $idL = intval($l['tipo']);
+                if (!$idL) continue;
+                $idM = !empty($l['marca']) ? intval($l['marca']) : null;
+                $stmt->bind_param('iiiidi', $id, $idL, $idM, $l['quantidade'], $l['valor'], $l['dias']);
+                $stmt->execute();
+            }
         }
+
+        // 5. Admin
         if (!empty($dados['admin_id'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
             foreach($dados['admin_id'] as $i => $idA) {
@@ -531,6 +805,114 @@ public function buscarPorId($id)
                 $stmt->bind_param('iisdd', $id, $idA, $nome_a, $qtd_a, $val_a);
                 $stmt->execute();
             }
+        } elseif (!empty($dados['admin'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
+            foreach($dados['admin'] as $a) {
+                $idA = intval($a['tipo']);
+                if (!$idA) continue;
+                $nome = $a['tipo_nome'] ?? 'Admin';
+                $stmt->bind_param('iisdd', $id, $idA, $nome, $a['quantidade'], $a['valor']);
+                $stmt->execute();
+            }
+        }
+    /**
+     * Remove uma proposta e seu arquivo DOCX físico
+     */
+    public function deletar($id, $idUsuario)
+    {
+        // 1. Busca metadados para apagar arquivo físico
+        $stmt = $this->conn->prepare("SELECT numero_proposta, empresa_proponente_nome FROM Propostas WHERE id_proposta = ? AND id_criador = ?");
+        $stmt->bind_param('ii', $id, $idUsuario);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+
+        if ($row) {
+            // Tenta apagar arquivo .docx
+            $nomeEmpresa = trim(explode(' ', $row['empresa_proponente_nome'])[0]);
+            $nomeLimpo = preg_replace('/[^a-zA-Z0-9]/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $nomeEmpresa));
+            $partes = explode('-', $row['numero_proposta']);
+            $seq = end($partes);
+            $ano = $partes[1] ?? date('Y');
+            
+            $arquivo = "{$nomeLimpo}-{$ano}-{$seq}.docx";
+            $caminho = __DIR__ . '/propostas_emitidas/' . $arquivo;
+            if (file_exists($caminho)) @unlink($caminho);
+
+            // 2. Remove do banco (confia no ON DELETE CASCADE das tabelas filhas)
+            $del = $this->conn->prepare("DELETE FROM Propostas WHERE id_proposta = ? AND id_criador = ?");
+            $del->bind_param('ii', $id, $idUsuario);
+            return $del->execute();
+        }
+
+        return false;
+    /**
+     * Clona uma proposta e todos os seus itens de custo
+     */
+    public function duplicar($idOrigem, $idUsuario)
+    {
+        // 1. Busca dados da proposta original
+        $sql = "SELECT * FROM Propostas WHERE id_proposta = ? AND id_criador = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('ii', $idOrigem, $idUsuario);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $origem = $res->fetch_assoc();
+
+        if (!$origem) return false;
+
+        // 2. Gera novo número
+        $novoNumero = $this->gerarNumero($origem['empresa_proponente_nome']);
+
+        $this->conn->begin_transaction();
+        try {
+            // 3. Insere nova proposta (Cópia)
+            $sqlInsert = "INSERT INTO Propostas (
+                numero_proposta, id_cliente, nome_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
+                empresa_proponente_nome, empresa_proponente_cnpj, empresa_proponente_endereco, empresa_proponente_cidade, empresa_proponente_estado,
+                empresa_proponente_banco, empresa_proponente_agencia, empresa_proponente_conta, empresa_proponente_pix,
+                id_servico, contato_obra, finalidade, tipo_levantamento, area_obra, endereco_obra, bairro_obra, cidade_obra, estado_obra,
+                prazo_execucao, dias_campo, dias_escritorio, status,
+                total_custos_salarios, total_custos_estadia, total_custos_consumos, total_custos_locacao, total_custos_admin,
+                percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto, valor_final_proposta, Valor_proposta_extenso,
+                mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor,
+                id_criador, is_demo, data_criacao
+            ) SELECT 
+                ?, id_cliente, nome_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
+                empresa_proponente_nome, empresa_proponente_cnpj, empresa_proponente_endereco, empresa_proponente_cidade, empresa_proponente_estado,
+                empresa_proponente_banco, empresa_proponente_agencia, empresa_proponente_conta, empresa_proponente_pix,
+                id_servico, contato_obra, finalidade, tipo_levantamento, area_obra, endereco_obra, bairro_obra, cidade_obra, estado_obra,
+                prazo_execucao, dias_campo, dias_escritorio, 'Em elaboração',
+                total_custos_salarios, total_custos_estadia, total_custos_consumos, total_custos_locacao, total_custos_admin,
+                percentual_lucro, valor_lucro, subtotal_com_lucro, valor_desconto, valor_final_proposta, Valor_proposta_extenso,
+                mobilizacao_percentual, mobilizacao_valor, restante_percentual, restante_valor,
+                id_criador, is_demo, NOW()
+            FROM Propostas WHERE id_proposta = ?";
+            
+            $stmtIns = $this->conn->prepare($sqlInsert);
+            $stmtIns->bind_param('si', $novoNumero, $idOrigem);
+            $stmtIns->execute();
+            $idNovo = $this->conn->insert_id;
+
+            // 4. Copia Itens Relacionados
+            $tabelasItens = [
+                'Proposta_Salarios' => 'id_funcao, funcao, quantidade, salario_base, fator_encargos, dias',
+                'Proposta_Estadia' => 'id_estadia, tipo, quantidade, valor_unitario, dias',
+                'Proposta_Consumos' => 'id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total',
+                'Proposta_Locacao' => 'id_locacao, id_marca, quantidade, valor_mensal, dias',
+                'Proposta_Custos_Administrativos' => 'id_custo_admin, tipo, quantidade, valor'
+            ];
+
+            foreach ($tabelasItens as $tab => $campos) {
+                $this->conn->query("INSERT INTO $tab (id_proposta, $campos) SELECT $idNovo, $campos FROM $tab WHERE id_proposta = $idOrigem");
+            }
+
+            $this->conn->commit();
+            return $idNovo;
+
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            throw $e;
         }
     }
 }

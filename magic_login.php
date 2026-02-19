@@ -1,9 +1,5 @@
-<?php
-// Arquivo: magic_login.php
-// Função: Autentica via token e redireciona para painel.php
-
 require_once 'config.php';
-require_once 'db.php';
+require_once 'ConnectionManager.php';
 
 // Inicia sessão limpa se não existir
 if (session_status() === PHP_SESSION_NONE) {
@@ -17,7 +13,7 @@ if (empty($token)) {
 }
 
 try {
-    $conn = Database::getProd();
+    $conn = ConnectionManager::get('producao');
 
     // 1. Busca Token Válido
     $stmt = $conn->prepare("SELECT t.id, t.id_usuario, u.nome_completo, u.tipo_perfil, u.validade_acesso 

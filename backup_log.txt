@@ -1278,3 +1278,17 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-02-17 18:00:02] Backup conclu√≠do com sucesso.
 [2026-02-18 18:00:03] Iniciando backup...
+[2026-02-18 18:00:03] GIT ADD: 
+[2026-02-18 18:00:03] GIT COMMIT: [main 39191a4] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-18 18:00:03
+ 1 file changed, 1 insertion(+)
+
+[2026-02-18 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   11d25e6..39191a4  main -> main
+
+[2026-02-18 18:00:03] Backup conclu√≠do com sucesso.

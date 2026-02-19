@@ -50,10 +50,24 @@ return [
         'campo' => 'Whatsapp',
         'label' => 'WhatsApp'
     ],
+    'logo_empresa' => [
+        'fonte' => 'banco',
+        'tabela' => 'DadosEmpresa',
+        'campo' => 'Logo',
+        'label' => 'Logo da Empresa (Caminho)',
+        'tipo' => 'imagem'
+    ],
+    'logo' => [
+        'fonte' => 'banco',
+        'tabela' => 'DadosEmpresa',
+        'campo' => 'Logo',
+        'label' => 'Logo da Empresa (Alias)',
+        'tipo' => 'imagem'
+    ],
     'empresa_logo' => [
         'fonte' => 'banco',
         'tabela' => 'DadosEmpresa',
-        'campo' => 'logo_caminho',
+        'campo' => 'Logo',
         'label' => 'Caminho do Logo',
         'tipo' => 'imagem'
     ],

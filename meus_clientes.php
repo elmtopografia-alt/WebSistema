@@ -1,37 +1,22 @@
-<?php
-// Nome do Arquivo: meus_clientes.php
-// Função: Lista de Clientes com MENU UNIVERSAL.
-
 require_once 'session_validator.php';
 require_once 'config.php';
-require_once 'db.php';
+require_once 'ConnectionManager.php';
+require_once 'PropostaRepository.php';
 
 $id_usuario = $_SESSION['usuario_id'];
 $ambiente_atual = $_SESSION['ambiente'] ?? 'indefinido';
-$is_demo = ($ambiente_atual === 'demo');
-$modo_suporte = isset($_SESSION['admin_original_id']);
 $nome_usuario = $_SESSION['usuario_nome'] ?? 'Usuário';
 $primeiro_nome = explode(' ', trim($nome_usuario))[0];
 
-$conn = $is_demo ? Database::getDemo() : Database::getProd();
-
+$repo = new PropostaRepository();
 $clientes = [];
 try {
-    $sql = "SELECT * FROM Clientes WHERE id_criador = ? ORDER BY id_cliente DESC";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $id_usuario);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $repo->listarClientes($id_usuario);
     while ($row = $result->fetch_assoc()) $clientes[] = $row;
 } catch (Exception $e) { }
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes | SGT</title>
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
