@@ -1,0 +1,22 @@
+// Adicionar dentro da classe PropostaRepository
+
+public function associarModeloDocx(int $idProposta, string $modeloId): bool {
+    $sql = "UPDATE propostas SET modelo_docx = :modelo, updated_at = NOW() WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([':modelo' => $modeloId, ':id' => $idProposta]);
+}
+
+public function salvarBlocosDocx(int $idProposta, array $blocos): bool {
+    $json = json_encode($blocos, JSON_UNESCAPED_UNICODE);
+    $sql = "UPDATE propostas SET docx_conteudo = :conteudo, docx_blocos_count = :count WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([':conteudo' => $json, ':count' => count($blocos), ':id' => $idProposta]);
+}
+
+public function buscarBlocosDocx(int $idProposta): ?array {
+    $sql = "SELECT docx_conteudo, modelo_docx FROM propostas WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([':id' => $idProposta]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? ['modelo' => $row['modelo_docx'], 'blocos' => json_decode($row['docx_conteudo'], true)] : null;
+}
