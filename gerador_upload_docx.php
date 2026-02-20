@@ -112,12 +112,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         limparBackupsAntigos(MODELOS_DIR, 'Modelo' . $nomeModelo . '.php.backup_', 3);
     }
     
+    // Configurações de sincronização remota
+    $urlSincronizacao = 'https://elmtopografia.com.br/Orcamento/recebedor_modelos.php';
+    $chaveSincronizacao = 'SGT_DOCX_SYNC_77A9B2C3X';
+    $msgSync = '';
+
     if (file_put_contents($caminhoFinal, $codigo)) {
+        
+        // --- INÍCIO: ENVIAR PARA SERVIDOR WEB (FTP AUTOMÁTICO VIA POST) ---
+        if (function_exists('curl_init') && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+            $ch = curl_init();
+            $cfile = new CURLFile($caminhoFinal, 'application/x-httpd-php', 'Modelo' . $nomeModelo . '.php');
+            
+            $post = [
+                'chave' => $chaveSincronizacao,
+                'modelo_php' => $cfile
+            ];
+            
+            curl_setopt($ch, CURLOPT_URL, $urlSincronizacao);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15); // timeout de 15 segundos
+            
+            $respostaRaw = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpcode == 200) {
+                $msgSync = ' <span style="color:#10b981; font-weight:bold;">(Sincronizado automaticamente com a Web!)</span>';
+            } else {
+                 $msgSync = ' <span style="color:#ef4444; font-weight:bold;">(Erro ao sincronizar online: ' . htmlspecialchars($respostaRaw ?? '') . ')</span>';
+            }
+        }
+        // --- FIM: ENVIAR PARA SERVIDOR WEB ---
+
         echo json_encode(array(
             'sucesso' => true, 
             'arquivo' => 'Modelo' . $nomeModelo . '.php',
             'nome_limpo' => $nomeModelo,
-            'sobrescrito' => file_exists($caminhoFinal . '.backup_' . date('YmdHis')) ? true : false
+            'sobrescrito' => file_exists($caminhoFinal . '.backup_' . date('YmdHis')) ? true : false,
+            'mensagem_sync' => $msgSync
         ));
     } else {
         echo json_encode(array('erro' => 'Erro ao salvar arquivo'));
@@ -528,9 +563,11 @@ CODE;
                 document.getElementById('step-2').classList.add('d-none');
                 document.getElementById('step-3').classList.remove('d-none');
                 
+                let msgSyncHtml = data.mensagem_sync ? `<br>${data.mensagem_sync}` : '';
+
                 const msg = data.sobrescrito 
-                    ? `Modelo substituído: modelos_gerados/${data.arquivo}<br><small>Backup anterior criado automaticamente</small>`
-                    : `Novo modelo salvo: modelos_gerados/${data.arquivo}`;
+                    ? `Modelo substituído: modelos_gerados/${data.arquivo}<br><small>Backup anterior criado automaticamente</small>${msgSyncHtml}`
+                    : `Novo modelo salvo: modelos_gerados/${data.arquivo}${msgSyncHtml}`;
                 
                 document.getElementById('file-path-msg').innerHTML = msg;
             });

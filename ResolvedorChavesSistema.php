@@ -1,96 +1,383 @@
 <?php
 /**
- * Resolve chaves {{xxx}} para valores reais
- * Busca em sess√£o, banco de dados ou gera automaticamente
+ * RESOLVEDOR DE CHAVES DO SISTEMA v3.1
+ * Corrige: Vari·veis de cliente, valor extenso (n„o multiplica por mil)
  */
 
 class ResolvedorChavesSistema
 {
-    private array $config;
-    private $conn; 
+    private ;
+    private ;
     
-    public function __construct(array $configChaves, $conexaoDB = null)
+    public function __construct()
     {
-        $this->config = $configChaves;
-        $this->conn = $conexaoDB;
+        ->conn = ;
     }
     
     /**
-     * Resolve todas as chaves de um texto/array
+     * Resolve todas as vari·veis necess·rias para o modelo
      */
-    public function resolver(array $chavesNecessarias, int $id_usuario, array $dadosExtras = []): array
+    public function resolver(, ,  = [])
     {
-        $resolvidas = [];
+        ->idUsuario = ;
+         = [];
         
-        foreach ($chavesNecessarias as $chave) {
-            if (!isset($this->config[$chave])) {
-                // Chave n√£o √© do sistema, mant√©m para preenchimento manual
-                continue;
+        // Dados da empresa (do usu·rio logado)
+         = ->getDadosEmpresa();
+        
+        // Dados do cliente (se houver id_cliente nos dados manuais)
+         = [];
+        if (!empty(['id_cliente'])) {
+             = ->getDadosCliente(['id_cliente']);
+        }
+        
+        foreach ( as ) {
+            [] = ->resolverVariavel(, , , );
+        }
+        
+        return ;
+    }
+    
+    private function resolverVariavel(, , , )
+    {
+        // Prioridade 1: Dados manuais (do formul·rio)
+        if (isset([]) && !empty([])) {
+            return ->formatarValor(, []);
+        }
+        
+        // Mapeamento de aliases para dados do cliente
+         = [
+            'nome_cliente_salvo' => 'nome',
+            'nome_cliente' => 'nome',
+            'cliente_nome' => 'nome',
+            'email_salvo' => 'email',
+            'email_cliente' => 'email',
+            'cliente_email' => 'email',
+            'telefone_salvo' => 'telefone',
+            'telefone_cliente' => 'telefone',
+            'cliente_telefone' => 'telefone',
+            'celular_salvo' => 'celular',
+            'celular_cliente' => 'celular',
+            'cliente_celular' => 'celular',
+            'whatsapp_salvo' => 'whatsapp',
+            'whatsapp_cliente' => 'whatsapp',
+            'cliente_whatsapp' => 'whatsapp',
+        ];
+        
+        // Se È uma vari·vel de cliente
+        if (isset([])) {
+             = [];
+            return [] ?? [{}];
+        }
+        
+        // Mapeamento de aliases para dados da obra/local
+         = [
+            'endereco_obra' => 'endereco',
+            'obra_endereco' => 'endereco',
+            'bairro_obra' => 'bairro',
+            'obra_bairro' => 'bairro',
+            'cidade_obra' => 'cidade',
+            'obra_cidade' => 'cidade',
+            'estado_obra' => 'estado',
+            'obra_estado' => 'estado',
+            'uf_obra' => 'estado',
+            'area_obra' => 'area',
+            'AreaEstimada' => 'area',
+        ];
+        
+        if (isset([])) {
+             = [];
+            return [] ?? [] ?? [{}];
+        }
+        
+        // Vari·veis de empresa
+         = [
+            'Empresa' => 'nome',
+            'empresa' => 'nome',
+            'nome_empresa' => 'nome',
+            'CNPJ' => 'cnpj',
+            'cnpj' => 'cnpj',
+            'Banco' => 'banco',
+            'banco' => 'banco',
+            'Agencia' => 'agencia',
+            'agencia' => 'agencia',
+            'Conta' => 'conta',
+            'conta' => 'conta',
+            'PIX' => 'pix',
+            'pix' => 'pix',
+            'whatsapp' => 'whatsapp',
+        ];
+        
+        if (isset([])) {
+             = [];
+            return [] ?? [{}];
+        }
+        
+        // Valores financeiros - CORRE«√O IMPORTANTE AQUI
+        if ( === 'ValorProposta' ||  === 'valor_proposta') {
+             = ['valor_final'] ?? ['valor'] ?? 0;
+            return ->formatarMoeda();
+        }
+        
+        if ( === 'ValorExtenso') {
+             = ['valor_final'] ?? ['valor'] ?? 0;
+            return ->valorPorExtenso();
+        }
+        
+        // Data por extenso
+        if ( === 'DExrenso' ||  === 'data_extenso' ||  === 'DataExtenso') {
+            return ->dataPorExtenso();
+        }
+        
+        if ( === 'Cidade') {
+            return ['cidade'] ?? '[Cidade]';
+        }
+        
+        // N˙mero da proposta
+        if ( === 'numero_proposta') {
+            return ['numero'] ?? ['id'] ?? date('Y') . '001';
+        }
+        
+        // Campos especÌficos do drone/topo
+         = [
+            'TipoTerreno', 'CoberturaVegetal', 'AcessoLocal', 
+            'RestricoesAereas', 'Drone', 'GPS', 'Estacao_Total', 
+            'Veiculo', 'finalidade', 'unidade_area'
+        ];
+        
+        if (in_array(, )) {
+            return [strtolower()] ?? [] ?? [{}];
+        }
+        
+        // Pagamentos
+        if ( === 'mobilizacao_percentual') {
+            return ['mobilizacao_percentual'] ?? '30';
+        }
+        if ( === 'mobilizacao_valor') {
+             = ['valor_final'] ?? 0;
+             = ['mobilizacao_percentual'] ?? 30;
+            return ->formatarMoeda( * ( / 100));
+        }
+        if ( === 'restante_percentual') {
+             = ['mobilizacao_percentual'] ?? 30;
+            return (100 - );
+        }
+        if ( === 'restante_valor') {
+             = ['valor_final'] ?? 0;
+             = ['mobilizacao_percentual'] ?? 30;
+            return ->formatarMoeda( * ((100 - ) / 100));
+        }
+        
+        // Fallback
+        return [{}];
+    }
+    
+    // CORRE«√O PARA MYSQLI (Sem PDO)
+    private function getDadosEmpresa()
+    {
+        try {
+            // Verifica o nome real da tabela (pode ser  empresas ou Empresas com letra mai˙scula na query normal do sistema)
+             = ->conn->prepare(
+ SELECT e.* 
+ FROM Usuarios u
+ LEFT JOIN Empresas e ON u.id_empresa = e.id_empresa 
+ WHERE u.id_usuario = ?
+ );
+            if (!) { error_log(GetDadosEmpresa PREPARE FAIL:  . ->conn->error); return []; }
+            ->bind_param(i, );
+            ->execute();
+             = ->get_result();
+            return ->fetch_assoc() ?: [];
+        } catch (Exception ) {
+            error_log(Erro ao buscar empresa:  . ->getMessage());
+            return [];
+        }
+    }
+    
+    private function getDadosCliente()
+    {
+        try {
+             = ->conn->prepare(
+ SELECT nome_cliente as nome, email, telefone, celular, whatsapp, 
+ endereco, bairro, cidade, uf as estado 
+ FROM Clientes 
+ WHERE id_cliente = ?
+ );
+            if (!) return [];
+            ->bind_param(i, );
+            ->execute();
+             = ->get_result();
+            return ->fetch_assoc() ?: [];
+        } catch (Exception ) {
+            error_log(Erro ao buscar cliente:  . ->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Formata valor monet·rio corretamente
+     */
+    private function formatarMoeda()
+    {
+        // Remove qualquer formataÁ„o anterior
+         = preg_replace('/[^0-9.,-]/', '', (string));
+        
+        // Se tem vÌrgula e ponto, assume formato brasileiro
+        if (strpos(, ',') !== false && strpos(, '.') !== false) {
+             = str_replace('.', '', );
+             = str_replace(',', '.', );
+        } 
+        // Se sÛ tem vÌrgula, troca por ponto
+        elseif (strpos(, ',') !== false) {
+             = str_replace(',', '.', );
+        }
+        
+         = floatval();
+        return 'R$ ' . number_format(, 2, ',', '.');
+    }
+    
+    /**
+     * CORRE«√O CRÕTICA: Valor por extenso sem multiplicar por mil
+     */
+    private function valorPorExtenso()
+    {
+        // Limpa o valor
+         = preg_replace('/[^0-9.,-]/', '', (string));
+        
+        // Converte para float corretamente
+        if (strpos(, ',') !== false && strpos(, '.') !== false) {
+             = str_replace('.', '', );
+             = str_replace(',', '.', );
+        } elseif (strpos(, ',') !== false) {
+             = str_replace(',', '.', );
+        }
+        
+         = floatval();
+        
+        if ( == 0) {
+            return 'ZERO REAIS';
+        }
+        
+        // Usa NumberFormatter do PHP (extens„o intl) se existir
+        if (class_exists('NumberFormatter')) {
+             = new NumberFormatter(pt_BR, NumberFormatter::SPELLOUT);
+             = ->format();
+            return mb_strtoupper( .  REAIS);
+        }
+        
+        // Fallback manual se intl n„o estiver disponÌvel
+        return ->valorPorExtensoManual();
+    }
+    
+    /**
+     * ImplementaÁ„o manual caso extens„o intl n„o esteja disponÌvel
+     */
+    private function valorPorExtensoManual()
+    {
+         = ['', 'UM', 'DOIS', 'TR S', 'QUATRO', 'CINCO', 'SEIS', 'SETE', 'OITO', 'NOVE'];
+         = ['', 'DEZ', 'VINTE', 'TRINTA', 'QUARENTA', 'CINQUENTA', 'SESSENTA', 'SETENTA', 'OITENTA', 'NOVENTA'];
+         = ['DEZ', 'ONZE', 'DOZE', 'TREZE', 'QUATORZE', 'QUINZE', 'DEZESSEIS', 'DEZESSETE', 'DEZOITO', 'DEZENOVE'];
+         = ['', 'CENTO', 'DUZENTOS', 'TREZENTOS', 'QUATROCENTOS', 'QUINHENTOS', 'SEISCENTOS', 'SETECENTOS', 'OITOCENTOS', 'NOVECENTOS'];
+        
+         = explode('.', number_format(, 2, '.', ''));
+         = intval([0]);
+         = intval([1] ?? 0);
+        
+        if ( == 0 &&  == 0) {
+            return 'ZERO REAIS';
+        }
+        
+         = '';
+        
+        // Processa milhıes
+        if ( >= 1000000) {
+             = intval( / 1000000);
+             .= ->numeroParaExtenso(, , , , ) . ' MILH√O' . ( > 1 ? 'ES' : '') . ' ';
+             %= 1000000;
+        }
+        
+        // Processa milhares
+        if ( >= 1000) {
+             = intval( / 1000);
+            if ( == 1) {
+                 .= 'MIL ';
+            } else {
+                 .= ->numeroParaExtenso(, , , , ) . ' MIL ';
             }
-            
-            $config = $chaveConfig = $this->config[$chave];
-            $resolvidas[$chave] = $this->obterValor($config, $id_usuario, $dadosExtras);
+             %= 1000;
         }
         
-        return $resolvidas;
+        // Processa centenas/unidades
+        if ( > 0) {
+            if ( == 100) {
+                 .= 'CEM ';
+            } else {
+                 .= ->numeroParaExtenso(, , , , ) . ' ';
+            }
+        }
+        
+         = trim();
+        
+        if (empty()) {
+             = 'ZERO';
+        }
+        
+         .= ' REAIS';
+        
+        // Adiciona centavos se houver
+        if ( > 0) {
+             .= ' E ' . ->numeroParaExtenso(, , , , ) . ' CENTAVOS';
+        }
+        
+        return ;
     }
     
-    private function obterValor(array $config, int $id_usuario, array $dadosExtras): mixed
+    private function numeroParaExtenso(, , , , )
     {
-        switch ($config['fonte']) {
-            case 'sessao':
-                $campo = $config['campo'];
-                return $_SESSION[$campo] ?? $config['padrao'] ?? "[{$config['label']}]";
-                
-            case 'banco':
-                return $this->buscarDoBanco($config, $id_usuario);
-                
-            case 'sistema':
-                return $config['valor'] ?? null;
-                
-            case 'auto':
-                return $this->gerarAutomatico($config, $dadosExtras);
-                
-            case 'manual':
-                $chaveManual = array_search($config, $this->config);
-                return $dadosExtras[$chaveManual] ?? $config['padrao'] ?? "[{$config['label']}]";
-
-            default:
-                return "[{$config['label']}]";
+         = '';
+        
+         = intval( / 100);
+         =  % 100;
+        
+        if ( > 0) {
+             .= [] . ' ';
         }
+        
+        if ( > 0) {
+            if ( < 10) {
+                 .= [];
+            } elseif ( < 20) {
+                 .= [ - 10];
+            } else {
+                 = intval( / 10);
+                 =  % 10;
+                 .= [];
+                if ( > 0) {
+                     .= ' E ' . [];
+                }
+            }
+        }
+        
+        return trim();
     }
     
-    private function buscarDoBanco(array $config, int $id_usuario): mixed
+    private function dataPorExtenso()
     {
-        if (!$this->conn) return "[Erro Conex√£o]";
+         = [
+            1 => 'janeiro', 2 => 'fevereiro', 3 => 'marÁo', 4 => 'abril',
+            5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto',
+            9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro'
+        ];
         
-        $tabela = $config['tabela'];
-        $campo = $config['campo'];
-        
-        // Mapeamento de chave prim√°ria conforme a tabela
-        $id_campo = ($tabela === 'Usuarios') ? 'id_usuario' : 'id_criador';
-        
-        $sql = "SELECT {$campo} FROM {$tabela} WHERE {$id_campo} = ? LIMIT 1";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id_usuario);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($row = $result->fetch_assoc()) {
-            return $row[$campo];
-        }
-        
-        return "[{$config['label']} n√£o definido]";
+        return date('d') . ' de ' . [intval(date('m'))] . ' de ' . date('Y');
     }
     
-    private function gerarAutomatico(array $config, array $dadosExtras): string
+    private function formatarValor(, )
     {
-        $label = $config['label'];
-        
-        if ($label === 'N¬∫ da Proposta') {
-            return $dadosExtras['numero_proposta'] ?? "PROP-" . date('Ymd-His');
+        // Se È campo de valor, garante formataÁ„o correta
+        if (stripos(, 'valor') !== false || stripos(, 'preco') !== false) {
+            return ->formatarMoeda();
         }
-        
-        return "[Autom√°tico]";
+        return ;
     }
 }

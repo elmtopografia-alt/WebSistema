@@ -92,6 +92,17 @@ class VariableResolver {
             // Prazos
             'dias_campo' => $d['dias_campo'] ?? '0',
             'dias_escritorio' => $d['dias_escritorio'] ?? '0',
+            'prazo_execucao' => $d['prazo_execucao'] ?? '',
+            
+            // Textos Adicionais
+            'finalidade' => $d['finalidade'] ?? '',
+            'tipo_levantamento' => $d['tipo_levantamento'] ?? '',
+            
+            // Pagamentos (Revisão 2)
+            'mobilizacao_percentual' => $d['mobilizacao_percentual'] ?? '30',
+            'mobilizacao_valor' => $this->formatarMoeda($d['mobilizacao_valor'] ?? 0),
+            'restante_percentual' => $d['restante_percentual'] ?? '70',
+            'restante_valor' => $this->formatarMoeda($d['restante_valor'] ?? 0),
         ];
         
         // Adiciona todas as chaves originais como fallback
