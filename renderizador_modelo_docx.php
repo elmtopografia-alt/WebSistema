@@ -60,7 +60,7 @@ class RenderizadorModeloDOCX {
 
         $modeloInstancia = new $classe();
 
-        // --- INJEÇÃO DE CONTEÚDO CUSTOMIZADO (Editor Dinâmico) ---
+                // --- INJEÇÃO DE CONTEÚDO CUSTOMIZADO (Editor Dinâmico) ---
         // Permite que o que foi editado no editor_dinamico.php substitua o texto estático do Word
         try {
             $refl = new \ReflectionClass($classe);
@@ -70,15 +70,41 @@ class RenderizadorModeloDOCX {
                 $blocos = $prop->getValue($modeloInstancia);
 
                 $mudou = false;
+                
+                // Pega os blocos em JSON resolvidos pelo banco, se existirem
+                $blocosSalvos = isset($dadosManuais['docx_blocos']) ? $dadosManuais['docx_blocos'] : [];
+
                 foreach ($blocos as $index => &$b) {
                     $slug = (isset($b['subtipo']) ? $b['subtipo'] : 'bloco') . '_' . $index;
+                    $docxChave = "docx_bloco_{$index}_content";
                     
-                    // Se houver conteúdo customizado para este bloco no POST (ou vindo do banco)
-                    if (isset($dadosManuais[$slug . '_content']) && !empty($dadosManuais[$slug . '_content'])) {
+                    // 1. Tenta buscar do JSON decodificado (docx_conteudo vindo do banco)
+                    // No banco, salvamos o array indexado pelo próprio $index, e dentro tem 'conteudo'
+                    $encontrouNoJson = false;
+                    foreach ($blocosSalvos as $blocoSalvo) {
+                        if (isset($blocoSalvo['index']) && $blocoSalvo['index'] == $index) {
+                            $b['conteudo'] = $blocoSalvo['conteudo'];
+                            $mudou = true;
+                            $encontrouNoJson = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($encontrouNoJson) {
+                        continue;
+                    }
+
+                    // 2. Se houver conteúdo customizado para este bloco direto no POST (formato V3)
+                    if (isset($dadosManuais[$docxChave]) && !empty($dadosManuais[$docxChave])) {
+                        $b['conteudo'] = $dadosManuais[$docxChave];
+                        $mudou = true;
+                    }
+                    // 3. Fallback para nomes de slug antigos (_content)
+                    elseif (isset($dadosManuais[$slug . '_content']) && !empty($dadosManuais[$slug . '_content'])) {
                         $b['conteudo'] = $dadosManuais[$slug . '_content'];
                         $mudou = true;
                     } 
-                    // Fallback para a chave sem o sufixo _content
+                    // 4. Fallback final para a chave direta sem sufixo
                     elseif (isset($dadosManuais[$slug]) && !empty($dadosManuais[$slug]) && !isset($this->configChaves[$slug])) {
                         $b['conteudo'] = $dadosManuais[$slug];
                         $mudou = true;

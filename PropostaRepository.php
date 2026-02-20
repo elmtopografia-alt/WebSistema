@@ -74,7 +74,7 @@ class PropostaRepository
     }
     
     /**
-     * Salva proposta (nova ou revisão)
+     * Override do método salvar para detectar e processar DOCX
      */
     public function salvar($dados, $idOriginal = null) 
     {
@@ -104,6 +104,16 @@ class PropostaRepository
             // Sincroniza Conteúdo Personalizado (Editor)
             $this->salvarConteudoPersonalizado($id, $dados);
             
+            // Pós-processamento DOCX
+            // Detecta modo DOCX pelos dados
+            $isDocx = !empty($dados['docx_modelo_id']) || !empty($dados['modelo_docx']);
+            if ($isDocx && !empty($dados['docx_blocos_serializado'])) {
+                $blocos = json_decode($dados['docx_blocos_serializado'], true);
+                if (is_array($blocos)) {
+                    $this->salvarBlocosDocx($id, $blocos);
+                }
+            }
+
             $this->conn->commit();
             return $id;
             
@@ -129,7 +139,12 @@ public function buscarPorId($id)
 {
     $id = (int)$id;
     $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente,
-                   s.nome as nome_servico, d.Empresa as nome_empresa
+                   s.nome as nome_servico, d.Empresa as nome_empresa,
+                   p.modelo_docx,
+                   p.docx_conteudo,
+                   p.docx_blocos_count,
+                   p.docx_ultima_edicao,
+                   JSON_UNQUOTE(JSON_EXTRACT(p.docx_conteudo, '$')) as docx_blocos_array
             FROM Propostas p 
             LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
             LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
@@ -145,6 +160,11 @@ public function buscarPorId($id)
     
     if (!$dados) return null;
     
+    // Processamento de DOCX JSON:
+    if (!empty($dados['docx_conteudo'])) {
+        $dados['docx_blocos'] = json_decode($dados['docx_conteudo'], true);
+    }
+
     // Mapeamento de colunas DB → nomes esperados pelo renderizador HTML
     $dados['valor_proposta'] = $dados['valor_final_proposta'] ?? 0;
     $dados['valor_extenso'] = $dados['Valor_proposta_extenso'] ?? '';
@@ -1001,5 +1021,66 @@ public function getAllLookupData($idUsuario)
             $this->conn->rollback();
             throw $e;
         }
+    }
+
+    // ==========================================
+    // MÉTODOS DOCX V3.0
+    // ==========================================
+
+    /**
+     * Associa um modelo DOCX a uma proposta
+     */
+    public function associarModeloDocx(int $idProposta, string $modeloId): bool {
+        $sql = "UPDATE propostas SET 
+                modelo_docx = :modelo,
+                data_atualizacao = NOW()
+                WHERE id_proposta = :id";
+        
+        $stmt = $this->conn->prepare('UPDATE Propostas SET modelo_docx = ?, data_atualizacao = NOW() WHERE id_proposta = ?');
+        $stmt->bind_param('si', $modeloId, $idProposta);
+        return $stmt->execute();
+    }
+    
+    /**
+     * Salva ou atualiza conteúdo de blocos DOCX
+     */
+    public function salvarBlocosDocx(int $idProposta, array $blocos): bool {
+        // Salvar em campo JSON na tabela propostas
+        $jsonBlocos = json_encode($blocos);
+        $count = count($blocos);
+        
+        $sql = "UPDATE Propostas SET 
+                docx_conteudo = ?,
+                docx_blocos_count = ?,
+                data_atualizacao = NOW()
+                WHERE id_proposta = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('sii', $jsonBlocos, $count, $idProposta);
+        return $stmt->execute();
+    }
+    
+    /**
+     * Busca blocos DOCX salvos de uma proposta
+     */
+    public function buscarBlocosDocx(int $idProposta): ?array {
+        $sql = "SELECT docx_conteudo, modelo_docx 
+                FROM Propostas 
+                WHERE id_proposta = ? AND docx_conteudo IS NOT NULL";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $idProposta);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        
+        if ($row && $row['docx_conteudo']) {
+            return [
+                'modelo' => $row['modelo_docx'],
+                'blocos' => json_decode($row['docx_conteudo'], true)
+            ];
+        }
+        
+        return null;
     }
 }

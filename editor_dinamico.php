@@ -1,12 +1,10 @@
 <?php
 /**
- * EDITOR DINÂMICO DE PROPOSTAS V2.1 (Avançado + SGT Theme)
+ * EDITOR DINÂMICO DE PROPOSTAS V3.0 (Correção Arquitetural DOCX)
  * 
- * Restauração da Interface de Edição (V1) com Estética SGT Glassmorphism.
- * Permite editar blocos de texto dinâmicos e salvar rascunhos.
+ * Suporte dual: Modelos DOCX (genérico) + Modelos Legacy (hardcoded)
  */
 
-// 1. INICIALIZAÇÃO E SEGURANÇA (Caminhos Absolutos)
 require_once __DIR__ . '/session_validator.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/PropostaRepository.php';
@@ -14,31 +12,222 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // --- INTEGRAÇÃO DOCX ---
 require_once __DIR__ . '/renderizador_modelo_docx.php';
+
 try {
     $repo = new PropostaRepository();
     $docxRenderer = new RenderizadorModeloDOCX($repo->getConn());
     $modelosDisponiveis = $docxRenderer->listarModelos();
 } catch (Exception $e) {
     error_log("Erro ao inicializar repositório no editor: " . $e->getMessage());
+    $modelosDisponiveis = [];
 }
+
 $modeloDocxAtivo = $_GET['modelo_docx'] ?? null;
-// -----------------------
 
 // =====================================================
-// 2. FUNÇÕES AUXILIARES E FORMATAÇÃO
+// SISTEMA DE MAPEAMENTO INTELIGENTE DE VARIÁVEIS V3.0
 // =====================================================
 
 /**
- * Formata um valor numérico como moeda brasileira
+ * Mapeamento unificado: Resolve qualquer chave ${xxx} para dados do sistema
+ * Suporta aliases e fallback inteligente
  */
-function formatarMoeda($valor)
-{
-    if (empty($valor) || $valor === 'R$ 0,00' || $valor === '0' || $valor === 0) {
-        return 'R$ 0,00';
+class VariableResolver {
+    private $data;
+    private $map;
+    
+    public function __construct($data) {
+        $this->data = $data;
+        $this->buildMap();
     }
-    if (is_string($valor) && strpos($valor, 'R$') === 0) {
-        return $valor;
+    
+    private function buildMap() {
+        $d = $this->data;
+        
+        // MAPEAMENTO PRINCIPAL: Chave DOCX => Campo Banco
+        $this->map = [
+            // Dados Cliente (múltiplas possibilidades)
+            'nome_cliente' => $d['nome_cliente'] ?? $d['cliente_nome'] ?? 'Cliente não informado',
+            'email_cliente' => $d['email_cliente'] ?? $d['email_salvo'] ?? $d['cliente_email'] ?? '',
+            'telefone_cliente' => $d['telefone_cliente'] ?? $d['telefone_salvo'] ?? $d['cliente_telefone'] ?? '',
+            'celular_cliente' => $d['celular_cliente'] ?? $d['celular_salvo'] ?? $d['cliente_celular'] ?? $d['whatsapp'] ?? '',
+            'whatsapp_cliente' => $d['whatsapp'] ?? $d['celular_salvo'] ?? '',
+            
+            // Local/Obra
+            'endereco_obra' => $d['endereco_obra'] ?? $d['obra_endereco'] ?? '',
+            'bairro_obra' => $d['bairro_obra'] ?? $d['obra_bairro'] ?? $d['ClienteBairro'] ?? '',
+            'cidade_obra' => $d['cidade_obra'] ?? $d['obra_cidade'] ?? '',
+            'estado_obra' => $d['estado_obra'] ?? $d['obra_estado'] ?? $d['uf_obra'] ?? '',
+            'ClienteCidadeUF' => ($d['cidade_obra'] ?? '') . '-' . ($d['estado_obra'] ?? ''),
+            
+            // Valores e datas
+            'ValorProposta' => $this->formatarMoeda($d['valor_final_proposta'] ?? 0),
+            'ValorExtenso' => $this->valorPorExtenso($d['valor_final_proposta'] ?? 0),
+            'DataExtenso' => $this->dataPorExtenso($d['data_criacao'] ?? null),
+            'numero_proposta' => $d['numero_proposta'] ?? $d['id'] ?? 'N/A',
+            
+            // Área e unidade
+            'AreaEstimada' => ($d['area_obra'] ?? '0') . ' ' . ($d['unidade_area'] ?? 'm²'),
+            'area_obra' => $d['area_obra'] ?? '0',
+            'unidade_area' => $d['unidade_area'] ?? 'm²',
+            
+            // Drone/Campo
+            'TipoTerreno' => $d['tipo_terreno'] ?? 'Não informado',
+            'CoberturaVegetal' => $d['cobertura_vegetal'] ?? 'Não informado',
+            'AcessoLocal' => $d['acesso_local'] ?? 'Não informado',
+            'RestricoesAereas' => $d['restricoes_aereas'] ?? 'Não informado',
+            
+            // Equipamentos
+            'Drone' => $d['drone'] ?? 'Não aplicável',
+            'Veiculo' => $d['veiculo'] ?? 'Não incluso',
+            'Estacao_Total' => $d['estacao_total'] ?? 'Não inclusa',
+            'GPS' => $d['gps'] ?? 'Par de Receptores GNSS RTK',
+            
+            // Empresa
+            'Empresa' => $d['nome_empresa'] ?? 'SGT Topografia',
+            'empresa' => $d['nome_empresa'] ?? 'SGT Topografia',
+            'CNPJ' => $d['empresa_proponente_cnpj'] ?? '',
+            'logo_empresa' => $d['logo_empresa'] ?? 'assets/logo_sgt.png',
+            
+            // Prazos
+            'dias_campo' => $d['dias_campo'] ?? '0',
+            'dias_escritorio' => $d['dias_escritorio'] ?? '0',
+        ];
+        
+        // Adiciona todas as chaves originais como fallback
+        $this->map = array_merge($d, $this->map);
     }
+    
+    public function resolve($key) {
+        // Remove ${} ou {{}} se presente
+        $key = preg_replace('/^\$\{|\}$|^\{\{|\}\}$/', '', trim($key));
+        return $this->map[$key] ?? "[{$key}]"; // Retorna [chave] se não encontrar
+    }
+    
+    public function getAll() {
+        return $this->map;
+    }
+    
+    private function formatarMoeda($valor) {
+        if (empty($valor)) return 'R$ 0,00';
+        if (is_string($valor) && strpos($valor, 'R$') === 0) return $valor;
+        $num = floatval(str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9.,]/', '', $valor)));
+        return 'R$ ' . number_format($num, 2, ',', '.');
+    }
+    
+    private function valorPorExtenso($valor) {
+        $valor = floatval(preg_replace('/[^0-9.,]/', '', $valor));
+        if ($valor == 0) return 'ZERO REAIS';
+        $fmt = new NumberFormatter("pt_BR", NumberFormatter::SPELLOUT);
+        return mb_strtoupper($fmt->format($valor) . " REAIS");
+    }
+    
+    private function dataPorExtenso($data) {
+        $meses = [1=>'janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+        $ts = is_string($data) ? strtotime($data) : ($data ?? time());
+        return date('d', $ts) . ' de ' . $meses[intval(date('m', $ts))] . ' de ' . date('Y', $ts);
+    }
+    
+    // NOVO: Adicionei este método para o uso que é feito na GenericBlockRenderer
+    public function substituirVariaveis($conteudo) {
+         if (empty($conteudo)) return '';
+         
+         // Encontra todas as variáveis do tipo ${...} ou {{...}} no texto
+         return preg_replace_callback('/(\$\{\s*([^}]+)\s*\}|\{\{\s*([^}]+)\s*\}\})/', function($matches) {
+             $chave = trim($matches[2] ?? $matches[3] ?? '');
+             if (empty($chave)) return $matches[0];
+             $valor = $this->resolve($chave);
+             return $valor !== "[{$chave}]" ? $valor : $matches[0]; // Mantém a string original se não resolver
+         }, $conteudo);
+    }
+}
+
+// =====================================================
+// RENDERIZADOR DUAL: DOCX vs LEGACY
+// =====================================================
+
+/**
+ * Renderizador de Blocos Genéricos (para modelos DOCX)
+ */
+class GenericBlockRenderer {
+    private $resolver;
+    
+    public function __construct($data) {
+        $this->resolver = new VariableResolver($data);
+    }
+    
+    /**
+     * Renderiza estrutura vinda do parser DOCX
+     */
+    public function renderDocxBlocks($blocos, $variaveisDetectadas = []) {
+        $html = "<div class='modelo-docx-editor'>";
+        
+        foreach ($blocos as $index => $bloco) {
+            $html .= $this->renderBlocoEditable($bloco, $index);
+        }
+        
+        $html .= "</div>";
+        return $html;
+    }
+    
+    private function renderBlocoEditable($bloco, $index) {
+        $tipo = $bloco['tipo'] ?? 'texto';
+        $id = "docx-bloco-{$index}";
+        
+        $html = "<div class='glass-card rounded-2xl border-l-4 border-l-emerald-500 p-6 mb-6 block-card' id='{$id}'>";
+        $html .= "<div class='flex justify-between items-center mb-4'>";
+        $html .= "<span class='text-[10px] font-bold text-slate-500 uppercase tracking-widest'>Bloco " . ($index + 1) . " ({$tipo})</span>";
+        $html .= "</div>";
+        
+        if ($tipo === 'texto') {
+            $conteudo = $this->resolver->substituirVariaveis($bloco['conteudo'] ?? '');
+            $nomeCampo = "docx_bloco_{$index}_content";
+            
+            $html .= "<textarea name='{$nomeCampo}' id='ed-{$nomeCampo}' class='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-emerald-500/50 text-sm transition-all' rows='6'>";
+            $html .= htmlspecialchars($conteudo);
+            $html .= "</textarea>";
+            
+            // Mostra variáveis detectadas neste bloco
+            if (!empty($bloco['variaveis'])) {
+                $html .= "<div class='mt-3 flex flex-wrap gap-2'>";
+                foreach ($bloco['variaveis'] as $var) {
+                    $valor = $this->resolver->resolve($var);
+                    $html .= "<span class='text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded border border-emerald-500/20' title='Valor: {$valor}'>";
+                    $html .= '${' . $var . '}';
+                    $html .= "</span>";
+                }
+                $html .= "</div>";
+            }
+        }
+        elseif ($tipo === 'tabela') {
+            $html .= "<div class='overflow-x-auto'><table class='w-full text-sm text-left text-slate-300 border border-white/10 rounded-xl'>";
+            foreach ($bloco['linhas'] ?? [] as $i => $linha) {
+                $html .= "<tr class='" . ($i === 0 ? 'bg-white/5' : 'border-t border-white/5') . "'>";
+                foreach ($linha as $celula) {
+                    $tag = ($i === 0) ? 'th' : 'td';
+                    $texto = $this->resolver->substituirVariaveis($celula['texto'] ?? '');
+                    $html .= "<{$tag} class='px-4 py-3' colspan='" . ($celula['colspan'] ?? 1) . "'>";
+                    $html .= htmlspecialchars($texto);
+                    $html .= "</{$tag}>";
+                }
+                $html .= "</tr>";
+            }
+            $html .= "</table></div>";
+        }
+        
+        $html .= "</div>";
+        return $html;
+    }
+}
+
+// =====================================================
+// CARREGAMENTO DE DADOS E FUNÇÕES LEGACY
+// =====================================================
+
+// MANTIDO: Funções Auxiliares Legacy Originais (para garantir fallbacks)
+function formatarMoedaLegacy($valor) {
+    if (empty($valor) || $valor === 'R$ 0,00' || $valor === '0' || $valor === 0) { return 'R$ 0,00'; }
+    if (is_string($valor) && strpos($valor, 'R$') === 0) { return $valor; }
     if (is_string($valor)) {
         $valor = str_replace(['R$', 'R$ ', ' '], '', $valor);
         $valor = trim($valor);
@@ -51,31 +240,7 @@ function formatarMoeda($valor)
     return 'R$ ' . number_format($numero, 2, ',', '.');
 }
 
-/**
- * Converte valor para extenso
- */
-function valorPorExtenso($valor)
-{
-    if (is_string($valor)) {
-        $valor = str_replace(['R$', 'R$ ', ' '], '', $valor);
-        $valor = trim($valor);
-        if (strpos($valor, ',') !== false) {
-            $valor = str_replace('.', '', $valor);
-            $valor = str_replace(',', '.', $valor);
-        }
-    }
-    $valor = floatval($valor);
-    if ($valor == 0) return 'zero reais';
-
-    $fmt = new NumberFormatter("pt_BR", NumberFormatter::SPELLOUT);
-    return mb_strtoupper($fmt->format($valor) . " reais");
-}
-
-/**
- * Motor de Substituição de Variáveis
- */
-function substituirVariaveis($texto, $variaveis)
-{
+function substituicaoVariaveisLegacy($texto, $variaveis) {
     if (empty($texto)) return '';
     foreach ($variaveis as $chave => $valor) {
         if (!is_array($valor)) {
@@ -85,316 +250,96 @@ function substituirVariaveis($texto, $variaveis)
     return $texto;
 }
 
-/**
- * Mapeia dados brutos para o mapa de variáveis do template
- */
-function getVariableMap($data) {
-    $map = $data;
-    $map['ValorProposta'] = formatarMoeda($data['valor_final_proposta'] ?? 0);
-    $map['ValorExtenso'] = valorPorExtenso($data['valor_final_proposta'] ?? 0);
-    $map['DataExtenso'] = dataPorExtenso($data['data_criacao'] ?? null);
-    
-    // Novas chaves para Área e Unidade
-    $map['unidade'] = $data['unidade_area'] ?? 'm²';
-    $map['AreaEstimada'] = ($data['area_obra'] ?? '0') . ' ' . ($data['unidade_area'] ?? 'm²');
-    $map['area_formatada'] = $map['AreaEstimada'];
-    
-    // Variáveis de Drone/Campo (Garantir Mapeamento)
-    $map['TipoTerreno'] = $data['tipo_terreno'] ?? 'Não informado';
-    $map['CoberturaVegetal'] = $data['cobertura_vegetal'] ?? 'Não informado';
-    $map['AcessoLocal'] = $data['acesso_local'] ?? 'Não informado';
-    $map['RestricoesAereas'] = $data['restricoes_aereas'] ?? 'Não informado';
-    
-    // Cidade/UF do Cliente (Obra)
-    $map['ClienteCidadeUF'] = ($data['cidade_obra'] ?? '') . '-' . ($data['estado_obra'] ?? '');
-    $map['ClienteBairro'] = $data['bairro_obra'] ?? ''; // Alias solicitado
-
-    // Equipamentos (Aliases Capitalizados)
-    $map['Drone'] = $data['drone'] ?? 'Não aplicável';
-    $map['Veiculo'] = $data['veiculo'] ?? 'Não incluso';
-    $map['Estacao_Total'] = $data['estacao_total'] ?? 'Não inclusa';
-    $map['GPS'] = 'Par de Receptores GNSS RTK de Dupla Frequência'; // Valor Padrão SGT
-
-    // Dados da Empresa (Já vêm do Join no Repository)
-    $map['Empresa'] = $data['nome_empresa'] ?? 'SGT Topografia';
-    $map['empresa'] = $map['Empresa'];
-    $map['CNPJ'] = $data['empresa_proponente_cnpj'] ?? '';
-    // $map['whatsapp'] = $data['Whatsapp']; // Seria bom ter no Join também se for vital
-    $map['logo_empresa'] = 'assets/logo_sgt.png'; // Fallback
-    $map['logo'] = $map['logo_empresa'];
-
-    return $map;
-}
-
-function dataPorExtenso($data = null)
-{
-    $meses = [1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril', 5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto', 9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro'];
-    if ($data === null) $data = time();
-    elseif (is_string($data)) $data = strtotime($data);
-    $dia = date('d', $data);
-    $mes = $meses[intval(date('m', $data))];
-    $ano = date('Y', $data);
-    return "{$dia} de {$mes} de {$ano}";
-}
-
-// 3. CARREGAMENTO DE DADOS COM VALIDAÇÃO
 $id_prop = (int)($_GET['id'] ?? 0);
-
-// Fallback para sessão se não vier via GET
 if (!$id_prop && isset($_SESSION['id_proposta_ativa'])) {
     $id_prop = (int)$_SESSION['id_proposta_ativa'];
 }
 
-/**
- * Exibe página de erro elegante se algo falhar
- */
-function mostrarErroEditor($titulo, $mensagem, $fatal = false, $detalhes = []) {
-    $corPrimaria = $fatal ? '#ef4444' : '#f97316';
-    $corBg = $fatal ? 'rgba(239, 68, 68, 0.15)' : 'rgba(249, 115, 22, 0.15)';
-    $icone = $fatal ? 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
-    
-    $detalhesHtml = '';
-    if (!empty($detalhes)) {
-        $itens = implode('</li><li style="padding:8px 0;color:#cbd5e1;border-bottom:1px solid rgba(255,255,255,0.05);">', $detalhes);
-        $detalhesHtml = "
-        <div style='background:rgba(0,0,0,0.3);border-radius:12px;padding:20px;margin:24px 0;border:1px solid rgba(255,255,255,0.1);'>
-            <h3 style='color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;'>
-                Detalhes técnicos:
-            </h3>
-            <ul style='list-style:none;padding:0;margin:0;font-size:13px;'>
-                <li style='padding:8px 0;color:#cbd5e1;border-bottom:1px solid rgba(255,255,255,0.05);'>{$itens}</li>
-            </ul>
-        </div>";
-    }
-    
-    $idPropStr = $GLOBALS['id_prop'] ?? 'N/A';
-    $acoes = $fatal ? "
-        <a href='painel.php' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg, {$corPrimaria} 0%, #ea580c 100%);color:white;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(249,115,22,0.4);transition:all 0.2s;'>
-            ← Ir para o Painel
-        </a>
-    " : "
-        <div style='display:flex;gap:12px;flex-wrap:wrap;justify-content:center;'>
-            <a href='criar_proposta.php?id_proposta={$idPropStr}' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg, {$corPrimaria} 0%, #ea580c 100%);color:white;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(249,115,22,0.4);'>
-                ← Completar Dados
-            </a>
-            <a href='painel.php' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(255,255,255,0.05);color:#e2e8f0;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.1);'>
-                Ir para Painel
-            </a>
-        </div>
-    ";
-    
-    echo "<!DOCTYPE html>
-    <html lang='pt-BR'>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <title>{$titulo} - SGT Propostas</title>
-        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap' rel='stylesheet'>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: linear-gradient(135deg, #0a0f1a 0%, #1a1f2e 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                color: #f8fafc;
-            }
-            .container {
-                background: rgba(17, 24, 39, 0.95);
-                border: 1px solid {$corPrimaria}40;
-                border-radius: 24px;
-                padding: 48px;
-                max-width: 560px;
-                width: 100%;
-                text-align: center;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            }
-            .icon-wrapper {
-                width: 72px;
-                height: 72px;
-                background: {$corBg};
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 28px;
-                border: 2px solid {$corPrimaria}60;
-            }
-            .icon-wrapper svg {
-                width: 36px;
-                height: 36px;
-                color: {$corPrimaria};
-            }
-            h1 {
-                font-size: 24px;
-                font-weight: 700;
-                margin-bottom: 16px;
-                line-height: 1.3;
-            }
-            .mensagem {
-                color: #94a3b8;
-                font-size: 15px;
-                line-height: 1.6;
-                margin-bottom: 24px;
-            }
-            .proposta-id {
-                display: inline-block;
-                background: rgba(255,255,255,0.05);
-                padding: 6px 14px;
-                border-radius: 8px;
-                font-family: monospace;
-                font-size: 12px;
-                color: {$corPrimaria};
-                margin-bottom: 24px;
-                border: 1px solid rgba(255,255,255,0.1);
-            }
-            .dica {
-                background: rgba(59, 130, 246, 0.1);
-                border: 1px solid rgba(59, 130, 246, 0.3);
-                border-radius: 12px;
-                padding: 16px;
-                margin-top: 32px;
-                text-align: left;
-            }
-            .dica h4 {
-                color: #60a5fa;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .dica p {
-                color: #93c5fd;
-                font-size: 13px;
-                line-height: 1.5;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='icon-wrapper'>
-                <svg fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='{$icone}'/>
-                </svg>
-            </div>
-            <h1>{$titulo}</h1>
-            <p class='mensagem'>{$mensagem}</p>
-            <div class='proposta-id'>Proposta #{$idPropStr}</div>
-            {$detalhesHtml}
-            {$acoes}
-            <div class='dica'>
-                <h4><svg width='14' height='14' fill='currentColor' viewBox='0 0 16 16'><path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/></svg> Dica</h4>
-                <p>Verifique se todos os campos obrigatórios foram preenchidos na tela de criação de proposta antes de acessar o editor avançado.</p>
-            </div>
-        </div>
-    </body>
-    </html>";
-    exit;
-}
-
 if (!$id_prop) {
-    mostrarErroEditor("Acesso Inválido", "Não foi possível identificar o ID da proposta para edição.", true);
+    die("ID da proposta não informado");
 }
 
-// Guarda na sessão para garantir consistência
 $_SESSION['id_proposta_ativa'] = $id_prop;
 
-// 3. CARREGAMENTO DE DADOS COM REPOSITÓRIO
 try {
     $incomingData = $repo->buscarPorId($id_prop);
-
     if (!$incomingData) {
-        mostrarErroEditor("Proposta não encontrada", "Não conseguimos localizar os dados desta proposta no banco de dados.", true, ["ID: {$id_prop}"]);
+        die("Proposta não encontrada");
     }
-
-    // Validação de dados mínimos
-    $dadosFaltantes = [];
-    if (empty($incomingData['id_cliente'])) $dadosFaltantes[] = "Cliente não selecionado";
-    if (empty($incomingData['id_servico'])) $dadosFaltantes[] = "Tipo de serviço não definido";
-
-    if (!empty($dadosFaltantes)) {
-        mostrarErroEditor("Dados Incompletos", "Esta proposta ainda não possui todas as informações básicas salvas.", false, $dadosFaltantes);
-    }
-
-    // Sobrescreve modelo ativo se vier do banco e não houver GET explícito
-    if (!$modeloDocxAtivo && !empty($incomingData['modelo_docx'])) {
-        $modeloDocxAtivo = $incomingData['modelo_docx'];
-    }
-
-    // Carrega Estrutura (Árvore de Blocos)
-    $serviceTypeId = (int)$incomingData['id_servico'];
-    $loader = new ProposalArchitect\Infrastructure\DatabaseStructureLoader($repo->getConn());
     
-    // PRIORIDADE: Se houver um modelo DOCX ativo, carrega a estrutura DELE
+    // Inicializa o resolvedor de variáveis
+    $varResolver = new VariableResolver($incomingData);
+    $variaveis = $varResolver->getAll();
+    
+    // Detecta modo de operação: DOCX ou LEGACY
+    $modoDocx = false;
+    $docxData = null;
+    
+    // Se o usuário clicou para trocar o modelo, usa o do GET, senão usa o salvo no banco (migração V3.0)
+    $modeloDocxAtivo = $_GET['modelo_docx'] ?? $incomingData['modelo_docx'] ?? null;
+    
     if ($modeloDocxAtivo) {
-        $model = $loader->getVirtualModelFromDocx($modeloDocxAtivo);
-    } else {
-        $model = $loader->getVirtualModel($serviceTypeId);
+        // Tenta carregar modelo DOCX
+        $caminhoModelo = __DIR__ . '/modelos_gerados/Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo) . '.php';
+        
+        if (file_exists($caminhoModelo)) {
+            require_once $caminhoModelo;
+            $classeModelo = 'SGT\\Propostas\\Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
+            
+            if (class_exists($classeModelo)) {
+                $instanciaModelo = new $classeModelo();
+                $config = $instanciaModelo->getConfig();
+                $docxData = $config;
+                $modoDocx = true;
+            }
+        }
     }
     
-    $treeBuilder = new ProposalArchitect\Infrastructure\HierarchyTreeBuilder();
-    $structure = $treeBuilder->build($model);
-    $metadata = $model->getModelMetadata();
-
-    $variaveis = getVariableMap($incomingData);
-
+    // Se não achou DOCX válido, carrega estrutura legacy
+    if (!$modoDocx) {
+        $serviceTypeId = (int)$incomingData['id_servico'];
+        $loader = new ProposalArchitect\Infrastructure\DatabaseStructureLoader($repo->getConn());
+        $model = $loader->getVirtualModel($serviceTypeId);
+        $treeBuilder = new ProposalArchitect\Infrastructure\HierarchyTreeBuilder();
+        $structure = $treeBuilder->build($model);
+        $metadata = $model->getModelMetadata();
+    }
+    
 } catch (Exception $e) {
-    mostrarErroEditor("Erro no Sistema", "Houve uma falha ao carregar os dados da proposta.", true, [$e->getMessage()]);
+    die("Erro ao carregar dados: " . $e->getMessage());
 }
+
+// =====================================================
+// RENDERIZAÇÃO DA VIEW
+// =====================================================
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor SGT | <?= $metadata['name'] ?></title>
+    <title>Editor SGT | <?= $modoDocx ? ($docxData['nome'] ?? 'Modelo DOCX') : ($metadata['name'] ?? 'Proposta') ?></title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Exo+2:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- CSS Tailwind estático (substituiu cdn.tailwindcss.com que causava loop com TinyMCE) -->
     <link rel="stylesheet" href="assets/css/editor-tailwind.css?v=<?= time() ?>">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"></script>
 
     <style>
-        body {
-            background-color: #0a0f1a;
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .block-card:hover {
-            border-color: rgba(249, 115, 22, 0.4);
-            transform: translateY(-2px);
-        }
-        /* Custom Scrollbar */
+        body { background-color: #0a0f1a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .block-card:hover { border-color: rgba(249, 115, 22, 0.4); transform: translateY(-2px); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0f1a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         
-        .tox-tinymce {
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 8px !important;
-        }
+        /* Estilos específicos para modo DOCX */
+        .modo-docx-badge { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .variavel-chip { transition: all 0.2s; cursor: help; }
+        .variavel-chip:hover { background: rgba(16, 185, 129, 0.3); transform: scale(1.05); }
     </style>
 </head>
 
@@ -403,537 +348,267 @@ try {
     <!-- Header -->
     <header class="glass border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-4">
-            <a href="painel.php" class="text-slate-400 hover:text-white hover:bg-white/5 p-2 rounded-xl transition-all mr-1" title="Voltar ao Painel">
+            <a href="painel.php" class="text-slate-400 hover:text-white hover:bg-white/5 p-2 rounded-xl transition-all">
                 <i class="bi bi-arrow-left text-2xl"></i>
             </a>
-            <div class="bg-primary/20 text-primary p-2 rounded-xl border border-primary/30">
-                <i class="bi bi-pencil-square text-xl"></i>
+            <div class="<?= $modoDocx ? 'modo-docx-badge' : 'bg-orange-500/20' ?> text-white p-2 rounded-xl border border-white/10">
+                <i class="bi bi-<?= $modoDocx ? 'file-earmark-word' : 'pencil-square' ?> text-xl"></i>
             </div>
             <div>
-                <h1 class="font-display font-bold text-white text-lg"><?= $metadata['name'] ?></h1>
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Editor Avançado SGT • ProposalArchitect™</p>
+                <h1 class="font-bold text-white text-lg">
+                    <?= $modoDocx ? ($docxData['nome'] ?? 'Modelo Word') : ($metadata['name'] ?? 'Editor Legacy') ?>
+                </h1>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+                    <?= $modoDocx ? 'Modo DOCX Genérico' : 'Modo Legacy SGT' ?>
+                </p>
             </div>
         </div>
+        
         <div class="flex gap-3">
             <button type="button" onclick="salvarRascunho()" class="px-4 py-2 text-sm font-bold text-slate-300 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex items-center gap-2">
-                <i class="bi bi-cloud-arrow-up"></i>
-                Salvar Rascunho
+                <i class="bi bi-cloud-arrow-up"></i> Salvar Rascunho
             </button>
-            <button type="button" onclick="submitForm('html')" class="px-4 py-2 text-sm font-bold text-white bg-secondary/80 rounded-xl hover:bg-secondary shadow-lg shadow-secondary/20 transition-all flex items-center gap-2">
-                <i class="bi bi-eye"></i>
-                Visualizar Web
+            
+            <button type="button" onclick="submitForm('html')" class="px-4 py-2 text-sm font-bold text-white bg-slate-600 rounded-xl hover:bg-slate-500 shadow-lg shadow-slate-900/20 transition-all flex items-center gap-2">
+                <i class="bi bi-eye"></i> Visualizar
             </button>
-            <a href="gerar_proposta_premium.php?id=<?= (int)$id_prop ?>" target="_blank" class="px-4 py-2 text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/20 transition-all flex items-center gap-2" title="Layout Premium (piloto)">
-                <i class="bi bi-sparkles"></i>
-                Piloto
-            </a>
-            <div class="dropdown">
-                <button type="button" class="px-4 py-2 text-sm font-bold text-white bg-slate-800 border border-white/10 rounded-xl hover:bg-slate-700 transition-all flex items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" id="dropdownModelos">
+            
+            <!-- Seletor de Modelos -->
+            <div class="dropdown relative">
+                <button type="button" class="px-4 py-2 text-sm font-bold text-white bg-slate-800 border border-white/10 rounded-xl hover:bg-slate-700 transition-all flex items-center gap-2" onclick="toggleDropdown()">
                     <i class="bi bi-file-earmark-richtext"></i>
                     <?= $modeloDocxAtivo ? str_replace('_', ' ', $modeloDocxAtivo) : 'Modelo Padrão' ?>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-dark bg-slate-900 border border-white/10 p-2 shadow-2xl" aria-labelledby="dropdownModelos">
-                    <li><a class="dropdown-item rounded-lg py-2 hover:bg-white/5 active:bg-primary" href="?id=<?= $id_prop ?>">📂 Modelo Tradicional (SGT)</a></li>
-                    <li><hr class="dropdown-divider border-white/5"></li>
-                    <li class="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Modelos DOCX</li>
-                    <?php if (empty($modelosDisponiveis)): ?>
-                        <li class="px-3 py-2 text-xs italic text-slate-500">Nenhum modelo gerado</li>
-                    <?php else: ?>
-                        <?php foreach ($modelosDisponiveis as $mod): ?>
-                            <li><a class="dropdown-item rounded-lg py-2 hover:bg-white/5 <?= ($modeloDocxAtivo === $mod['id']) ? 'bg-primary/20 text-primary' : '' ?>" href="?id=<?= $id_prop ?>&modelo_docx=<?= $mod['id'] ?>">📄 <?= $mod['nome'] ?></a></li>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    <li><hr class="dropdown-divider border-white/5"></li>
-                    <li><a class="dropdown-item rounded-lg py-2 text-emerald-400 hover:bg-emerald-500/10" href="gerador_upload_docx.php" target="_blank"><i class="bi bi-plus-circle me-1"></i> Criar Novo do Word</a></li>
+                <ul id="dropdown-modelos" class="hidden absolute right-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl z-50 p-2">
+                    <li><a class="block px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300" href="?id=<?= $id_prop ?>">📂 Modelo Tradicional (SGT)</a></li>
+                    <li class="border-t border-white/5 my-1"></li>
+                    <li class="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase">Modelos DOCX</li>
+                    <?php foreach ($modelosDisponiveis as $mod): ?>
+                        <li>
+                            <a class="block px-3 py-2 rounded-lg hover:bg-white/5 <?= ($modeloDocxAtivo === $mod['id']) ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300' ?>" 
+                               href="?id=<?= $id_prop ?>&modelo_docx=<?= $mod['id'] ?>">
+                               📄 <?= $mod['nome'] ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                    <li class="border-t border-white/5 my-1"></li>
+                    <li><a class="block px-3 py-2 rounded-lg text-emerald-400 hover:bg-emerald-500/10" href="gerador_upload_docx.php" target="_blank">
+                        <i class="bi bi-plus-circle"></i> Gerenciar DOCX
+                    </a></li>
                 </ul>
             </div>
 
-            <button type="button" onclick="submitForm('docx')" class="px-5 py-2 text-sm font-bold text-white bg-primary rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
-                <i class="bi bi-file-earmark-word"></i>
-                Gerar Word
+            <button type="button" onclick="submitForm('docx')" class="px-5 py-2 text-sm font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-500 shadow-lg shadow-orange-900/20 transition-all flex items-center gap-2">
+                <i class="bi bi-file-earmark-word"></i> Gerar Word
             </button>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-
-        <!-- Sidebar Navigation -->
+        
+        <!-- Sidebar com variáveis disponíveis (apenas modo DOCX) -->
+        <?php if ($modoDocx && !empty($docxData['variaveis'])): ?>
+        <aside class="w-72 glass border-r border-white/10 overflow-y-auto hidden lg:block">
+            <div class="p-5">
+                <h3 class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="bi bi-magic"></i> Variáveis Detectadas
+                </h3>
+                <div class="space-y-2">
+                    <?php foreach ($docxData['variaveis'] as $var): 
+                        $valor = $varResolver->resolve($var);
+                        $curto = mb_strlen($valor) > 30 ? mb_substr($valor, 0, 30) . '...' : $valor;
+                        $isResolved = ($valor !== "[{$var}]");
+                    ?>
+                        <div class="variavel-chip bg-white/5 border border-white/10 rounded-lg p-3" title="<?= htmlspecialchars($valor) ?>">
+                            <div class="text-[10px] <?= $isResolved ? 'text-emerald-400' : 'text-slate-400' ?> font-mono mb-1">${<?= $var ?>}</div>
+                            <div class="text-[11px] text-slate-400 truncate"><?= htmlspecialchars($curto) ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <div class="mt-6 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p class="text-[10px] text-amber-200">
+                        <i class="bi bi-info-circle"></i> 
+                        Variáveis em <span class="text-emerald-400">[verde]</span> foram resolvidas. 
+                        Em <span class="text-slate-400">[cinza]</span> usam os valores digitados no editor ou não foram encontradas.
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <?php elseif (!$modoDocx): ?>
+        <!-- NAV LEGACY -->
         <aside class="w-64 glass border-r border-white/10 overflow-y-auto hidden md:block">
             <div class="p-5">
-                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Estrutura da Proposta</h3>
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Estrutura (Legacy)</h3>
                 <nav class="space-y-1">
                     <?php
                     function renderNav($nodes, $depth = 0) {
                         foreach ($nodes as $node) {
                             $padding = $depth * 1.25;
                             $activeClass = $depth === 0 ? 'text-slate-300 font-semibold' : 'text-slate-500 text-xs';
-                            $iconColorMap = [
-                                'technical' => 'text-tech',
-                                'financial' => 'text-financial',
-                                'presentation' => 'text-presentation',
-                                'legal' => 'text-legal'
-                            ];
-                            $color = $iconColorMap[$node['category']] ?? 'text-slate-400';
-                            
                             echo "<a href='#block-{$node['id']}' class='flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-all {$activeClass}' style='padding-left: calc(0.75rem + {$padding}rem)'>";
-                            echo "<div class='w-1.5 h-1.5 rounded-full {$color} bg-current shadow-[0_0_8px_currentColor]'></div>";
                             echo "<span>{$node['title']}</span>";
                             echo "</a>";
-
                             if (!empty($node['children'])) renderNav($node['children'], $depth + 1);
                         }
                     }
-                    renderNav($structure);
+                    if(isset($structure)) renderNav($structure);
                     ?>
                 </nav>
             </div>
         </aside>
+        <?php endif; ?>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-8 scroll-smooth" id="main-scroll">
-            <div class="max-w-3xl mx-auto space-y-10 pb-20">
-
+            <div class="max-w-4xl mx-auto pb-20">
+                
                 <form id="formProposta" method="POST" action="salvar_proposta.php">
-                    <?php 
-                    // SE HOUVER MODELO DOCX ATIVO, RENDERIZA CABEÇALHO DE VARIÁVEIS DO DOCX
-                    if ($modeloDocxAtivo): 
-                        $metadataDocx = $docxRenderer->obterMetadata($modeloDocxAtivo);
-                    ?>
-                        <div class="glass-card rounded-2xl border-l-4 border-l-emerald-500 p-6 mb-10 shadow-xl shadow-emerald-950/20">
-                            <div class="flex justify-between items-center mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl border border-emerald-500/30">
-                                        <i class="bi bi-magic text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-white">Modo Word Ativo: <?= str_replace('_', ' ', $modeloDocxAtivo) ?></h3>
-                                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Variáveis detectadas no documento original preenchidas aqui</p>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold uppercase">Edição Direta</span>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <?php 
-                                // Lista apenas variáveis que NÃO são do sistema (as manuais)
-                                $chavesSistema = require 'config_chaves_sistema.php';
-                                foreach ($metadataDocx['variaveis'] as $var): 
-                                    if (isset($chavesSistema[$var])) continue; // Pula as automáticas
-                                    $label = ucwords(str_replace('_', ' ', $var));
-                                    $valor = $incomingData[$var . '_content'] ?? $incomingData[$var] ?? '';
-                                ?>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1"><?= $label ?></label>
-                                        <input type="text" name="<?= $var ?>_content" value="<?= htmlspecialchars($valor) ?>" 
-                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-emerald-100 focus:outline-none focus:border-emerald-500/50 text-sm transition-all"
-                                            placeholder="Valor para {<?= $var ?>}">
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
                     <input type="hidden" name="id_proposta" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_proposta_original" value="<?= $id_prop ?>">
-                    <input type="hidden" name="id_cliente" value="<?= $incomingData['id_cliente'] ?? '' ?>">
-                    <input type="hidden" name="id_servico" value="<?= $incomingData['id_servico'] ?? '' ?>">
                     <input type="hidden" name="modelo_docx" value="<?= htmlspecialchars($modeloDocxAtivo ?? '') ?>">
                     <input type="hidden" name="formato_saida" id="inputFormatoSaida" value="html">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     
-                    <?php
-                    function renderFormBlocks($nodes, $model, $incomingData, $variaveis) {
-                        foreach ($nodes as $node) {
-                            $slug = $node['id'];
-                            
-                            // [REFATORAÇÃO] Filtra blocos duplicados ou removidos
-                            if (in_array($slug, ['recursos_equipamentos', 'cronograma_drone', 'investimento-extra'])) continue;
-                            $borderColors = [
-                                'presentation' => 'border-l-presentation',
-                                'technical' => 'border-l-tech',
-                                'financial' => 'border-l-financial',
-                                'legal' => 'border-l-legal'
-                            ];
-                            $borderColor = $borderColors[$node['category']] ?? 'border-l-slate-700';
-
-                            // Resolução de Conteúdo
-                            $defaultContent = $node['default_content'] ?? '';
-                            $userValue = $incomingData[$slug . '_content'] ?? ($incomingData[$slug] ?? '');
-                            
-                            // Define conteúdo base (usuário > padrão)
-                            $rawContent = (!empty($userValue)) ? $userValue : $defaultContent;
-                            
-                            // APLICA SUBSTITUIÇÃO DE VARIÁVEIS (FORÇADO)
-                            // Isso garante que mesmo se o usuário salvou um rascunho com ${Variaveis}, elas sejam processadas ao abrir o editor.
-                            $finalContent = substituirVariaveis($rawContent, $variaveis);
-
-                            echo "<div id='block-{$slug}' class='glass-card rounded-2xl border-l-4 {$borderColor} block-card p-6 scroll-mt-24 mb-8'>";
-                            
-                            echo "<div class='flex justify-between items-center mb-6'>";
-                            echo "<div class='flex items-center gap-3'><h3 class='text-lg font-bold text-white font-display'>{$node['title']}</h3><span class='text-[9px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-md uppercase border border-white/5 font-bold tracking-tighter'>{$node['category']}</span></div>";
-                            if (!empty($node['required'])) echo "<span class='text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 font-bold uppercase'>Obrigatório</span>";
+                    <?php if ($modoDocx && $docxData): ?>
+                        <!-- MODO DOCX: Renderização Genérica -->
+                        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                            <h2 class="text-emerald-400 font-bold flex items-center gap-2">
+                                <i class="bi bi-file-earmark-word"></i> 
+                                Editando Modelo: <?= $docxData['nome'] ?>
+                            </h2>
+                            <p class="text-sm text-slate-400 mt-1">
+                                Blocos carregados do arquivo Word. Edite o conteúdo abaixo (Variáveis processadas).
+                            </p>
+                        </div>
+                        
+                        <?php
+                        $renderer = new GenericBlockRenderer($incomingData);
+                        
+                        // [V3.0] Prepara os blocos com o conteúdo salvo anteriormente (se houver) no DB
+                        $blocosSalvosParaDocx = [];
+                        if(!empty($incomingData['docx_conteudo'])) {
+                            $decoded = json_decode($incomingData['docx_conteudo'], true);
+                            if(is_array($decoded)) $blocosSalvosParaDocx = $decoded;
+                        }
+                        
+                        $blocosParaRender = $docxData['blocos'];
+                        if(!empty($blocosSalvosParaDocx)) {
+                            // Mescla o conteúdo salvo com a estrutura do DOCX
+                            foreach($blocosParaRender as $idx => &$b) {
+                                if(isset($blocosSalvosParaDocx[$idx]['conteudo'])) {
+                                    $b['conteudo'] = $blocosSalvosParaDocx[$idx]['conteudo'];
+                                }
+                                if($b['tipo'] === 'tabela' && isset($blocosSalvosParaDocx[$idx]['linhas'])) {
+                                     $b['linhas'] = $blocosSalvosParaDocx[$idx]['linhas'];
+                                }
+                            }
+                        }
+                        
+                        echo $renderer->renderDocxBlocks($blocosParaRender, $docxData['variaveis'] ?? []);
+                        ?>
+                        
+                    <?php else: ?>
+                        <!-- MODO LEGACY: Renderização Hardcoded -->
+                        <div class="mb-6 p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                            <h2 class="text-slate-300 font-bold flex items-center gap-2">
+                                <i class="bi bi-layers"></i> 
+                                Modelo Legacy SGT
+                            </h2>
+                            <p class="text-sm text-slate-400 mt-1">
+                                Você está editando usando a interface fixa tradicional. Se desejar, selecione um modelo DOCX no menu superior.
+                            </p>
+                        </div>
+                        
+                        <?php
+                        // FUNÇÕES DO RENDER LEGACY 
+                        function renderFieldLegacy($name, $label, $type, $value, $full = false) {
+                            $span = $full ? 'md:col-span-2' : '';
+                            echo "<div class='{$span}'>";
+                            echo "<label class='block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1'>{$label}</label>";
+                            $valSafe = htmlspecialchars($value);
+                            if ($type === 'textarea') {
+                                echo "<textarea name='{$name}' id='ed-{$name}' class='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-orange-500/50 text-sm transition-all'>{$valSafe}</textarea>";
+                            } else {
+                                echo "<input type='{$type}' name='{$name}' value='{$valSafe}' class='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-orange-500/50 text-sm transition-all'>";
+                            }
                             echo "</div>";
+                        }
+                        
+                        // [O MESMO RENDER FORMS DA V2]
+                        function renderFormBlocksLegacy($nodes, $model, $incomingData, $variaveis) {
+                            foreach ($nodes as $node) {
+                                $slug = $node['id'];
+                                if (in_array($slug, ['recursos_equipamentos', 'cronograma_drone', 'investimento-extra'])) continue;
+                                $borderColors = [ 'presentation' => 'border-l-blue-500', 'technical' => 'border-l-indigo-500', 'financial' => 'border-l-emerald-500', 'legal' => 'border-l-slate-500' ];
+                                $borderColor = $borderColors[$node['category']] ?? 'border-l-slate-700';
 
-                            echo "<div class='grid grid-cols-1 md:grid-cols-2 gap-5'>";
+                                $defaultContent = $node['default_content'] ?? '';
+                                $userValue = $incomingData[$slug . '_content'] ?? ($incomingData[$slug] ?? '');
+                                $rawContent = (!empty($userValue)) ? $userValue : $defaultContent;
+                                $finalContent = substituicaoVariaveisLegacy($rawContent, $variaveis);
 
-                            // Switch de Renderização
-                            switch ($slug) {
-                                case 'cabecalho':
-                                    echo '<div class="col-span-2 space-y-4">';
-                                    echo '<div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-between">';
-                                    echo '<div class="flex items-center gap-4"><img src="' . htmlspecialchars($variaveis['logo_empresa']) . '" class="h-10 object-contain opacity-80" onerror="this.src=\'assets/logo_sgt.png\'"><div class="text-sm font-bold text-white">LOGO SELECIONADA</div></div>';
-                                    echo '<div class="text-right text-xs"><div class="text-slate-500">PROPOSTA Nº</div><div class="text-primary font-bold font-mono">' . $variaveis['numero_proposta'] . '</div></div>';
-                                    echo '</div></div>';
-                                    break;
-
-                                case 'dados_cliente':
-                                    renderField('nome_cliente', 'Cliente', 'text', $variaveis['nome_cliente']);
-                                    renderField('email_cliente', 'E-mail', 'email', $variaveis['email_salvo']);
-                                    renderField('telefone_cliente', 'Telefone', 'tel', $variaveis['telefone_salvo']);
-                                    renderField('celular_cliente', 'WhatsApp', 'tel', $variaveis['celular_salvo']);
-                                    break;
-
-                                case 'local_obra':
-                                    renderField('endereco_obra', 'Endereço Completo', 'text', $variaveis['endereco_obra'], true);
-                                    renderField('bairro_obra', 'Bairro', 'text', $variaveis['bairro_obra']);
-                                    renderField('cidade_obra', 'Cidade', 'text', $variaveis['cidade_obra']);
-                                    renderField('estado_obra', 'Estado (UF)', 'text', $variaveis['estado_obra']);
-                                    echo "<div class='md:col-span-2'>";
-                                    echo "<label class='block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1'>Área e Unidade</label>";
-                                    echo "<div class='flex items-stretch'>";
-                                    echo "<input type='text' name='area' value='".htmlspecialchars($variaveis['area_obra'])."' class='flex-1 bg-white/5 border border-white/10 rounded-l-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all' style='border-right: none;'>";
-                                    echo "<select name='unidade_area' class='bg-white/5 border border-white/10 rounded-r-xl px-4 py-3 text-primary font-bold text-sm focus:outline-none focus:border-primary/50 transition-all' style='max-width: 100px;'>";
-                                    foreach(['m²','ha','km²'] as $un) {
-                                        $sel = ($variaveis['unidade'] == $un) ? 'selected' : '';
-                                        echo "<option value='$un' $sel>$un</option>";
-                                    }
-                                    echo "</select></div>";
-                                    echo "</div>";
-                                    break;
-
-                                case 'prazos':
-                                    echo '<div class="col-span-2">';
-                                    
-                                    // Alerta
-                                    echo '<div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
-                                        <p class="text-xs text-amber-200">
-                                            <i class="bi bi-exclamation-triangle-fill mr-1"></i>
-                                            O cumprimento dos prazos depende de condições climáticas favoráveis (ausência de chuva e ventos superiores a 30 km/h).
-                                        </p>
-                                    </div>';
-
-                                    // Tabela Fixa
-                                    echo '<div class="overflow-x-auto mb-4">
-                                        <table class="w-full text-sm text-left text-slate-300">
-                                            <thead class="text-xs text-slate-400 uppercase bg-white/5">
-                                                <tr>
-                                                    <th class="px-4 py-3 rounded-l-lg">Etapa</th>
-                                                    <th class="px-4 py-3">Descrição</th>
-                                                    <th class="px-4 py-3 rounded-r-lg">Prazo Estimado</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-white/5">
-                                                <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">1. Campo (Levantamento)</td>
-                                                    <td class="px-4 py-3">Rastreio geodésico, voo ou topografia</td>
-                                                    <td class="px-4 py-3"><span id="display-campo">'. intval($variaveis['dias_campo'] ?? 0) .'</span> dias</td>
-                                                </tr>
-                                                <tr class="hover:bg-white/5">
-                                                    <td class="px-4 py-3 font-medium text-white">2. Escritório (Processamento)</td>
-                                                    <td class="px-4 py-3">Processamento, cálculos e plantas</td>
-                                                    <td class="px-4 py-3"><span id="display-escritorio">'. intval($variaveis['dias_escritorio'] ?? 0) .'</span> dias</td>
-                                                </tr>
-                                                <tr class="bg-primary/10 font-semibold">
-                                                    <td colspan="2" class="px-4 py-3 text-white rounded-l-lg">TOTAL ESTIMADO</td>
-                                                    <td class="px-4 py-3 text-primary rounded-r-lg">
-                                                        <span id="prazo-total-display">'. (intval($variaveis['dias_campo'] ?? 0) + intval($variaveis['dias_escritorio'] ?? 0)) .' dias úteis</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>';
-
-                                    // Campos Editáveis
-                                    echo '<div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Campo</label>
-                                            <input type="number" name="dias_campo" id="input-dias-campo" value="'. htmlspecialchars($variaveis['dias_campo'] ?? '0') .'" min="0" max="90"
-                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                                onchange="atualizarInterfacePrazos()">
-                                        </div>
-                                        <div>
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Dias de Escritório</label>
-                                            <input type="number" name="dias_escritorio" id="input-dias-escritorio" value="'. htmlspecialchars($variaveis['dias_escritorio'] ?? '0') .'" min="0" max="90"
-                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                                onchange="atualizarInterfacePrazos()">
-                                        </div>
-                                    </div>';
-
-                                    // Observações (Fallback para cronograma)
-                                    $prazosContent = htmlspecialchars($incomingData['prazos_content'] ?? ($incomingData['cronograma_content'] ?? ''));
-                                    echo '<div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Observações Adicionais (Opcional)</label>
-                                        <textarea name="prazos_content" id="ed-prazos-obs" rows="3"
-                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-primary/50 text-sm transition-all"
-                                            placeholder="Informações complementares sobre prazos...">'. $prazosContent .'</textarea>
-                                    </div>';
-                                    
-                                    echo '</div>'; // close col-span-2
-                                    break;
-
-                                case 'equipamentos':
-                                    echo '<div class="col-span-2">';
-                                    
-                                    // Carregar Defaults
-                                    $configEquip = require 'config/equipamentos_servico.php';
-                                    $nomeServico = mb_strtolower($incomingData['nome_servico'] ?? '');
-                                    $tipo = 'padrao';
-                                    if (strpos($nomeServico, 'drone') !== false || strpos($nomeServico, 'fotogrametria') !== false) $tipo = 'drone_fotogrametria';
-                                    elseif (strpos($nomeServico, 'geo') !== false) $tipo = 'georreferenciamento';
-                                    elseif (strpos($nomeServico, 'topografia') !== false) $tipo = 'topografia_tradicional';
-                                    elseif (strpos($nomeServico, 'cadastral') !== false) $tipo = 'levantamento_cadastral';
-                                    
-                                    $defaults = $configEquip[$tipo] ?? $configEquip['padrao'];
-                                    
-                                    // Valores (Salvos ou Padrão) - Usando $variaveis se disponível (mapeado de $incomingData) ou direto de $incomingData
-                                    // $variaveis mapeia Estacao_Total, GPS etc, mas pode ser diferente dos names dos inputs.
-                                    // Vamos usar $incomingData direto para os names específicos ou $defaults
-                                    
-                                    $val = [
-                                        'estacao_total' => $incomingData['equipamentos_estacao_total_content'] ?? $defaults['estacao_total'],
-                                        'gps' => $incomingData['equipamentos_gps_content'] ?? $defaults['gps'],
-                                        'drone' => $incomingData['equipamentos_drone_content'] ?? $defaults['drone'],
-                                        'veiculo' => $incomingData['equipamentos_veiculo_content'] ?? $defaults['veiculo']
-                                    ];
-
-                                    // Lista Automática
-                                    echo '<div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-4">
-                                        <ul class="space-y-3 text-sm text-slate-300">
-                                            <li class="flex gap-3">
-                                                <span class="text-tech font-bold min-w-[120px]">Estação Total:</span>
-                                                <span id="equip-estacao-total">'. htmlspecialchars($val['estacao_total']) .'</span>
-                                            </li>
-                                            <li class="flex gap-3">
-                                                <span class="text-tech font-bold min-w-[120px]">GPS:</span>
-                                                <span id="equip-gps">'. htmlspecialchars($val['gps']) .'</span>
-                                            </li>
-                                            <li class="flex gap-3">
-                                                <span class="text-tech font-bold min-w-[120px]">Drone:</span>
-                                                <span id="equip-drone">'. htmlspecialchars($val['drone']) .'</span>
-                                            </li>
-                                            <li class="flex gap-3">
-                                                <span class="text-tech font-bold min-w-[120px]">Veículo:</span>
-                                                <span id="equip-veiculo">'. htmlspecialchars($val['veiculo']) .'</span>
-                                            </li>
-                                        </ul>
-                                    </div>';
-                                    
-                                    // Override UI
-                                    $overrideContent = $incomingData['equipamentos_override_content'] ?? '';
-                                    echo '<div class="mt-4">
-                                        <label class="flex items-center gap-2 cursor-pointer mb-3">
-                                            <input type="checkbox" id="check-override-equip" name="equipamentos_override_ativo" value="1" 
-                                                class="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-primary/50"
-                                                onchange="toggleEquipOverride()" '. (!empty($overrideContent) ? 'checked' : '') .'>
-                                            <span class="text-sm text-slate-400">Personalizar equipamentos</span>
-                                        </label>
-                                        
-                                        <div id="equip-override-area" class="'. (!empty($overrideContent) ? '' : 'hidden') .'">
-                                            <textarea name="equipamentos_override_content" id="ed-equipamentos_override" 
-                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 text-sm transition-all"
-                                                rows="6" placeholder="Cole aqui o texto personalizado de equipamentos...">'. htmlspecialchars($overrideContent) .'</textarea>
-                                        </div>
-                                    </div>';
-                                    
-                                    // Hidden Fields (Renamed to _content)
-                                    echo '<input type="hidden" name="equipamentos_estacao_total_content" value="'. htmlspecialchars($val['estacao_total']) .'">';
-                                    echo '<input type="hidden" name="equipamentos_gps_content" value="'. htmlspecialchars($val['gps']) .'">';
-                                    echo '<input type="hidden" name="equipamentos_drone_content" value="'. htmlspecialchars($val['drone']) .'">';
-                                    echo '<input type="hidden" name="equipamentos_veiculo_content" value="'. htmlspecialchars($val['veiculo']) .'">';
-                                    
-                                    echo '</div>'; // close col-span-2
-                                    break;
-
-                                case 'investimento':
-                                    echo '<div class="col-span-2 glass p-4 rounded-xl border border-green-500/20 mb-2">';
-                                    renderStat('Valor Total da Proposta', $variaveis['ValorProposta'], 'text-financial !text-2xl');
-                                    echo '</div>';
-                                    if (!empty($finalContent)) renderField($slug . '_content', 'Texto Investimento', 'textarea', $finalContent, true);
-                                    break;
-
-                                default:
-                                    // Bloco com TinyMCE
-                                    $fieldName = $slug . '_content';
-                                    renderField($fieldName, 'Conteúdo Editável', 'textarea', $finalContent, true);
-                                    break;
-                            }
-
-                            echo "</div></div>"; // Fim Grid e Card
-
-                            if (!empty($node['children'])) {
-                                echo "<div class='pl-8 border-l-2 border-white/5 space-y-6'>";
-                                renderFormBlocks($node['children'], $model, $incomingData, $variaveis);
+                                echo "<div id='block-{$slug}' class='glass-card rounded-2xl border-l-4 {$borderColor} block-card p-6 scroll-mt-24 mb-8'>";
+                                echo "<div class='flex justify-between items-center mb-6'>";
+                                echo "<div class='flex items-center gap-3'><h3 class='text-lg font-bold text-white'>{$node['title']}</h3></div>";
                                 echo "</div>";
+                                echo "<div class='grid grid-cols-1 md:grid-cols-2 gap-5'>";
+
+                                switch ($slug) {
+                                    case 'dados_cliente':
+                                        renderFieldLegacy('nome_cliente', 'Cliente', 'text', $variaveis['nome_cliente']);
+                                        renderFieldLegacy('email_cliente', 'E-mail', 'email', $variaveis['email_salvo']);
+                                        break;
+                                    case 'local_obra':
+                                        renderFieldLegacy('endereco_obra', 'Endereço', 'text', $variaveis['endereco_obra'], true);
+                                        renderFieldLegacy('cidade_obra', 'Cidade', 'text', $variaveis['cidade_obra']);
+                                        renderFieldLegacy('estado_obra', 'UF', 'text', $variaveis['estado_obra']);
+                                        break;
+                                    default:
+                                        $fieldName = $slug . '_content';
+                                        renderFieldLegacy($fieldName, 'Conteúdo', 'textarea', $finalContent, true);
+                                        break;
+                                }
+
+                                echo "</div></div>";
+
+                                if (!empty($node['children'])) {
+                                    echo "<div class='pl-8 border-l-2 border-white/5 space-y-6'>";
+                                    renderFormBlocksLegacy($node['children'], $model, $incomingData, $variaveis);
+                                    echo "</div>";
+                                }
                             }
                         }
-                    }
 
-                    function renderField($name, $label, $type, $value, $full = false) {
-                        $span = $full ? 'md:col-span-2' : '';
-                        echo "<div class='{$span}'>";
-                        echo "<label class='block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1'>{$label}</label>";
-                        $valSafe = htmlspecialchars($value);
-                        if ($type === 'textarea') {
-                            echo "<textarea name='{$name}' id='ed-{$name}' class='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:border-primary/50 text-sm transition-all'>{$valSafe}</textarea>";
-                        } else {
-                            echo "<input type='{$type}' name='{$name}' value='{$valSafe}' class='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary/50 text-sm transition-all'>";
-                        }
-                        echo "</div>";
-                    }
-
-                    function renderStat($label, $val, $color) {
-                        echo "<div class='bg-white/5 p-3 rounded-xl border border-white/5 text-center'>";
-                        echo "<div class='text-[9px] font-bold text-slate-500 uppercase mb-0.5'>{$label}</div>";
-                        echo "<div class='text-lg font-bold {$color}'>{$val}</div>";
-                        echo "</div>";
-                    }
-
-                    renderFormBlocks($structure, $model, $incomingData, $variaveis);
-                    ?>
+                        if(isset($structure)) renderFormBlocksLegacy($structure, $model, $incomingData, $variaveis);
+                        ?>
+                        
+                    <?php endif; ?>
                 </form>
-
+                
             </div>
         </main>
     </div>
 
     <script>
-        // Função de Salvamento (Async sem travar a tela)
-        async function salvarRascunho() {
-            tinymce.triggerSave();
-            const btn = document.querySelector('button[onclick="salvarRascunho()"]');
-            const originalContent = btn.innerHTML;
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Salvando...';
-
-            try {
-                const formData = new FormData(document.getElementById('formProposta'));
-                
-                // [FIX] Adicionar token CSRF manualmente se necessário
-                // formData.append('csrf_token', 'TOKEN_AQUI'); 
-
-                const response = await fetch('salvar_rascunho.php', { method: 'POST', body: formData });
-                
-                if (response.ok) {
-                    // Feedback visual sutil
-                    const icon = btn.querySelector('i');
-                    if(icon) {
-                        icon.className = 'bi bi-check-lg';
-                        setTimeout(() => { icon.className = 'bi bi-cloud-arrow-up'; }, 2000);
-                    }
-                    // Opcional: Toast sem alert modal
-                    // SGTUtils.showToast('Rascunho salvo!', 'success');
-                } else {
-                    throw new Error('Falha no servidor');
-                }
-            } catch (e) {
-                console.error('Erro ao salvar:', e);
-                alert('Erro ao salvar rascunho. Tente novamente.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-            }
+        // Dropdown simples
+        function toggleDropdown() {
+            const el = document.getElementById('dropdown-modelos');
+            el.classList.toggle('hidden');
         }
+        
+        // Fecha dropdown ao clicar fora
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('dropdown-modelos');
+            const btn = e.target.closest('.dropdown');
+            if (!btn && dropdown) dropdown.classList.add('hidden');
+        });
 
-        async function submitForm(formato) {
-            tinymce.triggerSave();
-            
-            // UI Feedback: Encontra o botão clicado
-            // Nota: Se houver múltiplos botões, isso pode pegar o primeiro. Melhor passar 'this' no onclick, mas vamos buscar pelo formato.
-            // Ajuste: Botão visual web tem ícone eye.
-            let btn = null;
-            if (formato === 'html') btn = document.querySelector('button i.bi-eye')?.parentElement;
-            else if (formato === 'docx') btn = document.querySelector('button i.bi-file-word')?.parentElement;
-            
-            const originalContent = btn ? btn.innerHTML : '';
-            if(btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Processando...';
-            }
-
-            try {
-                const form = document.getElementById('formProposta');
-                const formData = new FormData(form);
-                formData.append('formato_saida', formato);
-                formData.append('ajax', '1'); // Solicita resposta JSON
-
-                const response = await fetch('salvar_proposta.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                // Tenta fazer parse do JSON
-                let data;
-                const text = await response.text();
-                try {
-                    data = JSON.parse(text);
-                } catch(e) {
-                    console.error('Resposta não-JSON:', text);
-                    throw new Error('Servidor retornou resposta inválida');
-                }
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Erro desconhecido ao processar');
-                }
-
-                // Lógica de Redirecionamento Inteligente
-                if (formato === 'html') {
-                    // Visualização Web: Abre em NOVA ABA
-                    window.open(data.redirect, '_blank');
-                } else if (formato === 'editor') {
-                    // Salvar apenas: Recarrega ou notifica
-                    // Se reload for necessário: window.location.reload();
-                    // Mas idealmente apenas notifica sucesso
-                    if (data.redirect.includes('success=1')) {
-                         // Opcional: Mostrar toast
-                         // alert('Salvo com sucesso!');
-                    }
-                } else {
-                    // Download/Sucesso: Redireciona a página atual
-                    window.location.href = data.redirect;
-                }
-
-            } catch (e) {
-                console.error('Erro ao processar:', e);
-                alert('Ocorreu um erro: ' + e.message);
-                
-                // Se falhar visualização, tenta fallback tradicional (debug)
-                if (formato === 'html' && confirm('Tentar método tradicional (pode falhar)?')) {
-                     const form = document.getElementById('formProposta');
-                     document.getElementById('inputFormatoSaida').value = formato;
-                     form.target = '_blank';
-                     form.submit();
-                }
-            } finally {
-                if(btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                }
-            }
-        }
-
-        // Inicialização TinyMCE Dark (Simplificada e Segura)
+        // Inicialização TinyMCE
         document.addEventListener("DOMContentLoaded", function() {
-            // Remove qualquer overlay residual
-            const loaders = document.querySelectorAll('.loading-spinner, .overlay-loading');
-            loaders.forEach(el => el.remove());
-
             tinymce.init({
-                selector: 'textarea',
-                height: 350,
+                selector: 'textarea[id^="ed-"]',
+                height: 300,
                 skin: "oxide-dark",
                 content_css: "dark",
                 menubar: false,
@@ -941,72 +616,67 @@ try {
                 toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | removeformat | code',
                 setup: function(editor) {
                     editor.on('change', function() { editor.save(); });
-                },
-                content_style: 'body { font-family:Inter,sans-serif; font-size:14px; background-color: #111827; color: #e2e8f0; }'
+                }
             });
         });
-        // Script Personalizado para Equipamentos e Cronograma
-        function toggleEquipOverride() {
-            const checkbox = document.getElementById('check-override-equip');
-            const area = document.getElementById('equip-override-area');
-            if(checkbox && area) {
-                if (checkbox.checked) {
-                    area.classList.remove('hidden');
-                } else {
-                    area.classList.add('hidden');
+
+        // Funções de salvamento (mantidas do original)
+        async function salvarRascunho() {
+            tinymce.triggerSave();
+            const btn = document.querySelector('button[onclick="salvarRascunho()"]');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Salvando...';
+            
+            try {
+                const formData = new FormData(document.getElementById('formProposta'));
+                const resp = await fetch('salvar_rascunho.php', { method: 'POST', body: formData });
+                if (resp.ok) {
+                    btn.innerHTML = '<i class="bi bi-check-lg"></i> Salvo!';
+                    setTimeout(() => btn.innerHTML = original, 2000);
                 }
+            } catch(e) {
+                alert('Erro ao salvar');
+                btn.innerHTML = original;
+                btn.disabled = false;
             }
         }
 
-        function atualizarInterfacePrazos() {
-            const campo = parseInt(document.getElementById('input-dias-campo').value) || 0;
-            const escritorio = parseInt(document.getElementById('input-dias-escritorio').value) || 0;
-            const total = campo + escritorio;
+        async function submitForm(formato) {
+            tinymce.triggerSave();
+            const form = document.getElementById('formProposta');
+            const formData = new FormData(form);
+            formData.append('formato_saida', formato);
+            formData.append('ajax', '1');
             
-            // Atualiza os displays na tabela
-            if(document.getElementById('display-campo')) document.getElementById('display-campo').textContent = campo;
-            if(document.getElementById('display-escritorio')) document.getElementById('display-escritorio').textContent = escritorio;
-            
-            // Atualiza o total
-            const display = document.getElementById('prazo-total-display');
-            if(display) {
-                display.textContent = total + ' dias úteis';
+            try {
+                const resp = await fetch('salvar_proposta.php', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                // Trata a possível renderização de erro de banco do salvar_proposta na tela
+                const textResp = await resp.text();
+                let data;
+                try {
+                    data = JSON.parse(textResp);
+                } catch(err) {
+                     console.error(textResp);
+                     alert('Ocorreu um erro no servidor ou a ação de Salvar requer que salvar_proposta.php também seja atualizado (Etapa 3.3).');
+                     return;
+                }
+                
+                if (data.success) {
+                    if (formato === 'html') window.open(data.redirect, '_blank');
+                    else window.location.href = data.redirect;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch(e) {
+                alert('Erro da aplicação: ' + e.message + "\nLembre-se de atualizar salvar_proposta.php para dar suporte a este novo fluxo DOCX.");
             }
         }
-
-        // Carregar Equipamentos via AJAX (Complemento ao PHP)
-        document.addEventListener('DOMContentLoaded', function() {
-            const idServico = document.querySelector('input[name="id_servico"]')?.value;
-            
-            // Só busca se não tiver valores já preenchidos (ex: edição) ou se quisermos forçar update
-            // O PHP já preenche, mas o AJAX garante atualização se mudar o serviço (futuro) ou se PHP falhar no match
-            const temValores = document.querySelector('input[name="equipamentos_gps_content"]')?.value;
-
-            if (idServico && !temValores) {
-                fetch(`ajax/get_equipamentos_servico.php?id_servico=${idServico}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            if(document.getElementById('equip-estacao-total')) document.getElementById('equip-estacao-total').textContent = data.estacao_total;
-                            if(document.getElementById('equip-gps')) document.getElementById('equip-gps').textContent = data.gps;
-                            if(document.getElementById('equip-drone')) document.getElementById('equip-drone').textContent = data.drone;
-                            if(document.getElementById('equip-veiculo')) document.getElementById('equip-veiculo').textContent = data.veiculo;
-                            
-                            // Atualizar hidden fields
-                            const inEstacao = document.querySelector('input[name="equipamentos_estacao_total_content"]');
-                            const inGps = document.querySelector('input[name="equipamentos_gps_content"]');
-                            const inDrone = document.querySelector('input[name="equipamentos_drone_content"]');
-                            const inVeiculo = document.querySelector('input[name="equipamentos_veiculo_content"]');
-
-                            if(inEstacao) inEstacao.value = data.estacao_total;
-                            if(inGps) inGps.value = data.gps;
-                            if(inDrone) inDrone.value = data.drone;
-                            if(inVeiculo) inVeiculo.value = data.veiculo;
-                        }
-                    })
-                    .catch(console.error);
-            }
-        });
     </script>
 </body>
 </html>
