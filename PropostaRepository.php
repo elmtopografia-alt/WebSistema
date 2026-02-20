@@ -41,8 +41,11 @@ class PropostaRepository
     private function autoHealSchema()
     {
         $critical_cols = [
-            'modelo_docx' => "VARCHAR(255) DEFAULT NULL AFTER id_servico",
-            'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER modelo_docx"
+            'modelo_docx' => "VARCHAR(255) DEFAULT NULL AFTER status",
+            'docx_conteudo' => "LONGTEXT DEFAULT NULL AFTER modelo_docx",
+            'docx_blocos_count' => "INT DEFAULT 0 AFTER docx_conteudo",
+            'docx_ultima_edicao' => "DATETIME DEFAULT NULL AFTER docx_blocos_count",
+            'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER docx_ultima_edicao"
         ];
 
         // Só verifica se houver indício de erro ou em primeira carga (otimização leve)
