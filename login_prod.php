@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['ambiente']      = 'producao'; 
                             $_SESSION['origem_login']  = 'cliente';
                             
-                            header("Location: Cli_Pro.php");
+                            header("Location: painel.php");
                             exit;
                         }
                     }

@@ -27,7 +27,7 @@ if (isset($_SESSION['usuario_id'])) {
         header("Location: Cli_demo.php"); 
         exit; 
     } else {
-        header("Location: Cli_Pro.php");
+        header("Location: painel.php");
         exit;
     }
 }
