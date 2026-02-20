@@ -65,7 +65,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="id_servico">Modelo de Proposta *</label>
+            <label class="form-label" for="id_servico">Modelo de Proposta (Sistema) *</label>
             <select class="form-select" name="id_servico" id="id_servico" required>
                 <option value="">Selecione...</option>
                 <?php if (!empty($servicos)): ?>
@@ -76,6 +76,26 @@
                     <?php endforeach; ?>
                 <?php endif; ?>
             </select>
+        </div>
+
+        <!-- NOVO: Seletor de Modelo DOCX (Word) -->
+        <div class="form-group">
+            <label class="form-label" for="modelo_docx" style="color: var(--brand); font-weight: 600;">
+                <i class="bi bi-file-earmark-word-fill"></i> Modelo Word Gerado
+            </label>
+            <select class="form-select" name="modelo_docx" id="modelo_docx" style="border-color: var(--brand-light);">
+                <option value="">-- Usar Modelo Padrão do Sistema --</option>
+                <?php
+                require_once __DIR__ . '/../renderizador_modelo_docx.php';
+                $renderer = new RenderizadorModeloDOCX(ConnectionManager::get());
+                $modelosDocx = $renderer->listarModelos();
+                foreach ($modelosDocx as $mod): ?>
+                    <option value="<?= $mod['id'] ?>" <?= (isset($proposta['modelo_docx']) && $proposta['modelo_docx'] == $mod['id']) ? 'selected' : '' ?>>
+                        📄 <?= htmlspecialchars($mod['nome']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <small class="text-muted" style="font-size: 10px;">Opcional: Substitui o design do sistema pelo design do Word.</small>
         </div>
 
         <div class="form-group">

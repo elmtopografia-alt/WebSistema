@@ -51,6 +51,10 @@ class ResolvedorChavesSistema
             case 'auto':
                 return $this->gerarAutomatico($config, $dadosExtras);
                 
+            case 'manual':
+                $chaveManual = array_search($config, $this->config);
+                return $dadosExtras[$chaveManual] ?? $config['padrao'] ?? "[{$config['label']}]";
+
             default:
                 return "[{$config['label']}]";
         }

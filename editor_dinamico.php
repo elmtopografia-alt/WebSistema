@@ -10,6 +10,7 @@
 require_once __DIR__ . '/session_validator.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/PropostaRepository.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // --- INTEGRAÇÃO DOCX ---
 require_once __DIR__ . '/renderizador_modelo_docx.php';
@@ -321,10 +322,22 @@ try {
         mostrarErroEditor("Dados Incompletos", "Esta proposta ainda não possui todas as informações básicas salvas.", false, $dadosFaltantes);
     }
 
+    // Sobrescreve modelo ativo se vier do banco e não houver GET explícito
+    if (!$modeloDocxAtivo && !empty($incomingData['modelo_docx'])) {
+        $modeloDocxAtivo = $incomingData['modelo_docx'];
+    }
+
     // Carrega Estrutura (Árvore de Blocos)
     $serviceTypeId = (int)$incomingData['id_servico'];
     $loader = new ProposalArchitect\Infrastructure\DatabaseStructureLoader($repo->getConn());
-    $model = $loader->getVirtualModel($serviceTypeId);
+    
+    // PRIORIDADE: Se houver um modelo DOCX ativo, carrega a estrutura DELE
+    if ($modeloDocxAtivo) {
+        $model = $loader->getVirtualModelFromDocx($modeloDocxAtivo);
+    } else {
+        $model = $loader->getVirtualModel($serviceTypeId);
+    }
+    
     $treeBuilder = new ProposalArchitect\Infrastructure\HierarchyTreeBuilder();
     $structure = $treeBuilder->build($model);
     $metadata = $model->getModelMetadata();

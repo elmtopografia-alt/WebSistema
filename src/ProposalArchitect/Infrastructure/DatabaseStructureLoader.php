@@ -102,4 +102,69 @@ class DatabaseStructureLoader
         $blocks = $this->loadActiveStructure($serviceTypeId);
         return new \ProposalArchitect\Models\DynamicProposalModel($blocks);
     }
+
+    /**
+     * Cria um modelo virtual a partir de um modelo DOCX gerado
+     */
+    public function getVirtualModelFromDocx($docxModelId)
+    {
+        $blocks = $this->loadFromDocxModel($docxModelId);
+        return new \ProposalArchitect\Models\DynamicProposalModel($blocks);
+    }
+
+    /**
+     * Carrega a estrutura a partir de um arquivo de modelo DOCX gerado
+     */
+    public function loadFromDocxModel($docxModelId)
+    {
+        $arquivo = __DIR__ . '/../../../modelos_gerados/Modelo' . $docxModelId . '.php';
+        if (!file_exists($arquivo)) {
+            return [];
+        }
+
+        require_once $arquivo;
+        $classe = "\\SGT\\Propostas\\Modelo" . $docxModelId;
+        if (!class_exists($classe)) {
+            return [];
+        }
+
+        $instancia = new $classe();
+        
+        // Usamos reflexão ou um helper para acessar o array privado $blocos
+        // Como estamos em PHP 5.6/7/8, podemos usar um truque ou mudar a visibilidade no modelo gerado.
+        // Mas o ideal é que o modelo gerado tenha um método public getBlocks().
+        
+        $blocks = [];
+        
+        // Tenta pegar via reflexão se for privado
+        $refl = new \ReflectionClass($classe);
+        if ($refl->hasProperty('blocos')) {
+            $prop = $refl->getProperty('blocos');
+            $prop->setAccessible(true);
+            $rawBlocks = $prop->getValue($instancia);
+            
+            foreach ($rawBlocks as $index => $b) {
+                // Mapeamento simplificado para BlockDefinition
+                $slug = (isset($b['subtipo']) ? $b['subtipo'] : 'bloco') . '_' . $index;
+                $title = isset($b['conteudo']) ? substr(strip_tags($b['conteudo']), 0, 50) . '...' : "Bloco $index";
+                
+                // Se for título, usa o conteúdo como título
+                if (isset($b['subtipo']) && $b['subtipo'] == 'titulo') {
+                    $title = strip_tags($b['conteudo']);
+                }
+
+                $blocks[] = new BlockDefinition(
+                    $slug,
+                    $title,
+                    'section', // DOCX parser atual é flat
+                    isset($b['subtipo']) ? $b['subtipo'] : 'general',
+                    true,
+                    isset($b['variaveis']) ? $b['variaveis'] : [],
+                    isset($b['conteudo']) ? $b['conteudo'] : ''
+                );
+            }
+        }
+
+        return $blocks;
+    }
 }

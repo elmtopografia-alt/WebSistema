@@ -8,6 +8,7 @@ require_once __DIR__ . '/session_validator.php';
 require_once __DIR__ . '/ConnectionManager.php';
 require_once __DIR__ . '/PropostaRepository.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Debug de Entrada
 error_log("--- ACESSO salvar_proposta.php [" . $_SERVER['REQUEST_METHOD'] . "] ---");

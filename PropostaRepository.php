@@ -2,6 +2,7 @@
 /**
  * PropostaRepository.php
  * Persistência centralizada e gerenciamento de revisões
+ * Versão: 1.0.1-SchemaAware (Trigger Sync)
  */
 
 require_once __DIR__ . '/ConnectionManager.php';
@@ -12,6 +13,7 @@ class PropostaRepository
     private $conn;
     private $calc;
     private $idCriador;
+    private $schemaCache = null;
     
     public function __construct($conn = null) 
     {
@@ -20,6 +22,55 @@ class PropostaRepository
         
         if (session_status() === PHP_SESSION_NONE) @session_start();
         $this->idCriador = $_SESSION['usuario_id'] ?? 0;
+        
+        // Ativa Autocura de Schema
+        $this->autoHealSchema();
+    }
+
+    /**
+     * Retorna a conexão mysqli ativa
+     */
+    public function getConn()
+    {
+        return $this->conn;
+    }
+
+    /**
+     * Verifica e corrige o banco de dados se colunas vitais estiverem faltando
+     */
+    private function autoHealSchema()
+    {
+        $critical_cols = [
+            'modelo_docx' => "VARCHAR(255) DEFAULT NULL AFTER id_servico",
+            'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER modelo_docx"
+        ];
+
+        // Só verifica se houver indício de erro ou em primeira carga (otimização leve)
+        $cols = $this->getAvailableColumns();
+        foreach ($critical_cols as $col => $definition) {
+            if (!in_array($col, $cols)) {
+                error_log("PropostaRepository: Auto-healing column '$col'...");
+                $this->conn->query("ALTER TABLE Propostas ADD COLUMN $col $definition");
+                $this->schemaCache = null; // Invalida cache
+            }
+        }
+    }
+
+    /**
+     * Retorna a lista de colunas reais da tabela Propostas
+     */
+    private function getAvailableColumns()
+    {
+        if ($this->schemaCache !== null) return $this->schemaCache;
+        
+        $this->schemaCache = [];
+        $res = $this->conn->query("SHOW COLUMNS FROM Propostas");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $this->schemaCache[] = $row['Field'];
+            }
+        }
+        return $this->schemaCache;
     }
     
     /**
@@ -554,87 +605,85 @@ public function getAllLookupData($idUsuario)
     
     private function insertProposta($dados, $totais, $numero) 
     {
-        $sql = "INSERT INTO Propostas (
-            numero_proposta, id_cliente, id_criador, is_demo,
-            nome_cliente_salvo, empresa_cliente_salvo, email_salvo, telefone_salvo, celular_salvo, whatsapp_salvo,
-            empresa_proponente_nome, empresa_proponente_cnpj,
-            id_servico, tipo_servico_id, contato_obra, finalidade, tipo_levantamento,
-            area_obra, unidade_area, endereco_obra, bairro_obra, cidade_obra, estado_obra,
-            prazo_execucao, dias_campo, dias_escritorio,
-            total_custos_salarios, total_custos_estadia, total_custos_consumos, 
-            total_custos_locacao, total_custos_admin,
-            percentual_lucro, valor_lucro, subtotal_com_lucro, 
-            valor_desconto, valor_final_proposta, Valor_proposta_extenso,
-            mobilizacao_percentual, mobilizacao_valor, 
-            restante_percentual, restante_valor, status,
-            tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, coordenadas_gps,
-            modelo_docx
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        
-        $stmt = $this->conn->prepare($sql);
         $isDemo = ($_SESSION['ambiente'] ?? 'producao') === 'demo' ? 1 : 0;
+        
+        $map = [
+            'numero_proposta' => $numero,
+            'id_cliente' => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
+            'id_criador' => $this->idCriador,
+            'is_demo' => $isDemo,
+            'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
+            'empresa_cliente_salvo' => $dados['empresa_cliente'] ?? '',
+            'email_salvo' => $dados['email_salvo'] ?? '',
+            'telefone_salvo' => $dados['telefone_salvo'] ?? '',
+            'celular_salvo' => $dados['celular_salvo'] ?? '',
+            'whatsapp_salvo' => $dados['whatsapp_salvo'] ?? '',
+            'empresa_proponente_nome' => $dados['empresa_proponente_nome'] ?? '',
+            'empresa_proponente_cnpj' => $dados['empresa_proponente_cnpj'] ?? '',
+            'id_servico' => !empty($dados['id_servico']) ? intval($dados['id_servico']) : null,
+            'tipo_servico_id' => intval($dados['tipo_servico_id'] ?? 0),
+            'contato_obra' => $dados['contato_obra'] ?? '',
+            'finalidade' => $dados['finalidade'] ?? '',
+            'tipo_levantamento' => $dados['tipo_levantamento'] ?? '',
+            'area_obra' => $dados['area_obra'] ?? ($dados['area'] ?? ''),
+            'unidade_area' => $dados['unidade_area'] ?? 'm²',
+            'endereco_obra' => $dados['endereco_obra'] ?? ($dados['endereco'] ?? ''),
+            'bairro_obra' => $dados['bairro_obra'] ?? ($dados['bairro'] ?? ''),
+            'cidade_obra' => $dados['cidade_obra'] ?? ($dados['cidade'] ?? ''),
+            'estado_obra' => $dados['estado_obra'] ?? ($dados['estado'] ?? ''),
+            'prazo_execucao' => $dados['prazo_execucao'] ?? '',
+            'dias_campo' => intval($dados['dias_campo'] ?? 0),
+            'dias_escritorio' => intval($dados['dias_escritorio'] ?? 0),
+            'total_custos_salarios' => $totais['itens_total']['salarios'],
+            'total_custos_estadia' => $totais['itens_total']['estadia'],
+            'total_custos_consumos' => $totais['itens_total']['consumos'],
+            'total_custos_locacao' => $totais['itens_total']['locacao'],
+            'total_custos_admin' => $totais['itens_total']['admin'],
+            'percentual_lucro' => floatval($dados['percentual_lucro'] ?? 0),
+            'valor_lucro' => $totais['lucro'],
+            'subtotal_com_lucro' => $totais['subtotal'],
+            'valor_desconto' => floatval($dados['valor_desconto'] ?? 0),
+            'valor_final_proposta' => $totais['final'],
+            'Valor_proposta_extenso' => $totais['extenso'],
+            'mobilizacao_percentual' => floatval($dados['mobilizacao_percentual'] ?? 30),
+            'mobilizacao_valor' => $totais['mobilizacao']['mobilizacao_valor'],
+            'restante_percentual' => $totais['mobilizacao']['restante_percentual'],
+            'restante_valor' => $totais['mobilizacao']['restante_valor'],
+            'status' => $dados['status'] ?? 'Em elaboração',
+            'tipo_terreno' => $dados['tipo_terreno'] ?? null,
+            'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
+            'acesso_local' => $dados['acesso_local'] ?? null,
+            'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
+            'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
+            'modelo_docx' => $dados['modelo_docx'] ?? null
+        ];
 
-        // Extração de variáveis para bind_param (PHP 7.4 exige referências de variáveis)
-        $id_cliente = !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null;
-        $id_criador = $this->idCriador;
-        $nome_cliente_salvo = $dados['nome_cliente_salvo'] ?? '';
-        $empresa_cliente = $dados['empresa_cliente'] ?? '';
-        $email_salvo = $dados['email_salvo'] ?? '';
-        $telefone_salvo = $dados['telefone_salvo'] ?? '';
-        $celular_salvo = $dados['celular_salvo'] ?? '';
-        $whatsapp_salvo = $dados['whatsapp_salvo'] ?? '';
-        $empresa_proponente_nome = $dados['empresa_proponente_nome'] ?? '';
-        $empresa_proponente_cnpj = $dados['empresa_proponente_cnpj'] ?? '';
-        $id_servico = !empty($dados['id_servico']) ? intval($dados['id_servico']) : null;
-        $tipo_servico_id = intval($dados['tipo_servico_id'] ?? 0);
-        $contato_obra = $dados['contato_obra'] ?? '';
-        $finalidade = $dados['finalidade'] ?? '';
-        $tipo_levantamento = $dados['tipo_levantamento'] ?? '';
-        $area_obra = $dados['area_obra'] ?? ($dados['area'] ?? '');
-        $unidade_area = $dados['unidade_area'] ?? 'm²';
-        $endereco_obra = $dados['endereco_obra'] ?? ($dados['endereco'] ?? '');
-        $bairro_obra = $dados['bairro_obra'] ?? ($dados['bairro'] ?? '');
-        $cidade_obra = $dados['cidade_obra'] ?? ($dados['cidade'] ?? '');
-        $estado_obra = $dados['estado_obra'] ?? ($dados['estado'] ?? '');
-        $prazo_execucao = $dados['prazo_execucao'] ?? '';
-        $dias_campo = intval($dados['dias_campo'] ?? 0);
-        $dias_escritorio = intval($dados['dias_escritorio'] ?? 0);
-        $total_salarios = $totais['itens_total']['salarios'];
-        $total_estadia = $totais['itens_total']['estadia'];
-        $total_consumos = $totais['itens_total']['consumos'];
-        $total_locacao = $totais['itens_total']['locacao'];
-        $total_admin = $totais['itens_total']['admin'];
-        $perc_lucro = floatval($dados['percentual_lucro'] ?? 0);
-        $val_lucro = $totais['lucro'];
-        $subtotal = $totais['subtotal'];
-        $val_desconto = floatval($dados['valor_desconto'] ?? 0);
-        $val_final = $totais['final'];
-        $val_extenso = $totais['extenso'];
-        $mob_perc = floatval($dados['mobilizacao_percentual'] ?? 30);
-        $mob_val = $totais['mobilizacao']['mobilizacao_valor'];
-        $rest_perc = $totais['mobilizacao']['restante_percentual'];
-        $rest_val = $totais['mobilizacao']['restante_valor'];
-        $status = $dados['status'] ?? 'Em elaboração';
-        $tipo_terreno = $dados['tipo_terreno'] ?? null;
-        $veg = $dados['cobertura_vegetal'] ?? null;
-        $acesso = $dados['acesso_local'] ?? null;
-        $restr = $dados['restricoes_aereas'] ?? null;
-        $gps = $dados['coordenadas_gps'] ?? null;
-        $modelo_docx = $dados['modelo_docx'] ?? null;
+        // Filtra colunas que NÃO existem no banco para evitar crashes
+        $available = $this->getAvailableColumns();
+        $fields = [];
+        $placeholders = [];
+        $values = [];
+        $types = "";
 
-        $stmt->bind_param('siiissssssssiissssssssssiiddddddddddsddddsssssss',
-            $numero, $id_cliente, $id_criador, $isDemo,
-            $nome_cliente_salvo, $empresa_cliente, $email_salvo, $telefone_salvo, $celular_salvo, $whatsapp_salvo,
-            $empresa_proponente_nome, $empresa_proponente_cnpj,
-            $id_servico, $tipo_servico_id, $contato_obra, $finalidade, $tipo_levantamento,
-            $area_obra, $unidade_area, $endereco_obra, $bairro_obra, $cidade_obra, $estado_obra,
-            $prazo_execucao, $dias_campo, $dias_escritorio,
-            $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin,
-            $perc_lucro, $val_lucro, $subtotal, $val_desconto, $val_final, $val_extenso,
-            $mob_perc, $mob_val, $rest_perc, $rest_val,
-            $status, $tipo_terreno, $veg, $acesso, $restr, $gps,
-            $modelo_docx
-        );
+        foreach ($map as $col => $val) {
+            if (in_array($col, $available)) {
+                $fields[] = $col;
+                $placeholders[] = "?";
+                $values[] = $val;
+                $types .= $this->getType($val);
+            } else {
+                error_log("PropostaRepository::insertProposta ATENÇÃO: Coluna '$col' ignorada por não existir no banco.");
+            }
+        }
+
+        $sql = "INSERT INTO Propostas (" . implode(',', $fields) . ") VALUES (" . implode(',', $placeholders) . ")";
+        $stmt = $this->conn->prepare($sql);
+        
+        // Dynamic call_user_func_array for bind_param
+        $params = array_merge([$types], $values);
+        $tmp = [];
+        foreach($params as $i => $v) $tmp[$i] = &$params[$i];
+        call_user_func_array([$stmt, 'bind_param'], $tmp);
         
         $stmt->execute();
         $id = $stmt->insert_id;
@@ -642,82 +691,87 @@ public function getAllLookupData($idUsuario)
         return $id;
     }
 
+    private function getType($val) {
+        if (is_int($val)) return "i";
+        if (is_float($val) || is_double($val)) return "d";
+        return "s";
+    }
+
     private function updateProposta($id, $dados, $totais) 
     {
-        $sql = "UPDATE Propostas SET 
-            id_cliente=?, nome_cliente_salvo=?, empresa_cliente_salvo=?, email_salvo=?, telefone_salvo=?, celular_salvo=?, whatsapp_salvo=?,
-            id_servico=?, tipo_servico_id=?, contato_obra=?, finalidade=?, tipo_levantamento=?, area_obra=?, unidade_area=?, endereco_obra=?, bairro_obra=?, cidade_obra=?, estado_obra=?,
-            prazo_execucao=?, dias_campo=?, dias_escritorio=?, status=?,
-            total_custos_salarios=?, total_custos_estadia=?, total_custos_consumos=?, total_custos_locacao=?, total_custos_admin=?,
-            percentual_lucro=?, valor_lucro=?, subtotal_com_lucro=?, valor_desconto=?, valor_final_proposta=?, Valor_proposta_extenso=?,
-            mobilizacao_percentual=?, mobilizacao_valor=?, restante_percentual=?, restante_valor=?,
-            tipo_terreno=?, cobertura_vegetal=?, acesso_local=?, restricoes_aereas=?, coordenadas_gps=?, 
-            modelo_docx=?, data_atualizacao=NOW()
-            WHERE id_proposta=?";
-        
+        $map = [
+            'id_cliente' => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
+            'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
+            'empresa_cliente_salvo' => $dados['empresa_cliente'] ?? '',
+            'email_salvo' => $dados['email_salvo'] ?? '',
+            'telefone_salvo' => $dados['telefone_salvo'] ?? '',
+            'celular_salvo' => $dados['celular_salvo'] ?? '',
+            'whatsapp_salvo' => $dados['whatsapp_salvo'] ?? '',
+            'id_servico' => intval($dados['id_servico']),
+            'tipo_servico_id' => intval($dados['tipo_servico_id'] ?? 0),
+            'contato_obra' => $dados['contato_obra'] ?? '',
+            'finalidade' => $dados['finalidade'] ?? '',
+            'tipo_levantamento' => $dados['tipo_levantamento'] ?? '',
+            'area_obra' => $dados['area_obra'] ?? ($dados['area'] ?? ''),
+            'unidade_area' => $dados['unidade_area'] ?? 'm²',
+            'endereco_obra' => $dados['endereco_obra'] ?? ($dados['endereco'] ?? ''),
+            'bairro_obra' => $dados['bairro_obra'] ?? ($dados['bairro'] ?? ''),
+            'cidade_obra' => $dados['cidade_obra'] ?? ($dados['cidade'] ?? ''),
+            'estado_obra' => $dados['estado_obra'] ?? ($dados['estado'] ?? ''),
+            'prazo_execucao' => $dados['prazo_execucao'] ?? '',
+            'dias_campo' => intval($dados['dias_campo'] ?? 0),
+            'dias_escritorio' => intval($dados['dias_escritorio'] ?? 0),
+            'status' => $dados['status'] ?? 'Em elaboração',
+            'total_custos_salarios' => $totais['itens_total']['salarios'],
+            'total_custos_estadia' => $totais['itens_total']['estadia'],
+            'total_custos_consumos' => $totais['itens_total']['consumos'],
+            'total_custos_locacao' => $totais['itens_total']['locacao'],
+            'total_custos_admin' => $totais['itens_total']['admin'],
+            'percentual_lucro' => floatval($dados['percentual_lucro'] ?? 0),
+            'valor_lucro' => $totais['lucro'],
+            'subtotal_com_lucro' => $totais['subtotal'],
+            'valor_desconto' => floatval($dados['valor_desconto'] ?? 0),
+            'valor_final_proposta' => $totais['final'],
+            'Valor_proposta_extenso' => $totais['extenso'],
+            'mobilizacao_percentual' => floatval($dados['mobilizacao_percentual'] ?? 30),
+            'mobilizacao_valor' => $totais['mobilizacao']['mobilizacao_valor'],
+            'restante_percentual' => $totais['mobilizacao']['restante_percentual'],
+            'restante_valor' => $totais['mobilizacao']['restante_valor'],
+            'tipo_terreno' => $dados['tipo_terreno'] ?? null,
+            'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
+            'acesso_local' => $dados['acesso_local'] ?? null,
+            'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
+            'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
+            'modelo_docx' => $dados['modelo_docx'] ?? null,
+            'data_atualizacao' => date('Y-m-d H:i:s')
+        ];
+
+        $available = $this->getAvailableColumns();
+        $sets = [];
+        $values = [];
+        $types = "";
+
+        foreach ($map as $col => $val) {
+            if (in_array($col, $available)) {
+                $sets[] = "$col = ?";
+                $values[] = $val;
+                $types .= $this->getType($val);
+            }
+        }
+
+        $sql = "UPDATE Propostas SET " . implode(', ', $sets) . " WHERE id_proposta = ?";
+        $values[] = (int)$id;
+        $types .= "i";
+
         $stmt = $this->conn->prepare($sql);
-
-        // Extração de variáveis para bind_param
-        $id_cliente = !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null;
-        $nome_cliente_salvo = $dados['nome_cliente_salvo'] ?? '';
-        $empresa_cliente = $dados['empresa_cliente'] ?? '';
-        $email_salvo = $dados['email_salvo'] ?? '';
-        $telefone_salvo = $dados['telefone_salvo'] ?? '';
-        $celular_salvo = $dados['celular_salvo'] ?? '';
-        $whatsapp_salvo = $dados['whatsapp_salvo'] ?? '';
-        $id_servico = intval($dados['id_servico']);
-        $tipo_servico_id = intval($dados['tipo_servico_id'] ?? 0);
-        $contato_obra = $dados['contato_obra'] ?? '';
-        $finalidade = $dados['finalidade'] ?? '';
-        $tipo_levantamento = $dados['tipo_levantamento'] ?? '';
-        $area_obra = $dados['area_obra'] ?? ($dados['area'] ?? '');
-        $unidade_area = $dados['unidade_area'] ?? 'm²';
-        $endereco_obra = $dados['endereco_obra'] ?? ($dados['endereco'] ?? '');
-        $bairro_obra = $dados['bairro_obra'] ?? ($dados['bairro'] ?? '');
-        $cidade_obra = $dados['cidade_obra'] ?? ($dados['cidade'] ?? '');
-        $estado_obra = $dados['estado_obra'] ?? ($dados['estado'] ?? '');
-        $prazo_execucao = $dados['prazo_execucao'] ?? '';
-        $dias_campo = intval($dados['dias_campo'] ?? 0);
-        $dias_escritorio = intval($dados['dias_escritorio'] ?? 0);
-        $status = $dados['status'] ?? 'Em elaboração';
-        $total_salarios = $totais['itens_total']['salarios'];
-        $total_estadia = $totais['itens_total']['estadia'];
-        $total_consumos = $totais['itens_total']['consumos'];
-        $total_locacao = $totais['itens_total']['locacao'];
-        $total_admin = $totais['itens_total']['admin'];
-        $perc_lucro = floatval($dados['percentual_lucro'] ?? 0);
-        $val_lucro = $totais['lucro'];
-        $subtotal = $totais['subtotal'];
-        $val_desconto = floatval($dados['valor_desconto'] ?? 0);
-        $val_final = $totais['final'];
-        $val_extenso = $totais['extenso'];
-        $mob_perc = floatval($dados['mobilizacao_percentual'] ?? 30);
-        $mob_val = $totais['mobilizacao']['mobilizacao_valor'];
-        $rest_perc = $totais['mobilizacao']['restante_percentual'];
-        $rest_val = $totais['mobilizacao']['restante_valor'];
-        $tipo_terreno = $dados['tipo_terreno'] ?? null;
-        $veg = $dados['cobertura_vegetal'] ?? null;
-        $acesso = $dados['acesso_local'] ?? null;
-        $restr = $dados['restricoes_aereas'] ?? null;
-        $gps = $dados['coordenadas_gps'] ?? null;
-        $modelo_docx = $dados['modelo_docx'] ?? null;
-
-        $stmt->bind_param('issssssiissssssssssiisddddddddddsddddssssssi',
-            $id_cliente, $nome_cliente_salvo, $empresa_cliente, $email_salvo, $telefone_salvo, $celular_salvo, $whatsapp_salvo,
-            $id_servico, $tipo_servico_id, $contato_obra, $finalidade, $tipo_levantamento,
-            $area_obra, $unidade_area, $endereco_obra, $bairro_obra, $cidade_obra, $estado_obra,
-            $prazo_execucao, $dias_campo, $dias_escritorio,
-            $status,
-            $total_salarios, $total_estadia, $total_consumos, $total_locacao, $total_admin,
-            $perc_lucro, $val_lucro, $subtotal, $val_desconto, $val_final, $val_extenso,
-            $mob_perc, $mob_val, $rest_perc, $rest_val,
-            $tipo_terreno, $veg, $acesso, $restr, $gps,
-            $modelo_docx,
-            $id
-        );
+        $params = array_merge([$types], $values);
+        $tmp = [];
+        foreach($params as $i => $v) $tmp[$i] = &$params[$i];
+        call_user_func_array([$stmt, 'bind_param'], $tmp);
+        
         $stmt->execute();
         
-        // Limpa e reinseri itens
+        // Limpeza de itens permanece igual
         $this->conn->query("DELETE FROM Proposta_Salarios WHERE id_proposta = $id");
         $this->conn->query("DELETE FROM Proposta_Estadia WHERE id_proposta = $id");
         $this->conn->query("DELETE FROM Proposta_Consumos WHERE id_proposta = $id");

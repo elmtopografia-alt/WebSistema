@@ -12,6 +12,7 @@ from docx import Document
 from docx.shared import Pt, Inches, RGBColor
 import base64
 import os
+import importlib.util
 
 def extrair_estilos(paragraph):
     """Extrai estilos CSS de um parágrafo do Word"""
@@ -46,15 +47,17 @@ def processar_tabela(table):
             # Extrai texto e estilos da célula
             textos = []
             for para in cell.paragraphs:
-                textos.append(para.text)
+                if para.text.strip():
+                    textos.append(para.text)
             
             cells.append({
                 'texto': ' '.join(textos),
                 'colspan': cell._tc.grid_span if hasattr(cell._tc, 'grid_span') else 1,
                 'estilos': {
-                    'border': '1px solid #ccc',
-                    'padding': '8px',
-                    'background': '#f8f9fa' if len(rows) == 0 else 'white'  # Header
+                    'border': '1px solid #dee2e6',
+                    'padding': '12px 15px',
+                    'background': '#f8f9fa' if len(rows) == 0 else 'transparent', # Header background
+                    'vertical-align': 'top'
                 }
             })
         rows.append(cells)
@@ -65,13 +68,15 @@ def processar_tabela(table):
         'estilos': {
             'width': '100%',
             'border-collapse': 'collapse',
-            'margin': '15px 0'
+            'margin': '25px 0',
+            'font-size': '14px'
         }
     }
 
 def detectar_variaveis(texto):
-    """Detecta ${var} e {{var}} no texto"""
-    padrao = r'\$\{(\w+)\}|\{\{(\w+)\}\}'
+    """Detecta ${var}, ${ var }, {{var}} ou {{ var }} no texto"""
+    # Regex melhorada para suportar espaços opcionais
+    padrao = r'\$\{\s*(\w+)\s*\}|\{\{\s*(\w+)\s*\}\}'
     matches = re.findall(padrao, texto)
     return list(set([m[0] or m[1] for m in matches if m[0] or m[1]]))
 
@@ -258,12 +263,26 @@ if __name__ == "__main__":
         import io
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
+    if len(sys.argv) > 1 and sys.argv[1] == '--test':
+        # Modo de teste - retorna sucesso sem processar arquivo
+        print(json.dumps({
+            "sucesso": True,
+            "mensagem": "Python e dependências OK",
+            "python_version": sys.version,
+            "mammoth": "OK" if importlib.util.find_spec("mammoth") else "Faltando",
+            "docx": "OK" if importlib.util.find_spec("docx") else "Faltando"
+        }, ensure_ascii=False))
+        sys.exit(0)
+
     if len(sys.argv) < 2:
-        print(json.dumps({'erro': 'Uso: python conversor_docx.py <arquivo.docx>'}))
+        print(json.dumps({
+            "sucesso": False,
+            "erro": "Uso: python conversor_docx.py <arquivo.docx> ou --test"
+        }, ensure_ascii=False))
         sys.exit(1)
     
     try:
         resultado = converter_docx(sys.argv[1])
-        print(json.dumps(resultado, ensure_ascii=False))
+        print(json.dumps(resultado, ensure_ascii=False, indent=2))
     except Exception as e:
         print(json.dumps({'erro': str(e), 'sucesso': False}))
