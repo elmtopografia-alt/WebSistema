@@ -1,0 +1,53 @@
+# ============================================
+
+# PROTEÇÃO SGT PROPOSTAS
+
+# Bloqueia acesso público a scripts internos
+
+# Criado: 20/02/2026
+
+# Para reverter: basta apagar este arquivo
+
+# ============================================
+
+# Bloqueia scripts de diagnóstico
+
+<FilesMatch "^diagnostico_.*\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia scripts de debug
+
+<FilesMatch "^debug_.*\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia scripts de correção/fix
+
+<FilesMatch "^fix_.*\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia scripts de setup/migração expostos
+
+<FilesMatch "^(setup_.*|install_.*|run_install|run_updates|migrate_.*|migration_.*|corrigir_.*|reparar_.*|atualizar_banco_.*|atualizar_modelos_.*|checar_.*|check_.*|colunas_.*|verificar_arquivos|verificar_extensoes|verificar_nomes|verify_.*|seed_.*|povoar_.*|popular_.*|promover_.*|reset_.*|nuke_session|force_.*|limpar_.*|limpeza_.*|unificar_.*|trocar_ambiente)\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia scripts de teste
+
+<FilesMatch "^(teste_.*|testar_.*|test_.*|criar_usuario_.*|criar_demo_.*|exemplo_.*|estudo_.*|backup_criar_proposta.*)\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Bloqueia arquivos sensíveis
+
+<FilesMatch "^(\.env|\.env\.example|composer\.json|composer\.lock|backup_log\.txt|Chaves\.txt|debug_editor\.log|\.cursorrules)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>

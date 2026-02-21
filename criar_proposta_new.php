@@ -23,10 +23,6 @@ if (!$id_usuario) {
     exit;
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Conexão
 $ambiente = $_SESSION['ambiente'] ?? 'producao';
 $conn = ($ambiente === 'demo') ? Database::getDemo() : Database::getProd();
