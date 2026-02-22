@@ -19,6 +19,104 @@ const CostsManager = {
         this.bindEvents();
         // Inicializa totais zerados
         this.updateAllTotals();
+
+        // Fase 3 Master-Detail: Restaura os itens salvos do banco na Edição
+        setTimeout(() => this.loadSavedItems(), 100);
+    },
+
+    /**
+     * Motor Master-Detail (Reconstruindo planilhas pela Memória do JS)
+     * Lê os itens injetados através da tag SGT_DATA no criar_proposta.php
+     */
+    loadSavedItems() {
+        if (!window.SGT_DATA || !window.SGT_DATA.itensSalvos) return;
+        const saved = window.SGT_DATA.itensSalvos;
+        
+        // Helper para injetar a linha e setar os valores
+        const inject = (categoryName, list, fieldMapping) => {
+            if (!list || !Array.isArray(list)) return;
+            
+            list.forEach(itemData => {
+                // Emula um clique no botão "Adicionar" daquele painel
+                this.addItem(categoryName);
+                
+                // Pega a linha recém-criada (a última do container)
+                const container = document.getElementById(`list-${categoryName}`);
+                const row = container.lastElementChild;
+                if (!row) return;
+
+                // Preencher select de Tipo
+                const typeSelect = row.querySelector('select[name$="[tipo]"], select[name$="[funcao]"]');
+                if (typeSelect && fieldMapping.tipo) {
+                    typeSelect.value = itemData[fieldMapping.tipo];
+                    // Dispara select2 nativo pra frente se estiver hidratado
+                    if ($(typeSelect).hasClass('select2-hidden-accessible')) {
+                        $(typeSelect).val(itemData[fieldMapping.tipo]).trigger('change');
+                    } else {
+                        typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+
+                // Preencher Marca (Locação) se houver timeout (pra dar tempo do select pai inflar a marca)
+                if (categoryName === 'locacao' && fieldMapping.marca) {
+                    setTimeout(() => {
+                        const marcaSelect = row.querySelector('select[name$="[marca]"]');
+                        if (marcaSelect) {
+                            marcaSelect.value = itemData[fieldMapping.marca];
+                            if ($(marcaSelect).hasClass('select2-hidden-accessible')) {
+                                $(marcaSelect).val(itemData[fieldMapping.marca]).trigger('change');
+                            }
+                        }
+                    }, 100);
+                }
+
+                // Dispara preenchimento dos inputs de texto/number mapeados
+                Object.keys(fieldMapping.inputs).forEach(inputKey => {
+                    const dbColName = fieldMapping.inputs[inputKey];
+                    const inputEl = row.querySelector(`input[name$="[${inputKey}]"]`);
+                    if (inputEl && itemData[dbColName] !== undefined) {
+                        inputEl.value = itemData[dbColName];
+                    }
+                });
+
+                // Força o recálculo do total dessa linha recém hidratada
+                this.calculateItemTotal(row);
+            });
+        };
+
+        // 1. Salários
+        inject('salarios', saved.salarios, {
+            tipo: 'id_funcao',
+            inputs: { quantidade: 'quantidade', valor: 'salario_base', encargos: 'fator_encargos', dias: 'dias' }
+        });
+
+        // 2. Estadia
+        inject('estadia', saved.estadia, {
+            tipo: 'id_estadia',
+            inputs: { quantidade: 'quantidade', valor: 'valor_unitario', noites: 'dias' }
+        });
+
+        // 3. Consumo
+        inject('consumos', saved.consumo, {
+            tipo: 'id_consumo',
+            inputs: { quantidade: 'quantidade', kml: 'consumo_kml', valor_litro: 'valor_litro', km: 'km_total' }
+        });
+
+        // 4. Locação
+        inject('locacao', saved.locacao, {
+            tipo: 'id_locacao',
+            marca: 'id_marca',
+            inputs: { quantidade: 'quantidade', valor: 'valor_mensal', dias: 'dias' }
+        });
+
+        // 5. Admin
+        inject('admin', saved.admin, {
+            tipo: 'id_custo_admin',
+            inputs: { quantidade: 'quantidade', valor: 'valor' }
+        });
+
+        // Após preencher a memória de todos, manda o total geral atualizar
+        setTimeout(() => this.updateAllTotals(), 300);
     },
 
     cacheTemplates() {

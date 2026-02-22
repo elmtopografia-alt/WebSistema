@@ -17,6 +17,7 @@ require_once __DIR__ . '/config.php';
 // 2. Carrega conexão e configurações do sistema real (CRM)
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../ConnectionManager.php';
+require_once __DIR__ . '/../../PropostaRepository.php';
 require_once __DIR__ . '/../../renderizador_modelo_docx.php';
 
 if (!isset($conn)) {
@@ -35,15 +36,24 @@ if ($id_proposta <= 0) {
 }
 
 // 1. Busca Proposta Principal (Campos mapeados conforme SHOW COLUMNS)
-$res = $conn->query("SELECT * FROM Propostas WHERE id_proposta = $id_proposta LIMIT 1");
-if (!$res || $res->num_rows === 0) {
+// 1. Busca Proposta Principal com relacionamentos e itens (Master-Detail) via Repository Oficial
+$repo = new PropostaRepository();
+$dados_proposta = $repo->buscarPorId($id_proposta);
+if (!$dados_proposta) {
     die("Proposta ID $id_proposta não encontrada.");
 }
-$dados_proposta = $res->fetch_assoc();
 
 // 2. Busca Dados da Empresa (Configurações do CRM)
-$res_empresa = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1");
-$dados_empresa = $res_empresa->fetch_assoc() ?: [];
+$idUsuarioCriador = $_SESSION['usuario_id'] ?? $dados_proposta['id_criador'] ?? 0;
+// Filtra para pegar a empresa REAL do usuário dono da proposta (multi-tenant)
+$res_empresa = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $idUsuarioCriador LIMIT 1");
+$dados_empresa = $res_empresa->fetch_assoc();
+
+// Fallback se o usuário não configurou os Dados da Empresa ainda
+if (!$dados_empresa) {
+    $res_empresa_fallback = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1");
+    $dados_empresa = $res_empresa_fallback->fetch_assoc() ?: [];
+}
 
 // 3. Busca Conteúdo Personalizado (Blocos do Editor)
 $blocos_dados = [];
@@ -92,6 +102,27 @@ if (!empty($dados_proposta['modelo_docx'])) {
     $idUsuarioCriador = $_SESSION['usuario_id'] ?? $dados_proposta['id_criador'] ?? 0;
     $rendererDocx = new RenderizadorModeloDOCX(ConnectionManager::get());
     $html_docx = $rendererDocx->renderizar($dados_proposta['modelo_docx'], $idUsuarioCriador, $dados_proposta);
+
+    // --- LIMPEZA DE VARIÁVEIS RESIDUAIS NO DOCX ---
+    // Encontra todas as tags ${var} ou {{var}} que sobraram no HTML final do modelo
+    preg_match_all('/(\$\{\s*([^}]+)\s*\}|\{\{\s*([^}]+)\s*\}\})/', $html_docx, $matches);
+    $chavesResiduais = array_filter(array_merge($matches[2], $matches[3]));
+    if (!empty($chavesResiduais)) {
+        $resolvedor = new ResolvedorChavesSistema(ConnectionManager::get());
+        $dadosResolvidos = $resolvedor->resolver(array_unique($chavesResiduais), $idUsuarioCriador, $dados_proposta);
+        
+        foreach ($matches[0] as $i => $tagCompleta) {
+            $chaveLimpa = trim($matches[2][$i] ?: $matches[3][$i]);
+            if (isset($dadosResolvidos[$chaveLimpa]) && $dadosResolvidos[$chaveLimpa] !== "[{$chaveLimpa}]") {
+                $html_docx = str_replace($tagCompleta, $dadosResolvidos[$chaveLimpa], $html_docx);
+            }
+        }
+    }
+
+    // --- REMOÇÃO DA ASSINATURA DUPLICADA DO DOCX ---
+    // Remove "Atenciosamente," e tudo o que vier a seguir (linha, nome empresa) 
+    // Que entrava em conflito com o Footer perfeitamente formatado da class .footer-proposta
+    $html_docx = preg_replace('/<p[^>]*>\s*Atenciosamente,?\s*<\/p>[\s\S]*$/i', '', $html_docx);
 }
 
 // ============================================
@@ -104,7 +135,8 @@ $meses = [
     '05'=>'Maio', '06'=>'Junho', '07'=>'Julho', '08'=>'Agosto', 
     '09'=>'Setembro', '10'=>'Outubro', '11'=>'Novembro', '12'=>'Dezembro'
 ];
-$data_formatada = date('d', strtotime($data_base)) . ' de ' . $meses[date('m', strtotime($data_base))] . ' de ' . date('Y', strtotime($data_base));
+$cidade_assinatura = trim($dados_empresa['Cidade'] ?? 'Belo Horizonte');
+$data_formatada = $cidade_assinatura . ', ' . date('d', strtotime($data_base)) . ' de ' . $meses[date('m', strtotime($data_base))] . ' de ' . date('Y', strtotime($data_base));
 
 // Variáveis para substituição (Campos reais do banco SGT)
 $vars = [
@@ -209,6 +241,15 @@ if (!empty($dados_empresa)) {
     $config['empresa']['cnpj']     = $dados_empresa['CNPJ'] ?? '';
     // Corrigido mapeamento de cidade/estado empresa se disponível
     $config['empresa']['endereco'] = ($dados_empresa['Cidade'] ?? '') . ' - ' . ($dados_empresa['Estado'] ?? '');
+    
+    if (!empty($dados_empresa['logo_caminho'])) {
+        $config['empresa']['logo'] = $dados_empresa['logo_caminho'];
+    } elseif (!empty($dados_empresa['logo_url'])) {
+        $config['empresa']['logo'] = $dados_empresa['logo_url'];
+    } elseif (!empty($dados_empresa['logo_empresa'])) {
+        // Fallback pro upload no painel antigo
+        $config['empresa']['logo'] = '../../uploads/' . $dados_empresa['logo_empresa'];
+    }
 }
 
 include 'templates/base.php';

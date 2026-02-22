@@ -45,7 +45,20 @@ class PropostaRepository
             'docx_conteudo' => "LONGTEXT DEFAULT NULL AFTER modelo_docx",
             'docx_blocos_count' => "INT DEFAULT 0 AFTER docx_conteudo",
             'docx_ultima_edicao' => "DATETIME DEFAULT NULL AFTER docx_blocos_count",
-            'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER docx_ultima_edicao"
+            'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER docx_ultima_edicao",
+            'tipo_terreno' => "VARCHAR(255) DEFAULT NULL",
+            'cobertura_vegetal' => "VARCHAR(255) DEFAULT NULL",
+            'acesso_local' => "VARCHAR(255) DEFAULT NULL",
+            'restricoes_aereas' => "VARCHAR(255) DEFAULT NULL",
+            'coordenadas_gps' => "VARCHAR(255) DEFAULT NULL",
+            'marca_veiculo' => "VARCHAR(255) DEFAULT NULL",
+            'modelo_veiculo' => "VARCHAR(255) DEFAULT NULL",
+            'marca_estacao_total' => "VARCHAR(255) DEFAULT NULL",
+            'modelo_estacao_total' => "VARCHAR(255) DEFAULT NULL",
+            'marca_gps' => "VARCHAR(255) DEFAULT NULL",
+            'modelo_gps' => "VARCHAR(255) DEFAULT NULL",
+            'marca_drone' => "VARCHAR(255) DEFAULT NULL",
+            'modelo_drone' => "VARCHAR(255) DEFAULT NULL"
         ];
 
         // Só verifica se houver indício de erro ou em primeira carga (otimização leve)
@@ -57,6 +70,63 @@ class PropostaRepository
                 $this->schemaCache = null; // Invalida cache
             }
         }
+
+        // Auto-Heal Tabelas Filhas de Custo (Motor Master-Detail Versão 3.5)
+        $this->conn->query("CREATE TABLE IF NOT EXISTS Proposta_Salarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_proposta INT NOT NULL,
+            id_funcao INT,
+            funcao VARCHAR(255),
+            quantidade INT DEFAULT 1,
+            salario_base DECIMAL(10,2) DEFAULT 0,
+            fator_encargos DECIMAL(10,2) DEFAULT 1,
+            dias INT DEFAULT 1,
+            INDEX(id_proposta)
+        )");
+
+        $this->conn->query("CREATE TABLE IF NOT EXISTS Proposta_Estadia (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_proposta INT NOT NULL,
+            id_estadia INT,
+            tipo VARCHAR(255),
+            quantidade INT DEFAULT 1,
+            valor_unitario DECIMAL(10,2) DEFAULT 0,
+            dias INT DEFAULT 1,
+            INDEX(id_proposta)
+        )");
+
+        $this->conn->query("CREATE TABLE IF NOT EXISTS Proposta_Consumos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_proposta INT NOT NULL,
+            id_consumo INT,
+            tipo VARCHAR(255),
+            quantidade INT DEFAULT 1,
+            consumo_kml DECIMAL(10,2) DEFAULT 1,
+            valor_litro DECIMAL(10,2) DEFAULT 0,
+            km_total DECIMAL(10,2) DEFAULT 0,
+            INDEX(id_proposta)
+        )");
+
+        $this->conn->query("CREATE TABLE IF NOT EXISTS Proposta_Locacao (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_proposta INT NOT NULL,
+            id_locacao INT,
+            id_marca INT,
+            quantidade INT DEFAULT 1,
+            valor_mensal DECIMAL(10,2) DEFAULT 0,
+            dias INT DEFAULT 1,
+            INDEX(id_proposta)
+        )");
+
+        $this->conn->query("CREATE TABLE IF NOT EXISTS Proposta_Custos_Administrativos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_proposta INT NOT NULL,
+            id_custo_admin INT,
+            tipo VARCHAR(255),
+            quantidade INT DEFAULT 1,
+            valor DECIMAL(10,2) DEFAULT 0,
+            INDEX(id_proposta)
+        )");
     }
 
     /**
@@ -143,7 +213,7 @@ public function buscarPorId($id)
     $id = (int)$id;
     // Removido JSON_UNQUOTE(JSON_EXTRACT(p.docx_conteudo, '$')) as docx_blocos_array para evitar Fatal DB em MariaDB/MySQL antigos
     $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente,
-                   s.nome as nome_servico, d.Empresa as nome_empresa,
+                   s.nome as nome_servico, d.Empresa as nome_empresa, d.logo_caminho as logo_empresa,
                    p.modelo_docx,
                    p.docx_conteudo,
                    p.docx_blocos_count,
@@ -684,14 +754,27 @@ public function getAllLookupData($idUsuario)
             'restante_percentual' => $totais['mobilizacao']['restante_percentual'],
             'restante_valor' => $totais['mobilizacao']['restante_valor'],
             'status' => $dados['status'] ?? 'Em elaboração',
+            'fase_crm' => $dados['fase_crm'] ?? 'aberta',
+            'data_followup' => $dados['data_followup'] ?? null,
+            'motivo_perda' => $dados['motivo_perda'] ?? null,
             'tipo_terreno' => $dados['tipo_terreno'] ?? null,
             'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
             'acesso_local' => $dados['acesso_local'] ?? null,
             'acesso_local' => $dados['acesso_local'] ?? null,
             'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
             'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
+            'marca_veiculo' => $dados['marca_veiculo'] ?? null,
+            'modelo_veiculo' => $dados['modelo_veiculo'] ?? null,
+            'marca_estacao_total' => $dados['marca_estacao_total'] ?? null,
+            'modelo_estacao_total' => $dados['modelo_estacao_total'] ?? null,
+            'marca_gps' => $dados['marca_gps'] ?? null,
+            'modelo_gps' => $dados['modelo_gps'] ?? null,
+            'marca_drone' => $dados['marca_drone'] ?? null,
+            'modelo_drone' => $dados['modelo_drone'] ?? null,
             'modelo_docx' => $dados['modelo_docx'] ?? null,
-            'docx_conteudo' => $dados['docx_blocos_serializado'] ?? null
+            'docx_conteudo' => $dados['docx_blocos_serializado'] ?? null,
+            'config_docx_json' => $dados['config_docx_json'] ?? null,
+            'docx_ultima_edicao' => !empty($dados['docx_blocos_serializado']) ? date('Y-m-d H:i:s') : ($dados['docx_ultima_edicao'] ?? null)
         ];
 
         // Filtra colunas que NÃO existem no banco para evitar crashes
@@ -806,13 +889,26 @@ public function getAllLookupData($idUsuario)
             'mobilizacao_valor'     => $totais['mobilizacao']['mobilizacao_valor'],
             'restante_percentual'   => $totais['mobilizacao']['restante_percentual'],
             'restante_valor'        => $totais['mobilizacao']['restante_valor'],
+            'fase_crm'              => $dados['fase_crm'] ?? 'aberta',
+            'data_followup'         => $dados['data_followup'] ?? null,
+            'motivo_perda'          => $dados['motivo_perda'] ?? null,
             'tipo_terreno'          => $dados['tipo_terreno']    ?? null,
             'cobertura_vegetal'     => $dados['cobertura_vegetal'] ?? null,
             'acesso_local'          => $dados['acesso_local']    ?? null,   // sem duplicata
             'restricoes_aereas'     => $dados['restricoes_aereas'] ?? null,
             'coordenadas_gps'       => $dados['coordenadas_gps'] ?? null,
+            'marca_veiculo'         => $dados['marca_veiculo'] ?? null,
+            'modelo_veiculo'        => $dados['modelo_veiculo'] ?? null,
+            'marca_estacao_total'   => $dados['marca_estacao_total'] ?? null,
+            'modelo_estacao_total'  => $dados['modelo_estacao_total'] ?? null,
+            'marca_gps'             => $dados['marca_gps'] ?? null,
+            'modelo_gps'            => $dados['modelo_gps'] ?? null,
+            'marca_drone'           => $dados['marca_drone'] ?? null,
+            'modelo_drone'          => $dados['modelo_drone'] ?? null,
             'modelo_docx'           => $dados['modelo_docx']    ?? null,
             'docx_conteudo'         => $dados['docx_blocos_serializado'] ?? null,
+            'config_docx_json'      => $dados['config_docx_json'] ?? null,
+            'docx_ultima_edicao'    => !empty($dados['docx_blocos_serializado']) ? date('Y-m-d H:i:s') : ($dados['docx_ultima_edicao'] ?? null),
             'data_atualizacao'      => date('Y-m-d H:i:s')
         ];
 
@@ -853,93 +949,50 @@ public function getAllLookupData($idUsuario)
     private function insertItens($id, $dados) 
     {
         // 1. Salários
-        if (!empty($dados['salario_id_funcao'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
-            foreach($dados['salario_id_funcao'] as $i => $idFuncao) {
-                if (!$idFuncao) continue;
-                $f = 1 + (floatval($dados['encargos'][$i] ?? 67) / 100);
-                $nome_s = $dados['salario_nome'][$i];
-                $qtd_s = $dados['salario_qtd'][$i];
-                $val_s = $dados['salario_valor'][$i];
-                $dias_s = $dados['salario_dias'][$i];
-                $stmt->bind_param('iisiddi', $id, $idFuncao, $nome_s, $qtd_s, $val_s, $f, $dias_s);
-                $stmt->execute();
-            }
-        } elseif (!empty($dados['salarios'])) {
+        if (!empty($dados['salarios']) && is_array($dados['salarios'])) {
+            // Usa chaves do bd: id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Salarios (id_proposta, id_funcao, funcao, quantidade, salario_base, fator_encargos, dias) VALUES (?,?,?,?,?,?,?)");
             foreach($dados['salarios'] as $s) {
-                $idF = intval($s['funcao']);
+                // $s['funcao'] no post é O ID do tipo selecionado
+                $idF = isset($s['funcao']) ? intval($s['funcao']) : 0;
                 if (!$idF) continue;
-                $nome = $s['funcao_nome'] ?? 'Profissional';
+                $nome = 'Profissional'; // Poderia vir do Select, mas não foi passado
                 $f = 1 + (floatval($s['encargos'] ?? 67) / 100);
                 $stmt->bind_param('iisiddi', $id, $idF, $nome, $s['quantidade'], $s['valor'], $f, $s['dias']);
                 $stmt->execute();
             }
         }
 
-        // 2. Estadia
-        if (!empty($dados['estadia_id'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
-            foreach($dados['estadia_id'] as $i => $idE) {
-                if (!$idE) continue;
-                $nome_e = $dados['estadia_nome'][$i];
-                $qtd_e = $dados['estadia_qtd'][$i];
-                $val_e = $dados['estadia_valor'][$i];
-                $dias_e = $dados['estadia_dias'][$i];
-                $stmt->bind_param('iisddi', $id, $idE, $nome_e, $qtd_e, $val_e, $dias_e);
-                $stmt->execute();
-            }
-        } elseif (!empty($dados['estadias'])) {
+        // 2. Estadias
+        if (!empty($dados['estadias']) && is_array($dados['estadias'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Estadia (id_proposta, id_estadia, tipo, quantidade, valor_unitario, dias) VALUES (?,?,?,?,?,?)");
             foreach($dados['estadias'] as $e) {
-                $idE = intval($e['tipo']);
+                $idE = isset($e['tipo']) ? intval($e['tipo']) : 0;
                 if (!$idE) continue;
-                $nome = $e['tipo_nome'] ?? 'Estadia';
+                $nome = 'Estadia';
                 $stmt->bind_param('iisddi', $id, $idE, $nome, $e['quantidade'], $e['valor'], $e['noites']);
                 $stmt->execute();
             }
         }
 
         // 3. Consumos
-        if (!empty($dados['consumo_id'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
-            foreach($dados['consumo_id'] as $i => $idC) {
-                if (!$idC) continue;
-                $nome_c = $dados['consumo_nome'][$i];
-                $qtd_c = $dados['consumo_qtd'][$i];
-                $kml_c = $dados['consumo_kml'][$i];
-                $val_c = $dados['consumo_litro'][$i];
-                $km_c = $dados['consumo_km_total'][$i];
-                $stmt->bind_param('iisdddd', $id, $idC, $nome_c, $qtd_c, $kml_c, $val_c, $km_c);
-                $stmt->execute();
-            }
-        } elseif (!empty($dados['consumos'])) {
+        if (!empty($dados['consumos']) && is_array($dados['consumos'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Consumos (id_proposta, id_consumo, tipo, quantidade, consumo_kml, valor_litro, km_total) VALUES (?,?,?,?,?,?,?)");
             foreach($dados['consumos'] as $c) {
-                $idC = intval($c['tipo']);
+                $idC = isset($c['tipo']) ? intval($c['tipo']) : 0;
                 if (!$idC) continue;
-                $nome = $c['tipo_nome'] ?? 'Combustível';
+                $nome = 'Combustível';
                 $stmt->bind_param('iisdddd', $id, $idC, $nome, $c['quantidade'], $c['kml'], $c['valor_litro'], $c['km']);
                 $stmt->execute();
             }
         }
 
-        // 4. Locação
-        if (!empty($dados['locacao_id'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
-            foreach($dados['locacao_id'] as $i => $idL) {
-                if (!$idL) continue;
-                $idMarca = !empty($dados['locacao_id_marca'][$i]) ? intval($dados['locacao_id_marca'][$i]) : null;
-                $qtd_l = $dados['locacao_qtd'][$i];
-                $val_l = $dados['locacao_valor'][$i];
-                $dias_l = $dados['locacao_dias'][$i];
-                $stmt->bind_param('iiiidi', $id, $idL, $idMarca, $qtd_l, $val_l, $dias_l);
-                $stmt->execute();
-            }
-        } elseif (!empty($dados['locacoes'])) {
+        // 4. Locações
+        if (!empty($dados['locacoes']) && is_array($dados['locacoes'])) {
+            // $l['tipo'] = equipamento, $l['marca'] = modelo locado
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Locacao (id_proposta, id_locacao, id_marca, quantidade, valor_mensal, dias) VALUES (?,?,?,?,?,?)");
             foreach($dados['locacoes'] as $l) {
-                $idL = intval($l['tipo']);
+                $idL = isset($l['tipo']) ? intval($l['tipo']) : 0;
                 if (!$idL) continue;
                 $idM = !empty($l['marca']) ? intval($l['marca']) : null;
                 $stmt->bind_param('iiiidi', $id, $idL, $idM, $l['quantidade'], $l['valor'], $l['dias']);
@@ -948,22 +1001,12 @@ public function getAllLookupData($idUsuario)
         }
 
         // 5. Admin
-        if (!empty($dados['admin_id'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
-            foreach($dados['admin_id'] as $i => $idA) {
-                if (!$idA) continue;
-                $nome_a = $dados['admin_nome'][$i];
-                $qtd_a = $dados['admin_qtd'][$i];
-                $val_a = $dados['admin_valor'][$i];
-                $stmt->bind_param('iisdd', $id, $idA, $nome_a, $qtd_a, $val_a);
-                $stmt->execute();
-            }
-        } elseif (!empty($dados['admin'])) {
+        if (!empty($dados['admin']) && is_array($dados['admin'])) {
             $stmt = $this->conn->prepare("INSERT INTO Proposta_Custos_Administrativos (id_proposta, id_custo_admin, tipo, quantidade, valor) VALUES (?,?,?,?,?)");
             foreach($dados['admin'] as $a) {
-                $idA = intval($a['tipo']);
+                $idA = isset($a['tipo']) ? intval($a['tipo']) : 0;
                 if (!$idA) continue;
-                $nome = $a['tipo_nome'] ?? 'Admin';
+                $nome = 'Administrativo';
                 $stmt->bind_param('iisdd', $id, $idA, $nome, $a['quantidade'], $a['valor']);
                 $stmt->execute();
             }

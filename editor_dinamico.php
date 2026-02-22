@@ -897,6 +897,7 @@ echo '</div>';
                     <input type="hidden" name="id_proposta" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_proposta_original" value="<?= $id_prop ?>">
                     <input type="hidden" name="modelo_docx" value="<?= htmlspecialchars($modeloDocxAtivo ?? '') ?>">
+                    <input type="hidden" name="config_docx_json" value="<?= htmlspecialchars($incomingData['config_docx_json'] ?? '') ?>">
                     <input type="hidden" name="formato_saida" id="inputFormatoSaida" value="html">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     
@@ -1013,6 +1014,8 @@ echo '</div>';
                         if(isset($structure)) renderFormBlocksLegacy($structure, $model, $incomingData, $variaveis);
                         ?>
                         
+                        <!-- FLAG DE PROTEÇÃO CONTRA WIPING DA PROPOSTA (MASTER-DETAIL) -->
+                        <input type="hidden" name="is_editor_save" value="1">
                     <?php endif; ?>
                 </form>
                 

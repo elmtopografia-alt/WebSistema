@@ -65,6 +65,33 @@ try {
             error_log("DOCX: " . count($blocosDocx) . " blocos extraídos e serializados");
         }
     }
+
+    // ============================================================
+    // MODO EXCLUSIVO DO EDITOR DINÂMICO (Prevenção de Wipe)
+    // ============================================================
+    // Se for o Editor Salvando, fazemos o update SOMENTE do conteúdo Docx e saímos.
+    if (!empty($_POST['is_editor_save']) && !empty($_POST['id_proposta'])) {
+        $idEdit = intval($_POST['id_proposta']);
+        $conteudoDocx = $dadosProcessados['docx_blocos_serializado'] ?? null;
+        if ($conteudoDocx) {
+            $stmt = $repo->getConn()->prepare("UPDATE Propostas SET docx_conteudo = ?, docx_ultima_edicao = NOW() WHERE id_proposta = ?");
+            $stmt->bind_param('si', $conteudoDocx, $idEdit);
+            $stmt->execute();
+        }
+        
+        // Define redirect de sucesso e sai imediatamente
+        $redirectUrl = "editor_dinamico.php?id=$idEdit&modelo_docx=" . urlencode($modeloDocx ?? 'PropostaDrone') . "&success=1";
+        
+        $isAjax = !empty($_POST['ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'redirect' => $redirectUrl, 'id' => $idEdit, 'modo_docx' => true]);
+            exit;
+        } else {
+            header("Location: $redirectUrl");
+            exit;
+        }
+    }
     
     // ============================================================
     // ENRIQUECIMENTO DE DADOS: Busca dados do cliente e da empresa
@@ -220,6 +247,7 @@ function extrairBlocosDocx(array $postData): array {
         if ($tipo === 'tabela') {
             $estrutura = json_decode($postData["docx_bloco_{$blocoIndex}_estrutura"] ?? '[]', true);
             $blocos[] = [
+                'index' => $blocoIndex,
                 'tipo' => 'tabela',
                 'linhas' => $estrutura
             ];
@@ -228,6 +256,7 @@ function extrairBlocosDocx(array $postData): array {
             $conteudo = $postData["docx_bloco_{$blocoIndex}_content"] ?? '';
             $conteudo = preg_replace('/R\$\s*R\$/', 'R$', $conteudo);
             $blocos[] = [
+                'index' => $blocoIndex,
                 'tipo' => 'texto',
                 'conteudo' => $conteudo
             ];

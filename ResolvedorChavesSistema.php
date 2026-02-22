@@ -112,16 +112,16 @@ class ResolvedorChavesSistema
                 
                 // Equipamentos
                 case 'Drone':
-                    $resolvidas[$chave] = $d['drone'] ?? 'Não aplicável';
+                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'drone', 'drone', 'marca_drone', 'Não aplicável');
                     break;
                 case 'Veiculo':
-                    $resolvidas[$chave] = $d['veiculo'] ?? 'Não incluso';
+                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'veiculo', 'veiculo', 'marca_veiculo', 'Não incluso');
                     break;
                 case 'Estacao_Total':
-                    $resolvidas[$chave] = $d['estacao_total'] ?? 'Não inclusa';
+                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'estacao', 'estacao_total', 'marca_estacao_total', 'Não inclusa');
                     break;
                 case 'GPS':
-                    $resolvidas[$chave] = $d['gps'] ?? 'Par de Receptores GNSS RTK';
+                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'gps', 'gps', 'marca_gps', 'Par de Receptores GNSS RTK');
                     break;
                 
                 // Proposta / Valores
@@ -164,6 +164,10 @@ class ResolvedorChavesSistema
                 case 'restante_valor':
                     $resolvidas[$chave] = $this->formatarMoeda($d['restante_valor'] ?? 0);
                     break;
+                case 'Cidade':
+                case 'cidade_empresa':
+                    $resolvidas[$chave] = $empresa['Cidade'] ?? 'Belo Horizonte';
+                    break;
                 
                 // Datas
                 case 'DataExtenso':
@@ -193,12 +197,14 @@ class ResolvedorChavesSistema
             $res = $stmt->get_result();
             if ($row = $res->fetch_assoc()) {
                 // Checa logo
-                if (empty($row['logo_url'])) {
-                    if (!empty($row['logo_empresa'])) {
-                        $row['logo_url'] = 'uploads/' . $row['logo_empresa'];
-                    } else {
-                        $row['logo_url'] = 'assets/logo_sgt.png';
-                    }
+                if (!empty($row['logo_caminho'])) {
+                    $row['logo_url'] = $row['logo_caminho'];
+                } elseif (!empty($row['logo_url'])) {
+                    // Mantem a logo_url externa
+                } elseif (!empty($row['logo_empresa'])) {
+                    $row['logo_url'] = 'uploads/' . $row['logo_empresa'];
+                } else {
+                    $row['logo_url'] = 'assets/logo_sgt.png';
                 }
                 return $row;
             }
@@ -214,6 +220,33 @@ class ResolvedorChavesSistema
             'PIX' => '',
             'logo_url' => 'assets/logo_sgt.png'
         ];
+    }
+    
+    /**
+     * Tenta resolver o equipamento a partir da tabela filha de Locação (Master-Detail).
+     * Caso não encontre, cai para o modelo antigo.
+     */
+    private function resolverEquipamento(array $d, string $tipoDesejado, string $chaveLegada, string $prefixoModelo, string $fallbackPadrao) {
+        $itensLocacao = $d['itens']['locacao'] ?? $d['itensSalvos']['locacao'] ?? [];
+        
+        if (!empty($itensLocacao) && is_array($itensLocacao)) {
+            $modelosEncontrados = [];
+            foreach ($itensLocacao as $loc) {
+                $tipoDado = strtolower($loc['tipo'] ?? '');
+                // Ex: "drone_rtk" da match com "drone", "veiculo_4x4" dá match com "veiculo"
+                if (strpos($tipoDado, strtolower($tipoDesejado)) !== false) {
+                    if (!empty($loc['marca'])) {
+                        $modelosEncontrados[] = $loc['marca'];
+                    }
+                }
+            }
+            if (!empty($modelosEncontrados)) {
+                return implode(' e ', $modelosEncontrados);
+            }
+        }
+        
+        // Fallback legado
+        return $d[$prefixoModelo] ?? $d[$chaveLegada] ?? $fallbackPadrao;
     }
     
     private function formatarMoeda($valor) {

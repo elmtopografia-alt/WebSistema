@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Dados Fictícios (Endereços Reais)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            color: #2c3e50;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #219150;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Gerador de Dados Fictícios</h2>
+
+        <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="nome" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="text" id="email" readonly>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>CPF (Válido, porém fictício)</label>
+                <input type="text" id="cpf" readonly>
+            </div>
+            <div class="form-group">
+                <label>Data de Nascimento</label>
+                <input type="text" id="nascimento" readonly>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group">
+            <label>Empresa</label>
+            <input type="text" id="empresa" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>CNPJ (Válido, porém fictício)</label>
+            <input type="text" id="cnpj" readonly>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group">
+            <label>Endereço (Real)</label>
+            <input type="text" id="endereco" readonly>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" id="bairro" readonly>
+            </div>
+            <div class="form-group">
+                <label>Cidade / UF</label>
+                <input type="text" id="cidade_uf" readonly>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Telefone Fixo</label>
+                <input type="text" id="telefone" readonly>
+            </div>
+            <div class="form-group">
+                <label>Celular</label>
+                <input type="text" id="celular" readonly>
+            </div>
+            <div class="form-group">
+                <label>WhatsApp</label>
+                <input type="text" id="whatsapp" readonly>
+            </div>
+        </div>
+
+        <button class="btn" onclick="gerarDados()">Gerar Novos Dados</button>
+    </div>
+
+    <script>
+        // Bases de Dados
+        const nomes = ["Ana", "Bruno", "Carlos", "Daniela", "Eduardo", "Fernanda", "Gabriel", "Helena", "Igor", "Juliana", "Lucas", "Mariana", "Nicolas", "Olivia", "Pedro", "Rafael", "Sofia", "Thiago", "Vitória", "Wagner"];
+        const sobrenomes = ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes", "Costa", "Ribeiro", "Martins", "Carvalho", "Almeida"];
+
+        const prefixoEmpresa = ["Tech", "Global", "Alpha", "Mega", "Max", "Prime", "Inova", "Eco", "Smart", "Giga", "Nova"];
+        const sufixoEmpresa = ["Soluções", "Comércio", "Serviços", "Sistemas", "Consultoria", "Empreendimentos", "Logística", "Indústria"];
+        const tipoEmpresa = ["Ltda", "S.A.", "EIRELI"];
+
+        // Endereços 100% Reais com DDD correspondente ao estado
+        const enderecosReais = [
+            { rua: "Avenida Paulista", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "01310-100" },
+            { rua: "Avenida Atlântica", bairro: "Copacabana", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "22041-001" },
+            { rua: "Avenida Afonso Pena", bairro: "Centro", cidade: "Belo Horizonte", uf: "MG", ddd: "31", cep: "30130-000" },
+            { rua: "Rua XV de Novembro", bairro: "Centro", cidade: "Curitiba", uf: "PR", ddd: "41", cep: "80020-310" },
+            { rua: "Avenida Boa Viagem", bairro: "Boa Viagem", cidade: "Recife", uf: "PE", ddd: "81", cep: "51011-000" },
+            { rua: "Avenida Oceânica", bairro: "Barra", cidade: "Salvador", uf: "BA", ddd: "71", cep: "40140-130" },
+            { rua: "Avenida Borges de Medeiros", bairro: "Centro Histórico", cidade: "Porto Alegre", uf: "RS", ddd: "51", cep: "90020-020" },
+            { rua: "Eixo Monumental", bairro: "Zona Cívico-Administrativa", cidade: "Brasília", uf: "DF", ddd: "61", cep: "70040-010" },
+            { rua: "Avenida Beira Mar", bairro: "Meireles", cidade: "Fortaleza", uf: "CE", ddd: "85", cep: "60165-121" },
+            { rua: "Avenida Eduardo Ribeiro", bairro: "Centro", cidade: "Manaus", uf: "AM", ddd: "92", cep: "69010-000" },
+            { rua: "Rua do Acampamento", bairro: "Centro", cidade: "Santa Maria", uf: "RS", ddd: "55", cep: "97050-000" },
+            { rua: "Avenida Governador José Malcher", bairro: "Nazaré", cidade: "Belém", uf: "PA", ddd: "91", cep: "66040-281" }
+        ];
+
+        // Funções Auxiliares
+        const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const randNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        function removerAcentos(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        // Gerador de CPF válido (matematicamente)
+        function gerarCPF() {
+            const n = () => Math.floor(Math.random() * 10);
+            let n1 = n(), n2 = n(), n3 = n(), n4 = n(), n5 = n(), n6 = n(), n7 = n(), n8 = n(), n9 = n();
+            let d1 = n9 * 2 + n8 * 3 + n7 * 4 + n6 * 5 + n5 * 6 + n4 * 7 + n3 * 8 + n2 * 9 + n1 * 10;
+            d1 = 11 - (d1 % 11);
+            if (d1 >= 10) d1 = 0;
+            let d2 = d1 * 2 + n9 * 3 + n8 * 4 + n7 * 5 + n6 * 6 + n5 * 7 + n4 * 8 + n3 * 9 + n2 * 10 + n1 * 11;
+            d2 = 11 - (d2 % 11);
+            if (d2 >= 10) d2 = 0;
+            return `${n1}${n2}${n3}.${n4}${n5}${n6}.${n7}${n8}${n9}-${d1}${d2}`;
+        }
+
+        // Gerador de CNPJ válido (matematicamente)
+        function gerarCNPJ() {
+            const n = () => Math.floor(Math.random() * 10);
+            let n1 = n(), n2 = n(), n3 = n(), n4 = n(), n5 = n(), n6 = n(), n7 = n(), n8 = n();
+            let n9 = 0, n10 = 0, n11 = 0, n12 = 1;
+            let d1 = n12 * 2 + n11 * 3 + n10 * 4 + n9 * 5 + n8 * 6 + n7 * 7 + n6 * 8 + n5 * 9 + n4 * 2 + n3 * 3 + n2 * 4 + n1 * 5;
+            d1 = 11 - (d1 % 11);
+            if (d1 >= 10) d1 = 0;
+            let d2 = d1 * 2 + n12 * 3 + n11 * 4 + n10 * 5 + n9 * 6 + n8 * 7 + n7 * 8 + n6 * 9 + n5 * 2 + n4 * 3 + n3 * 4 + n2 * 5 + n1 * 6;
+            d2 = 11 - (d2 % 11);
+            if (d2 >= 10) d2 = 0;
+            return `${n1}${n2}.${n3}${n4}${n5}.${n6}${n7}${n8}/0001-${d1}${d2}`;
+        }
+
+        // Função Principal que preenche os dados
+        function gerarDados() {
+            // Nomes e E-mail
+            let nome1 = rand(nomes);
+            let nome2 = rand(sobrenomes);
+            let nome3 = rand(sobrenomes);
+            let nomeCompleto = `${nome1} ${nome2} ${nome3}`;
+            let email = `${removerAcentos(nome1).toLowerCase()}.${removerAcentos(nome3).toLowerCase()}${randNum(10, 999)}@ficticio.com.br`;
+
+            // Empresa
+            let empresa = `${rand(prefixoEmpresa)} ${rand(sufixoEmpresa)} ${rand(tipoEmpresa)}`;
+
+            // Endereço e DDD
+            let local = rand(enderecosReais);
+            let numero = randNum(10, 3000);
+            let enderecoCompleto = `${local.rua}, ${numero} - CEP: ${local.cep}`;
+
+            // Telefones (usando o DDD real do estado sorteado)
+            let telefoneFixo = `(${local.ddd}) 3${randNum(100, 999)}-${randNum(1000, 9999)}`;
+            let celular = `(${local.ddd}) 9${randNum(6000, 9999)}-${randNum(1000, 9999)}`;
+
+            // WhatsApp (Pode ser igual ao celular ou um número diferente, aqui geramos outro para dar variedade)
+            let whatsapp = `(${local.ddd}) 9${randNum(6000, 9999)}-${randNum(1000, 9999)}`;
+
+            // Data Nascimento
+            let dia = randNum(1, 28).toString().padStart(2, '0');
+            let mes = randNum(1, 12).toString().padStart(2, '0');
+            let ano = randNum(1960, 2004);
+
+            // Preenchendo os Inputs
+            document.getElementById("nome").value = nomeCompleto;
+            document.getElementById("email").value = email;
+            document.getElementById("cpf").value = gerarCPF();
+            document.getElementById("nascimento").value = `${dia}/${mes}/${ano}`;
+            document.getElementById("empresa").value = empresa;
+            document.getElementById("cnpj").value = gerarCNPJ();
+            document.getElementById("endereco").value = enderecoCompleto;
+            document.getElementById("bairro").value = local.bairro;
+            document.getElementById("cidade_uf").value = `${local.cidade} / ${local.uf}`;
+            document.getElementById("telefone").value = telefoneFixo;
+            document.getElementById("celular").value = celular;
+            document.getElementById("whatsapp").value = whatsapp;
+        }
+
+        // Gera os primeiros dados ao carregar a página
+        window.onload = gerarDados;
+    </script>
+
+</body>
+
+</html>

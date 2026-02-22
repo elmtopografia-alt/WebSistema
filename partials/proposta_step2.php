@@ -254,6 +254,20 @@
 
             </div>
         </div>
+        
+        <!-- ======================= RESTAURAÇÃO: COORDENADAS ======================= -->
+        <div class="form-group" style="grid-column: 1 / -1; margin-top: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                <!-- Coordenadas GPS Mapeamento -->
+                <div style="grid-column: 1 / -1; margin-bottom: 5px;">
+                    <label class="form-label" for="coordenadas_gps">Coordenadas da Área / Marco (Opcional)</label>
+                    <input type="text" name="coordenadas_gps" id="coordenadas_gps" class="form-control"
+                           value="<?= htmlspecialchars($proposta['coordenadas_gps'] ?? '') ?>"
+                           placeholder="Ex: -15.793889, -47.882778">
+                </div>
+            </div>
+        </div>
+        <!-- ======================= FIM RESTAURAÇÃO ======================= -->
 
         <!-- Linha de Prazos (Agrupada) -->
         <div class="form-group" style="grid-column: 1 / -1;">
