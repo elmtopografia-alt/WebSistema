@@ -4,11 +4,6 @@
  * Este arquivo prepara os dados e chama o renderizador oficial com logs detalhados.
  */
 
-// 1. Configurações Iniciais de Erro (Apenas para diagnóstico)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // [NOVO] Autoload do Composer para classes do namespace ProposalArchitect
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -58,11 +53,8 @@ try {
     $modeloDocx = $_POST['modelo_docx'] ?? null;
 
     if ($modeloDocx) {
-        logger("Usando renderizador DOCX: $modeloDocx");
-        require_once 'renderizador_modelo_docx.php';
-        $renderer = new RenderizadorModeloDOCX(ConnectionManager::get());
-        echo $renderer->renderizar($modeloDocx, $_SESSION['usuario_id'] ?? 0, $_POST);
-        logger("Renderização DOCX concluída.");
+        logger("Redirecionando DOCX ($modeloDocx) para o novo motor Premium (Formato A4).");
+        header('Location: gerar_proposta_premium.php?id=' . $id);
         exit;
     }
 

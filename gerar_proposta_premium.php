@@ -44,3 +44,4 @@ $url = $base . '?' . $query;
 header("Location: {$url}");
 exit;
 
+// Fim do arquivo (trigger SFTP sync)

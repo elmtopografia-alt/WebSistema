@@ -7,11 +7,17 @@
 
 define('SGT_PROPOSTAS', true);
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // 1. Carrega configurações do sistema isolado
 require_once __DIR__ . '/config.php';
 
 // 2. Carrega conexão e configurações do sistema real (CRM)
 require_once __DIR__ . '/../../db.php';
+require_once __DIR__ . '/../../ConnectionManager.php';
+require_once __DIR__ . '/../../renderizador_modelo_docx.php';
 
 if (!isset($conn)) {
     die("Erro: Conexão com o banco de dados não disponível.");
@@ -67,6 +73,25 @@ while ($est = $res_estrutura->fetch_assoc()) {
             'conteudo' => $blocos_dados[$slug]
         ];
     }
+}
+
+// ============================================
+// INTEGRAÇÃO DOCX V3 (Verifica se é modelo Word)
+// ============================================
+$is_docx = false;
+$html_docx = '';
+
+if (!empty($dados_proposta['modelo_docx'])) {
+    $is_docx = true;
+    
+    // Tratamento do conteúdo estruturado do DB (se existir)
+    if (!empty($dados_proposta['docx_conteudo'])) {
+        $dados_proposta['docx_blocos'] = json_decode($dados_proposta['docx_conteudo'], true);
+    }
+    
+    $idUsuarioCriador = $_SESSION['usuario_id'] ?? $dados_proposta['id_criador'] ?? 0;
+    $rendererDocx = new RenderizadorModeloDOCX(ConnectionManager::get());
+    $html_docx = $rendererDocx->renderizar($dados_proposta['modelo_docx'], $idUsuarioCriador, $dados_proposta);
 }
 
 // ============================================
@@ -161,6 +186,10 @@ $proposta = [
 $proposta['equipamentos'] = array_filter($proposta['equipamentos'], function($e) {
     return !empty($e['descricao']);
 });
+
+// Adiciona variáveis docx
+$proposta['is_docx'] = $is_docx;
+$proposta['html_docx'] = $html_docx;
 
 // ============================================
 // LÓGICA DE TEMA

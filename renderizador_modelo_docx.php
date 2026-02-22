@@ -16,7 +16,7 @@ class RenderizadorModeloDOCX {
     public function __construct($conn) {
         $this->conn = $conn;
         $this->configChaves = require __DIR__ . '/config_chaves_sistema.php';
-        $this->resolvedor = new ResolvedorChavesSistema($this->configChaves, $this->conn);
+        $this->resolvedor = new ResolvedorChavesSistema($this->conn);
     }
 
     /**

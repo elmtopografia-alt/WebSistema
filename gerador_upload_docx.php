@@ -388,7 +388,7 @@ CODE;
             <h2>🚀 Modelo Salvo!</h2>
             <p id="file-path-msg" class="text-muted mb-4"></p>
             <div class="d-flex justify-content-center gap-3">
-                <a href="editor_dinamico.php" class="btn btn-sgt">Ir para o Editor de Propostas</a>
+                <a href="https://elmtopografia.com.br/Orcamento/painel.php" class="btn btn-sgt">Ir para o Painel principal</a>
                 <button class="btn btn-secundario" onclick="novoUpload()">Novo Upload</button>
             </div>
         </div>

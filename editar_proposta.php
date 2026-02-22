@@ -47,6 +47,14 @@ try {
     
     // Itens Populados
     $itens_atuais = $proposta_atual['itens'];
+    
+    // Define $proposta para compatibilidade com os partials PHP (step1, step2)
+    $proposta = $proposta_atual;
+    $proposta['endereco'] = $proposta_atual['endereco_obra'] ?? '';
+    $proposta['bairro']   = $proposta_atual['bairro_obra']   ?? '';
+    $proposta['cidade']   = $proposta_atual['cidade_obra']   ?? '';
+    $proposta['estado']   = $proposta_atual['estado_obra']   ?? '';
+    $proposta['area']     = $proposta_atual['area_obra']     ?? '';
 
 } catch (Exception $e) {
     die("Erro ao carregar dados: " . $e->getMessage());
@@ -229,10 +237,28 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
                 'contato_obra', 'endereco', 'bairro', 'cidade', 'estado', 
                 // Step 2
                 'finalidade', 'tipo_levantamento', 'area', 'prazo_execucao',
-                'dias_campo', 'dias_escritorio', 
+                'dias_campo', 'dias_escritorio',
                 // Step 4
                 'mobilizacao_percentual', 'percentual_lucro', 'valor_desconto'
             ];
+            
+            // Selects simples (native select sem Select2)
+            const simpleSelects = [
+                'acesso_local', 'tipo_terreno', 'cobertura_vegetal',
+                'restricoes_aereas', 'modelo_docx', 'tipo_servico_id', 'unidade_area'
+            ];
+            
+            simpleSelects.forEach(f => {
+                const dbField = f;
+                const val = p[dbField];
+                if (val !== undefined && val !== null && val !== '') {
+                    const el = document.querySelector(`[name="${f}"]`);
+                    if (el) {
+                        el.value = val;
+                        el.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                }
+            });
 
             const fieldMap = {
                 'endereco': 'endereco_obra',

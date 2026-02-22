@@ -36,6 +36,29 @@ Como estamos lidando com um sistema existente (`SistemaWeb`), você deve seguir 
 
 ---
 
+## 🛡️ 4. PROTOCOLO DE PRESERVAÇÃO E SEGURANÇA (Regras de Ferro - GLOBAL)
+
+### 4.1. LEI DO "ANTI-DOWNGRADE" (Visual e Funcional)
+
+* **Proibição Absoluta:** É estritamente proibido substituir componentes estilizados (SGT Dark Theme/Glassmorphism) por versões padrão ou "soluções prontas" genéricas.
+* **Adaptação Obrigatória:** Se buscar uma solução externa, você é **OBRIGADO** a aplicar o CSS e a estrutura HTML do projeto ANTES de apresentar ou aplicar o código.
+
+### 4.2. PROTOCOLO "PARE E REVERTA" (Anti-Colapso)
+
+* **A Regra dos 2 Erros:** Se corrigir um erro gerar novos erros ou quebrar o layout: **PARE IMEDIATAMENTE**.
+
+### 4.3. APENAS SOLUÇÕES COMPATÍVEIS
+
+* Nunca implemente a "primeira solução que aparecer". Avalie se é compatível com PHP Legado/SGT Theme.
+
+### 4.4. PROTOCOLO ANTI-REGRESSÃO (Cegueira de Contexto)
+
+* **A Regra do Pós-Salvamento:** Nunca assuma que uma edição num arquivo isolado funcionou 100% sem checar as páginas chamadas por ele (Redirecionamentos, botões, includes).
+* **Ação Obrigatória (Terminal):** Após qualquer edição de código pesado em arquivos PHP vitais (como *gerador_upload_docx.php* ou *editor_dinamico.php*), o agente **DEVE OBRIGATORIAMENTE** executar um teste local seco via terminal (ex: `curl -s -o /dev/null -w "%{http_code}\n" "link"`) para confirmar que a página não retornará Fatal Error/Tela Branca, antes de convidar o usuário para testar.
+* **Proibição do "Túnel":** É proibido encerrar a tarefa sem inspecionar se a rota apontada pelos botões de sucesso/formulários estão corretas (ex: localhost vs painel.php).
+
+---
+
 ## 🏗️ 5. REGRAS DE INFRAESTRUTURA (AMBIENTE REMOTO)
 
 **ESTE PROJETO NÃO POSSUI AMBIENTE LOCAL. SIGA ESTAS REGRAS ESTRITAMENTE:**

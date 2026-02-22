@@ -1,9 +1,5 @@
 <?php
 // painel_crm.php - SGT CRM 2.0 (Motor SGT)
-// DEBUG MODE: ATIVADO PARA DIAGNÓSTICO
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 // Descrição: Kanban Board moderno com Drag & Drop (SortableJS) e sincronia real de status via API.
 
@@ -155,7 +151,8 @@ try {
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
-    die("<h1>Erro SQL (Recuperável)</h1><p>Falha ao preparar consulta: " . $conn->error . "</p><p>SQL Tumb: " . $sql . "</p>");
+    error_log("ERRO SQL painel_crm: " . $conn->error . " | SQL: " . $sql);
+    die("<div style='text-align:center;padding:40px;font-family:Inter,sans-serif;color:#f87171'><h2>⚠️ Erro Temporário</h2><p>O painel encontrou um problema ao carregar. Tente atualizar a página.</p><a href='painel.php' style='color:#60a5fa'>Voltar ao Painel</a></div>");
 }
 
 $stmt->bind_param("i", $id_usuario);

@@ -2,11 +2,6 @@
 // Nome do Arquivo: salvar_cliente.php
 // Função: Processa cliente. Ajuste: Permite CPF/CNPJ vazio e duplicado.
 
-// DEBUG: Mostra erros para diagnóstico
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 require_once 'config.php';
 require_once 'db.php';

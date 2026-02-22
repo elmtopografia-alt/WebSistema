@@ -9,25 +9,27 @@
     <p class="section-subtitle">Defina o serviço e prazos.</p>
 
     <div class="form-row cols-2">
-        <!-- Novo Campo: Tipo de Serviço (Classificação Interna) -->
+        <!-- Novo Campo: Tipo de Serviço (Classificação Interna) — usa mesmos itens do Painel de Serviços -->
         <div class="form-group">
             <label class="form-label" style="display:flex; align-items:center; gap:5px;">
                 <i class="bi bi-tag-fill text-secondary"></i> Classificação <small class="text-muted fw-normal">(Interno)</small>
             </label>
             <select class="form-select" name="tipo_servico_id" id="tipo_servico_id">
                 <option value="">-- Selecione --</option>
-                <?php 
-                $tipos = $dados_cache['arrays_js']['tipos_servico'] ?? [];
-                if (!empty($tipos)): 
-                    foreach ($tipos as $t): ?>
-                        <option value="<?= $t['id'] ?>" 
-                                data-cor="<?= htmlspecialchars($t['cor'] ?? '#666') ?>"
-                                data-icone="<?= htmlspecialchars($t['icone'] ?? 'tag') ?>"
-                                <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $t['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($t['nome']) ?>
-                        </option>
-                    <?php endforeach; 
-                endif; ?>
+                <?php
+                // Usa os mesmos serviços do Painel de Serviços (Tipo_Servicos)
+                $tiposParaClassificacao = $dados_cache['arrays_js']['Tipo_Servicos'] ?? [];
+                $cores = ['#3b82f6','#10b981','#f97316','#8b5cf6','#ec4899','#06b6d4','#84cc16','#ef4444'];
+                foreach ($tiposParaClassificacao as $idx => $t): 
+                    $cor = $cores[$idx % count($cores)];
+                ?>
+                    <option value="<?= $t['id'] ?>"
+                            data-cor="<?= $cor ?>"
+                            data-icone="briefcase"
+                            <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $t['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($t['nome']) ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
             
             <!-- Preview do Badge (Perfumaria UI) -->
@@ -70,7 +72,8 @@
                 <option value="">Selecione...</option>
                 <?php if (!empty($servicos)): ?>
                     <?php foreach ($servicos as $s): ?>
-                        <option value="<?= $s['id'] ?>" data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>" <?= (isset($_REQUEST['id_servico']) && $_REQUEST['id_servico'] == $s['id']) ? 'selected' : '' ?>>
+                        <option value="<?= $s['id'] ?>" data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>"
+                            <?= (isset($proposta['id_servico']) && $proposta['id_servico'] == $s['id']) ? 'selected' : '' ?>>  
                             <?= htmlspecialchars($s['nome']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -100,7 +103,9 @@
 
         <div class="form-group">
             <label class="form-label" for="tipo_levantamento">Título na Proposta</label>
-            <input type="text" name="tipo_levantamento" id="tipo_levantamento" class="form-control" placeholder="Ex: Levantamento Planialtimétrico">
+            <input type="text" name="tipo_levantamento" id="tipo_levantamento" class="form-control"
+                   value="<?= htmlspecialchars($proposta['tipo_levantamento'] ?? '') ?>"
+                   placeholder="Ex: Levantamento Planialtimétrico">
         </div>
 
         <!-- Linha Customizada: Finalidade (9) + Área (3) -->
@@ -108,18 +113,20 @@
             <div class="row-custom-9-3" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <div style="flex: 9; min-width: 300px;">
                     <label class="form-label">Descrição / Finalidade</label>
-                    <textarea class="form-control" name="finalidade" id="finalidade" rows="3" placeholder="Descreva o objetivo do trabalho..."></textarea>
+                    <textarea class="form-control" name="finalidade" id="finalidade" rows="3" placeholder="Descreva o objetivo do trabalho..."><?= htmlspecialchars($proposta['finalidade'] ?? '') ?></textarea>
                 </div>
                 <div style="flex: 3; min-width: 150px;">
                     <label class="form-label" for="area">Área</label>
                     <div style="display: flex; align-items: stretch;">
                         <input type="text" name="area" id="area" class="form-control" placeholder="0.00" inputmode="decimal" 
+                               value="<?= htmlspecialchars($proposta['area'] ?? $proposta['area_obra'] ?? '') ?>"
                                style="border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;">
                         <select name="unidade_area" id="unidade_area" class="form-select" 
                                 style="max-width: 80px; border-top-left-radius: 0; border-bottom-left-radius: 0; background-color: rgba(255,255,255,0.05); color: #f97316; font-weight: bold; border-left: 1px solid rgba(255,255,255,0.1);" aria-label="Unidade de medida">
-                            <option value="m²">m²</option>
-                            <option value="ha">ha</option>
-                            <option value="km²">km²</option>
+                            <?php $ua = $proposta['unidade_area'] ?? 'm²'; ?>
+                            <option value="m²" <?= $ua === 'm²' ? 'selected' : '' ?>>m²</option>
+                            <option value="ha" <?= $ua === 'ha' ? 'selected' : '' ?>>ha</option>
+                            <option value="km²" <?= $ua === 'km²' ? 'selected' : '' ?>>km²</option>
                         </select>
                     </div>
                     <div id="areaPreview" class="text-[10px] text-slate-500 mt-1 ml-1 font-medium">
@@ -171,73 +178,77 @@
                 <!-- 1. Acesso Local -->
                 <div>
                     <label class="form-label" for="acesso_local">Acesso Local</label>
+                    <?php $ac = $proposta['acesso_local'] ?? ''; ?>
                     <select name="acesso_local" id="acesso_local" class="form-select">
                         <option value="">-- Selecione --</option>
-                        <option value="fácil – via asfaltada">Fácil – Via Asfaltada</option>
-                        <option value="médio – estrada de terra trafegável">Médio – Estrada de Terra</option>
-                        <option value="difícil – trilha / acesso restrito">Difícil – Trilha / Acesso Restrito</option>
-                        <option value="acesso controlado – portaria / vigilância">Acesso Controlado (Portaria)</option>
-                        <option value="somente pedestre">Somente Pedestre</option>
-                        <option value="acesso por propriedade privada">Acesso por Propriedade Privada</option>
-                        <option value="acesso por estrada vicinal">Acesso por Estrada Vicinal</option>
+                        <option value="fácil – via asfaltada" <?= $ac==='fácil – via asfaltada'?'selected':'' ?>>Fácil – Via Asfaltada</option>
+                        <option value="médio – estrada de terra trafegável" <?= $ac==='médio – estrada de terra trafegável'?'selected':'' ?>>Médio – Estrada de Terra</option>
+                        <option value="difícil – trilha / acesso restrito" <?= $ac==='difícil – trilha / acesso restrito'?'selected':'' ?>>Difícil – Trilha / Acesso Restrito</option>
+                        <option value="acesso controlado – portaria / vigilância" <?= $ac==='acesso controlado – portaria / vigilância'?'selected':'' ?>>Acesso Controlado (Portaria)</option>
+                        <option value="somente pedestre" <?= $ac==='somente pedestre'?'selected':'' ?>>Somente Pedestre</option>
+                        <option value="acesso por propriedade privada" <?= $ac==='acesso por propriedade privada'?'selected':'' ?>>Acesso por Propriedade Privada</option>
+                        <option value="acesso por estrada vicinal" <?= $ac==='acesso por estrada vicinal'?'selected':'' ?>>Acesso por Estrada Vicinal</option>
                     </select>
                 </div>
 
                 <!-- 2. Cobertura Vegetal -->
                 <div>
                     <label class="form-label" for="cobertura_vegetal">Cobertura Vegetal</label>
+                    <?php $cv = $proposta['cobertura_vegetal'] ?? ''; ?>
                     <select name="cobertura_vegetal" id="cobertura_vegetal" class="form-select">
                         <option value="">-- Selecione --</option>
-                        <option value="área limpa / solo exposto">Área Limpa / Solo Exposto</option>
-                        <option value="pastagem baixa">Pastagem Baixa</option>
-                        <option value="vegetação rasteira">Vegetação Rasteira</option>
-                        <option value="vegetação média (arbustos)">Vegetação Média (Arbustos)</option>
-                        <option value="vegetação densa">Vegetação Densa</option>
-                        <option value="mata fechada">Mata Fechada</option>
-                        <option value="área urbana">Área Urbana</option>
-                        <option value="área parcialmente arborizada">Área Parcialmente Arborizada</option>
-                        <option value="reflorestamento / eucalipto">Reflorestamento / Eucalipto</option>
-                        <option value="cultura agrícola">Cultura Agrícola</option>
+                        <option value="área limpa / solo exposto" <?= $cv==='área limpa / solo exposto'?'selected':'' ?>>Área Limpa / Solo Exposto</option>
+                        <option value="pastagem baixa" <?= $cv==='pastagem baixa'?'selected':'' ?>>Pastagem Baixa</option>
+                        <option value="vegetação rasteira" <?= $cv==='vegetação rasteira'?'selected':'' ?>>Vegetação Rasteira</option>
+                        <option value="vegetação média (arbustos)" <?= $cv==='vegetação média (arbustos)'?'selected':'' ?>>Vegetação Média (Arbustos)</option>
+                        <option value="vegetação densa" <?= $cv==='vegetação densa'?'selected':'' ?>>Vegetação Densa</option>
+                        <option value="mata fechada" <?= $cv==='mata fechada'?'selected':'' ?>>Mata Fechada</option>
+                        <option value="área urbana" <?= $cv==='área urbana'?'selected':'' ?>>Área Urbana</option>
+                        <option value="área parcialmente arborizada" <?= $cv==='área parcialmente arborizada'?'selected':'' ?>>Área Parcialmente Arborizada</option>
+                        <option value="reflorestamento / eucalipto" <?= $cv==='reflorestamento / eucalipto'?'selected':'' ?>>Reflorestamento / Eucalipto</option>
+                        <option value="cultura agrícola" <?= $cv==='cultura agrícola'?'selected':'' ?>>Cultura Agrícola</option>
                     </select>
                 </div>
 
                 <!-- 3. Condições do Terreno -->
                 <div>
                     <label class="form-label" for="tipo_terreno">Tipo de Terreno</label>
+                    <?php $tt = $proposta['tipo_terreno'] ?? ''; ?>
                     <select name="tipo_terreno" id="tipo_terreno" class="form-select">
                         <option value="">-- Selecione --</option>
-                        <option value="plano">Plano</option>
-                        <option value="levemente ondulado">Levemente Ondulado</option>
-                        <option value="ondulado">Ondulado</option>
-                        <option value="fortemente ondulado">Fortemente Ondulado</option>
-                        <option value="montanhoso">Montanhoso</option>
-                        <option value="terreno irregular">Terreno Irregular</option>
-                        <option value="área alagadiça">Área Alagadiça</option>
-                        <option value="solo arenoso">Solo Arenoso</option>
-                        <option value="solo argiloso">Solo Argiloso</option>
-                        <option value="área urbanizada">Área Urbanizada</option>
-                        <option value="área em terraplenagem">Área em Terraplenagem</option>
-                        <option value="presença de taludes">Presença de Taludes</option>
+                        <option value="plano" <?= $tt==='plano'?'selected':'' ?>>Plano</option>
+                        <option value="levemente ondulado" <?= $tt==='levemente ondulado'?'selected':'' ?>>Levemente Ondulado</option>
+                        <option value="ondulado" <?= $tt==='ondulado'?'selected':'' ?>>Ondulado</option>
+                        <option value="fortemente ondulado" <?= $tt==='fortemente ondulado'?'selected':'' ?>>Fortemente Ondulado</option>
+                        <option value="montanhoso" <?= $tt==='montanhoso'?'selected':'' ?>>Montanhoso</option>
+                        <option value="terreno irregular" <?= $tt==='terreno irregular'?'selected':'' ?>>Terreno Irregular</option>
+                        <option value="área alagadiça" <?= $tt==='área alagadiça'?'selected':'' ?>>Área Alagadiça</option>
+                        <option value="solo arenoso" <?= $tt==='solo arenoso'?'selected':'' ?>>Solo Arenoso</option>
+                        <option value="solo argiloso" <?= $tt==='solo argiloso'?'selected':'' ?>>Solo Argiloso</option>
+                        <option value="área urbanizada" <?= $tt==='área urbanizada'?'selected':'' ?>>Área Urbanizada</option>
+                        <option value="área em terraplenagem" <?= $tt==='área em terraplenagem'?'selected':'' ?>>Área em Terraplenagem</option>
+                        <option value="presença de taludes" <?= $tt==='presença de taludes'?'selected':'' ?>>Presença de Taludes</option>
                     </select>
                 </div>
 
                 <!-- 4. Restrições Aéreas -->
                 <div>
                     <label class="form-label" for="restricoes_aereas">Restrições Aéreas</label>
+                    <?php $ra = $proposta['restricoes_aereas'] ?? ''; ?>
                     <select name="restricoes_aereas" id="restricoes_aereas" class="form-select">
                         <option value="">-- Selecione --</option>
-                        <option value="nenhuma restrição aparente">Nenhuma Restrição Aparente</option>
-                        <option value="proximidade de rede elétrica">Rede Elétrica Próxima</option>
-                        <option value="proximidade de torres de comunicação">Torres de Comunicação</option>
-                        <option value="área urbana com edificações altas">Edificações Altas</option>
-                        <option value="presença de pessoas no entorno">Pessoas no Entorno</option>
-                        <option value="proximidade de rodovia">Proximidade de Rodovia</option>
-                        <option value="proximidade de aeroporto / heliponto">Aeroporto / Heliponto</option>
-                        <option value="área militar">Área Militar</option>
-                        <option value="área ambiental protegida">Área Ambiental Protegida</option>
-                        <option value="voo condicionado à autorização">Requer Autorização de Voo</option>
-                        <option value="espaço aéreo controlado">Espaço Aéreo Controlado</option>
-                        <option value="obstáculos verticais (árvores / postes)">Obstáculos Verticais</option>
+                        <option value="nenhuma restrição aparente" <?= $ra==='nenhuma restrição aparente'?'selected':'' ?>>Nenhuma Restrição Aparente</option>
+                        <option value="proximidade de rede elétrica" <?= $ra==='proximidade de rede elétrica'?'selected':'' ?>>Rede Elétrica Próxima</option>
+                        <option value="proximidade de torres de comunicação" <?= $ra==='proximidade de torres de comunicação'?'selected':'' ?>>Torres de Comunicação</option>
+                        <option value="área urbana com edificações altas" <?= $ra==='área urbana com edificações altas'?'selected':'' ?>>Edificações Altas</option>
+                        <option value="presença de pessoas no entorno" <?= $ra==='presença de pessoas no entorno'?'selected':'' ?>>Pessoas no Entorno</option>
+                        <option value="proximidade de rodovia" <?= $ra==='proximidade de rodovia'?'selected':'' ?>>Proximidade de Rodovia</option>
+                        <option value="proximidade de aeroporto / heliponto" <?= $ra==='proximidade de aeroporto / heliponto'?'selected':'' ?>>Aeroporto / Heliponto</option>
+                        <option value="área militar" <?= $ra==='área militar'?'selected':'' ?>>Área Militar</option>
+                        <option value="área ambiental protegida" <?= $ra==='área ambiental protegida'?'selected':'' ?>>Área Ambiental Protegida</option>
+                        <option value="voo condicionado à autorização" <?= $ra==='voo condicionado à autorização'?'selected':'' ?>>Requer Autorização de Voo</option>
+                        <option value="espaço aéreo controlado" <?= $ra==='espaço aéreo controlado'?'selected':'' ?>>Espaço Aéreo Controlado</option>
+                        <option value="obstáculos verticais (árvores / postes)" <?= $ra==='obstáculos verticais (árvores / postes)'?'selected':'' ?>>Obstáculos Verticais</option>
                     </select>
                 </div>
 

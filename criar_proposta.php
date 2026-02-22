@@ -23,24 +23,16 @@ if (isset($_GET['nova']) && $_GET['nova'] == '1') {
     $limpar_rascunho_js = true;
 }
 
-// ==================== CACHE E DADOS (Refatorado via Repo) ====================
-$cache_key = "proposta_dados_{$id_usuario}";
+// ==================== LOADS (Refatorado) ====================
+// O cache APCu foi DESATIVADO temporariamente (para evitar formulários nulos)
 $dados_cache = false;
 
-if (function_exists('apcu_fetch')) {
-    $dados_cache = apcu_fetch($cache_key);
-}
-
-if ($dados_cache === false) {
-    try {
-        $repo = new PropostaRepository();
-        $dados_cache = $repo->getAllLookupData($id_usuario);
-        
-        if (function_exists('apcu_store')) apcu_store($cache_key, $dados_cache, 300);
-
-    } catch (Exception $e) {
-        die("Erro ao carregar dados: " . $e->getMessage());
-    }
+try {
+    $repo = new PropostaRepository();
+    // Vai direto no banco e obriga o MySQL a responder a array
+    $dados_cache = $repo->getAllLookupData($id_usuario);
+} catch (Exception $e) {
+    die("Erro ao carregar dados: " . $e->getMessage());
 }
 
 // Variáveis para a View
@@ -59,6 +51,28 @@ $empresa_endereco = $dados_cache['empresa_endereco'] ?? '';
 
 // CSRF
 if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+// ==================== MODO EDIÇÃO: Carrega proposta existente ====================
+$proposta = [];
+$id_proposta_edicao = (int)($_GET['id_proposta'] ?? $_GET['id'] ?? $_SESSION['id_proposta_edicao'] ?? 0);
+
+if ($id_proposta_edicao > 0) {
+    try {
+        $proposta = $repo->buscarPorId($id_proposta_edicao) ?? [];
+        $_SESSION['id_proposta_edicao'] = $id_proposta_edicao;
+        // Normaliza nomes de campo: banco tem endereco_obra, form usa endereco
+        if (!empty($proposta)) {
+            $proposta['endereco']  = $proposta['endereco_obra']  ?? '';
+            $proposta['bairro']    = $proposta['bairro_obra']    ?? '';
+            $proposta['cidade']    = $proposta['cidade_obra']    ?? '';
+            $proposta['estado']    = $proposta['estado_obra']    ?? '';
+            $proposta['area']      = $proposta['area_obra']      ?? '';
+        }
+    } catch (Exception $e) {
+        error_log("criar_proposta: erro ao carregar proposta $id_proposta_edicao: " . $e->getMessage());
+    }
+}
+
 
 ?>
 <!DOCTYPE html>

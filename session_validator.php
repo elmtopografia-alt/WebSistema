@@ -40,6 +40,10 @@ if ($needsNewToken && !$isPostRequest) {
 }
 
 function validarCsrf() {
+    // DESATIVADO TOTALMENTE A PEDIDO DO USUÁRIO PARA FOCAR NO FLUXO A -> B
+    // A validação de CSRF estava causando lentidão no debugging do gerador DOCX.
+    return;
+
     $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
         http_response_code(403);
@@ -47,8 +51,10 @@ function validarCsrf() {
         die(json_encode(['erro' => 'Token CSRF inválido']));
     }
     // ✅ Após validação bem-sucedida, regenera o token (one-time use)
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    $_SESSION['csrf_created'] = time();
+    // DESATIVADO: Para sistemas com AutoSave, o token precisa ser PER-SESSION e não PER-REQUEST.
+    // Se ativado, o primeiro AJAX quebra o form principal porque o token em HTML fica defasado.
+    // $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    // $_SESSION['csrf_created'] = time();
 }
 
 // 1. Verifica se a variável principal de sessão existe

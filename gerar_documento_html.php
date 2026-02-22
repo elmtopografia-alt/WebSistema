@@ -115,15 +115,22 @@ function valorPorExtenso($valor = 0)
     return $rt;
 }
 
-// Função Helper para substituir variáveis
+// Função Helper para substituir variáveis — suporta ${var}, [var] e {{var}}
 function substituir($texto, $vars)
 {
     foreach ($vars as $chave => $valor) {
         if (is_array($valor) || is_object($valor)) continue;
-        $texto = str_ireplace('${' . $chave . '}', $valor ?? '', $texto);
+        $val = $valor ?? '';
+        // Formato 1: ${variavel}
+        $texto = str_ireplace('${' . $chave . '}', $val, $texto);
+        // Formato 2: [Variavel] — usado nos defaultContent dos blocos
+        $texto = str_ireplace('[' . $chave . ']', $val, $texto);
+        // Formato 3: {{variavel}} — usado nos templates piloto
+        $texto = preg_replace('/\{\{\s*' . preg_quote($chave, '/') . '\s*\}\}/i', $val, $texto);
     }
     return $texto;
 }
+
 
 /**
  * Remove valor monetário e texto de investimento de blocos indesejados.
@@ -187,94 +194,111 @@ if (!empty($empresa['logo_caminho']) && file_exists($empresa['logo_caminho'])) {
 
 // 3. Mapeamento de Variáveis (Flattening)
 $vars = [
-    // Cliente
-    'nome_cliente_salvo' => $dados['nome_cliente'] ?? '',
-    'email_salvo' => $dados['email_cliente'] ?? '',
-    'telefone_salvo' => $dados['telefone_cliente'] ?? '',
-    'celular_salvo' => $dados['celular_cliente'] ?? '',
-    'whatsapp_salvo' => $dados['celular_cliente'] ?? '',
+    // ── Cliente (campos reais do banco com sufixo _salvo) ──────────────
+    'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
+    'email_salvo'        => $dados['email_salvo']        ?? '',
+    'telefone_salvo'     => $dados['telefone_salvo']     ?? '',
+    'celular_salvo'      => $dados['celular_salvo']      ?? '',
+    'whatsapp_salvo'     => $dados['whatsapp_salvo']     ?? ($dados['celular_salvo'] ?? ''),
+    'empresa_cliente_salvo' => $dados['empresa_cliente_salvo'] ?? '',
+
+    // Aliases curtos usados nos templates DOCX
+    'nome'      => $dados['nome_cliente_salvo'] ?? '',
+    'nome_cliente' => $dados['nome_cliente_salvo'] ?? '',
+    'email'     => $dados['email_salvo']     ?? '',
+    'telefone'  => $dados['telefone_salvo']  ?? '',
+    'celular'   => $dados['celular_salvo']   ?? '',
+    'whatsapp'  => $dados['whatsapp_salvo']  ?? ($empresa['Whatsapp'] ?? ''),
+
+    // ── Proposta ────────────────────────────────────────────────────────
     'numero_proposta' => $dados['numero_proposta'] ?? '000/0000',
 
-    // Obra
+    // ── Obra ────────────────────────────────────────────────────────────
     'endereco_obra' => $dados['endereco_obra'] ?? '',
-    'bairro_obra' => $dados['bairro_obra'] ?? '',
-    'cidade_obra' => $dados['cidade_obra'] ?? '',
-    'estado_obra' => $dados['estado_obra'] ?? '',
-    'area_obra' => $dados['area_obra'] ?? '',
-    'unidade_area' => $dados['unidade_area'] ?? 'm²',
+    'bairro_obra'   => $dados['bairro_obra']   ?? '',
+    'cidade_obra'   => $dados['cidade_obra']   ?? '',
+    'estado_obra'   => $dados['estado_obra']   ?? '',
+    'area_obra'     => $dados['area_obra']     ?? '',
+    'unidade_area'  => $dados['unidade_area']  ?? 'm²',
     'tipo_levantamento' => $dados['tipo_levantamento'] ?? '',
+    // Aliases curtos
+    'endereco'  => $dados['endereco_obra'] ?? '',
+    'bairro'    => $dados['bairro_obra']   ?? '',
+    'cidade'    => $dados['cidade_obra']   ?? ($empresa['Cidade'] ?? 'Belo Horizonte'),
+    'estado'    => $dados['estado_obra']   ?? '',
+    'area'      => $dados['area_obra']     ?? '',
 
-    // Técnico
-    'finalidade' => $dados['finalidade'] ?? '',
+    // ── Técnico ─────────────────────────────────────────────────────────
+    'finalidade'     => $dados['finalidade']    ?? '',
     'escopo_servico' => isset($dados['escopo_content']) ? nl2br($dados['escopo_content']) : '',
 
-    // Equipamentos
-    'Veiculo' => $dados['marca_veiculo'] ?? '',
-    'Estacao_Total' => $dados['marca_estacao_total'] ?? '',
-    'GPS' => $dados['marca_gps'] ?? '',
-    'Drone' => $dados['marca_drone'] ?? '',
-    'Softwares' => $dados['softwares_content'] ?? 'Softwares de Processamento de Precisão',
+    // ── Equipamentos ────────────────────────────────────────────────────
+    'Veiculo'        => $dados['marca_veiculo']        ?? '',
+    'Estacao_Total'  => $dados['marca_estacao_total']  ?? '',
+    'GPS'            => $dados['marca_gps']            ?? '',
+    'Drone'          => $dados['marca_drone']          ?? '',
+    'Softwares'      => $dados['softwares_content']    ?? 'Softwares de Processamento de Precisão',
 
-    // Financeiro
-    'ValorProposta' => formatarMoeda($dados['valor_proposta'] ?? 0),
-    'ValorExtenso' => $dados['valor_extenso'] ?? valorPorExtenso($dados['valor_proposta'] ?? 0),
+    // ── Financeiro (campos reais do banco) ──────────────────────────────
+    'ValorProposta'  => formatarMoeda($dados['valor_final_proposta'] ?? 0),
+    'ValorExtenso'   => $dados['Valor_proposta_extenso'] ?? valorPorExtenso($dados['valor_final_proposta'] ?? 0),
+    'valor_proposta' => formatarMoeda($dados['valor_final_proposta'] ?? 0),
+    'valor_extenso'  => $dados['Valor_proposta_extenso'] ?? '',
     'prazo_execucao' => $dados['prazo_execucao'] ?? '',
     'prazos_content' => $dados['prazos_content'] ?? ($dados['cronograma_content'] ?? ''),
-    'dias_campo' => $dados['dias_campo'] ?? '0',
-    'dias_escritorio' => $dados['dias_escritorio'] ?? '0',
+    'dias_campo'     => $dados['dias_campo']     ?? '0',
+    'dias_escritorio'=> $dados['dias_escritorio']?? '0',
 
-    'mobilizacao_percentual' => $dados['mobilizacao_percentual'] ?? '',
-    'mobilizacao_valor' => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
-    'restante_percentual' => (100 - intval($dados['mobilizacao_percentual'] ?? 0)),
-    'restante_valor' => formatarMoeda($dados['restante_valor'] ?? 0),
-    'mobilizacao_valor_total' => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
-    'restante_valor_total' => formatarMoeda($dados['restante_valor'] ?? 0),
+    'mobilizacao_percentual'   => $dados['mobilizacao_percentual'] ?? '',
+    'mobilizacao_valor'        => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
+    'restante_percentual'      => (100 - intval($dados['mobilizacao_percentual'] ?? 0)),
+    'restante_valor'           => formatarMoeda($dados['restante_valor'] ?? 0),
+    'mobilizacao_valor_total'  => formatarMoeda($dados['mobilizacao_valor'] ?? 0),
+    'restante_valor_total'     => formatarMoeda($dados['restante_valor'] ?? 0),
 
-    // Empresa
-    'Empresa' => $empresa['Empresa'] ?? 'ELM Topografia',
-    'empresa' => $empresa['Empresa'] ?? 'ELM Topografia',
-    'CNPJ' => $empresa['CNPJ'] ?? '',
-    'Banco' => $empresa['Banco'] ?? '',
-    'Agencia' => $empresa['Agencia'] ?? '',
-    'Conta' => $empresa['Conta'] ?? '',
-    'PIX' => $empresa['PIX'] ?? '',
-    'whatsapp' => $empresa['Whatsapp'] ?? '',
-    'empresa_proponente_cidade' => $empresa['Cidade'] ?? 'Belo Horizonte',
+    // ── Empresa Proponente (DadosEmpresa via $lookup) ───────────────────
+    'Empresa'          => $empresa['Empresa']  ?? 'ELM Topografia',
+    'empresa'          => $empresa['Empresa']  ?? 'ELM Topografia',
+    'CNPJ'             => $empresa['CNPJ']     ?? '',
+    'Banco'            => $empresa['Banco']    ?? '',
+    'Agencia'          => $empresa['Agencia']  ?? '',
+    'Conta'            => $empresa['Conta']    ?? '',
+    'PIX'              => $empresa['PIX']      ?? '',
+    'empresa_proponente_nome'     => $dados['empresa_proponente_nome']     ?? ($empresa['Empresa'] ?? ''),
+    'empresa_proponente_cnpj'     => $dados['empresa_proponente_cnpj']     ?? ($empresa['CNPJ'] ?? ''),
+    'empresa_proponente_cidade'   => $dados['empresa_proponente_cidade']   ?? ($empresa['Cidade'] ?? ''),
+    'empresa_proponente_banco'    => $dados['empresa_proponente_banco']    ?? ($empresa['Banco'] ?? ''),
+    'empresa_proponente_agencia'  => $dados['empresa_proponente_agencia']  ?? ($empresa['Agencia'] ?? ''),
+    'empresa_proponente_conta'    => $dados['empresa_proponente_conta']    ?? ($empresa['Conta'] ?? ''),
+    'empresa_proponente_pix'      => $dados['empresa_proponente_pix']      ?? ($empresa['PIX'] ?? ''),
 
-    // Layout
-    'Cidade' => $empresa['Cidade'] ?? 'Belo Horizonte',
-    'DExrenso' => dataPorExtenso(),
-    'DataExtenso' => dataPorExtenso(),
-    'logo' => $logo,
+    // ── Layout / Data ───────────────────────────────────────────────────
+    'Cidade'       => $dados['empresa_proponente_cidade'] ?? ($empresa['Cidade'] ?? 'Belo Horizonte'),
+    'DExrenso'     => dataPorExtenso(),
+    'DataExtenso'  => dataPorExtenso(),
+    'data_hoje'    => date('d/m/Y'),
+    'logo'         => $logo,
+    'logo_empresa' => $logo,
 
-    // Variáveis Dinâmicas de Drone/Campo
-    'ClienteCidadeUF' => ($dados['cidade_obra'] ?? '') . '-' . ($dados['estado_obra'] ?? ''),
-    'TipoTerreno' => $dados['tipo_terreno'] ?? '',
+    // ── Variáveis Dinâmicas de Campo/Drone ──────────────────────────────
+    'ClienteCidadeUF'  => ($dados['cidade_obra'] ?? '') . '-' . ($dados['estado_obra'] ?? ''),
+    'TipoTerreno'      => $dados['tipo_terreno']    ?? '',
     'CoberturaVegetal' => $dados['cobertura_vegetal'] ?? '',
-    'AcessoLocal' => $dados['acesso_local'] ?? '',
+    'AcessoLocal'      => $dados['acesso_local']    ?? '',
     'RestricoesAereas' => $dados['restricoes_aereas'] ?? '',
 
-    // --- OS 14 ITENS DO EDITOR DINAMICO (Mapeamento Oficial) ---
-    // Dados da Empresa (Tabela DadosEmpresa via $empresa)
-    'empresa_nome'      => $empresa['Empresa'] ?? 'ELM Topografia',
-    'empresa_cnpj'      => $empresa['CNPJ'] ?? '',
-    'empresa_endereco'  => $empresa['Endereco'] ?? '',
-    'empresa_cidade'    => $empresa['Cidade'] ?? '',
-    'empresa_uf'        => $empresa['Estado'] ?? '',
-    'empresa_telefone'  => $empresa['Telefone'] ?? '',
-    'empresa_whatsapp'  => $empresa['Whatsapp'] ?? '',
-    'logo_empresa'      => $logo,
-    // 'logo'              => $logo, // Já existe acima
-    // 'empresa_logo'      => $logo, // Já existe acima
-    
-    // Dados do Usuário (Tabela Usuarios via $lookup)
-    'usuario_nome'      => $_SESSION['nome_completo'] ?? $lookup['usuario']['nome_completo'] ?? 'Profissional SGT',
-    'usuario_email'     => $_SESSION['usuario'] ?? $lookup['usuario']['usuario'] ?? '',
-    
-    // Metadados do Sistema
-    'data_hoje'         => date('d/m/Y'),
-    // 'numero_proposta'   => $dados['numero_proposta'] ?? '000/0000', // Já existe acima
+    // ── Dados do Usuário ─────────────────────────────────────────────────
+    'empresa_nome'     => $empresa['Empresa'] ?? 'ELM Topografia',
+    'empresa_cnpj'     => $empresa['CNPJ']    ?? '',
+    'empresa_endereco' => $empresa['Endereco']?? '',
+    'empresa_cidade'   => $empresa['Cidade']  ?? '',
+    'empresa_uf'       => $empresa['Estado']  ?? '',
+    'empresa_telefone' => $empresa['Telefone']?? '',
+    'empresa_whatsapp' => $empresa['Whatsapp']?? '',
+    'usuario_nome'     => $_SESSION['nome_completo'] ?? $lookup['usuario']['nome_completo'] ?? 'Profissional SGT',
+    'usuario_email'    => $_SESSION['usuario'] ?? $lookup['usuario']['usuario'] ?? '',
 ];
+
 
 // 4. Carregador de Estrutura de Blocos (Caminho Absoluto)
 require_once __DIR__ . '/src/ProposalArchitect/Infrastructure/DatabaseStructureLoader.php';

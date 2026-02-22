@@ -141,6 +141,12 @@ window.irParaEditor = function () {
 
     // Sinalizar redirecionamento para o editor avançado após salvar
     createHidden('formato_saida', 'editor');
+    
+    // FORÇAR MODO DOCX (Provisório até o usuário implementar Select de Modelos na View)
+    // Isso garante que salvar_proposta.php crie corretamente a relação no banco
+    const selectModelo = document.querySelector('select[name="modelo_docx"]');
+    const modeloAtivo = selectModelo ? selectModelo.value : 'PropostaDrone';
+    createHidden('modelo_docx', modeloAtivo);
 
     // 1. Salários
     document.querySelectorAll('#list-salarios .cost-item').forEach(row => {

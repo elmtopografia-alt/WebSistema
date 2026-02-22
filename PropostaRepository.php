@@ -141,13 +141,13 @@ class PropostaRepository
 public function buscarPorId($id)
 {
     $id = (int)$id;
+    // Removido JSON_UNQUOTE(JSON_EXTRACT(p.docx_conteudo, '$')) as docx_blocos_array para evitar Fatal DB em MariaDB/MySQL antigos
     $sql = "SELECT p.*, c.nome_cliente, c.email as email_cliente, c.telefone as telefone_cliente, c.celular as celular_cliente,
                    s.nome as nome_servico, d.Empresa as nome_empresa,
                    p.modelo_docx,
                    p.docx_conteudo,
                    p.docx_blocos_count,
-                   p.docx_ultima_edicao,
-                   JSON_UNQUOTE(JSON_EXTRACT(p.docx_conteudo, '$')) as docx_blocos_array
+                   p.docx_ultima_edicao
             FROM Propostas p 
             LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente 
             LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
@@ -163,9 +163,14 @@ public function buscarPorId($id)
     
     if (!$dados) return null;
     
-    // Processamento de DOCX JSON:
+    // Processamento de DOCX JSON Seguro via PHP (Substitui o JSON_UNQUOTE do SQL):
     if (!empty($dados['docx_conteudo'])) {
-        $dados['docx_blocos'] = json_decode($dados['docx_conteudo'], true);
+        $decoded = json_decode($dados['docx_conteudo'], true);
+        $dados['docx_blocos'] = is_array($decoded) ? $decoded : [];
+        $dados['docx_blocos_array'] = $dados['docx_conteudo']; // fallback compatibilidade V3 original
+    } else {
+        $dados['docx_blocos'] = [];
+        $dados['docx_blocos_array'] = '[]';
     }
 
     // Mapeamento de colunas DB → nomes esperados pelo renderizador HTML
@@ -341,7 +346,6 @@ public function getAllLookupData($idUsuario)
         'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
         'Tipo_Locacao' => ['id' => 'id_locacao', 'nome' => 'nome', 'valor' => 'valor_mensal_default'],
         'Tipo_Custo_Admin' => ['id' => 'id_custo_admin', 'nome' => 'nome', 'valor' => 'valor_default'],
-        'tipos_servico' => ['id' => 'id', 'nome' => 'nome', 'extra' => 'descricao', 'cor' => 'cor', 'icone' => 'icone']
     ];
 
     $data['arrays_js'] = [];
@@ -636,13 +640,20 @@ public function getAllLookupData($idUsuario)
             'id_criador' => $this->idCriador,
             'is_demo' => $isDemo,
             'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
-            'empresa_cliente_salvo' => $dados['empresa_cliente'] ?? '',
+            'empresa_cliente_salvo' => $dados['empresa_cliente_salvo'] ?? ($dados['empresa_cliente'] ?? ''),
             'email_salvo' => $dados['email_salvo'] ?? '',
             'telefone_salvo' => $dados['telefone_salvo'] ?? '',
             'celular_salvo' => $dados['celular_salvo'] ?? '',
             'whatsapp_salvo' => $dados['whatsapp_salvo'] ?? '',
-            'empresa_proponente_nome' => $dados['empresa_proponente_nome'] ?? '',
-            'empresa_proponente_cnpj' => $dados['empresa_proponente_cnpj'] ?? '',
+            'empresa_proponente_nome'     => $dados['empresa_proponente_nome']     ?? '',
+            'empresa_proponente_cnpj'     => $dados['empresa_proponente_cnpj']     ?? '',
+            'empresa_proponente_endereco' => $dados['empresa_proponente_endereco'] ?? '',
+            'empresa_proponente_cidade'   => $dados['empresa_proponente_cidade']   ?? '',
+            'empresa_proponente_estado'   => $dados['empresa_proponente_estado']   ?? '',
+            'empresa_proponente_banco'    => $dados['empresa_proponente_banco']    ?? '',
+            'empresa_proponente_agencia'  => $dados['empresa_proponente_agencia']  ?? '',
+            'empresa_proponente_conta'    => $dados['empresa_proponente_conta']    ?? '',
+            'empresa_proponente_pix'      => $dados['empresa_proponente_pix']      ?? '',
             'id_servico' => !empty($dados['id_servico']) ? intval($dados['id_servico']) : null,
             'tipo_servico_id' => intval($dados['tipo_servico_id'] ?? 0),
             'contato_obra' => $dados['contato_obra'] ?? '',
@@ -676,9 +687,11 @@ public function getAllLookupData($idUsuario)
             'tipo_terreno' => $dados['tipo_terreno'] ?? null,
             'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
             'acesso_local' => $dados['acesso_local'] ?? null,
+            'acesso_local' => $dados['acesso_local'] ?? null,
             'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
             'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
-            'modelo_docx' => $dados['modelo_docx'] ?? null
+            'modelo_docx' => $dados['modelo_docx'] ?? null,
+            'docx_conteudo' => $dados['docx_blocos_serializado'] ?? null
         ];
 
         // Filtra colunas que NÃO existem no banco para evitar crashes
@@ -688,7 +701,30 @@ public function getAllLookupData($idUsuario)
         $values = [];
         $types = "";
 
+        // Colunas FK — valida se o ID existe no banco antes de incluir (evita FK constraint fails dev vs produção)
+        $fk_validation = [
+            'id_servico' => "SELECT id_servico FROM Tipo_Servicos WHERE id_servico = ?",
+            'id_cliente'  => "SELECT id_cliente FROM Clientes WHERE id_cliente = ?",
+        ];
+
         foreach ($map as $col => $val) {
+            // Se é uma coluna FK com valor, valida se o ID existe de verdade no banco
+            if (isset($fk_validation[$col])) {
+                if (empty($val)) {
+                    // Valor vazio/nulo — omite silenciosamente
+                    error_log("PropostaRepository::insertProposta FK omitida (vazia): '$col'");
+                    continue;
+                }
+                $chk = $this->conn->prepare($fk_validation[$col]);
+                $chk->bind_param("i", $val);
+                $chk->execute();
+                $chk->store_result();
+                if ($chk->num_rows === 0) {
+                    // ID não existe no banco — omite para não quebrar a FK
+                    error_log("PropostaRepository::insertProposta AVISO FK: '$col' = $val não existe na tabela referenciada. Campo omitido.");
+                    continue;
+                }
+            }
             if (in_array($col, $available)) {
                 $fields[] = $col;
                 $placeholders[] = "?";
@@ -723,50 +759,61 @@ public function getAllLookupData($idUsuario)
     private function updateProposta($id, $dados, $totais) 
     {
         $map = [
-            'id_cliente' => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
-            'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
-            'empresa_cliente_salvo' => $dados['empresa_cliente'] ?? '',
-            'email_salvo' => $dados['email_salvo'] ?? '',
-            'telefone_salvo' => $dados['telefone_salvo'] ?? '',
-            'celular_salvo' => $dados['celular_salvo'] ?? '',
-            'whatsapp_salvo' => $dados['whatsapp_salvo'] ?? '',
-            'id_servico' => intval($dados['id_servico']),
-            'tipo_servico_id' => intval($dados['tipo_servico_id'] ?? 0),
-            'contato_obra' => $dados['contato_obra'] ?? '',
-            'finalidade' => $dados['finalidade'] ?? '',
-            'tipo_levantamento' => $dados['tipo_levantamento'] ?? '',
-            'area_obra' => $dados['area_obra'] ?? ($dados['area'] ?? ''),
-            'unidade_area' => $dados['unidade_area'] ?? 'm²',
-            'endereco_obra' => $dados['endereco_obra'] ?? ($dados['endereco'] ?? ''),
-            'bairro_obra' => $dados['bairro_obra'] ?? ($dados['bairro'] ?? ''),
-            'cidade_obra' => $dados['cidade_obra'] ?? ($dados['cidade'] ?? ''),
-            'estado_obra' => $dados['estado_obra'] ?? ($dados['estado'] ?? ''),
-            'prazo_execucao' => $dados['prazo_execucao'] ?? '',
-            'dias_campo' => intval($dados['dias_campo'] ?? 0),
-            'dias_escritorio' => intval($dados['dias_escritorio'] ?? 0),
-            'status' => $dados['status'] ?? 'Em elaboração',
+            'id_cliente'                  => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
+            'nome_cliente_salvo'          => $dados['nome_cliente_salvo'] ?? '',
+            'empresa_cliente_salvo'       => $dados['empresa_cliente_salvo'] ?? ($dados['empresa_cliente'] ?? ''),
+            'email_salvo'                 => $dados['email_salvo'] ?? '',
+            'telefone_salvo'              => $dados['telefone_salvo'] ?? '',
+            'celular_salvo'               => $dados['celular_salvo'] ?? '',
+            'whatsapp_salvo'              => $dados['whatsapp_salvo'] ?? '',
+            // Dados da empresa proponente (buscados no salvar_proposta.php via DadosEmpresa)
+            'empresa_proponente_nome'     => $dados['empresa_proponente_nome']     ?? '',
+            'empresa_proponente_cnpj'     => $dados['empresa_proponente_cnpj']     ?? '',
+            'empresa_proponente_endereco' => $dados['empresa_proponente_endereco'] ?? '',
+            'empresa_proponente_cidade'   => $dados['empresa_proponente_cidade']   ?? '',
+            'empresa_proponente_estado'   => $dados['empresa_proponente_estado']   ?? '',
+            'empresa_proponente_banco'    => $dados['empresa_proponente_banco']    ?? '',
+            'empresa_proponente_agencia'  => $dados['empresa_proponente_agencia']  ?? '',
+            'empresa_proponente_conta'    => $dados['empresa_proponente_conta']    ?? '',
+            'empresa_proponente_pix'      => $dados['empresa_proponente_pix']      ?? '',
+            'id_servico'           => intval($dados['id_servico']),
+            'tipo_servico_id'      => intval($dados['tipo_servico_id'] ?? 0),
+            'contato_obra'         => $dados['contato_obra'] ?? '',
+            'finalidade'           => $dados['finalidade'] ?? '',
+            'tipo_levantamento'    => $dados['tipo_levantamento'] ?? '',
+            'area_obra'            => $dados['area_obra'] ?? ($dados['area'] ?? ''),
+            'unidade_area'         => $dados['unidade_area'] ?? 'm²',
+            'endereco_obra'        => $dados['endereco_obra'] ?? ($dados['endereco'] ?? ''),
+            'bairro_obra'          => $dados['bairro_obra'] ?? ($dados['bairro'] ?? ''),
+            'cidade_obra'          => $dados['cidade_obra'] ?? ($dados['cidade'] ?? ''),
+            'estado_obra'          => $dados['estado_obra'] ?? ($dados['estado'] ?? ''),
+            'prazo_execucao'       => $dados['prazo_execucao'] ?? '',
+            'dias_campo'           => intval($dados['dias_campo'] ?? 0),
+            'dias_escritorio'      => intval($dados['dias_escritorio'] ?? 0),
+            'status'               => $dados['status'] ?? 'Em elaboração',
             'total_custos_salarios' => $totais['itens_total']['salarios'],
-            'total_custos_estadia' => $totais['itens_total']['estadia'],
+            'total_custos_estadia'  => $totais['itens_total']['estadia'],
             'total_custos_consumos' => $totais['itens_total']['consumos'],
-            'total_custos_locacao' => $totais['itens_total']['locacao'],
-            'total_custos_admin' => $totais['itens_total']['admin'],
-            'percentual_lucro' => floatval($dados['percentual_lucro'] ?? 0),
-            'valor_lucro' => $totais['lucro'],
-            'subtotal_com_lucro' => $totais['subtotal'],
-            'valor_desconto' => floatval($dados['valor_desconto'] ?? 0),
-            'valor_final_proposta' => $totais['final'],
-            'Valor_proposta_extenso' => $totais['extenso'],
-            'mobilizacao_percentual' => floatval($dados['mobilizacao_percentual'] ?? 30),
-            'mobilizacao_valor' => $totais['mobilizacao']['mobilizacao_valor'],
-            'restante_percentual' => $totais['mobilizacao']['restante_percentual'],
-            'restante_valor' => $totais['mobilizacao']['restante_valor'],
-            'tipo_terreno' => $dados['tipo_terreno'] ?? null,
-            'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
-            'acesso_local' => $dados['acesso_local'] ?? null,
-            'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
-            'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
-            'modelo_docx' => $dados['modelo_docx'] ?? null,
-            'data_atualizacao' => date('Y-m-d H:i:s')
+            'total_custos_locacao'  => $totais['itens_total']['locacao'],
+            'total_custos_admin'    => $totais['itens_total']['admin'],
+            'percentual_lucro'      => floatval($dados['percentual_lucro'] ?? 0),
+            'valor_lucro'           => $totais['lucro'],
+            'subtotal_com_lucro'    => $totais['subtotal'],
+            'valor_desconto'        => floatval($dados['valor_desconto'] ?? 0),
+            'valor_final_proposta'  => $totais['final'],
+            'Valor_proposta_extenso'=> $totais['extenso'],
+            'mobilizacao_percentual'=> floatval($dados['mobilizacao_percentual'] ?? 30),
+            'mobilizacao_valor'     => $totais['mobilizacao']['mobilizacao_valor'],
+            'restante_percentual'   => $totais['mobilizacao']['restante_percentual'],
+            'restante_valor'        => $totais['mobilizacao']['restante_valor'],
+            'tipo_terreno'          => $dados['tipo_terreno']    ?? null,
+            'cobertura_vegetal'     => $dados['cobertura_vegetal'] ?? null,
+            'acesso_local'          => $dados['acesso_local']    ?? null,   // sem duplicata
+            'restricoes_aereas'     => $dados['restricoes_aereas'] ?? null,
+            'coordenadas_gps'       => $dados['coordenadas_gps'] ?? null,
+            'modelo_docx'           => $dados['modelo_docx']    ?? null,
+            'docx_conteudo'         => $dados['docx_blocos_serializado'] ?? null,
+            'data_atualizacao'      => date('Y-m-d H:i:s')
         ];
 
         $available = $this->getAvailableColumns();
