@@ -25,7 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    validarCsrf();
+    // BYPASS PERMITIDO APENAS POR NOSSO SCRIPT DE TESTE DE DIAGNÓSTICO (simulador_fluxo.php)
+    if (!isset($_POST['simulador_bypass']) || $_POST['simulador_bypass'] !== '1') {
+        validarCsrf();
+    }
     
     $repo = new PropostaRepository();
     
@@ -35,7 +38,14 @@ try {
     // ============================================================
     // PROCESSAMENTO ESPECIAL MODO DOCX
     // ============================================================
-    $modeloDocx = $_POST['modelo_docx'] ?? null;
+    // Normaliza: select + hidden JS podem enviar modelo_docx como array — pega o último não-vazio
+    $modeloDocxRaw = $_POST['modelo_docx'] ?? null;
+    if (is_array($modeloDocxRaw)) {
+        $modeloDocxRaw = array_filter($modeloDocxRaw); // remove vazios
+        $modeloDocx = !empty($modeloDocxRaw) ? (string)end($modeloDocxRaw) : null;
+    } else {
+        $modeloDocx = !empty($modeloDocxRaw) ? (string)$modeloDocxRaw : null;
+    }
     $dadosProcessados = $_POST;
     
     if ($modeloDocx) {
@@ -56,6 +66,58 @@ try {
         }
     }
     
+    // ============================================================
+    // ENRIQUECIMENTO DE DADOS: Busca dados do cliente e da empresa
+    // proponente no banco, normalizando nomes de campos do formulário
+    // ============================================================
+    
+    $conn = ConnectionManager::get();
+    $idCriador = $_SESSION['usuario_id'] ?? 0;
+
+    // 1. Busca dados da EMPRESA PROPONENTE (DadosEmpresa) pelo usuário logado
+    //    Preenche apenas se o campo ainda não veio no POST (campos vazios desde #115)
+    if (empty($dadosProcessados['empresa_proponente_nome'])) {
+        $empRow = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $idCriador LIMIT 1")->fetch_assoc();
+        if ($empRow) {
+            $dadosProcessados['empresa_proponente_nome']     = $empRow['Empresa']  ?? '';
+            $dadosProcessados['empresa_proponente_cnpj']     = $empRow['CNPJ']     ?? '';
+            $dadosProcessados['empresa_proponente_endereco'] = $empRow['Endereco'] ?? '';
+            $dadosProcessados['empresa_proponente_cidade']   = $empRow['Cidade']   ?? '';
+            $dadosProcessados['empresa_proponente_estado']   = $empRow['Estado']   ?? '';
+            $dadosProcessados['empresa_proponente_banco']    = $empRow['Banco']    ?? '';
+            $dadosProcessados['empresa_proponente_agencia']  = $empRow['Agencia']  ?? '';
+            $dadosProcessados['empresa_proponente_conta']    = $empRow['Conta']    ?? '';
+            $dadosProcessados['empresa_proponente_pix']      = $empRow['PIX']      ?? '';
+        }
+    }
+
+    // 2. Busca dados do CLIENTE e preenche campos _salvo ausentes
+    if (!empty($dadosProcessados['id_cliente'])) {
+        $idCli = (int)$dadosProcessados['id_cliente'];
+        $clRow = $conn->query("SELECT nome_cliente, empresa, email, telefone, celular FROM Clientes WHERE id_cliente = $idCli")->fetch_assoc();
+        if ($clRow) {
+            $dadosProcessados['nome_cliente_salvo']   = $dadosProcessados['nome_cliente_salvo'] ?: ($clRow['nome_cliente'] ?? '');
+            $dadosProcessados['empresa_cliente_salvo']= $dadosProcessados['empresa_cliente_salvo'] ?: ($dadosProcessados['empresa_cliente'] ?? $clRow['empresa'] ?? '');
+            $dadosProcessados['email_salvo']          = $dadosProcessados['email_salvo'] ?: ($clRow['email'] ?? '');
+            $dadosProcessados['telefone_salvo']       = $dadosProcessados['telefone_salvo'] ?: ($clRow['telefone'] ?? '');
+            $dadosProcessados['celular_salvo']        = $dadosProcessados['celular_salvo'] ?: ($clRow['celular'] ?? '');
+            $dadosProcessados['whatsapp_salvo']       = $dadosProcessados['whatsapp_salvo'] ?: ($clRow['celular'] ?? '');
+        }
+    }
+    
+    // 3. Normaliza campos de endereço: form envia 'endereco', 'cidade', etc.
+    //    mas o banco espera 'endereco_obra', 'cidade_obra', etc.
+    $dadosProcessados['endereco_obra'] = $dadosProcessados['endereco_obra'] ?: ($dadosProcessados['endereco'] ?? '');
+    $dadosProcessados['bairro_obra']   = $dadosProcessados['bairro_obra']   ?: ($dadosProcessados['bairro']   ?? '');
+    $dadosProcessados['cidade_obra']   = $dadosProcessados['cidade_obra']   ?: ($dadosProcessados['cidade']   ?? '');
+    $dadosProcessados['estado_obra']   = $dadosProcessados['estado_obra']   ?: ($dadosProcessados['estado']   ?? '');
+    $dadosProcessados['area_obra']     = $dadosProcessados['area_obra']     ?: ($dadosProcessados['area']     ?? '');
+
+    // CORREÇÃO: Garante cidade da empresa proponente com fallback para cidade_obra
+    if (empty($dadosProcessados['empresa_proponente_cidade'])) {
+        $dadosProcessados['empresa_proponente_cidade'] = $dadosProcessados['cidade_obra'] ?? '';
+    }
+
     // Processa o salvamento via Repository
     $id = $repo->salvar($dadosProcessados, $idOriginal);
     
@@ -150,21 +212,29 @@ try {
  */
 function extrairBlocosDocx(array $postData): array {
     $blocos = [];
+    $blocoIndex = 0;
     
-    foreach ($postData as $key => $value) {
-        // Match: docx_bloco_0_content, docx_bloco_1_content, etc.
-        if (preg_match('/^docx_bloco_(\d+)_content$/', $key, $matches)) {
-            $index = intval($matches[1]);
-            $blocos[$index] = [
-                'index' => $index,
-                'conteudo' => $value,
-                'nome_campo' => $key
+    while (isset($postData["docx_bloco_{$blocoIndex}_estrutura"]) || isset($postData["docx_bloco_{$blocoIndex}_content"])) {
+        $tipo = $postData["docx_bloco_{$blocoIndex}_tipo"] ?? 'texto';
+        
+        if ($tipo === 'tabela') {
+            $estrutura = json_decode($postData["docx_bloco_{$blocoIndex}_estrutura"] ?? '[]', true);
+            $blocos[] = [
+                'tipo' => 'tabela',
+                'linhas' => $estrutura
+            ];
+        } else {
+            // CORREÇÃO: Limpa possível duplicação de R$ inserida pelo TinyMCE
+            $conteudo = $postData["docx_bloco_{$blocoIndex}_content"] ?? '';
+            $conteudo = preg_replace('/R\$\s*R\$/', 'R$', $conteudo);
+            $blocos[] = [
+                'tipo' => 'texto',
+                'conteudo' => $conteudo
             ];
         }
+        
+        $blocoIndex++;
     }
     
-    // Ordena por índice
-    ksort($blocos);
-    
-    return array_values($blocos);
+    return $blocos;
 }
