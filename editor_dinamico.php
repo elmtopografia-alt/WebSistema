@@ -1,8 +1,11 @@
 <?php
 /**
- * EDITOR DINÂMICO DE PROPOSTAS V3.0 (Correção Arquitetural DOCX)
+ * EDITOR DINÂMICO DE PROPOSTAS V3.1 (Correção Completa de Dados)
  * 
- * Suporte dual: Modelos DOCX (genérico) + Modelos Legacy (hardcoded)
+ * Correções:
+ * - Busca completa de cliente e obra do banco (igual gerar-proposta)
+ * - Mapeamento robusto de variáveis com múltiplos fallbacks
+ * - Suporte a dados bancários da empresa
  */
 
 require_once __DIR__ . '/session_validator.php';
@@ -24,14 +27,51 @@ try {
 
 // Tenta obter ID da proposta
 $id_proposta_ativo = (int)($_GET['id'] ?? 0);
-$incomingData = [];
+if (!isset($incomingData)) {
+    $incomingData = [];
+}
 
 if ($id_proposta_ativo > 0) {
     try {
         $incomingData = $repo->buscarPorId($id_proposta_ativo) ?: [];
         
+        // CORREÇÃO CRÍTICA: Busca completa do cliente e obra (igual gerar-proposta.php)
+        if (!empty($incomingData['id_cliente'])) {
+            $stmt = $repo->getConn()->prepare("SELECT nome_cliente as nome, email, telefone, celular, whatsapp FROM Clientes WHERE id_cliente = ? LIMIT 1");
+            $stmt->bind_param("i", $incomingData['id_cliente']);
+            $stmt->execute();
+            $dadosCliente = $stmt->get_result()->fetch_assoc() ?: [];
+            
+            // Mesclar com incomingData com prioridade para dados do cadastro
+            $incomingData['nome_cliente_salvo'] = $dadosCliente['nome'] ?? $incomingData['nome_cliente'] ?? $incomingData['nome_cliente_salvo'] ?? '';
+            $incomingData['email_salvo'] = $dadosCliente['email'] ?? $incomingData['email_cliente'] ?? $incomingData['email_salvo'] ?? '';
+            $incomingData['telefone_salvo'] = $dadosCliente['telefone'] ?? $incomingData['telefone_cliente'] ?? $incomingData['telefone_salvo'] ?? '';
+            $incomingData['celular_salvo'] = $dadosCliente['celular'] ?? $incomingData['celular_cliente'] ?? $incomingData['celular_salvo'] ?? '';
+            $incomingData['whatsapp_salvo'] = $dadosCliente['whatsapp'] ?? $dadosCliente['celular'] ?? $incomingData['whatsapp_salvo'] ?? '';
+        }
+        
+        if (!empty($incomingData['id_obra'])) {
+            $stmt = $repo->getConn()->prepare("SELECT endereco, bairro, cidade, estado, area, unidade_area, tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, finalidade FROM obras WHERE id = ? LIMIT 1");
+            $stmt->bind_param("i", $incomingData['id_obra']);
+            $stmt->execute();
+            $dadosObra = $stmt->get_result()->fetch_assoc() ?: [];
+            
+            // Mesclar com incomingData
+            $incomingData['endereco_obra'] = $dadosObra['endereco'] ?? $incomingData['endereco_obra'] ?? '';
+            $incomingData['bairro_obra'] = $dadosObra['bairro'] ?? $incomingData['bairro_obra'] ?? '';
+            $incomingData['cidade_obra'] = $dadosObra['cidade'] ?? $incomingData['cidade_obra'] ?? '';
+            $incomingData['estado_obra'] = $dadosObra['estado'] ?? $incomingData['estado_obra'] ?? '';
+            $incomingData['cidade_limpo'] = $dadosObra['cidade'] ?? $incomingData['cidade_obra'] ?? $incomingData['cidade_limpo'] ?? '';
+            $incomingData['area_obra'] = $dadosObra['area'] ?? $incomingData['area_obra'] ?? '0';
+            $incomingData['unidade_area'] = $dadosObra['unidade_area'] ?? $incomingData['unidade_area'] ?? 'm²';
+            $incomingData['tipo_terreno'] = $dadosObra['tipo_terreno'] ?? $incomingData['tipo_terreno'] ?? 'Não informado';
+            $incomingData['cobertura_vegetal'] = $dadosObra['cobertura_vegetal'] ?? $incomingData['cobertura_vegetal'] ?? 'Não informado';
+            $incomingData['acesso_local'] = $dadosObra['acesso_local'] ?? $incomingData['acesso_local'] ?? 'Não informado';
+            $incomingData['restricoes_aereas'] = $dadosObra['restricoes_aereas'] ?? $incomingData['restricoes_aereas'] ?? 'Não informado';
+            $incomingData['finalidade'] = $dadosObra['finalidade'] ?? $incomingData['finalidade'] ?? '';
+        }
+        
         // CORREÇÃO: Garante que equipamentos estão nos dados para o resolvedor
-        // Se vieram vazios do banco, tenta reconstruir das locações
         if (empty($incomingData['modelo_drone']) || $incomingData['modelo_drone'] === 'Não se aplica') {
             if (!empty($incomingData['itens']['locacoes'])) {
                 foreach ($incomingData['itens']['locacoes'] as $loc) {
@@ -146,92 +186,87 @@ class VariableResolver {
         $d = $this->data;
 
         $this->map = [
-            // ── Cliente (chaves _salvo = padrão do banco) ─────────────────────
-            'nome_cliente_salvo'    => $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? 'Cliente não informado',
-            'email_salvo'           => $d['email_salvo']        ?? $d['email_cliente'] ?? '',
-            'telefone_salvo'        => $d['telefone_salvo']     ?? $d['telefone_cliente'] ?? '',
-            'celular_salvo'         => $d['celular_salvo']      ?? $d['celular_cliente'] ?? '',
-            'whatsapp_salvo'        => $d['whatsapp_salvo']     ?? $d['celular_salvo'] ?? '',
+            // ── Cliente (múltiplos fallbacks para garantir) ─────────────────────
+            'nome_cliente_salvo'    => $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? $d['cliente_nome'] ?? $d['nome'] ?? 'Cliente não informado',
+            'nome_cliente'          => $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? $d['cliente_nome'] ?? $d['nome'] ?? 'Cliente não informado',
+            'email_salvo'           => $d['email_salvo']        ?? $d['email_cliente'] ?? $d['cliente_email'] ?? $d['email'] ?? '',
+            'email_cliente'         => $d['email_salvo']        ?? $d['email_cliente'] ?? $d['cliente_email'] ?? $d['email'] ?? '',
+            'telefone_salvo'        => $d['telefone_salvo']     ?? $d['telefone_cliente'] ?? $d['cliente_telefone'] ?? $d['telefone'] ?? '',
+            'telefone_cliente'      => $d['telefone_salvo']     ?? $d['telefone_cliente'] ?? $d['cliente_telefone'] ?? $d['telefone'] ?? '',
+            'celular_salvo'         => $d['celular_salvo']      ?? $d['celular_cliente'] ?? $d['cliente_celular'] ?? $d['celular'] ?? '',
+            'celular_cliente'       => $d['celular_salvo']      ?? $d['celular_cliente'] ?? $d['cliente_celular'] ?? $d['celular'] ?? '',
+            'whatsapp_salvo'        => $d['whatsapp_salvo']     ?? $d['whatsapp_cliente'] ?? $d['cliente_whatsapp'] ?? $d['whatsapp'] ?? $d['celular_salvo'] ?? '',
+            'whatsapp_cliente'      => $d['whatsapp_salvo']     ?? $d['whatsapp_cliente'] ?? $d['cliente_whatsapp'] ?? $d['whatsapp'] ?? $d['celular_salvo'] ?? '',
             'empresa_cliente_salvo' => $d['empresa_cliente_salvo'] ?? '',
-            // aliases curtos para templates antigos
-            'nome_cliente'          => $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? 'Cliente não informado',
-            'email_cliente'         => $d['email_salvo']        ?? '',
-            'telefone_cliente'      => $d['telefone_salvo']     ?? '',
-            'celular_cliente'       => $d['celular_salvo']      ?? '',
 
-            // ── Local/Obra ────────────────────────────────────────────────────
-            'endereco_obra'    => $d['endereco_obra']   ?? '',
-            'bairro_obra'      => $d['bairro_obra']     ?? '',
-            // CORREÇÃO: fallback para campo genérico 'cidade'/'estado'
-            'cidade_obra'      => $d['cidade_obra']     ?? $d['cidade'] ?? '',
-            'cidade_limpo'     => trim(explode(',', $d['cidade_obra'] ?? '')[0] ?? ''),
-            'estado_obra'      => $d['estado_obra']     ?? $d['estado'] ?? '',
+            // ── Local/Obra (com fallbacks do cadastro de obras) ─────────────────
+            'endereco_obra'    => $d['endereco_obra']   ?? $d['obra_endereco'] ?? '',
+            'bairro_obra'      => $d['bairro_obra']     ?? $d['obra_bairro'] ?? '',
+            'cidade_obra'      => $d['cidade_obra']     ?? $d['obra_cidade'] ?? $d['cidade'] ?? '',
+            'cidade_limpo'     => $d['cidade_limpo']    ?? trim(explode(',', $d['cidade_obra'] ?? '')[0] ?? ''),
+            'estado_obra'      => $d['estado_obra']     ?? $d['obra_uf'] ?? $d['estado'] ?? '',
             'ClienteCidadeUF'  => ($d['cidade_obra'] ?? $d['cidade'] ?? '') . '-' . ($d['estado_obra'] ?? $d['estado'] ?? ''),
-            // CORREÇÃO: Cidade mapeada com fallback em cascata
             'Cidade'           => $d['empresa_proponente_cidade'] ?? $d['cidade_obra'] ?? $d['cidade'] ?? '',
             'cidade'           => $d['empresa_proponente_cidade'] ?? $d['cidade_obra'] ?? $d['cidade'] ?? '',
             'AreaEstimada'     => ($d['area_obra'] ?? '0') . ' ' . ($d['unidade_area'] ?? 'm²'),
             'area_obra'        => $d['area_obra']       ?? '0',
             'unidade_area'     => $d['unidade_area']    ?? 'm²',
 
+            // ── Escopo/Técnico ─────────────────────────────────────────────────
+            'finalidade'       => $d['finalidade']       ?? '',
+            'tipo_levantamento'=> $d['tipo_levantamento']?? '',
+            'TipoTerreno'      => $d['tipo_terreno']     ?? $d['TipoTerreno'] ?? 'Não informado',
+            'CoberturaVegetal' => $d['cobertura_vegetal']?? $d['CoberturaVegetal'] ?? 'Não informado',
+            'AcessoLocal'      => $d['acesso_local']     ?? $d['AcessoLocal'] ?? 'Não informado',
+            'RestricoesAereas' => $d['restricoes_aereas']?? $d['RestricoesAereas'] ?? 'Não informado',
+
             // ── Valores e datas ───────────────────────────────────────────────
-            // CORREÇÃO: ValorProposta sem R$ para evitar duplicação quando template já tem R$
-            'ValorProposta'    => $this->formatarMoedaSemPrefixo($d['valor_final_proposta'] ?? 0),
-            'ValorExtenso'     => $d['Valor_proposta_extenso'] ?? $this->valorPorExtenso($d['valor_final_proposta'] ?? 0),
-            'DataExtenso'      => $this->dataPorExtenso($d['data_criacao'] ?? null),
-            'DExrenso'         => $this->dataPorExtenso($d['data_criacao'] ?? null),
+            'ValorProposta'    => $this->formatarMoedaSemPrefixo($d['valor_final_proposta'] ?? $d['valor'] ?? 0),
+            'ValorExtenso'     => $d['Valor_proposta_extenso'] ?? $d['valor_extenso'] ?? $this->valorPorExtenso($d['valor_final_proposta'] ?? $d['valor'] ?? 0),
+            'DataExtenso'      => $this->dataPorExtenso($d['data_criacao'] ?? $d['data_proposta'] ?? null),
+            'DExrenso'         => $this->dataPorExtenso($d['data_criacao'] ?? $d['data_proposta'] ?? null),
             'numero_proposta'  => $d['numero_proposta'] ?? 'N/A',
 
-            // ── Drone/Campo ───────────────────────────────────────────────────
-            'TipoTerreno'      => $d['tipo_terreno']     ?? 'Não informado',
-            'CoberturaVegetal' => $d['cobertura_vegetal']?? 'Não informado',
-            'AcessoLocal'      => $d['acesso_local']     ?? 'Não informado',
-            'RestricoesAereas' => $d['restricoes_aereas']?? 'Não informado',
-
             // ── Equipamentos ──────────────────────────────────────────────────
-            'Drone'        => $d['modelo_drone']        ?? $d['drone']        ?? 'Não aplicável',
-            'Veiculo'      => $d['modelo_veiculo']      ?? $d['veiculo']      ?? 'Não incluso',
-            'Estacao_Total'=> $d['modelo_estacao_total']?? $d['estacao_total']?? 'Não inclusa',
-            'GPS'          => $d['modelo_gps']          ?? $d['gps']          ?? 'Par de Receptores GNSS RTK',
+            'Drone'        => $d['modelo_drone']        ?? $d['drone']        ?? $d['equipamento_drone'] ?? 'Não aplicável',
+            'Veiculo'      => $d['modelo_veiculo']      ?? $d['veiculo']      ?? $d['equipamento_veiculo'] ?? 'Não incluso',
+            'Estacao_Total'=> $d['modelo_estacao_total']?? $d['estacao_total']?? $d['equipamento_estacao'] ?? 'Não inclusa',
+            'GPS'          => $d['modelo_gps']          ?? $d['gps']          ?? $d['equipamento_gps'] ?? 'Par de Receptores GNSS RTK',
 
-            // ── Empresa Proponente (campos reais do banco) ────────────────────
+            // ── Empresa Proponente ────────────────────────────────────────────
             'Empresa'                  => $d['empresa_proponente_nome']   ?? $d['nome_empresa'] ?? 'SGT Topografia',
             'empresa'                  => $d['empresa_proponente_nome']   ?? $d['nome_empresa'] ?? 'SGT Topografia',
-            'CNPJ'                     => $d['empresa_proponente_cnpj']   ?? '',
-            'Banco'                    => $d['empresa_proponente_banco']  ?? '',
-            'Agencia'                  => $d['empresa_proponente_agencia']?? '',
-            'Conta'                    => $d['empresa_proponente_conta']  ?? '',
-            'PIX'                      => $d['empresa_proponente_pix']    ?? '',
+            'CNPJ'                     => $d['empresa_proponente_cnpj']   ?? $d['cnpj'] ?? '',
+            'Banco'                    => $d['empresa_proponente_banco']  ?? $d['Banco'] ?? 'Banco Inter',
+            'Agencia'                  => $d['empresa_proponente_agencia']?? $d['Agencia'] ?? '0001',
+            'Conta'                    => $d['empresa_proponente_conta']  ?? $d['Conta'] ?? '',
+            'PIX'                      => mb_strtoupper($d['empresa_proponente_pix'] ?? $d['PIX'] ?? ''),
             'empresa_proponente_nome'  => $d['empresa_proponente_nome']   ?? '',
             'empresa_proponente_cnpj'  => $d['empresa_proponente_cnpj']   ?? '',
             'logo_empresa'             => $d['logo_empresa'] ?? 'assets/logo_sgt.png',
             'logo'                     => $d['logo_empresa'] ?? 'assets/logo_sgt.png',
+            'whatsapp'                 => $d['empresa_proponente_telefone'] ?? $d['whatsapp'] ?? $d['Telefone'] ?? '',
+            'whatsapp_empresa'         => $d['empresa_proponente_telefone'] ?? $d['whatsapp'] ?? $d['Telefone'] ?? '',
 
             // ── Prazos ────────────────────────────────────────────────────────
             'dias_campo'     => $d['dias_campo']     ?? '0',
             'dias_escritorio'=> $d['dias_escritorio']?? '0',
             'prazo_execucao' => $d['prazo_execucao'] ?? '',
 
-            // ── Textos ────────────────────────────────────────────────────────
-            'finalidade'      => $d['finalidade']       ?? '',
-            'tipo_levantamento'=> $d['tipo_levantamento']?? '',
-
             // ── Pagamento ─────────────────────────────────────────────────────
-            // CORREÇÃO: percentual formatado sem .00 quando inteiro; valor sem R$
             'mobilizacao_percentual' => $this->formatarPercentual($d['mobilizacao_percentual'] ?? 30),
             'mobilizacao_valor'      => $this->formatarMoedaSemPrefixo($d['mobilizacao_valor'] ?? 0),
             'restante_percentual'    => $this->formatarPercentual($d['restante_percentual'] ?? 70),
             'restante_valor'         => $this->formatarMoedaSemPrefixo($d['restante_valor'] ?? 0)
         ];
 
-        // Adiciona todas as chaves originais como fallback (campos que não foram explicitamente mapeados)
+        // Adiciona todas as chaves originais como fallback
         $this->map = array_merge($d, $this->map);
     }
     
     public function resolve($key) {
-        // Remove ${} ou {{}} se presente
         $key = preg_replace('/^\$\{|\}$|^\{\{|\}\}$/', '', trim($key));
-        return $this->map[$key] ?? "[{$key}]"; // Retorna [chave] se não encontrar
+        return $this->map[$key] ?? "[{$key}]";
     }
     
     public function getAll() {
@@ -249,7 +284,6 @@ class VariableResolver {
         }, $conteudo);
     }
     
-    // CORREÇÃO: Formata valor monetário SEM o prefixo R$ (evita duplicação quando template já tem R$)
     private function formatarMoedaSemPrefixo($valor) {
         if (empty($valor)) return '0,00';
         $valorStr = str_replace(['R$', 'r$', ' '], '', (string)$valor);
@@ -266,19 +300,12 @@ class VariableResolver {
         return number_format($num, 2, ',', '.');
     }
 
-    // CORREÇÃO: Formata percentual sem casas decimais desnecessárias (30.00 → 30)
     private function formatarPercentual($valor) {
         $num = (float)$valor;
         if ($num == intval($num)) {
             return (string)intval($num);
         }
         return number_format($num, 2, ',', '.');
-    }
-
-    // Mantido para compatibilidade com código legado
-    private function formatarMoeda($valor) {
-        if (empty($valor)) return 'R$ 0,00';
-        return 'R$ ' . $this->formatarMoedaSemPrefixo($valor);
     }
     
     private function valorPorExtenso($valor) {
@@ -306,7 +333,6 @@ class VariableResolver {
         $ts = is_string($data) ? strtotime($data) : ($data ?? time());
         return date('d', $ts) . ' de ' . $meses[intval(date('m', $ts))] . ' de ' . date('Y', $ts);
     }
-    
 
 }
 
@@ -342,7 +368,6 @@ class GenericBlockRenderer {
         $id = "docx-bloco-{$index}";
         $nomeBase = "docx_bloco_{$index}";
         
-        // Card premium com animação
         $html = "<div class='{$this->theme->cardClass('technical')}' id='{$id}' data-tipo='{$tipo}'>";
         
         // Header do bloco
@@ -378,9 +403,6 @@ class GenericBlockRenderer {
         return $html;
     }
     
-    /**
-     * Editor de texto com TinyMCE
-     */
     private function renderEditorTexto($bloco, $nomeBase, $index) {
         $conteudoOriginal = $bloco['conteudo'] ?? '';
         $conteudoProcessado = $this->resolver->substituirVariaveis($conteudoOriginal);
@@ -389,21 +411,19 @@ class GenericBlockRenderer {
         
         $html = "<div class='space-y-3'>";
         
-        // Textarea para TinyMCE
         $html .= "<textarea name='{$nomeCampo}' id='editor-{$index}' ";
         $html .= "class='tinymce-editor " . $this->theme->inputClass() . "' ";
         $html .= "rows='8' data-original='" . htmlspecialchars($conteudoOriginal, ENT_QUOTES) . "'>";
         $html .= htmlspecialchars($conteudoProcessado);
         $html .= "</textarea>";
         
-        // Variáveis detectadas neste bloco
         if (!empty($bloco['variaveis'])) {
             $html .= "<div class='mt-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700/50'>";
             $html .= "<p class='text-[10px] text-slate-500 uppercase mb-2'>Variáveis neste bloco (clique para inserir):</p>";
             $html .= "<div class='flex flex-wrap gap-2'>";
             foreach ($bloco['variaveis'] as $var) {
                 $valor = $this->resolver->resolve($var);
-                $curto = mb_strlen($valor) > 25 ? mb_substr($valor, 0, 25) . '...' : $valor;
+                $curto = strlen($valor) > 25 ? substr($valor, 0, 25) . '...' : $valor;
                 $isResolved = ($valor !== "[{$var}]");
                 
                 $html .= "<button type='button' onclick=\"inserirVariavel('editor-{$index}', '{{{$var}}}')\" ";
@@ -423,9 +443,6 @@ class GenericBlockRenderer {
         return $html;
     }
     
-    /**
-     * Editor de tabela editável (células viram inputs)
-     */
     private function renderEditorTabela($bloco, $nomeBase, $index) {
         $linhas = $bloco['linhas'] ?? [];
         
@@ -465,7 +482,6 @@ class GenericBlockRenderer {
         $html .= "</table>";
         $html .= "</div>";
         
-        // Botões de controle da tabela
         $html .= "<div class='flex gap-2'>";
         $html .= "<button type='button' onclick='adicionarLinha({$index})' class='px-3 py-1.5 rounded-lg bg-slate-700/50 text-slate-300 text-xs hover:bg-slate-600 transition-colors'>";
         $html .= "<i class='bi bi-plus-lg'></i> Linha";
@@ -475,7 +491,6 @@ class GenericBlockRenderer {
         $html .= "</button>";
         $html .= "</div>";
         
-        // Hidden para estrutura da tabela (JSON)
         $html .= "<input type='hidden' name='{$nomeBase}_estrutura' id='estrutura-{$index}' value='" . htmlspecialchars(json_encode($linhas), ENT_QUOTES) . "'>";
         $html .= "<input type='hidden' name='{$nomeBase}_tipo' value='tabela'>";
         
@@ -519,15 +534,18 @@ if (!$id_prop && isset($_SESSION['id_proposta_ativa'])) {
     $id_prop = (int)$_SESSION['id_proposta_ativa'];
 }
 
-if (!$id_prop) {
+if (!$id_prop && empty($incomingData)) {
     die("ID da proposta não informado");
 }
 
 $_SESSION['id_proposta_ativa'] = $id_prop;
 
 try {
-    $incomingData = $repo->buscarPorId($id_prop);
-    if (!$incomingData) {
+    if (empty($incomingData)) {
+        $incomingData = $repo->buscarPorId($id_prop);
+    }
+    
+    if (empty($incomingData)) {
         die("Proposta não encontrada");
     }
     
@@ -578,10 +596,28 @@ try {
                 $classeModelo = 'SGT\\Propostas\\Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
                 
                 if (class_exists($classeModelo)) {
-                    $instanciaModelo = new $classeModelo();
-                    $config = $instanciaModelo->getConfig();
-                    $docxData = $config;
-                    $modoDocx = true;
+                    try {
+                        $instanciaModelo = new $classeModelo();
+                        
+                        // DEBUG CRÍTICO
+                        error_log("EDITOR: Instância criada: " . get_class($instanciaModelo));
+                        
+                        $docxData = $instanciaModelo->getConfig();
+                        
+                        // DEBUG CRÍTICO - Verificar o que veio
+                        error_log("EDITOR: getConfig() retornou keys: " . print_r(array_keys($docxData), true));
+                        error_log("EDITOR: blocos está vazio? " . (empty($docxData['blocos']) ? 'SIM' : 'NÃO'));
+                        error_log("EDITOR: count(blocos) = " . count($docxData['blocos'] ?? []));
+                        
+                        if (empty($docxData['blocos'])) {
+                            error_log("EDITOR: ERRO - Blocos vazios! Conteúdo de docxData: " . print_r($docxData, true));
+                        }
+                        
+                        $modoDocx = true;
+                    } catch (Throwable $e) {
+                        error_log("Editor - Erro Fatal carregando DOCX: " . $e->getMessage());
+                        die("<div style='padding:20px; background:#f8d7da; color:#721c24;'><b>Erro Crítico:</b> " . $e->getMessage() . "</div>");
+                    }
                 } else {
                     error_log("Editor - Classe DOCX não encontrada: {$classeModelo}");
                     die("<div style='padding:20px; background:#fff3cd; color:#856404; font-family:sans-serif;'><b>Aviso:</b> A classe {$classeModelo} não foi encontrada no arquivo gerado. O upload do seu DOCX pode ter falhado ou o nome possui caracteres inválidos. Tente fazer o upload novamente no Gerador.</div>");
