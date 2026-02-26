@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta GEOMETRPOLE-2026-022 - ELM Serviços Topográficos Ltda.</title>
+    
+    <!-- Fontes do tema -->
+                        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                                <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+                
+    <style>
+        /* CSS Base (inline para funcionar em qualquer servidor) */
+        /* ============================================
+   CSS BASE - SGT Propostas
+   Aplica em TODOS os temas
+   ============================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Layout A4 */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #525659;
+    padding: 20px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    background: white;
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 2cm 2.2cm;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+@media print {
+    body {
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page {
+        width: 100%;
+        box-shadow: none;
+        margin: 0;
+        padding: 2cm;
+        min-height: auto;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    h1,
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+
+    .bloco-secao,
+    table,
+    tr {
+        page-break-inside: avoid;
+    }
+}
+
+/* Tipografia base */
+h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: var(--brand);
+}
+
+h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+p,
+li {
+    font-size: 10.5pt;
+    line-height: 1.7;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Botão FAB */
+.btn-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--brand);
+    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-fab:hover {
+    transform: translateY(-2px);
+}
+
+/* Componentes comuns */
+.bloco-secao {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 10.5pt;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 100px;
+}
+
+.info-value {
+    color: var(--text-secondary);
+}
+
+/* Tabelas base */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--brand);
+    text-transform: uppercase;
+    font-size: 9pt;
+    letter-spacing: 0.05em;
+}
+
+/* Footer base */
+.footer-proposta {
+    margin-top: 40px;
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.linha-assinatura {
+    width: 60%;
+    margin: 0 auto 10px;
+    border-bottom: 1px solid var(--text-primary);
+    padding-bottom: 40px;
+}
+
+.footer-empresa {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.footer-info {
+    font-size: 9pt;
+    color: var(--text-muted);
+    margin-top: 4px;
+}        
+        /* CSS do Tema Selecionado */
+        /* ============================================
+   TEMA CLÁSSICO - Marrom/Elegante
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --brand: #b45f06;
+    --brand-light: #d4a574;
+    --brand-dark: #92400e;
+    --brand-bg: #fdf8f3;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a68;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --surface: #f8fafc;
+}
+
+/* Header clássico */
+.header-proposta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--brand);
+    margin-bottom: 24px;
+}
+
+.header-logo img {
+    max-height: 80px;
+    width: auto;
+}
+
+.header-titulo {
+    flex: 1;
+    text-align: right;
+}
+
+.header-titulo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22pt;
+    color: var(--brand);
+    margin: 0;
+}
+
+.header-subtitulo {
+    color: var(--text-muted);
+    font-size: 11pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+}
+
+/* Meta */
+.header-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    font-size: 10pt;
+    color: var(--text-muted);
+}
+
+.numero-proposta {
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: 0.02em;
+}
+
+/* Cards de dados */
+.dados-cliente,
+.dados-obra {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--brand);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+
+.dados-cliente h2,
+.dados-obra h2 {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+    margin-top: 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 6px;
+}
+
+/* Seções */
+.bloco-secao h2 {
+    font-size: 12pt;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 1.5px solid var(--brand-light);
+    padding-bottom: 6px;
+    color: var(--brand);
+}
+
+/* Box de investimento */
+.box-investimento {
+    background: linear-gradient(135deg, var(--brand-bg), #fff);
+    border: 2px solid var(--brand);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.box-investimento .valor {
+    font-family: 'Playfair Display', serif;
+    font-size: 26pt;
+    font-weight: 700;
+    color: var(--brand);
+}
+
+.box-investimento .extenso {
+    font-size: 10pt;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 6px;
+}
+
+/* Tabelas específicas */
+.tabela-prazos th {
+    background: transparent;
+    color: var(--brand);
+    border-bottom: 2px solid var(--brand);
+}
+
+.tabela-prazos tr:last-child td {
+    font-weight: 600;
+    color: var(--brand);
+    border-top: 2px solid var(--brand);
+}
+
+/* Listas estilizadas */
+.lista-equipamentos li {
+    border-left: 3px solid var(--brand-light);
+    background: var(--surface);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    list-style: none;
+}
+
+/* Dados bancários */
+.dados-bancarios {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-green, #059669);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.dados-bancarios li {
+    list-style: none;
+    margin-bottom: 4px;
+}        
+        /* Overrides específicos desta proposta */
+            </style>
+</head>
+<body>
+
+    <!-- Botão Imprimir -->
+    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">🖨️</button>
+
+    <div class="page">
+        
+        
+<header class="header-proposta">
+    <div class="header-logo">
+                    <img src="../../uploads/logos/logo_5_864a2f9992e071eb9c61ec92f1be253e.png" alt="ELM Serviços Topográficos Ltda.">
+            </div>
+    <div class="header-titulo">
+        <h1>Proposta Técnica</h1>
+        <div class="header-subtitulo">Levantamento Drone</div>
+    </div>
+</header>
+
+<div class="header-meta">
+    <span>Belo Horizonte, 09 de Fevereiro de 2026</span>
+    <span class="numero-proposta">Nº GEOMETRPOLE-2026-022</span>
+</div>
+        
+        <!-- DADOS DO CLIENTE -->
+        <div class="dados-grid">
+            <div class="dados-cliente">
+                <h2>Dados do Cliente</h2>
+                <div class="info-row">
+                    <span class="info-label">Nome:</span>
+                    <span class="info-value">Marcus Vinicius Costa e Silva Tavares</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">E-mail:</span>
+                    <span class="info-value">marcus.costa@braz,com.br</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value">
+                        (31) 3625-4769                         / Whats: (31) 99874-5889                    </span>
+                </div>
+            </div>
+            
+            <div class="dados-obra">
+                <h2>Local da Obra</h2>
+                <div class="info-row">
+                    <span class="info-label">Endereço:</span>
+                    <span class="info-value">Rua Servidão Um 934</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Bairro:</span>
+                    <span class="info-value">Vale do Jatobá (Barreiro)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cidade/UF:</span>
+                    <span class="info-value">Belo Horizonte - MG</span>
+                </div>
+                                <div class="info-row">
+                    <span class="info-label">Área:</span>
+                    <span class="info-value">25 m²</span>
+                </div>
+                            </div>
+        </div>
+
+        <!-- CONTEÚDO DINÂMICO -->
+        <div class="conteudo-blocos">
+                            <div class="bloco-secao">
+                    <h2>1. 1. Apresentação</h2>
+                    <div class="bloco-conteudo">
+                        <p>A <strong>GeoMetr&oacute;pole Engenharia e Topografia Ltda.</strong> &eacute; refer&ecirc;ncia em servi&ccedil;os topogr&aacute;ficos de alta precis&atilde;o. Com vasta experi&ecirc;ncia e hist&oacute;rico s&oacute;lido de projetos conclu&iacute;dos, garantimos seguran&ccedil;a e exatid&atilde;o em cada medi&ccedil;&atilde;o.</p>
+<p>Nosso compromisso &eacute; assegurar a conformidade das medidas reais do terreno com a documenta&ccedil;&atilde;o legal e a realidade f&iacute;sica.</p>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>2. 3. Escopo do Serviço</h2>
+                    <div class="bloco-conteudo">
+                        <p>O servi&ccedil;o contempla todas as atividades de campo e escrit&oacute;rio necess&aacute;rias para a execu&ccedil;&atilde;o do levantamento topogr&aacute;fico conforme especifica&ccedil;&otilde;es t&eacute;cnicas e normas vigentes.</p>
+<h4>Detalhamento das Atividades:</h4>
+<ul>
+<li>Levantamento perim&eacute;trico do im&oacute;vel;</li>
+<li>Coleta de pontos cotados para altimetria;</li>
+<li>Cadastro de elementos f&iacute;sicos;</li>
+<li>Processamento dos dados brutos e gera&ccedil;&atilde;o de desenhos t&eacute;cnicos.</li>
+</ul>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>3. 4. Metodologia</h2>
+                    <div class="bloco-conteudo">
+                        <h4>Etapa 1: Geod&eacute;sia e Amarra&ccedil;&atilde;o (GPS/GNSS)</h4>
+<p>Implanta&ccedil;&atilde;o da Rede de Apoio Geod&eacute;sica com rastreadores GNSS de dupla frequ&ecirc;ncia para georreferenciamento ao Sistema Geod&eacute;sico Brasileiro (SIRGAS2000).</p>
+<h4>Etapa 2: Topografia de Detalhe (Esta&ccedil;&atilde;o Total)</h4>
+<p>Levantamento irradiado de todos os detalhes internos e externos listados no escopo e coleta da altimetria para gera&ccedil;&atilde;o do modelo digital do terreno.</p>
+<h4>Etapa 3: Escrit&oacute;rio</h4>
+<p>Processamento dos vetores GNSS, unifica&ccedil;&atilde;o dos dados com a topografia cl&aacute;ssica.</p>
+<p><strong>Normas T&eacute;cnicas Aplic&aacute;veis:</strong></p>
+<ul>
+<li>ABNT NBR 13.133 (Execu&ccedil;&atilde;o de Levantamento Topogr&aacute;fico)</li>
+<li>Sistema de Refer&ecirc;ncia: SIRGAS2000 UTM</li>
+</ul>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>4. 5. Documentação Gerada</h2>
+                    <div class="bloco-conteudo">
+                        <p>Ao final dos servi&ccedil;os, ser&atilde;o entregues os seguintes documentos t&eacute;cnicos:</p>
+<ul>
+<li><strong>Planta Topogr&aacute;fica</strong> em formato digital (DWG) e plotagem (PDF);</li>
+<li><strong>Memorial Descritivo</strong> detalhado do terreno;</li>
+<li><strong>ART (Anota&ccedil;&atilde;o de Responsabilidade T&eacute;cnica)</strong> registrada no CREA;</li>
+<li>Relat&oacute;rio Fotogr&aacute;fico e T&eacute;cnico (quando aplic&aacute;vel).</li>
+</ul>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>5. 5. Documentação Gerada</h2>
+                    <div class="bloco-conteudo">
+                        <p>Ao final dos servi&ccedil;os, ser&atilde;o entregues os seguintes documentos t&eacute;cnicos:</p>
+<ul>
+<li><strong>Planta Topogr&aacute;fica</strong> em formato digital (DWG) e plotagem (PDF);</li>
+<li><strong>Memorial Descritivo</strong> detalhado do terreno;</li>
+<li><strong>ART (Anota&ccedil;&atilde;o de Responsabilidade T&eacute;cnica)</strong> registrada no CREA;</li>
+<li>Relat&oacute;rio Fotogr&aacute;fico e T&eacute;cnico (quando aplic&aacute;vel).</li>
+</ul>                    </div>
+                </div>
+                    </div>
+
+        <!-- INVESTIMENTO -->
+        <div class="bloco-secao">
+            <h2>6. Investimento</h2>
+            <p>O valor total para execução dos serviços descritos, incluindo equipe técnica, equipamentos, deslocamento e impostos, é de:</p>
+            
+            <div class="box-investimento">
+                <div class="valor">R$ 3.500,00</div>
+                <div class="extenso">(três mil e quinhentos reais)</div>
+            </div>
+            
+                        <p><em>Investimento calculado com base na complexidade técnica.</em></p>
+                    </div>
+        
+        <!-- CONDIÇÕES DE PAGAMENTO -->
+        <div class="bloco-secao">
+            <h2>7. Condições de Pagamento</h2>
+            <table class="tabela-prazos">
+                <tr>
+                    <th>Etapa</th>
+                    <th>Percentual</th>
+                    <th>Valor</th>
+                    <th>Condição</th>
+                </tr>
+                                <tr>
+                    <td><strong>Mobilização (Sinal)</strong></td>
+                    <td>30%</td>
+                    <td>R$ 1.050,00</td>
+                    <td>No aceite da proposta</td>
+                </tr>
+                                <tr>
+                    <td><strong>Entrega Final</strong></td>
+                    <td>70%</td>
+                    <td>R$ 2.450,00</td>
+                    <td>Na entrega dos arquivos</td>
+                </tr>
+                            </table>
+            
+            <h3>Dados Bancários:</h3>
+            <ul class="dados-bancarios">
+                <li><strong>Banco:</strong> Itaú Unibanco S.A.</li>
+                <li><strong>Agência:</strong> 2934 | <strong>Conta:</strong> 56789-0</li>
+                <li><strong>Titular:</strong> ELM Serviços Topográficos Ltda. | <strong>CNPJ:</strong> 14.059.118/0001-08</li>
+                <li><strong>PIX:</strong> financeiro@geometropolesp.com</li>
+            </ul>
+        </div>
+        
+        <!-- EQUIPAMENTOS (se houver) -->
+        
+        <!-- CONSIDERAÇÕES FINAIS -->
+        <div class="bloco-secao">
+            <h2>8. Considerações Finais</h2>
+            <p>Esta proposta tem validade de 15 dias. A <strong>ELM Serviços Topográficos Ltda.</strong> coloca-se à disposição para sanar quaisquer dúvidas técnicas.</p>
+            <p>Garantimos que o produto final entregue será uma ferramenta robusta para o desenvolvimento do seu projeto.</p>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer-proposta">
+            <p>Atenciosamente,</p>
+            <div class="linha-assinatura"></div>
+            <p class="footer-empresa">ELM Serviços Topográficos Ltda.</p>
+            <p class="footer-info">
+                Belo Horizonte - MG • 
+                (31) 3625-4769 • 
+                contato@geometropole.com.br            </p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

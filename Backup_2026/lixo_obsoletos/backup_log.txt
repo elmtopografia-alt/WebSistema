@@ -1,0 +1,1357 @@
+[2026-02-10 18:00:02] Iniciando backup...
+[2026-02-10 18:00:02] GIT ADD: git : warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'temp_xml_extract/[Content_Types].xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/_rels/.rels', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'temp_xml_extract/docProps/app.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/docProps/core.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/docProps/custom.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/_rels/document.xml.rels', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'temp_xml_extract/word/comments.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/document.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/footer1.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/header1.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/numbering.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/settings.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/styles.xml', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'temp_xml_extract/word/webSettings.xml', LF will be replaced by CRLF the next time Git 
+touches it
+
+[2026-02-10 18:00:02] GIT COMMIT: [main 00265ef] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-10 18:00:02
+ 23 files changed, 225 insertions(+), 3 deletions(-)
+ create mode 100644 backup_log.txt
+ create mode 100644 debug_docx_content.php
+ create mode 100644 debug_docx_xml.php
+ create mode 100644 debug_post_injection.php
+ create mode 100644 temp_extract.zip
+ create mode 100644 temp_xml_extract/[Content_Types].xml
+ create mode 100644 temp_xml_extract/_rels/.rels
+ create mode 100644 temp_xml_extract/docProps/app.xml
+ create mode 100644 temp_xml_extract/docProps/core.xml
+ create mode 100644 temp_xml_extract/docProps/custom.xml
+ create mode 100644 temp_xml_extract/word/_rels/document.xml.rels
+ create mode 100644 temp_xml_extract/word/comments.xml
+ create mode 100644 temp_xml_extract/word/document.xml
+ create mode 100644 temp_xml_extract/word/fontTable.xml
+ create mode 100644 temp_xml_extract/word/footer1.xml
+ create mode 100644 temp_xml_extract/word/header1.xml
+ create mode 100644 temp_xml_extract/word/numbering.xml
+ create mode 100644 temp_xml_extract/word/settings.xml
+ create mode 100644 temp_xml_extract/word/styles.xml
+ create mode 100644 temp_xml_extract/word/theme/theme1.xml
+ create mode 100644 temp_xml_extract/word/webSettings.xml
+
+[2026-02-11 18:00:06] Iniciando backup...
+[2026-02-11 18:00:06] GIT ADD: git : warning: in the working copy of 'duplicar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'editar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-11 18:00:06] GIT COMMIT: [main 0a6b5f6] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-11 18:00:06
+ 37 files changed, 9940 insertions(+), 1817 deletions(-)
+ create mode 100644 admin/auth_check.php
+ create mode 100644 admin/backup.php
+ create mode 100644 admin/dashboard_tipos.php
+ create mode 100644 admin/exportar.php
+ create mode 100644 admin/importar.php
+ create mode 100644 admin/login.php
+ create mode 100644 admin/logout.php
+ create mode 100644 admin/painel.php
+ create mode 100644 admin/temas.php
+ create mode 100644 assets/css/sgt_mobile.css
+ create mode 100644 check_schema.php
+ create mode 100644 config/database.php
+ create mode 100644 corrigir_propostas_vazias.php
+ create mode 100644 diag_launch.php
+ create mode 100644 editor_dinamico_v1_backup.php
+ create mode 100644 gerar_modelos_word.php
+ create mode 100644 instalador/install.php
+ delete mode 100644 salvar_proposta_verbose.php
+ create mode 100644 sugerir_tipo.php
+ create mode 100644 templates/css/print-curto.css
+ create mode 100644 templates/css/print-longo.css
+ create mode 100644 templates/css/print.css
+ create mode 100644 templates/visualizacao_curto.html
+ create mode 100644 templates/visualizacao_longo.html
+ create mode 100644 update_db_v2.php
+
+[2026-02-11 18:00:06] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   9407210..0a6b5f6  main -> main
+
+[2026-02-11 18:00:06] Backup conclu√≠do com sucesso.
+[2026-02-12 18:00:04] Iniciando backup...
+[2026-02-12 18:00:04] GIT ADD: git : warning: in the working copy of 'config.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'editar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gerar_documento.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/SQL_Dumps/demanda (2).sql', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/SQL_Dumps/demanda estruturas.sql', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backup_2026/SQL_Dumps/demanda.sql', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/admin_parametros copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/admin_usuarios copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/alterar_senha copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/api_graficos copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/atualizar_proposta copy.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/calculos copy.js', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'Backup_2026/contratar copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/criar_conta_demo copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/criar_proposta copy 2.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/criar_proposta copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/db copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/debug_salvar.php', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'Backup_2026/editar_proposta copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/form_cliente copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/gerar_documento copy 2.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/gerar_documento copy 3.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/gerar_documento copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/gerenciar copy 2.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/gerenciar copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/gerenciar_empresa copy.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/index copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/listar_propostas copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/listar_resumos copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/login copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/login_admin copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/login_demo copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/login_prod copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/logout copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/minha_empresa copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/painel copy 2.php', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'Backup_2026/painel_mestre copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/processa_cadastro copy.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/processa_demo copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/processa_demo_login copy.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/proposta_sucesso copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/relatorios copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/router copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backup_2026/salvar_cliente copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/salvar_proposta copy 2.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backup_2026/salvar_proposta copy.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backup_2026/setup copy.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/CalculadoraOrcamento.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/Gera_numero_Proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/Gerar_numero_Proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/SolarCalculator.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_acessar_cliente.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_alternar.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_criar_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_limpeza.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_parametros.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/admin_usuarios.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/adotar_uma.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/alterar_senha.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/alterar_status.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/atualizar_proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/atualizar_status.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/bloqueio_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/cadastrar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/cadastrar_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/composer-setup.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/config.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/confirmar_pagamento.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/contratar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/criar_usuarios_teste.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/db.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/demo.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/duplicar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/editar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/entrar_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/enviar_email.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/esqueci_senha.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/excluir_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/final.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/form_cliente.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/fragmento_salarios.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/funcoes_financeiras.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/gerar_documento.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/gerar_link_whatsapp.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/gerenciar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/gerenciar_empresa.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/home.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/inicio.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/intro.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/limpeza_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/listar_propostas.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/listar_resumos.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/login_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/login_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/login_prod.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/logout.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/meus_clientes.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/migrar_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/minha_empresa.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/novo_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/painel_mestre.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/processa_cadastro.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/processa_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/processa_demo_login.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/processa_login.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/promover_me_admin.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/proposta_sucesso.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/relatorios.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reparar_banco.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reparar_dados_vazios.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reset.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reset_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reset_mestre.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/reset_senhas_teste.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/resumos.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/router.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/salvar_cliente.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/salvar_dados_empresa.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/salvar_edicao_proposta.php', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/salvar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/setup.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/setup_geral.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/setup_modelos.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/solicitar_acesso.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/sucesso_contratacao.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/trocar_ambiente.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/unificar_dono.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/upload_logo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/ver.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Fase2_Pre_Arquitetura/verificar_nomes.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/CalculadoraOrcamento.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/Gera_numero_Proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/Gerar_numero_Proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/SolarCalculator.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_acessar_cliente.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_alternar.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_criar_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_limpeza.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_parametros.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/admin_usuarios.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/adotar_uma.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/alterar_senha.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/alterar_status.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/atualizar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/atualizar_status.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/bloqueio_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/cadastrar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/cadastrar_demo.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/composer-setup.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/config.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/confirmar_pagamento.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/contratar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/criar_usuarios_teste.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/db.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/demo.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/duplicar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/editar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/entrar_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/enviar_email.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/esqueci_senha.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/excluir_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/final.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/form_cliente.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/fragmento_salarios.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/funcoes_financeiras.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/gerar_documento.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/gerar_link_whatsapp.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/gerenciar.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/gerenciar_empresa.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/home.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/inicio.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/intro.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/limpeza_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/listar_propostas.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/listar_resumos.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/login_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/login_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/login_prod.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/logout.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/meus_clientes.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/migrar_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/minha_empresa.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/novo_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/painel_mestre.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/processa_cadastro.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/processa_demo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/processa_demo_login.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/processa_login.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/promover_me_admin.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/proposta_sucesso.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/relatorios.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reparar_banco.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reparar_dados_vazios.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reset.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reset_admin.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reset_mestre.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/reset_senhas_teste.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/resumos.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/router.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/salvar_cliente.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/salvar_dados_empresa.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/salvar_edicao_proposta.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/salvar_proposta.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/setup.php', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/setup_geral.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/setup_modelos.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/solicitar_acesso.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/sucesso_contratacao.php', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/trocar_ambiente.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/unificar_dono.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/upload_logo.php', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/ver.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'Backups/Refatoracao_20260212/verificar_nomes.php', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'CalculadoraOrcamento.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'SolarCalculator.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'criar_usuarios_teste.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gerar_documento.LEGADO.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gerar_documento.WRAPPER.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-12 18:00:04] GIT COMMIT: [main 6a5f907] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-12 18:00:04
+ 597 files changed, 103754 insertions(+), 2953 deletions(-)
+ create mode 100644 .env.example
+ create mode 100644 ACESSO_SIMULADOR.php
+ create mode 100644 Backup_2026/Docs_and_Misc/desktop.ini
+ create mode 100644 Backup_2026/Old_Scripts/api_graficos copy.php
+ create mode 100644 Backup_2026/Old_Scripts/criar_proposta copy.php
+ create mode 100644 Backup_2026/Old_Scripts/editar_proposta copy.php
+ create mode 100644 Backup_2026/SQL_Dumps/demanda (2).sql
+ create mode 100644 Backup_2026/SQL_Dumps/demanda estruturas.sql
+ create mode 100644 Backup_2026/SQL_Dumps/demanda.sql
+ create mode 100644 Backup_2026/admin_parametros copy.php
+ create mode 100644 Backup_2026/admin_usuarios copy.php
+ create mode 100644 Backup_2026/alterar_senha copy.php
+ create mode 100644 Backup_2026/api_graficos copy 2.php
+ create mode 100644 Backup_2026/api_graficos copy.php
+ create mode 100644 Backup_2026/atualizar_proposta copy.php
+ create mode 100644 Backup_2026/cadastrar copy.php
+ create mode 100644 Backup_2026/calculos copy.js
+ create mode 100644 Backup_2026/config copy.php
+ create mode 100644 Backup_2026/contratar copy.php
+ create mode 100644 Backup_2026/criar_conta_demo copy.php
+ create mode 100644 Backup_2026/criar_proposta copy 2.php
+ create mode 100644 Backup_2026/criar_proposta copy.php
+ create mode 100644 Backup_2026/db copy.php
+ create mode 100644 Backup_2026/debug_salvar.php
+ create mode 100644 Backup_2026/editar_proposta copy.php
+ create mode 100644 Backup_2026/excluir_proposta copy.php
+ create mode 100644 Backup_2026/form_cliente copy.php
+ create mode 100644 Backup_2026/gerar_documento copy 2.php
+ create mode 100644 Backup_2026/gerar_documento copy 3.php
+ create mode 100644 Backup_2026/gerar_documento copy.php
+ create mode 100644 Backup_2026/gerenciar copy 2.php
+ create mode 100644 Backup_2026/gerenciar copy.php
+ create mode 100644 Backup_2026/gerenciar_empresa copy.php
+ create mode 100644 Backup_2026/index copy 2.php
+ create mode 100644 Backup_2026/index copy.php
+ create mode 100644 Backup_2026/listar_propostas copy.php
+ create mode 100644 Backup_2026/listar_resumos copy.php
+ create mode 100644 Backup_2026/login copy.php
+ create mode 100644 Backup_2026/login_admin copy.php
+ create mode 100644 Backup_2026/login_demo copy 2.php
+ create mode 100644 Backup_2026/login_demo copy.php
+ create mode 100644 Backup_2026/login_prod copy.php
+ create mode 100644 Backup_2026/logout copy.php
+ create mode 100644 Backup_2026/meus_clientes copy.php
+ create mode 100644 Backup_2026/minha_empresa copy.php
+ create mode 100644 Backup_2026/mudar_status copy.php
+ create mode 100644 Backup_2026/painel copy 2.php
+ create mode 100644 Backup_2026/painel copy.php
+ create mode 100644 Backup_2026/painel_mestre copy.php
+ create mode 100644 Backup_2026/piloto_dashboard copy.php
+ create mode 100644 Backup_2026/processa_cadastro copy.php
+ create mode 100644 Backup_2026/processa_demo copy.php
+ create mode 100644 Backup_2026/processa_demo_login copy.php
+ create mode 100644 Backup_2026/proposta_sucesso copy.php
+ create mode 100644 Backup_2026/registrar_pagamento copy.php
+ create mode 100644 Backup_2026/relatorio_proposta copy.php
+ create mode 100644 Backup_2026/relatorios copy.php
+ create mode 100644 Backup_2026/reset_mestre copy.php
+ create mode 100644 Backup_2026/router copy.php
+ create mode 100644 Backup_2026/salvar_cliente copy.php
+ create mode 100644 Backup_2026/salvar_proposta copy 2.php
+ create mode 100644 Backup_2026/salvar_proposta copy.php
+ create mode 100644 Backup_2026/setup copy.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ACESSO_SIMULADOR.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/BackupManager.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/CalculadoraOrcamento.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/Cli_Pro.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/Cli_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ConnectionManager.php
+ create mode 100644 "Backups/Fase2_Pre_Arquitetura/Criar_template_Wors_Propostas_Medi\303\247\303\243o.php"
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/Gera_numero_Proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/Gerar_numero_Proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/GerenciadorEmail.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/SGT_ETHICS_BIBLE.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/SolarCalculator.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/adicionar_tipo_logo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_acessar_cliente.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_ajustar_valores.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_alternar.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_criar_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_criar_variacao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_editar_modelo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_excluir_variacao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_guard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_limpeza.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_modelos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_parametros.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_release.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_salvar_modelo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/admin_usuarios.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/adotar_uma.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ajax_atualizar_status.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ajax_crm_action.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ajustar_datas.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/alterar_senha.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/alterar_status.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/api_check_novidades.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/api_dashboard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/api_graficos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/api_logs_mp.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ativa.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/atualizar_modelos_banco.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/atualizar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/atualizar_status.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/backup_criar_proposta_20260208.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/bloqueio_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cadastrar.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cadastrar_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/check_schema.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/clean_db_content.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cliente_guard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cobranca.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/composer-setup.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/compra_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/conexao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/config.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/config_empresa.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/confirmar_pagamento.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/contratar.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/core.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/corrigir_banco_agora.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/corrigir_propostas_vazias.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_conta_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_demo_especifico.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_proposta_new.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_template_drone.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_template_profissional.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_template_profissional_word.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_usuario_ricardo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_usuario_teste.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/criar_usuarios_teste.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cron_aviso_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cron_gerar_ciclos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/cron_suspender_inadimplentes.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/dashboard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/dashboard_crm.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/dashboard_include.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/database.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/db.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/debug_docx_content.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/debug_docx_xml.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/debug_post_injection.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/demo-start.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/diag_launch.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/diagnostico_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/diagnostico_base.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/diagnostico_conexao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/diagnostico_funcoes.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/duplicar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/editar_proposta bk.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/editar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/editor_dinamico.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/editor_dinamico_v1_backup.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/engine_busca.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/entrar_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/enviar_email.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/esqueci_senha.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/estudo_modelo_usucapiao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/estudo_modelo_usucapiao_classe_reurilisavel.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/excluir_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/final.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/financeiro_dashboard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/financeiro_guard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/forcar_status.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/force_logout.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/form_cliente.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/fragmento_salarios.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/funcoes_financeiras.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerador_dados.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerador_prompt_veo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_ciclos_financeiros.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_documento.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_documento_dinamico.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_documento_html.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_link_whatsapp.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_logo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_modelos_word.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_proposta_html.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerar_recibos_automaticos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerenciador_cenas.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerenciar.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/gerenciar_empresa.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/home.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/importar_relatorio_txt.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/index.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/iniciar_nova_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/inicio.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/instalar_tabela.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/install_db_update.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/intro.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/limpeza_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/list_blocks.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/listar_propostas.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/listar_resumos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/login.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/login_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/login_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/login_diag.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/login_prod.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/logout.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/magic_login.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/meus_clientes.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/migrar_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/migrar_templates.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/migration_crm_v3.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/migration_whatsapp.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/minha_empresa.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/modulo_documentos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/modulo_email.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/modulo_tarefas.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/modulo_timeline.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/novo_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/novo_painel.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/nuke_session.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/onboarding.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/onboarding_processa.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_crm.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_crm_debug.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_crm_v2_template.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_financeiro.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_mestre.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/painel_prospeccao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/piloto_api.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/piloto_dashboard.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/politica_privacidade.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/popular_leads_fake.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/preview_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processa_cadastro.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processa_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processa_demo_login.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processa_login.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processar_ciclos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/processar_proposta_dinamica.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/producao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/promover_admin_agora.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/promover_me_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/proposta_sucesso.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/prospector.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/qrcode_login.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/registrar_pagamento.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/relatorio_9_16.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/relatorio_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/relatorios.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/repair_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reparar_banco.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reparar_dados_vazios.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reset.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reset_admin.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reset_mestre.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/reset_senhas_teste.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/resumos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/robo_exec.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/robo_start.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/router.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/run_crm_update.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/run_install.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_cliente.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_cliente_ajax.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_dados_empresa.php
+ rename salvar_edicao_proposta.php => Backups/Fase2_Pre_Arquitetura/salvar_edicao_proposta.php (100%)
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_modo_header.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_proposta_html.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_rascunho copy.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/salvar_rascunho.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/seed_real.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/server_info.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/session_validator.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_banco_auto.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_db.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_empresa_demo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_geral.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_header_mode.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_modelos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_politica_topicos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_tabela_conteudo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_tabela_rascunho.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_updates.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/setup_webhook_logs.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/solicitar_acesso.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/sucesso_contratacao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/sugerir_tipo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/termos_uso.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/trocar_ambiente.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/unificar_dono.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/update_db_empresa_cliente.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/update_db_retention.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/update_db_v2.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/upgrade_db_text.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/upload_logo.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/upload_logo_icon.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/validador_formato.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/ver.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_arquivos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_atrasos.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_banco.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_extensoes.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_nomes.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verificar_proposta.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/verify_db_content.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/versao.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/visualizar_estrutura.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/webhook_mercadopago.php
+ create mode 100644 Backups/Fase2_Pre_Arquitetura/whatsapp.php
+ create mode 100644 Backups/Refatoracao_20260212/ACESSO_SIMULADOR.php
+ create mode 100644 Backups/Refatoracao_20260212/BackupManager.php
+ create mode 100644 Backups/Refatoracao_20260212/CalculadoraOrcamento.php
+ create mode 100644 Backups/Refatoracao_20260212/Cli_Pro.php
+ create mode 100644 Backups/Refatoracao_20260212/Cli_demo.php
+ create mode 100644 "Backups/Refatoracao_20260212/Criar_template_Wors_Propostas_Medi\303\247\303\243o.php"
+ create mode 100644 Backups/Refatoracao_20260212/Gera_numero_Proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/Gerar_numero_Proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/GerenciadorEmail.php
+ create mode 100644 Backups/Refatoracao_20260212/SGT_ETHICS_BIBLE.php
+ create mode 100644 Backups/Refatoracao_20260212/SolarCalculator.php
+ create mode 100644 Backups/Refatoracao_20260212/adicionar_tipo_logo.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_acessar_cliente.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_ajustar_valores.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_alternar.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_criar_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_criar_variacao.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_editar_modelo.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_excluir_variacao.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_guard.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_limpeza.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_modelos.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_parametros.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_release.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_salvar_modelo.php
+ create mode 100644 Backups/Refatoracao_20260212/admin_usuarios.php
+ create mode 100644 Backups/Refatoracao_20260212/adotar_uma.php
+ create mode 100644 Backups/Refatoracao_20260212/ajax_atualizar_status.php
+ create mode 100644 Backups/Refatoracao_20260212/ajax_crm_action.php
+ create mode 100644 Backups/Refatoracao_20260212/ajustar_datas.php
+ create mode 100644 Backups/Refatoracao_20260212/alterar_senha.php
+ create mode 100644 Backups/Refatoracao_20260212/alterar_status.php
+ create mode 100644 Backups/Refatoracao_20260212/api_check_novidades.php
+ create mode 100644 Backups/Refatoracao_20260212/api_dashboard.php
+ create mode 100644 Backups/Refatoracao_20260212/api_graficos.php
+ create mode 100644 Backups/Refatoracao_20260212/api_logs_mp.php
+ create mode 100644 Backups/Refatoracao_20260212/ativa.php
+ create mode 100644 Backups/Refatoracao_20260212/atualizar_modelos_banco.php
+ create mode 100644 Backups/Refatoracao_20260212/atualizar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/atualizar_status.php
+ create mode 100644 Backups/Refatoracao_20260212/backup_criar_proposta_20260208.php
+ create mode 100644 Backups/Refatoracao_20260212/bloqueio_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/cadastrar.php
+ create mode 100644 Backups/Refatoracao_20260212/cadastrar_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/check_schema.php
+ create mode 100644 Backups/Refatoracao_20260212/clean_db_content.php
+ create mode 100644 Backups/Refatoracao_20260212/cliente_guard.php
+ create mode 100644 Backups/Refatoracao_20260212/cobranca.php
+ create mode 100644 Backups/Refatoracao_20260212/composer-setup.php
+ create mode 100644 Backups/Refatoracao_20260212/compra_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/conexao.php
+ create mode 100644 Backups/Refatoracao_20260212/config.php
+ create mode 100644 Backups/Refatoracao_20260212/config_empresa.php
+ create mode 100644 Backups/Refatoracao_20260212/confirmar_pagamento.php
+ create mode 100644 Backups/Refatoracao_20260212/contratar.php
+ create mode 100644 Backups/Refatoracao_20260212/core.php
+ create mode 100644 Backups/Refatoracao_20260212/corrigir_banco_agora.php
+ create mode 100644 Backups/Refatoracao_20260212/corrigir_propostas_vazias.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_conta_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_demo_especifico.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_proposta_new.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_template_drone.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_template_profissional.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_template_profissional_word.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_usuario_ricardo.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_usuario_teste.php
+ create mode 100644 Backups/Refatoracao_20260212/criar_usuarios_teste.php
+ create mode 100644 Backups/Refatoracao_20260212/cron_aviso_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/cron_gerar_ciclos.php
+ create mode 100644 Backups/Refatoracao_20260212/cron_suspender_inadimplentes.php
+ create mode 100644 Backups/Refatoracao_20260212/dashboard.php
+ create mode 100644 Backups/Refatoracao_20260212/dashboard_crm.php
+ create mode 100644 Backups/Refatoracao_20260212/dashboard_include.php
+ create mode 100644 Backups/Refatoracao_20260212/database.php
+ create mode 100644 Backups/Refatoracao_20260212/db.php
+ create mode 100644 Backups/Refatoracao_20260212/debug_docx_content.php
+ create mode 100644 Backups/Refatoracao_20260212/debug_docx_xml.php
+ create mode 100644 Backups/Refatoracao_20260212/debug_post_injection.php
+ create mode 100644 Backups/Refatoracao_20260212/demo-start.php
+ create mode 100644 Backups/Refatoracao_20260212/demo.php
+ create mode 100644 Backups/Refatoracao_20260212/diag_launch.php
+ create mode 100644 Backups/Refatoracao_20260212/diagnostico_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/diagnostico_base.php
+ create mode 100644 Backups/Refatoracao_20260212/diagnostico_conexao.php
+ create mode 100644 Backups/Refatoracao_20260212/diagnostico_funcoes.php
+ create mode 100644 Backups/Refatoracao_20260212/duplicar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/editar_proposta bk.php
+ create mode 100644 Backups/Refatoracao_20260212/editar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/editor_dinamico.php
+ create mode 100644 Backups/Refatoracao_20260212/editor_dinamico_v1_backup.php
+ create mode 100644 Backups/Refatoracao_20260212/engine_busca.php
+ create mode 100644 Backups/Refatoracao_20260212/entrar_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/enviar_email.php
+ create mode 100644 Backups/Refatoracao_20260212/esqueci_senha.php
+ create mode 100644 Backups/Refatoracao_20260212/estudo_modelo_usucapiao.php
+ create mode 100644 Backups/Refatoracao_20260212/estudo_modelo_usucapiao_classe_reurilisavel.php
+ create mode 100644 Backups/Refatoracao_20260212/excluir_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/final.php
+ create mode 100644 Backups/Refatoracao_20260212/financeiro_dashboard.php
+ create mode 100644 Backups/Refatoracao_20260212/financeiro_guard.php
+ create mode 100644 Backups/Refatoracao_20260212/forcar_status.php
+ create mode 100644 Backups/Refatoracao_20260212/force_logout.php
+ create mode 100644 Backups/Refatoracao_20260212/form_cliente.php
+ create mode 100644 Backups/Refatoracao_20260212/fragmento_salarios.php
+ create mode 100644 Backups/Refatoracao_20260212/funcoes_financeiras.php
+ create mode 100644 Backups/Refatoracao_20260212/gerador_dados.php
+ create mode 100644 Backups/Refatoracao_20260212/gerador_prompt_veo.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_ciclos_financeiros.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_documento.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_documento_dinamico.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_documento_html.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_link_whatsapp.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_logo.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_modelos_word.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_proposta_html.php
+ create mode 100644 Backups/Refatoracao_20260212/gerar_recibos_automaticos.php
+ create mode 100644 Backups/Refatoracao_20260212/gerenciador_cenas.php
+ create mode 100644 Backups/Refatoracao_20260212/gerenciar.php
+ create mode 100644 Backups/Refatoracao_20260212/gerenciar_empresa.php
+ create mode 100644 Backups/Refatoracao_20260212/home.php
+ create mode 100644 Backups/Refatoracao_20260212/importar_relatorio_txt.php
+ create mode 100644 Backups/Refatoracao_20260212/index.php
+ create mode 100644 Backups/Refatoracao_20260212/iniciar_nova_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/inicio.php
+ create mode 100644 Backups/Refatoracao_20260212/instalar_tabela.php
+ create mode 100644 Backups/Refatoracao_20260212/install_db_update.php
+ create mode 100644 Backups/Refatoracao_20260212/intro.php
+ create mode 100644 Backups/Refatoracao_20260212/limpeza_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/list_blocks.php
+ create mode 100644 Backups/Refatoracao_20260212/listar_propostas.php
+ create mode 100644 Backups/Refatoracao_20260212/listar_resumos.php
+ create mode 100644 Backups/Refatoracao_20260212/login.php
+ create mode 100644 Backups/Refatoracao_20260212/login_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/login_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/login_diag.php
+ create mode 100644 Backups/Refatoracao_20260212/login_prod.php
+ create mode 100644 Backups/Refatoracao_20260212/logout.php
+ create mode 100644 Backups/Refatoracao_20260212/magic_login.php
+ create mode 100644 Backups/Refatoracao_20260212/meus_clientes.php
+ create mode 100644 Backups/Refatoracao_20260212/migrar_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/migrar_templates.php
+ create mode 100644 Backups/Refatoracao_20260212/migration_crm_v3.php
+ create mode 100644 Backups/Refatoracao_20260212/migration_whatsapp.php
+ create mode 100644 Backups/Refatoracao_20260212/minha_empresa.php
+ create mode 100644 Backups/Refatoracao_20260212/modulo_documentos.php
+ create mode 100644 Backups/Refatoracao_20260212/modulo_email.php
+ create mode 100644 Backups/Refatoracao_20260212/modulo_tarefas.php
+ create mode 100644 Backups/Refatoracao_20260212/modulo_timeline.php
+ create mode 100644 Backups/Refatoracao_20260212/novo_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/novo_painel.php
+ create mode 100644 Backups/Refatoracao_20260212/nuke_session.php
+ create mode 100644 Backups/Refatoracao_20260212/onboarding.php
+ create mode 100644 Backups/Refatoracao_20260212/onboarding_processa.php
+ create mode 100644 Backups/Refatoracao_20260212/painel.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_crm.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_crm_debug.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_crm_v2_template.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_financeiro.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_mestre.php
+ create mode 100644 Backups/Refatoracao_20260212/painel_prospeccao.php
+ create mode 100644 Backups/Refatoracao_20260212/piloto_api.php
+ create mode 100644 Backups/Refatoracao_20260212/piloto_dashboard.php
+ create mode 100644 Backups/Refatoracao_20260212/politica_privacidade.php
+ create mode 100644 Backups/Refatoracao_20260212/popular_leads_fake.php
+ create mode 100644 Backups/Refatoracao_20260212/preview_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/processa_cadastro.php
+ create mode 100644 Backups/Refatoracao_20260212/processa_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/processa_demo_login.php
+ create mode 100644 Backups/Refatoracao_20260212/processa_login.php
+ create mode 100644 Backups/Refatoracao_20260212/processar_ciclos.php
+ create mode 100644 Backups/Refatoracao_20260212/processar_proposta_dinamica.php
+ create mode 100644 Backups/Refatoracao_20260212/producao.php
+ create mode 100644 Backups/Refatoracao_20260212/promover_admin_agora.php
+ create mode 100644 Backups/Refatoracao_20260212/promover_me_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/proposta_sucesso.php
+ create mode 100644 Backups/Refatoracao_20260212/prospector.php
+ create mode 100644 Backups/Refatoracao_20260212/qrcode_login.php
+ create mode 100644 Backups/Refatoracao_20260212/registrar_pagamento.php
+ create mode 100644 Backups/Refatoracao_20260212/relatorio_9_16.php
+ create mode 100644 Backups/Refatoracao_20260212/relatorio_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/relatorios.php
+ create mode 100644 Backups/Refatoracao_20260212/repair_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/reparar_banco.php
+ create mode 100644 Backups/Refatoracao_20260212/reparar_dados_vazios.php
+ create mode 100644 Backups/Refatoracao_20260212/reset.php
+ create mode 100644 Backups/Refatoracao_20260212/reset_admin.php
+ create mode 100644 Backups/Refatoracao_20260212/reset_mestre.php
+ create mode 100644 Backups/Refatoracao_20260212/reset_senhas_teste.php
+ create mode 100644 Backups/Refatoracao_20260212/resumos.php
+ create mode 100644 Backups/Refatoracao_20260212/robo_exec.php
+ create mode 100644 Backups/Refatoracao_20260212/robo_start.php
+ create mode 100644 Backups/Refatoracao_20260212/router.php
+ create mode 100644 Backups/Refatoracao_20260212/run_crm_update.php
+ create mode 100644 Backups/Refatoracao_20260212/run_install.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_cliente.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_cliente_ajax.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_dados_empresa.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_edicao_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_modo_header.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_proposta_html.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_rascunho copy.php
+ create mode 100644 Backups/Refatoracao_20260212/salvar_rascunho.php
+ create mode 100644 Backups/Refatoracao_20260212/seed_real.php
+ create mode 100644 Backups/Refatoracao_20260212/server_info.php
+ create mode 100644 Backups/Refatoracao_20260212/session_validator.php
+ create mode 100644 Backups/Refatoracao_20260212/setup.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_banco_auto.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_db.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_empresa_demo.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_geral.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_header_mode.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_modelos.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_politica_topicos.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_tabela_conteudo.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_tabela_rascunho.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_updates.php
+ create mode 100644 Backups/Refatoracao_20260212/setup_webhook_logs.php
+ create mode 100644 Backups/Refatoracao_20260212/solicitar_acesso.php
+ create mode 100644 Backups/Refatoracao_20260212/sucesso_contratacao.php
+ create mode 100644 Backups/Refatoracao_20260212/sugerir_tipo.php
+ create mode 100644 Backups/Refatoracao_20260212/termos_uso.php
+ create mode 100644 Backups/Refatoracao_20260212/trocar_ambiente.php
+ create mode 100644 Backups/Refatoracao_20260212/unificar_dono.php
+ create mode 100644 Backups/Refatoracao_20260212/update_db_empresa_cliente.php
+ create mode 100644 Backups/Refatoracao_20260212/update_db_retention.php
+ create mode 100644 Backups/Refatoracao_20260212/update_db_v2.php
+ create mode 100644 Backups/Refatoracao_20260212/upgrade_db_text.php
+ create mode 100644 Backups/Refatoracao_20260212/upload_logo.php
+ create mode 100644 Backups/Refatoracao_20260212/upload_logo_icon.php
+ create mode 100644 Backups/Refatoracao_20260212/validador_formato.php
+ create mode 100644 Backups/Refatoracao_20260212/ver.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_arquivos.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_atrasos.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_banco.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_extensoes.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_nomes.php
+ create mode 100644 Backups/Refatoracao_20260212/verificar_proposta.php
+ create mode 100644 Backups/Refatoracao_20260212/verify_db_content.php
+ create mode 100644 Backups/Refatoracao_20260212/versao.php
+ create mode 100644 Backups/Refatoracao_20260212/visualizar_estrutura.php
+ create mode 100644 Backups/Refatoracao_20260212/webhook_mercadopago.php
+ create mode 100644 Backups/Refatoracao_20260212/whatsapp.php
+ create mode 100644 CalculadoraOrcamento.php
+ create mode 100644 CalculadoraService.php
+ create mode 100644 ConnectionManager.php
+ create mode 100644 PropostaRepository.php
+ create mode 100644 SolarCalculator.php
+ create mode 100644 bootstrap.php
+ create mode 100644 config/security.php
+ create mode 100644 criar_usuarios_teste.php
+ create mode 100644 editor_avancado.php
+ create mode 100644 executar_virada_chave.php
+ create mode 100644 exemplo_migracao.php
+ create mode 100644 gerar_documento.LEGADO.php
+ create mode 100644 gerar_documento.WRAPPER.php
+ create mode 100644 gerar_proposta_html.WRAPPER.php
+ create mode 100644 login.NOVO.php
+ create mode 100644 modo_seguro.php
+ create mode 100644 painel_crm.WRAPPER.php
+ create mode 100644 reverter_migracao.php
+ create mode 100644 salvar_proposta.NOVO.php
+ create mode 100644 salvar_rascunho copy.php
+ create mode 100644 src/DatabaseConnection.php
+ create mode 100644 src/Repository/PropostaRepository.php
+ create mode 100644 src/Security/AuthService.php
+ create mode 100644 src/Security/CSRFProtection.php
+ create mode 100644 src/Security/InputSanitizer.php
+ create mode 100644 verificar_proposta.php
+
+[2026-02-12 18:00:04] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   0a6b5f6..6a5f907  main -> main
+
+[2026-02-12 18:00:04] Backup conclu√≠do com sucesso.
+[2026-02-13 18:00:03] Iniciando backup...
+[2026-02-13 18:00:03] GIT ADD: git : warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-02-13 18:00:03] GIT COMMIT: [main 9c720a5] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-13 18:00:03
+ 46 files changed, 3207 insertions(+), 188 deletions(-)
+ create mode 100644 .cursorrules
+ create mode 100644 assets/js/maps-integration.js
+ create mode 100644 checar_blocos_por_servico.php
+ create mode 100644 checar_colunas_banco.php
+ create mode 100644 check_table_cols.php
+ create mode 100644 colunas_servico_blocos.php
+ create mode 100644 colunas_variacao.php
+ create mode 100644 debug_variaveis.php
+ create mode 100644 diagnostico_link.php
+ create mode 100644 diagnostico_p117.php
+ create mode 100644 diagnostico_real_variacoes.php
+ create mode 100644 diagnostico_servicos.php
+ create mode 100644 diagnostico_tabelas.php
+ create mode 100644 diagnostico_templates.php
+ create mode 100644 diagnostico_variacoes.php
+ create mode 100644 diagnostico_variantes_7.php
+ create mode 100644 final_id_check.php
+ create mode 100644 fix_demo_db.php
+ create mode 100644 modelos_prod/.~lock.ModeloPropostaDrone.docx#
+ create mode 100644 povoar_conteudos.php
+ create mode 100644 teste_povoar.php
+ create mode 100644 teste_sessao.php
+ create mode 100644 teste_visualizacao_html.php
+ create mode 100644 teste_visualizacao_real.php
+ create mode 100644 update_drone_resources.php
+ create mode 100644 update_drone_templates.php
+
+[2026-02-13 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   6a5f907..9c720a5  main -> main
+
+[2026-02-13 18:00:03] Backup conclu√≠do com sucesso.
+[2026-02-14 18:00:05] Iniciando backup...
+[2026-02-14 18:00:05] GIT ADD: git : warning: in the working copy of 'admin_parametros.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'gerenciar_empresa.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'meus_clientes.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ajax/get_equipamentos_servico.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'config/equipamentos_servico.php', LF will be replaced by CRLF the next time Git 
+touches it
+
+[2026-02-14 18:00:05] GIT COMMIT: [main 6fd524d] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-14 18:00:05
+ 26 files changed, 4556 insertions(+), 401 deletions(-)
+ create mode 100644 ajax/get_equipamentos_servico.php
+ create mode 100644 assets/css/editor-tailwind.css
+ create mode 100644 check_status_drone.php
+ create mode 100644 config/equipamentos_servico.php
+ create mode 100644 diagnostico_textos.php
+ create mode 100644 fix_blocos_drone.php
+ create mode 100644 fix_local_obra.php
+ create mode 100644 fix_textos_drone.php
+ create mode 100644 fix_textos_v2.php
+ create mode 100644 fix_textos_v3.php
+ delete mode 100644 modelos_prod/.~lock.ModeloPropostaAvulso.docx#
+ delete mode 100644 modelos_prod/.~lock.ModeloPropostaDrone.docx#
+ create mode 100644 painel_crm.LEGADO.php
+
+[2026-02-14 18:00:05] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   9c720a5..6fd524d  main -> main
+
+[2026-02-14 18:00:05] Backup conclu√≠do com sucesso.
+[2026-02-15 18:00:02] Iniciando backup...
+[2026-02-15 18:00:02] GIT ADD: 
+[2026-02-15 18:00:02] GIT COMMIT: [main a243a37] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-15 18:00:02
+ 7 files changed, 1041 insertions(+), 58 deletions(-)
+ create mode 100644 assets/css/tema_proposta.css
+ create mode 100644 classes/TemaProposta.php
+ create mode 100644 debug_proposta_data.php
+ create mode 100644 teste_regex.php
+
+[2026-02-15 18:00:02] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   6fd524d..a243a37  main -> main
+
+[2026-02-15 18:00:02] Backup conclu√≠do com sucesso.
+[2026-02-16 18:00:04] Iniciando backup...
+[2026-02-17 18:00:02] Iniciando backup...
+[2026-02-17 18:00:02] GIT ADD: git : fatal: Unable to create 'F:/Site/Sistema Proposta/SistemaWeb/.git/index.lock': File exists.
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: Unable t...': File exists.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+
+[2026-02-17 18:00:02] GIT COMMIT: git : fatal: Unable to create 'F:/Site/Sistema Proposta/SistemaWeb/.git/index.lock': File exists.
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:37 caractere:5
++     git commit -m "Backup Di√°rio Autom√°tico: $timestamp" 2>&1 | Out ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: Unable t...': File exists.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+
+[2026-02-17 18:00:02] GIT PUSH: git : Everything up-to-date
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Everything up-to-date:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-02-17 18:00:02] Backup conclu√≠do com sucesso.
+[2026-02-18 18:00:03] Iniciando backup...
+[2026-02-18 18:00:03] GIT ADD: 
+[2026-02-18 18:00:03] GIT COMMIT: [main 39191a4] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-18 18:00:03
+ 1 file changed, 1 insertion(+)
+
+[2026-02-18 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   11d25e6..39191a4  main -> main
+
+[2026-02-18 18:00:03] Backup conclu√≠do com sucesso.
+[2026-02-19 18:00:02] Iniciando backup...
+[2026-02-19 18:00:02] GIT ADD: git : warning: in the working copy of 'config.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'db.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'editor_dinamico.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'login_prod.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'painel_crm.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-19 18:00:02] GIT COMMIT: [main bea3d53] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-19 18:00:02
+ 23 files changed, 915 insertions(+), 535 deletions(-)
+ create mode 100644 .agent/rules/DIAGNOSTICO_ERRO_500.md
+ delete mode 100644 diag_launch.php
+ create mode 100644 fix_db_coluna_modelo.php
+ create mode 100644 force_deploy.php
+ create mode 100644 povoar_modelos_premium.php
+ create mode 100644 src/Security/Tracer.php
+
+[2026-02-19 18:00:02] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   79019ca..bea3d53  main -> main
+
+[2026-02-19 18:00:02] Backup conclu√≠do com sucesso.
+[2026-02-20 18:00:03] Iniciando backup...
+[2026-02-20 18:00:03] GIT ADD: git : warning: in the working copy of 'ResolvedorChavesSistema.php', LF will be replaced by CRLF the next time Git 
+touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'editor_dinamico.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'meus_clientes.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-20 18:00:03] GIT COMMIT: [main 05ec256] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-20 18:00:03
+ 10 files changed, 667 insertions(+), 62 deletions(-)
+ create mode 100644 fix_colunas_docx_completo.php
+ create mode 100644 limpar_modelos_remotos.php
+ create mode 100644 modelos_prod/~$deloPropostaDrone.docx
+ create mode 100644 recebedor_modelos.php
+ create mode 100644 reparar_pasta_modelos.php
+
+[2026-02-20 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   d83013e..05ec256  main -> main
+
+[2026-02-20 18:00:03] Backup conclu√≠do com sucesso.

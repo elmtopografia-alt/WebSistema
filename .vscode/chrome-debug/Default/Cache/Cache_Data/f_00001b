@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta GEOMETROPOLE-2026-02098 - GeoMetrópole Engenharia e Topografia Ltda.</title>
+    
+    <!-- Fontes do tema -->
+                        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                                <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+                
+    <style>
+        /* CSS Base (inline para funcionar em qualquer servidor) */
+        /* ============================================
+   CSS BASE - SGT Propostas
+   Aplica em TODOS os temas
+   ============================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Layout A4 */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #525659;
+    padding: 20px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    background: white;
+    width: 21cm;
+    min-height: 29.7cm;
+    padding: 2cm 2.2cm;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+@media print {
+    body {
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page {
+        width: 100%;
+        box-shadow: none;
+        margin: 0;
+        padding: 2cm;
+        min-height: auto;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    h1,
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+
+    .bloco-secao,
+    table,
+    tr {
+        page-break-inside: avoid;
+    }
+}
+
+/* Tipografia base */
+h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: var(--brand);
+}
+
+h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+p,
+li {
+    font-size: 10.5pt;
+    line-height: 1.7;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Botão FAB */
+.btn-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--brand);
+    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-fab:hover {
+    transform: translateY(-2px);
+}
+
+/* Componentes comuns */
+.bloco-secao {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 10.5pt;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 100px;
+}
+
+.info-value {
+    color: var(--text-secondary);
+}
+
+/* Tabelas base */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--brand);
+    text-transform: uppercase;
+    font-size: 9pt;
+    letter-spacing: 0.05em;
+}
+
+/* Footer base */
+.footer-proposta {
+    margin-top: 40px;
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.linha-assinatura {
+    width: 60%;
+    margin: 0 auto 10px;
+    border-bottom: 1px solid var(--text-primary);
+    padding-bottom: 40px;
+}
+
+.footer-empresa {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.footer-info {
+    font-size: 9pt;
+    color: var(--text-muted);
+    margin-top: 4px;
+}        
+        /* CSS do Tema Selecionado */
+        /* ============================================
+   TEMA DRONE - Azul Tech
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --brand: #0ea5e9;
+    --brand-light: #38bdf8;
+    --brand-dark: #0369a1;
+    --brand-bg: #f0f9ff;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+    --border-light: #e2e8f0;
+    --surface: #f8fafc;
+    --accent-green: #10b981;
+}
+
+/* Header tech */
+.header-proposta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 2px solid var(--brand);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.badge-tech {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--brand);
+    color: white;
+    padding: 4px 12px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 0 0 0 6px;
+}
+
+.header-logo img {
+    max-height: 60px;
+}
+
+.header-titulo h1 {
+    font-size: 20pt;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.header-subtitulo {
+    color: var(--brand);
+    font-size: 10pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+/* Meta */
+.header-meta {
+    display: flex;
+    justify-content: space-between;
+    background: var(--surface);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    font-size: 9.5pt;
+    border-left: 3px solid var(--brand);
+}
+
+.numero-proposta {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--brand-dark);
+}
+
+/* Cards de dados em grid */
+.dados-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.dados-cliente,
+.dados-obra {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.dados-cliente h2,
+.dados-obra h2 {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+    margin-top: 0;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dados-cliente h2::before,
+.dados-obra h2::before {
+    content: "▸";
+    color: var(--brand-light);
+}
+
+.info-row {
+    margin-bottom: 8px;
+}
+
+.info-label {
+    display: block;
+    font-size: 8pt;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: 10.5pt;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Seções */
+.bloco-secao {
+    margin-bottom: 24px;
+    padding-left: 16px;
+    border-left: 2px solid var(--border);
+}
+
+.bloco-secao h2 {
+    font-size: 12pt;
+    color: var(--brand-dark);
+    margin-left: -16px;
+    padding-left: 16px;
+    border-left: 3px solid var(--brand);
+    margin-bottom: 12px;
+}
+
+.bloco-secao h3 {
+    color: var(--text-primary);
+    margin-top: 16px;
+    font-size: 11pt;
+}
+
+.bloco-secao h4 {
+    font-size: 10.5pt;
+    color: var(--brand);
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+/* Fases da metodologia */
+.fase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--brand);
+}
+
+.fase-numero {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--brand);
+    font-weight: 600;
+    font-size: 10pt;
+    margin-bottom: 4px;
+}
+
+/* Box de investimento tech */
+.box-investimento {
+    background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+    color: white;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    margin: 24px 0;
+    box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.3);
+}
+
+.box-investimento .valor {
+    font-size: 28pt;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.02em;
+}
+
+.box-investimento .extenso {
+    font-size: 10pt;
+    opacity: 0.9;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Tabelas tech */
+.tabela-prazos th {
+    background: var(--brand-bg);
+    color: var(--brand-dark);
+    border-bottom: 2px solid var(--brand);
+}
+
+.tabela-prazos tr:hover td {
+    background: var(--surface);
+}
+
+.tabela-prazos tr:last-child td {
+    font-weight: 700;
+    color: var(--brand);
+    border-top: 2px solid var(--brand);
+    background: var(--brand-bg);
+}
+
+/* Código/destaque técnico */
+.tech-tag {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9pt;
+    color: var(--brand-dark);
+    border: 1px solid var(--border);
+}
+
+/* Dados bancários */
+.dados-bancarios {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.dados-bancarios li {
+    list-style: none;
+    margin-bottom: 6px;
+    font-size: 10pt;
+}
+
+.dados-bancarios strong {
+    color: var(--brand);
+}        
+        /* Overrides específicos desta proposta */
+            </style>
+</head>
+<body>
+
+    <!-- Botão Imprimir -->
+    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">🖨️</button>
+
+    <div class="page">
+        
+        
+<header class="header-proposta">
+    <div class="badge-tech">VANT / Drone</div>
+    <div class="header-logo">
+                    <div class="logo-placeholder">[LOGO]</div>
+            </div>
+    <div class="header-titulo">
+        <h1>Proposta de Serviços</h1>
+        <div class="header-subtitulo">Topografia e Mapeamento Aéreo</div>
+    </div>
+</header>
+
+<div class="header-meta">
+    <span><strong>Proposta Nº:</strong> GEOMETROPOLE-2026-02098</span>
+    <span class="numero-proposta">Belo Horizonte, 17/02/2026</span>
+</div>
+        
+        <!-- DADOS DO CLIENTE -->
+        <div class="dados-grid">
+            <div class="dados-cliente">
+                <h2>Dados do Cliente</h2>
+                <div class="info-row">
+                    <span class="info-label">Nome:</span>
+                    <span class="info-value">Marcus Vinicius Costa e Silva Tavares</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">E-mail:</span>
+                    <span class="info-value">marcus.costa@braz.com.br</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value">
+                        (31) 3625-4769                         / Whats: (31) 99874-5889                    </span>
+                </div>
+            </div>
+            
+            <div class="dados-obra">
+                <h2>Local da Obra</h2>
+                <div class="info-row">
+                    <span class="info-label">Endereço:</span>
+                    <span class="info-value">Rua Servidão Um, 934</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Bairro:</span>
+                    <span class="info-value">Vale do Jatobá (Barreiro)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cidade/UF:</span>
+                    <span class="info-value">Belo Horizonte - MG</span>
+                </div>
+                                <div class="info-row">
+                    <span class="info-label">Área:</span>
+                    <span class="info-value">25 m²</span>
+                </div>
+                            </div>
+        </div>
+
+        <!-- CONTEÚDO DINÂMICO -->
+        <div class="conteudo-blocos">
+                            <div class="bloco-secao">
+                    <h2>1. Apresentação e Entendimento do Serviço</h2>
+                    <div class="bloco-conteudo">
+                        <p>A <strong>GeoMetrópole Engenharia e Topografia Ltda.</strong> apresenta esta proposta técnica visando a execução de levantamento topográfico planialtimétrico através de <strong>Aerofotogrametria com Drones (VANTs)</strong>.</p>
+            <p>Diferente de captação de imagens meramente ilustrativas, este serviço trata-se de <strong>Engenharia de Precisão</strong>.</p>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>2. Metodologia: O Passo a Passo do Mapeamento</h2>
+                    <div class="bloco-conteudo">
+                        <p>Para garantir que o produto final tenha <strong>validade topográfica</strong>, seguimos um rigoroso fluxo de trabalho:</p>
+            <h4>FASE 1: Planejamento e Configuração de Voo</h4>
+            <ul>
+                <li><strong>O que é:</strong> Definimos a altura de voo para garantir a resolução desejada</li>
+                <li><strong>Para o Leigo:</strong> O drone segue uma "grade" programada via GPS</li>
+            </ul>
+            <h4>FASE 2: Apoio Terrestre - Pontos de Controle</h4>
+            <p>Esta é a etapa que diferencia uma foto comum de um mapa topográfico...</p>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>3. Produtos Entregues</h2>
+                    <div class="bloco-conteudo">
+                        <p>Ao final do processo, entregamos:</p>
+            <ol>
+                <li><strong>Ortomosaico Georreferenciado (TIF/JPG):</strong> Foto gigante de toda a área em escala real</li>
+                <li><strong>MDT (Modelo Digital de Terreno):</strong> Representação 3D do solo</li>
+                <li><strong>Curvas de Nível (DWG/DXF):</strong> Arquivo para AutoCAD</li>
+                <li><strong>ART (Anotação de Responsabilidade Técnica):</strong> Registrada no CREA</li>
+            </ol>                    </div>
+                </div>
+                            <div class="bloco-secao">
+                    <h2>4. Prazos Estimados</h2>
+                    <div class="bloco-conteudo">
+                        <p>O cumprimento dos prazos depende de condições climáticas favoráveis.</p>
+            <table class="tabela-prazos">
+                <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+                <tr><td><strong>1. Mobilização</strong></td><td>Planejamento e ida a campo</td><td>Até 02 dias</td></tr>
+                <tr><td><strong>2. Campo</strong></td><td>Instalação de pontos e Voo</td><td>01 dia</td></tr>
+                <tr><td><strong>3. Processamento</strong></td><td>Geração da nuvem e modelos</td><td>03 a 05 dias</td></tr>
+                <tr><td><strong>4. CAD</strong></td><td>Vetorização e Planta Final</td><td>03 a 05 dias</td></tr>
+                <tr><td colspan="2"><strong>TOTAL ESTIMADO</strong></td><td><strong>07 a 12 dias úteis</strong></td></tr>
+            </table>                    </div>
+                </div>
+                    </div>
+
+        <!-- INVESTIMENTO -->
+        <div class="bloco-secao">
+            <h2>5. Investimento</h2>
+            <p>O valor total para execução dos serviços descritos, incluindo equipe técnica, equipamentos, deslocamento e impostos, é de:</p>
+            
+            <div class="box-investimento">
+                <div class="valor">R$ 3.500,00</div>
+                <div class="extenso">(três mil e quinhentos reais)</div>
+            </div>
+            
+                        <p><em>Este investimento reflete o custo-benefício da tecnologia: maior riqueza de dados em menor tempo.</em></p>
+                    </div>
+        
+        <!-- CONDIÇÕES DE PAGAMENTO -->
+        <div class="bloco-secao">
+            <h2>6. Condições de Pagamento</h2>
+            <table class="tabela-prazos">
+                <tr>
+                    <th>Etapa</th>
+                    <th>Percentual</th>
+                    <th>Valor</th>
+                    <th>Condição</th>
+                </tr>
+                                <tr>
+                    <td><strong>Mobilização (Sinal)</strong></td>
+                    <td>30%</td>
+                    <td>R$ 1.050,00</td>
+                    <td>No aceite da proposta</td>
+                </tr>
+                                <tr>
+                    <td><strong>Entrega Final</strong></td>
+                    <td>70%</td>
+                    <td>R$ 2.450,00</td>
+                    <td>Na entrega dos arquivos</td>
+                </tr>
+                            </table>
+            
+            <h3>Dados Bancários:</h3>
+            <ul class="dados-bancarios">
+                <li><strong>Banco:</strong> Itaú Unibanco S.A.</li>
+                <li><strong>Agência:</strong> 2934 | <strong>Conta:</strong> 56789-0</li>
+                <li><strong>Titular:</strong> GeoMetrópole Engenharia e Topografia Ltda. | <strong>CNPJ:</strong> XX.XXX.XXX/0001-XX</li>
+                <li><strong>PIX:</strong> financeiro@geometropolesp.com</li>
+            </ul>
+        </div>
+        
+        <!-- EQUIPAMENTOS (se houver) -->
+                <div class="bloco-secao">
+            <h2>7. Equipamentos Previstos</h2>
+            <p>Para garantir a acurácia descrita nesta proposta, utilizaremos:</p>
+            <ul class="lista-equipamentos">
+                                <li><strong>Aeronave:</strong> DJI Phantom 4 RTK (Câmera de 20MP com correção geométrica)</li>
+                                <li><strong>GPS - Geodésia:</strong> Receptor GNSS RTK/PPK para Pontos de Controle</li>
+                                <li><strong>Software:</strong> Pix4Dmapper + AutoCAD Civil 3D</li>
+                                <li><strong>Processamento:</strong> Workstation com GPU dedicada</li>
+                            </ul>
+        </div>
+                
+        <!-- CONSIDERAÇÕES FINAIS -->
+        <div class="bloco-secao">
+            <h2>8. Considerações Finais</h2>
+            <p>Esta proposta tem validade de 15 dias. A <strong>GeoMetrópole Engenharia e Topografia Ltda.</strong> coloca-se à disposição para sanar quaisquer dúvidas técnicas.</p>
+            <p>Garantimos que o produto final entregue será uma ferramenta robusta para o desenvolvimento do seu projeto.</p>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer-proposta">
+            <p>Atenciosamente,</p>
+            <div class="linha-assinatura"></div>
+            <p class="footer-empresa">GeoMetrópole Engenharia e Topografia Ltda.</p>
+            <p class="footer-info">
+                Belo Horizonte - MG • 
+                (31) 3625-4769 • 
+                contato@geometropole.com.br            </p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
