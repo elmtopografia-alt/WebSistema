@@ -173,7 +173,7 @@ if ($id_proposta_edicao > 0) {
                     Próximo <i class="bi bi-arrow-right"></i>
                 </button>
                 <button type="submit" class="btn btn-primary hidden" id="btn-legacy" name="acao" value="gerar_doc" style="margin-right: 10px;">
-                    <i class="bi bi-file-earmark-word"></i> Gerar Proposta
+                    <i class="bi bi-file-earmark-word"></i> Gerar Arquivo DOCX
                 </button>
                 <button type="button" class="btn btn-success hidden" id="btn-finish" onclick="irParaEditor()">
                     <i class="bi bi-magic"></i> Editor Avançado ✨

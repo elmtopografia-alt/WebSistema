@@ -52,8 +52,11 @@ $tema = $tema_info;
 </head>
 <body>
 
-    <!-- Botão Imprimir -->
-    <button class="btn-fab no-print" onclick="window.print()" title="Salvar como PDF">🖨️</button>
+    <!-- Botoes Flutuantes -->
+    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 1000;">
+        <button class="btn-fab" onclick="window.location.href='../../painel_crm.php';" style="position: static; font-size: 14px; font-weight: bold; width: auto; padding: 0 20px; border-radius: 28px; background: #dc2626; color: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Ir para o CRM">CRM</button>
+        <button class="btn-fab" onclick="window.print()" style="position: static; background: #3b82f6; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Salvar como PDF">🖨️</button>
+    </div>
 
     <div class="page">
         
@@ -209,6 +212,7 @@ $tema = $tema_info;
         <?php endif; ?>
 
         <!-- FOOTER -->
+        <?php if (empty($proposta['is_docx'])): ?>
         <footer class="footer-proposta">
             <p>Atenciosamente,</p>
             <div class="linha-assinatura"></div>
@@ -219,6 +223,7 @@ $tema = $tema_info;
                 <?= htmlspecialchars($empresa['email']) ?>
             </p>
         </footer>
+        <?php endif; ?>
 
     </div>
 

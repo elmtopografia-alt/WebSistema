@@ -21,9 +21,8 @@ class ResolvedorChavesSistema
         $d = $dadosExtras;
 
         foreach ($chavesNecessarias as $chave) {
-            // Mapeamento Direto
             switch ($chave) {
-                // Empresa / Usuario
+                // EMPRESA
                 case 'Empresa':
                 case 'empresa':
                 case 'nome_empresa':
@@ -36,28 +35,15 @@ class ResolvedorChavesSistema
                 case 'whatsapp':
                     $resolvidas[$chave] = $empresa['WhatsApp'] ?? $empresa['Telefone'] ?? '';
                     break;
-                case 'Banco':
-                    $resolvidas[$chave] = $empresa['Banco'] ?? '';
-                    break;
-                case 'Agencia':
-                    $resolvidas[$chave] = $empresa['Agencia'] ?? '';
-                    break;
-                case 'Conta':
-                    $resolvidas[$chave] = $empresa['Conta'] ?? '';
-                    break;
-                case 'PIX':
-                case 'pix':
-                    $resolvidas[$chave] = $empresa['PIX'] ?? '';
-                    break;
-                case 'logo_empresa':
-                case 'logo':
-                    $resolvidas[$chave] = $empresa['logo_url'] ?? '';
+                case 'Cidade':
+                case 'cidade_empresa':
+                    $resolvidas[$chave] = $empresa['Cidade'] ?? 'Belo Horizonte';
                     break;
                 
-                // Cliente
+                // CLIENTE - CORREÇÃO: Priorizar $dadosExtras
                 case 'nome_cliente_salvo':
                 case 'nome_cliente':
-                    $resolvidas[$chave] = $d['nome_cliente'] ?? $d['nome_cliente_salvo'] ?? 'Cliente não informado';
+                    $resolvidas[$chave] = $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? 'Cliente não informado';
                     break;
                 case 'email_salvo':
                 case 'email_cliente':
@@ -68,118 +54,114 @@ class ResolvedorChavesSistema
                     $resolvidas[$chave] = $d['telefone_salvo'] ?? $d['telefone_cliente'] ?? '';
                     break;
                 case 'celular_salvo':
-                case 'whatsapp_salvo':
                 case 'celular_cliente':
-                    $resolvidas[$chave] = $d['whatsapp_salvo'] ?? $d['celular_salvo'] ?? $d['celular_cliente'] ?? '';
+                    $resolvidas[$chave] = $d['celular_salvo'] ?? $d['celular_cliente'] ?? '';
+                    break;
+                case 'whatsapp_salvo':
+                case 'whatsapp_cliente':
+                    $resolvidas[$chave] = $d['whatsapp_salvo'] ?? $d['whatsapp_cliente'] ?? '';
                     break;
                 
-                // Obra / Terreno
+                // OBRA - CORREÇÃO: Priorizar $dadosExtras
                 case 'endereco_obra':
                     $resolvidas[$chave] = $d['endereco_obra'] ?? '';
                     break;
                 case 'bairro_obra':
-                case 'ClienteBairro':
                     $resolvidas[$chave] = $d['bairro_obra'] ?? '';
                     break;
                 case 'cidade_obra':
                     $resolvidas[$chave] = $d['cidade_obra'] ?? '';
                     break;
+                case 'cidade_limpo':
+                    $resolvidas[$chave] = $d['cidade_limpo'] ?? $d['cidade_obra'] ?? '';
+                    break;
                 case 'estado_obra':
-                case 'uf_obra':
                     $resolvidas[$chave] = $d['estado_obra'] ?? '';
                     break;
-                case 'ClienteCidadeUF':
-                    $resolvidas[$chave] = trim(($d['cidade_obra'] ?? '') . '-' . ($d['estado_obra'] ?? ''), '-');
-                    break;
                 case 'AreaEstimada':
-                    $resolvidas[$chave] = ($d['area_obra'] ?? '0') . ' ' . ($d['unidade_area'] ?? 'm²');
-                    break;
-                case 'unidade_area':
-                    $resolvidas[$chave] = $d['unidade_area'] ?? 'm²';
-                    break;
-                case 'TipoTerreno':
-                    $resolvidas[$chave] = $d['tipo_terreno'] ?? 'Não informado';
-                    break;
-                case 'CoberturaVegetal':
-                    $resolvidas[$chave] = $d['cobertura_vegetal'] ?? 'Não informado';
-                    break;
-                case 'AcessoLocal':
-                    $resolvidas[$chave] = $d['acesso_local'] ?? 'Não informado';
-                    break;
-                case 'RestricoesAereas':
-                    $resolvidas[$chave] = $d['restricoes_aereas'] ?? 'Não informado';
+                    $area = $d['area_obra'] ?? '0';
+                    $unidade = $d['unidade_area'] ?? 'm²';
+                    $resolvidas[$chave] = $area . ' ' . $unidade;
                     break;
                 
-                // Equipamentos
-                case 'Drone':
-                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'drone', 'drone', 'marca_drone', 'Não aplicável');
-                    break;
-                case 'Veiculo':
-                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'veiculo', 'veiculo', 'marca_veiculo', 'Não incluso');
-                    break;
-                case 'Estacao_Total':
-                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'estacao', 'estacao_total', 'marca_estacao_total', 'Não inclusa');
-                    break;
-                case 'GPS':
-                    $resolvidas[$chave] = $this->resolverEquipamento($d, 'gps', 'gps', 'marca_gps', 'Par de Receptores GNSS RTK');
-                    break;
-                
-                // Proposta / Valores
-                case 'numero_proposta':
-                    $resolvidas[$chave] = $d['numero_proposta'] ?? '';
-                    break;
-                case 'status':
-                    $resolvidas[$chave] = $d['status'] ?? 'Em elaboração';
-                    break;
+                // ESCOPO
                 case 'finalidade':
                     $resolvidas[$chave] = $d['finalidade'] ?? '';
                     break;
-                case 'tipo_levantamento':
-                    $resolvidas[$chave] = $d['tipo_levantamento'] ?? '';
+                case 'TipoTerreno':
+                    $resolvidas[$chave] = $d['TipoTerreno'] ?? $d['tipo_terreno'] ?? 'Não informado';
                     break;
+                case 'CoberturaVegetal':
+                    $resolvidas[$chave] = $d['CoberturaVegetal'] ?? $d['cobertura_vegetal'] ?? 'Não informado';
+                    break;
+                case 'AcessoLocal':
+                    $resolvidas[$chave] = $d['AcessoLocal'] ?? $d['acesso_local'] ?? 'Não informado';
+                    break;
+                case 'RestricoesAereas':
+                    $resolvidas[$chave] = $d['RestricoesAereas'] ?? $d['restricoes_aereas'] ?? 'Não informado';
+                    break;
+                
+                // VALORES - CORREÇÃO: Usar valor direto do extras
                 case 'ValorProposta':
-                    $resolvidas[$chave] = $this->formatarMoeda($d['valor_final_proposta'] ?? 0);
+                    $valor = $d['valor_final_proposta'] ?? $d['ValorProposta'] ?? 0;
+                    $resolvidas[$chave] = $this->formatarMoeda($valor);
                     break;
                 case 'ValorExtenso':
-                    $resolvidas[$chave] = $this->valorPorExtenso($d['valor_final_proposta'] ?? 0);
-                    break;
-                case 'prazo_execucao':
-                    $resolvidas[$chave] = $d['prazo_execucao'] ?? '';
-                    break;
-                case 'dias_campo':
-                    $resolvidas[$chave] = $d['dias_campo'] ?? '0';
-                    break;
-                case 'dias_escritorio':
-                    $resolvidas[$chave] = $d['dias_escritorio'] ?? '0';
+                    $resolvidas[$chave] = $d['ValorExtenso'] ?? '';
                     break;
                 case 'mobilizacao_percentual':
                     $resolvidas[$chave] = $d['mobilizacao_percentual'] ?? '30';
                     break;
                 case 'mobilizacao_valor':
-                    $resolvidas[$chave] = $this->formatarMoeda($d['mobilizacao_valor'] ?? 0);
+                    $valor = $d['mobilizacao_valor'] ?? 0;
+                    $resolvidas[$chave] = $this->formatarMoeda($valor);
                     break;
                 case 'restante_percentual':
                     $resolvidas[$chave] = $d['restante_percentual'] ?? '70';
                     break;
                 case 'restante_valor':
-                    $resolvidas[$chave] = $this->formatarMoeda($d['restante_valor'] ?? 0);
-                    break;
-                case 'Cidade':
-                case 'cidade_empresa':
-                    $resolvidas[$chave] = $empresa['Cidade'] ?? 'Belo Horizonte';
+                    $valor = $d['restante_valor'] ?? 0;
+                    $resolvidas[$chave] = $this->formatarMoeda($valor);
                     break;
                 
-                // Datas
+                // DATAS
                 case 'DataExtenso':
-                    $resolvidas[$chave] = $this->dataPorExtenso($d['data_criacao'] ?? time());
+                    $resolvidas[$chave] = $d['DataExtenso'] ?? $this->dataPorExtenso(time());
                     break;
-                case 'DataHoje':
-                    $ts = is_string($d['data_criacao'] ?? null) ? strtotime($d['data_criacao']) : time();
-                    $resolvidas[$chave] = date('d/m/Y', $ts);
+                case 'numero_proposta':
+                    $resolvidas[$chave] = $d['numero_proposta'] ?? '';
+                    break;
+                
+                // BANCO
+                case 'Banco':
+                    $resolvidas[$chave] = $d['Banco'] ?? '';
+                    break;
+                case 'Agencia':
+                    $resolvidas[$chave] = $d['Agencia'] ?? '';
+                    break;
+                case 'Conta':
+                    $resolvidas[$chave] = $d['Conta'] ?? '';
+                    break;
+                case 'PIX':
+                    $resolvidas[$chave] = $d['PIX'] ?? '';
+                    break;
+                
+                // EQUIPAMENTOS
+                case 'Drone':
+                    $resolvidas[$chave] = $d['Drone'] ?? 'Não aplicável';
+                    break;
+                case 'GPS':
+                    $resolvidas[$chave] = $d['GPS'] ?? 'Par de Receptores GNSS RTK';
+                    break;
+                case 'Estacao_Total':
+                    $resolvidas[$chave] = $d['Estacao_Total'] ?? 'Não inclusa';
+                    break;
+                case 'Veiculo':
+                    $resolvidas[$chave] = $d['Veiculo'] ?? 'Não incluso';
                     break;
                 
                 default:
-                    // Se não tiver regra específica, tenta puxar do array $d direto
+                    // Fallback: tenta pegar direto do array
                     $resolvidas[$chave] = $d[$chave] ?? "[{$chave}]";
                     break;
             }

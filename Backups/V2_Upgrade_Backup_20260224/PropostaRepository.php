@@ -228,6 +228,7 @@ public function buscarPorId($id)
     if (!$res) {
         $error = "PropostaRepository::buscarPorId SQL FAIL: " . ($this->conn->error ?? 'erro desconhecido');
         error_log($error);
+        echo "<div style='background:red; color:white; padding:10px;'>$error</div>";
         return null;
     }
     $dados = $res->fetch_assoc();
@@ -261,112 +262,50 @@ public function buscarPorId($id)
     }
 
     // Carrega Itens de Custo
-    $dados['itens'] = $this->reconstruirItensV2($dados);
+    $dados['itens'] = [
+        'salarios' => [], 'estadia' => [], 'consumo' => [], 'locacao' => [], 'admin' => []
+    ];
 
-    return $dados;
-}
-
-/**
- * SGT v2.0 - Reconstrói o array estruturado de itens a partir das colunas flat
- * Isso garante que a edição carregue os dados "congelados" da proposta.
- */
-private function reconstruirItensV2(array $row): array 
-{
-    $id = intval($row['id_proposta']);
-    $itens = ['salarios' => [], 'funcoes' => [], 'estadias' => [], 'consumos' => [], 'locacoes' => [], 'admin' => []];
-
-    // 1. ADMIN (5)
-    for ($i = 1; $i <= 5; $i++) {
-        if (!empty($row["adm_{$i}_id"])) {
-            $itens['admin'][] = [
-                'tipo' => $row["adm_{$i}_id"],
-                'quantidade' => $row["adm_{$i}_qtd"],
-                'valor'      => $row["adm_{$i}_valor"],
-                'periodo'    => $row["adm_{$i}_periodo"],
-                'subtotal'   => $row["adm_{$i}_subtotal"]
-            ];
-        }
-    }
-
-    // 2. FUNÇÕES (10)
-    for ($i = 1; $i <= 10; $i++) {
-        if (!empty($row["fun_{$i}_id"])) {
-            $itens['salarios'][] = [
-                'funcao'     => $row["fun_{$i}_id"],
-                'quantidade' => $row["fun_{$i}_qtd"],
-                'dias'       => $row["fun_{$i}_dias"],
-                'valor'      => $row["fun_{$i}_valor"],
-                'encargos'   => $row["fun_{$i}_encargos"],
-                'subtotal'   => $row["fun_{$i}_subtotal"]
-            ];
-        }
-    }
-
-    // 3. ESTADIA (5)
-    for ($i = 1; $i <= 5; $i++) {
-        if (!empty($row["est_{$i}_id"])) {
-            $itens['estadias'][] = [
-                'tipo'           => $row["est_{$i}_id"],
-                'quantidade'     => $row["est_{$i}_qtd"],
-                'noites'         => $row["est_{$i}_dias"],
-                'valor'          => $row["est_{$i}_valor"],
-                'subtotal'       => $row["est_{$i}_subtotal"]
-            ];
-        }
-    }
-
-    // 4. CONSUMO (20)
-    for ($i = 1; $i <= 20; $i++) {
-        if (!empty($row["con_{$i}_id"])) {
-            $itens['consumos'][] = [
-                'tipo'         => $row["con_{$i}_id"],
-                'quantidade'   => $row["con_{$i}_qtd"],
-                'kml'          => $row["con_{$i}_kml"],
-                'valor_litro'  => $row["con_{$i}_litro"],
-                'km'           => $row["con_{$i}_km"],
-                'subtotal'     => $row["con_{$i}_subtotal"]
-            ];
-        }
-    }
-
-    // 5. LOCAÇÃO (10)
-    for ($i = 1; $i <= 10; $i++) {
-        if (!empty($row["loc_{$i}_id_tipo"])) {
-            $itens['locacoes'][] = [
-                'tipo'         => $row["loc_{$i}_id_tipo"],
-                'marca'        => $row["loc_{$i}_id_marca"],
-                'quantidade'   => $row["loc_{$i}_qtd"],
-                'valor'        => $row["loc_{$i}_valor"],
-                'dias'         => $row["loc_{$i}_dias"],
-                'subtotal'     => $row["loc_{$i}_subtotal"]
-            ];
-        }
-    }
-
-    // Fallback: Se não encontrou nada nas colunas v2, tenta as tabelas auxiliares (Legado)
-    $totalV2 = count($itens['salarios']) + count($itens['admin']) + count($itens['estadias']) + count($itens['consumos']) + count($itens['locacoes']);
-    
-    if ($totalV2 === 0) {
-        $itens['salarios'] = $this->fetchOldItens("Proposta_Salarios", $id);
-        $itens['estadias'] = $this->fetchOldItens("Proposta_Estadia", $id);
-        $itens['consumos'] = $this->fetchOldItens("Proposta_Consumos", $id);
-        $itens['locacoes'] = $this->fetchOldItens("Proposta_Locacao", $id);
-    }
-
-    // Alinhamento v3.1: funcoes = salarios
-    $itens['funcoes'] = $itens['salarios'];
-
-    return $itens;
-}
-
-private function fetchOldItens(string $table, int $id): array 
-{
-    $res = $this->conn->query("SELECT * FROM $table WHERE id_proposta = $id");
-    $rows = [];
+    $res = $this->conn->query("SELECT * FROM Proposta_Salarios WHERE id_proposta = $id");
     if ($res) {
-        while($r = $res->fetch_assoc()) $rows[] = $r;
+        while($row = $res->fetch_assoc()) $dados['itens']['salarios'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Salarios indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
     }
-    return $rows;
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Estadia WHERE id_proposta = $id");
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['estadia'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Estadia indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Consumos WHERE id_proposta = $id");
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['consumo'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Consumos indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
+
+    $res = $this->conn->query("SELECT pl.*, m.nome_marca as marca, tl.nome as tipo 
+                               FROM Proposta_Locacao pl 
+                               LEFT JOIN Marcas m ON pl.id_marca = m.id_marca
+                               LEFT JOIN Tipo_Locacao tl ON pl.id_locacao = tl.id_locacao
+                               WHERE pl.id_proposta = $id");
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['locacao'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Locacao indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
+
+    $res = $this->conn->query("SELECT * FROM Proposta_Custos_Administrativos WHERE id_proposta = $id");
+    if ($res) {
+        while($row = $res->fetch_assoc()) $dados['itens']['admin'][] = $row;
+    } else {
+        error_log("PropostaRepository::buscarPorId WARN: tabela Proposta_Custos_Administrativos indisponível: " . ($this->conn->error ?? 'erro desconhecido'));
+    }
+    
+    return $dados;
 }
 
 /**
@@ -842,6 +781,7 @@ public function getAllLookupData($idUsuario)
             'tipo_terreno' => $dados['tipo_terreno'] ?? null,
             'cobertura_vegetal' => $dados['cobertura_vegetal'] ?? null,
             'acesso_local' => $dados['acesso_local'] ?? null,
+            'acesso_local' => $dados['acesso_local'] ?? null,
             'restricoes_aereas' => $dados['restricoes_aereas'] ?? null,
             'coordenadas_gps' => $dados['coordenadas_gps'] ?? null,
             'modelo_veiculo' => $dados['modelo_veiculo'] ?? null,
@@ -936,7 +876,7 @@ public function getAllLookupData($idUsuario)
             'empresa_proponente_agencia'  => $dados['empresa_proponente_agencia']  ?? '',
             'empresa_proponente_conta'    => $dados['empresa_proponente_conta']    ?? '',
             'empresa_proponente_pix'      => $dados['empresa_proponente_pix']      ?? '',
-            'id_servico'           => !empty($dados['id_servico']) ? intval($dados['id_servico']) : null,
+            'id_servico'           => intval($dados['id_servico']),
             'tipo_servico_id'      => intval($dados['tipo_servico_id'] ?? 0),
             'contato_obra'         => $dados['contato_obra'] ?? '',
             'finalidade'           => $dados['finalidade'] ?? '',
@@ -1324,17 +1264,17 @@ public function getAllLookupData($idUsuario)
     {
         $this->conn->begin_transaction();
         try {
-            $this->normalizarEntradaV2($dados);
             $this->preencherEquipamentosFlat($dados);
             $totais = $this->calcularTotais($dados);
             $numero = $this->gerarNumeroNovo($dados['empresa_proponente_nome'] ?? 'PROP');
             
             $planilha = $this->extrairDadosPlanilha($dados);
             
-            // Base da Proposta
+            // Base da Proposta (Usa o insertProposta existente como fundação ou expande)
+            // Para v2.0, vamos usar uma lógica unificada de colunas se possível.
             $id = $this->insertProposta($dados, $totais, $numero);
             
-            // Sincroniza PDF/HTML/DOCX v2.0
+            // Agora atualizamos com os dados da planilha v2.0 no mesmo registro
             $this->atualizarDadosPlanilhaV2($id, $planilha);
             
             $this->conn->commit();
@@ -1349,10 +1289,9 @@ public function getAllLookupData($idUsuario)
     public function buscarCompleto(int $idProposta, int $idUsuario): ?array 
     {
         $dados = $this->buscarPorId($idProposta);
-        if (!$dados || intval($dados['id_criador']) !== intval($idUsuario)) return null;
+        if (!$dados || $dados['id_criador'] != $idUsuario) return null;
         
-        // Sincroniza 'planilha' (nome esperado pelo JS v2) com 'itens' (nome interno reconstruído)
-        $dados['planilha'] = $dados['itens'];
+        $dados['planilha'] = $this->extrairPlanilhaDoBanco($dados);
         return $dados;
     }
 
@@ -1360,7 +1299,6 @@ public function getAllLookupData($idUsuario)
     {
         $this->conn->begin_transaction();
         try {
-            $this->normalizarEntradaV2($dados);
             $this->preencherEquipamentosFlat($dados);
             $totais = $this->calcularTotais($dados);
             
@@ -1392,7 +1330,6 @@ public function getAllLookupData($idUsuario)
         
         // 1. ADMIN (5 linhas)
         $items = array_values($dados['admin'] ?? []);
-        $totalAdm = 0;
         for ($i = 0; $i < 5; $i++) {
             $idx = $i + 1;
             $row = $items[$i] ?? null;
@@ -1400,15 +1337,11 @@ public function getAllLookupData($idUsuario)
             $planilha["adm_{$idx}_qtd"]      = isset($row['quantidade']) ? floatval($row['quantidade']) : 0;
             $planilha["adm_{$idx}_valor"]    = isset($row['valor']) ? floatval($row['valor']) : 0;
             $planilha["adm_{$idx}_periodo"]  = $row['periodo'] ?? null;
-            $subtotal = $planilha["adm_{$idx}_qtd"] * $planilha["adm_{$idx}_valor"];
-            $planilha["adm_{$idx}_subtotal"] = $subtotal;
-            $totalAdm += $subtotal;
+            $planilha["adm_{$idx}_subtotal"] = $planilha["adm_{$idx}_qtd"] * $planilha["adm_{$idx}_valor"];
         }
-        $planilha['total_v2_adm'] = $totalAdm;
 
         // 2. FUNÇÕES (10 linhas)
         $items = array_values($dados['salarios'] ?? []);
-        $totalFun = 0;
         for ($i = 0; $i < 10; $i++) {
             $idx = $i + 1;
             $row = $items[$i] ?? null;
@@ -1418,15 +1351,11 @@ public function getAllLookupData($idUsuario)
             $planilha["fun_{$idx}_valor"]    = isset($row['valor']) ? floatval($row['valor']) : 0;
             $planilha["fun_{$idx}_encargos"] = isset($row['encargos']) ? floatval($row['encargos']) : 67;
             // Cálculo: (Valor * (1 + Encargos/100) / 30) * Qtd * Dias
-            $subtotal = ($planilha["fun_{$idx}_valor"] * (1 + $planilha["fun_{$idx}_encargos"] / 100) / 30) * $planilha["fun_{$idx}_qtd"] * $planilha["fun_{$idx}_dias"];
-            $planilha["fun_{$idx}_subtotal"] = $subtotal;
-            $totalFun += $subtotal;
+            $planilha["fun_{$idx}_subtotal"] = ($planilha["fun_{$idx}_valor"] * (1 + $planilha["fun_{$idx}_encargos"] / 100) / 30) * $planilha["fun_{$idx}_qtd"] * $planilha["fun_{$idx}_dias"];
         }
-        $planilha['total_v2_fun'] = $totalFun;
 
         // 3. ESTADIA (5 linhas)
         $items = array_values($dados['estadias'] ?? []);
-        $totalEst = 0;
         for ($i = 0; $i < 5; $i++) {
             $idx = $i + 1;
             $row = $items[$i] ?? null;
@@ -1434,15 +1363,11 @@ public function getAllLookupData($idUsuario)
             $planilha["est_{$idx}_qtd"]      = isset($row['quantidade']) ? floatval($row['quantidade']) : 0;
             $planilha["est_{$idx}_dias"]     = isset($row['noites']) ? floatval($row['noites']) : 0;
             $planilha["est_{$idx}_valor"]    = isset($row['valor']) ? floatval($row['valor']) : 0;
-            $subtotal = $planilha["est_{$idx}_qtd"] * $planilha["est_{$idx}_valor"] * $planilha["est_{$idx}_dias"];
-            $planilha["est_{$idx}_subtotal"] = $subtotal;
-            $totalEst += $subtotal;
+            $planilha["est_{$idx}_subtotal"] = $planilha["est_{$idx}_qtd"] * $planilha["est_{$idx}_valor"] * $planilha["est_{$idx}_dias"];
         }
-        $planilha['total_v2_est'] = $totalEst;
 
         // 4. CONSUMO (20 linhas)
         $items = array_values($dados['consumos'] ?? []);
-        $totalCon = 0;
         for ($i = 0; $i < 20; $i++) {
             $idx = $i + 1;
             $row = $items[$i] ?? null;
@@ -1453,15 +1378,11 @@ public function getAllLookupData($idUsuario)
             $planilha["con_{$idx}_km"]       = isset($row['km']) ? floatval($row['km']) : 0;
             // Cálculo: (KM / KmL) * Litro * Qtd
             $kml = $planilha["con_{$idx}_kml"] > 0 ? $planilha["con_{$idx}_kml"] : 1;
-            $subtotal = ($planilha["con_{$idx}_km"] / $kml) * $planilha["con_{$idx}_litro"] * $planilha["con_{$idx}_qtd"];
-            $planilha["con_{$idx}_subtotal"] = $subtotal;
-            $totalCon += $subtotal;
+            $planilha["con_{$idx}_subtotal"] = ($planilha["con_{$idx}_km"] / $kml) * $planilha["con_{$idx}_litro"] * $planilha["con_{$idx}_qtd"];
         }
-        $planilha['total_v2_con'] = $totalCon;
 
         // 5. LOCACAO (10 linhas)
         $items = array_values($dados['locacoes'] ?? []);
-        $totalLoc = 0;
         for ($i = 0; $i < 10; $i++) {
             $idx = $i + 1;
             $row = $items[$i] ?? null;
@@ -1471,11 +1392,8 @@ public function getAllLookupData($idUsuario)
             $planilha["loc_{$idx}_valor"]    = isset($row['valor']) ? floatval($row['valor']) : 0;
             $planilha["loc_{$idx}_dias"]     = isset($row['dias']) ? floatval($row['dias']) : 0;
             // Cálculo: (Qtd * Valor / 30) * Dias
-            $subtotal = ($planilha["loc_{$idx}_qtd"] * $planilha["loc_{$idx}_valor"] / 30) * $planilha["loc_{$idx}_dias"];
-            $planilha["loc_{$idx}_subtotal"] = $subtotal;
-            $totalLoc += $subtotal;
+            $planilha["loc_{$idx}_subtotal"] = ($planilha["loc_{$idx}_qtd"] * $planilha["loc_{$idx}_valor"] / 30) * $planilha["loc_{$idx}_dias"];
         }
-        $planilha['total_v2_loc'] = $totalLoc;
 
         return $planilha;
     }
@@ -1483,6 +1401,29 @@ public function getAllLookupData($idUsuario)
     /**
      * Reconstrói a estrutura de arrays a partir das colunas flat do banco
      */
+    private function extrairPlanilhaDoBanco(array $p): array 
+    {
+        $planilha = ['admin' => [], 'salarios' => [], 'estadias' => [], 'consumos' => [], 'locacoes' => []];
+
+        // Mapeamentos inversos (mesma lógica do extrairDadosPlanilha)
+        for($i=1; $i<=5; $i++) {
+            if ($p["adm_{$i}_id"]) $planilha['admin'][] = ['tipo' => $p["adm_{$i}_id"], 'quantidade' => $p["adm_{$i}_qtd"], 'valor' => $p["adm_{$i}_valor"], 'periodo' => $p["adm_{$i}_periodo"]];
+        }
+        for($i=1; $i<=10; $i++) {
+            if ($p["fun_{$i}_id"]) $planilha['salarios'][] = ['funcao' => $p["fun_{$i}_id"], 'quantidade' => $p["fun_{$i}_qtd"], 'dias' => $p["fun_{$i}_dias"], 'valor' => $p["fun_{$i}_valor"], 'encargos' => $p["fun_{$i}_encargos"]];
+        }
+        for($i=1; $i<=5; $i++) {
+            if ($p["est_{$i}_id"]) $planilha['estadias'][] = ['tipo' => $p["est_{$i}_id"], 'quantidade' => $p["est_{$i}_qtd"], 'noites' => $p["est_{$i}_dias"], 'valor' => $p["est_{$i}_valor"]];
+        }
+        for($i=1; $i<=20; $i++) {
+            if ($p["con_{$i}_id"]) $planilha['consumos'][] = ['tipo' => $p["con_{$i}_id"], 'quantidade' => $p["con_{$i}_qtd"], 'kml' => $p["con_{$i}_kml"], 'valor_litro' => $p["con_{$i}_litro"], 'km' => $p["con_{$i}_km"]];
+        }
+        for($i=1; $i<=10; $i++) {
+            if ($p["loc_{$i}_id_tipo"]) $planilha['locacoes'][] = ['tipo' => $p["loc_{$i}_id_tipo"], 'marca' => $p["loc_{$i}_id_marca"], 'quantidade' => $p["loc_{$i}_qtd"], 'valor' => $p["loc_{$i}_valor"], 'dias' => $p["loc_{$i}_dias"]];
+        }
+
+        return $planilha;
+    }
 
     private function atualizarDadosPlanilhaV2(int $id, array $planilha): void 
     {
@@ -1517,7 +1458,7 @@ public function getAllLookupData($idUsuario)
      * Mapeia os equipamentos dinâmicos para colunas "flat" da tabela Propostas
      * (marca_drone, marca_gps, etc) para facilitar a vida dos modelos Word.
      */
-    public function preencherEquipamentosFlat(array &$dados) {
+    private function preencherEquipamentosFlat(array &$dados) {
         // Inicializa com padrão solicitado pelo usuário para garantir que nunca fiquem NULL
         $dados['modelo_drone'] = "Não se aplica";
         $dados['modelo_gps'] = "Não se aplica";
@@ -1569,101 +1510,6 @@ public function getAllLookupData($idUsuario)
                 } elseif (strpos($tipo, 'veículo') !== false || strpos($tipo, 'veiculo') !== false || strpos($tipo, 'carro') !== false) {
                     $dados['modelo_veiculo'] = $marcaStr;
                 }
-            }
-        }
-    }
-    /**
-     * Busca proposta completa incluindo as colunas flat v2.0
-     */
-    public function buscarCompletaPorId(int $idProposta, int $idUsuario): ?array 
-    {
-        // buscarPorId já faz SELECT * de Propostas, então as colunas v2.0 já virão.
-        $dados = $this->buscarPorId($idProposta);
-        
-        if ($dados && intval($dados['id_criador'] ?? 0) !== intval($idUsuario)) {
-            return null;
-        }
-
-        if ($dados) {
-            // Sincroniza 'planilha' (nome esperado pelo JS v2) com 'itens' (nome interno reconstruído)
-            $dados['planilha'] = $dados['itens'] ?? [];
-        }
-        
-        return $dados;
-    }
-
-    /**
-     * Helper para bind_param
-     */
-    /**
-     * SGT v2.0 - Normaliza a entrada do Wizard (proposta.js Legado) para o formato estruturado
-     */
-    public function normalizarEntradaV2(array &$dados): void 
-    {
-        // 1. Salários
-        if (empty($dados['salarios']) && !empty($dados['salario_id_funcao'])) {
-            foreach ($dados['salario_id_funcao'] as $i => $id) {
-                if (!$id) continue;
-                $dados['salarios'][] = [
-                    'funcao' => $id,
-                    'quantidade' => $dados['salario_qtd'][$i] ?? 0,
-                    'valor' => $dados['salario_valor'][$i] ?? 0,
-                    'encargos' => $dados['encargos'][$i] ?? 0,
-                    'dias' => $dados['salario_dias'][$i] ?? 0
-                ];
-            }
-        }
-
-        // 2. Estadia
-        if (empty($dados['estadias']) && !empty($dados['estadia_id'])) {
-            foreach ($dados['estadia_id'] as $i => $id) {
-                if (!$id) continue;
-                $dados['estadias'][] = [
-                    'tipo' => $id,
-                    'quantidade' => $dados['estadia_qtd'][$i] ?? 0,
-                    'valor' => $dados['estadia_valor'][$i] ?? 0,
-                    'noites' => $dados['estadia_dias'][$i] ?? 0
-                ];
-            }
-        }
-
-        // 3. Consumo
-        if (empty($dados['consumos']) && !empty($dados['consumo_id'])) {
-            foreach ($dados['consumo_id'] as $i => $id) {
-                if (!$id) continue;
-                $dados['consumos'][] = [
-                    'tipo' => $id,
-                    'quantidade' => $dados['consumo_qtd'][$i] ?? 0,
-                    'kml' => $dados['consumo_kml'][$i] ?? 0,
-                    'valor_litro' => $dados['consumo_litro'][$i] ?? 0,
-                    'km' => $dados['consumo_km_total'][$i] ?? 0
-                ];
-            }
-        }
-
-        // 4. Locação
-        if (empty($dados['locacoes']) && !empty($dados['locacao_id'])) {
-            foreach ($dados['locacao_id'] as $i => $id) {
-                if (!$id) continue;
-                $dados['locacoes'][] = [
-                    'tipo' => $id,
-                    'marca' => $dados['locacao_id_marca'][$i] ?? 0,
-                    'quantidade' => $dados['locacao_qtd'][$i] ?? 0,
-                    'valor' => $dados['locacao_valor'][$i] ?? 0,
-                    'dias' => $dados['locacao_dias'][$i] ?? 0
-                ];
-            }
-        }
-
-        // 5. Admin
-        if (empty($dados['admin']) && !empty($dados['admin_id'])) {
-            foreach ($dados['admin_id'] as $i => $id) {
-                if (!$id) continue;
-                $dados['admin'][] = [
-                    'tipo' => $id,
-                    'quantidade' => $dados['admin_qtd'][$i] ?? 0,
-                    'valor' => $dados['admin_valor'][$i] ?? 0
-                ];
             }
         }
     }

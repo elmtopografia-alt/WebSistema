@@ -20,5 +20,5 @@
 
 <div class="header-meta">
     <span><strong>Proposta Nº:</strong> <?= htmlspecialchars($proposta['numero']) ?></span>
-    <span class="numero-proposta"><?= htmlspecialchars($proposta['cidade']) ?>, <?= $proposta['data_extenso'] ?></span>
+    <span class="numero-proposta"><?= $proposta['data_extenso'] ?></span>
 </div>

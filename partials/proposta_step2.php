@@ -17,17 +17,17 @@
             <select class="form-select" name="tipo_servico_id" id="tipo_servico_id">
                 <option value="">-- Selecione --</option>
                 <?php
-                // Usa os mesmos serviços do Painel de Serviços (Tipo_Servicos)
-                $tiposParaClassificacao = $dados_cache['arrays_js']['Tipo_Servicos'] ?? [];
-                $cores = ['#3b82f6','#10b981','#f97316','#8b5cf6','#ec4899','#06b6d4','#84cc16','#ef4444'];
-                foreach ($tiposParaClassificacao as $idx => $t): 
-                    $cor = $cores[$idx % count($cores)];
+                // ✅ UNIFICAÇÃO: Usando a mesma lista de serviços para a classificação técnica
+                foreach ($servicos as $s): 
+                    // Fallback para modelos que não tenham cor/icone definidos na tabela principal
+                    $cor = $s['cor'] ?? '#64748b';
+                    $icone = $s['icone'] ?? 'briefcase';
                 ?>
-                    <option value="<?= $t['id'] ?>"
+                    <option value="<?= $s['id'] ?>"
                             data-cor="<?= $cor ?>"
-                            data-icone="briefcase"
-                            <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $t['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($t['nome']) ?>
+                            data-icone="<?= $icone ?>"
+                            <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $s['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($s['nome']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>

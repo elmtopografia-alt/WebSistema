@@ -233,10 +233,10 @@ $vars = [
     'escopo_servico' => isset($dados['escopo_content']) ? nl2br($dados['escopo_content']) : '',
 
     // ── Equipamentos ────────────────────────────────────────────────────
-    'Veiculo'        => $dados['marca_veiculo']        ?? '',
-    'Estacao_Total'  => $dados['marca_estacao_total']  ?? '',
-    'GPS'            => $dados['marca_gps']            ?? '',
-    'Drone'          => $dados['marca_drone']          ?? '',
+    'Veiculo'        => $dados['modelo_veiculo']        ?? '',
+    'Estacao_Total'  => $dados['modelo_estacao_total']  ?? '',
+    'GPS'            => $dados['modelo_gps']            ?? '',
+    'Drone'          => $dados['modelo_drone']          ?? '',
     'Softwares'      => $dados['softwares_content']    ?? 'Softwares de Processamento de Precisão',
 
     // ── Financeiro (campos reais do banco) ──────────────────────────────

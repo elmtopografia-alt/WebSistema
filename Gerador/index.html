@@ -4,280 +4,522 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Dados Fictícios (Endereços Reais)</title>
+    <title>SGT Data Generator | Premium Edition</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+        :root {
+            --primary: #3498db;
+            --accent: #2ecc71;
+            --bg-dark: #0f172a;
+            --card-dark: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Background animated elements */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: -50px;
+            background: #3b82f6;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -50px;
+            background: #8b5cf6;
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
             width: 100%;
+            max-width: 800px;
+            background: var(--card-dark);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.8s ease-out;
         }
 
-        h2 {
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
             text-align: center;
-            color: #2c3e50;
-            margin-top: 0;
+            margin-bottom: 40px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 24px 0 16px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
             display: flex;
             flex-direction: column;
+            gap: 6px;
+            position: relative;
         }
 
-        .form-group label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #34495e;
-            font-size: 14px;
+        label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            margin-left: 4px;
         }
 
-        .form-group input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            background-color: #f9f9f9;
-            color: #2c3e50;
+        .field-wrapper {
+            position: relative;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .btn {
-            display: block;
+        input {
             width: 100%;
-            padding: 15px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 20px;
         }
 
-        .btn:hover {
-            background-color: #219150;
+        input:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.7);
         }
 
-        .row {
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .field-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn:hover {
+            color: var(--primary);
+        }
+
+        .actions {
+            margin-top: 40px;
             display: flex;
             gap: 15px;
         }
 
-        .row .form-group {
+        .btn {
             flex: 1;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 20px 0;
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--accent);
+            color: #0f172a;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="container">
-        <h2>Gerador de Dados Fictícios</h2>
-
-        <div class="form-group">
-            <label>Nome Completo</label>
-            <input type="text" id="nome" readonly>
-        </div>
-
-        <div class="form-group">
-            <label>E-mail</label>
-            <input type="text" id="email" readonly>
-        </div>
-
-        <div class="row">
-            <div class="form-group">
-                <label>CPF (Válido, porém fictício)</label>
-                <input type="text" id="cpf" readonly>
-            </div>
-            <div class="form-group">
-                <label>Data de Nascimento</label>
-                <input type="text" id="nascimento" readonly>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="form-group">
-            <label>Empresa</label>
-            <input type="text" id="empresa" readonly>
-        </div>
-
-        <div class="form-group">
-            <label>CNPJ (Válido, porém fictício)</label>
-            <input type="text" id="cnpj" readonly>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="form-group">
-            <label>Endereço (Real)</label>
-            <input type="text" id="endereco" readonly>
-        </div>
-
-        <div class="row">
-            <div class="form-group">
-                <label>Bairro</label>
-                <input type="text" id="bairro" readonly>
-            </div>
-            <div class="form-group">
-                <label>Cidade / UF</label>
-                <input type="text" id="cidade_uf" readonly>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row">
-            <div class="form-group">
-                <label>Telefone Fixo</label>
-                <input type="text" id="telefone" readonly>
-            </div>
-            <div class="form-group">
-                <label>Celular</label>
-                <input type="text" id="celular" readonly>
-            </div>
-            <div class="form-group">
-                <label>WhatsApp</label>
-                <input type="text" id="whatsapp" readonly>
-            </div>
-        </div>
-
-        <button class="btn" onclick="gerarDados()">Gerar Novos Dados</button>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
     </div>
 
+    <div class="container">
+        <header>
+            <h1>SGT Randomizer</h1>
+            <p class="subtitle">Gerador de dados fictícios com endereços residenciais reais</p>
+        </header>
+
+        <div class="section-label">Identificação Pessoal</div>
+        <div class="grid">
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <div class="field-wrapper">
+                    <input type="text" id="nome" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Gênero</label>
+                <div class="field-wrapper">
+                    <input type="text" id="genero" readonly>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>CPF</label>
+                <div class="field-wrapper">
+                    <input type="text" id="cpf" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Nascimento / Idade</label>
+                <div class="field-wrapper">
+                    <input type="text" id="nascimento" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-label">Contatos e Empresa</div>
+        <div class="grid">
+            <div class="input-group">
+                <label>E-mail</label>
+                <div class="field-wrapper">
+                    <input type="text" id="email" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group" style="grid-column: span 1;">
+                <label>Telefones (DDD Regional)</label>
+                <div class="field-wrapper">
+                    <input type="text" id="telefones" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group" style="grid-column: span 1;">
+                <label>Empresa</label>
+                <div class="field-wrapper">
+                    <input type="text" id="empresa" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>CNPJ</label>
+                <div class="field-wrapper">
+                    <input type="text" id="cnpj" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="section-label">Endereço Residencial (Fora da Zona Comercial)</div>
+        <div class="input-group" style="margin-bottom: 20px;">
+            <label>Logradouro</label>
+            <div class="field-wrapper">
+                <input type="text" id="endereco" readonly onclick="copyToClipboard(this)">
+            </div>
+        </div>
+        <div class="grid">
+            <div class="input-group">
+                <label>Bairro</label>
+                <div class="field-wrapper">
+                    <input type="text" id="bairro" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Cidade / UF</label>
+                <div class="field-wrapper">
+                    <input type="text" id="cidade_uf" readonly>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>CEP</label>
+                <div class="field-wrapper">
+                    <input type="text" id="cep" readonly onclick="copyToClipboard(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="generate()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+                </svg>
+                Gerar Novo Perfil
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Copiado para a área de transferência!</div>
+
     <script>
-        // Bases de Dados
-        const nomes = ["Ana", "Bruno", "Carlos", "Daniela", "Eduardo", "Fernanda", "Gabriel", "Helena", "Igor", "Juliana", "Lucas", "Mariana", "Nicolas", "Olivia", "Pedro", "Rafael", "Sofia", "Thiago", "Vitória", "Wagner"];
-        const sobrenomes = ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes", "Costa", "Ribeiro", "Martins", "Carvalho", "Almeida"];
+        // Data expansion
+        const firstNamesMale = ["Arthur", "Bernardo", "Caio", "Davi", "Enzo", "Felipe", "Gabriel", "Heitor", "Iago", "João", "Kevin", "Leonardo", "Miguel", "Nicolas", "Otávio", "Pedro", "Rafael", "Samuel", "Thiago", "Vinícius", "Yago", "Zeca"];
+        const firstNamesFemale = ["Alice", "Beatriz", "Clara", "Duda", "Emanuelle", "Fernanda", "Giovanna", "Heloísa", "Isabela", "Júlia", "Kelly", "Larissa", "Manuela", "Nathalia", "Olívia", "Paola", "Queila", "Rafaela", "Sophia", "Tatiana", "Valentina", "Yasmin"];
 
-        const prefixoEmpresa = ["Tech", "Global", "Alpha", "Mega", "Max", "Prime", "Inova", "Eco", "Smart", "Giga", "Nova"];
-        const sufixoEmpresa = ["Soluções", "Comércio", "Serviços", "Sistemas", "Consultoria", "Empreendimentos", "Logística", "Indústria"];
-        const tipoEmpresa = ["Ltda", "S.A.", "EIRELI"];
+        const surnames = ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes", "Costa", "Ribeiro", "Martins", "Carvalho", "Almeida", "Lopes", "Soares", "Fernandes", "Vieira", "Barbosa", "Macedo", "Moraes", "Guimarães", "Teixeira", "Nunes", "Machado", "Freitas", "Cavalcanti", "Cardoso", "Rezende"];
 
-        // Endereços 100% Reais com DDD correspondente ao estado
-        const enderecosReais = [
-            { rua: "Avenida Paulista", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "01310-100" },
-            { rua: "Avenida Atlântica", bairro: "Copacabana", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "22041-001" },
-            { rua: "Avenida Afonso Pena", bairro: "Centro", cidade: "Belo Horizonte", uf: "MG", ddd: "31", cep: "30130-000" },
-            { rua: "Rua XV de Novembro", bairro: "Centro", cidade: "Curitiba", uf: "PR", ddd: "41", cep: "80020-310" },
-            { rua: "Avenida Boa Viagem", bairro: "Boa Viagem", cidade: "Recife", uf: "PE", ddd: "81", cep: "51011-000" },
-            { rua: "Avenida Oceânica", bairro: "Barra", cidade: "Salvador", uf: "BA", ddd: "71", cep: "40140-130" },
-            { rua: "Avenida Borges de Medeiros", bairro: "Centro Histórico", cidade: "Porto Alegre", uf: "RS", ddd: "51", cep: "90020-020" },
-            { rua: "Eixo Monumental", bairro: "Zona Cívico-Administrativa", cidade: "Brasília", uf: "DF", ddd: "61", cep: "70040-010" },
-            { rua: "Avenida Beira Mar", bairro: "Meireles", cidade: "Fortaleza", uf: "CE", ddd: "85", cep: "60165-121" },
-            { rua: "Avenida Eduardo Ribeiro", bairro: "Centro", cidade: "Manaus", uf: "AM", ddd: "92", cep: "69010-000" },
-            { rua: "Rua do Acampamento", bairro: "Centro", cidade: "Santa Maria", uf: "RS", ddd: "55", cep: "97050-000" },
-            { rua: "Avenida Governador José Malcher", bairro: "Nazaré", cidade: "Belém", uf: "PA", ddd: "91", cep: "66040-281" }
+        const companyPrefix = ["Elite", "Total", "Master", "Vision", "Nexus", "Quantum", "Apex", "Horizon", "Unity", "Peak", "Core", "Vanguarda", "Estratégica", "Dinâmica", "Digital", "Forte", "Líder"];
+        const companySuffix = ["Consultoria", "Empreendimentos", "Sistemas", "Logística", "Construtora", "Comércio", "Engenharia", "Serviços", "Tecnologia", "Indústria", "Representações", "Agronegócios"];
+        const companyLegal = ["LTDA", "S.A.", "ME", "EPP"];
+
+        // Residential focus: Long distances from centers
+        const residentialDatabase = [
+            // SP - Zonas Periféricas/Residenciais
+            { rua: "Rua Virgínia Ferni", bairro: "Itaquera", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "08253-000" },
+            { rua: "Rua Arroio da Prata", bairro: "Grajaú", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "04851-500" },
+            { rua: "Estrada do M'Boi Mirim", bairro: "Jardim Ângela", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "04948-030" },
+            { rua: "Rua Recanto do Sol", bairro: "Parelheiros", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "04891-100" },
+            { rua: "Avenida Sapopemba", bairro: "Iguatemi", cidade: "São Paulo", uf: "SP", ddd: "11", cep: "08370-000" },
+            // RJ - Zona Oeste/Norte Profunda
+            { rua: "Estrada do Campinho", bairro: "Campo Grande", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "23070-220" },
+            { rua: "Rua Francisco Real", bairro: "Bangu", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "21810-041" },
+            { rua: "Avenida Cesário de Melo", bairro: "Santa Cruz", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "23585-125" },
+            { rua: "Rua Sargento de Milícias", bairro: "Pavuna", cidade: "Rio de Janeiro", uf: "RJ", ddd: "21", cep: "21520-290" },
+            // BH - Venda Nova / Barreiro
+            { rua: "Rua Padre Pedro Pinto", bairro: "Venda Nova", cidade: "Belo Horizonte", uf: "MG", ddd: "31", cep: "31615-310" },
+            { rua: "Avenida Sinfrônio Brochado", bairro: "Barreiro", cidade: "Belo Horizonte", uf: "MG", ddd: "31", cep: "30640-000" },
+            { rua: "Rua da Ressaca", bairro: "Padre Eustáquio", cidade: "Belo Horizonte", uf: "MG", ddd: "31", cep: "30720-330" },
+            // Curitiba - Sul/Norte
+            { rua: "Rua Delegado Bruno de Almeida", bairro: "Tatuquara", cidade: "Curitiba", uf: "PR", ddd: "41", cep: "81470-490" },
+            { rua: "Rua Izaac Ferreira da Cruz", bairro: "Sítio Cercado", cidade: "Curitiba", uf: "PR", ddd: "41", cep: "81900-000" },
+            { rua: "Avenida Marechal Floriano Peixoto", bairro: "Boqueirão", cidade: "Curitiba", uf: "PR", ddd: "41", cep: "81670-000" },
+            // Porto Alegre
+            { rua: "Estrada João de Oliveira Remião", bairro: "Lomba do Pinheiro", cidade: "Porto Alegre", uf: "RS", ddd: "51", cep: "91550-000" },
+            { rua: "Avenida Juca Batista", bairro: "Hípica", cidade: "Porto Alegre", uf: "RS", ddd: "51", cep: "91770-001" },
         ];
 
-        // Funções Auxiliares
-        const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
-        const randNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        // Generators
+        const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const randRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-        function removerAcentos(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        }
-
-        // Gerador de CPF válido (matematicamente)
-        function gerarCPF() {
+        function generateCPF() {
             const n = () => Math.floor(Math.random() * 10);
             let n1 = n(), n2 = n(), n3 = n(), n4 = n(), n5 = n(), n6 = n(), n7 = n(), n8 = n(), n9 = n();
             let d1 = n9 * 2 + n8 * 3 + n7 * 4 + n6 * 5 + n5 * 6 + n4 * 7 + n3 * 8 + n2 * 9 + n1 * 10;
-            d1 = 11 - (d1 % 11);
-            if (d1 >= 10) d1 = 0;
+            d1 = 11 - (d1 % 11); if (d1 >= 10) d1 = 0;
             let d2 = d1 * 2 + n9 * 3 + n8 * 4 + n7 * 5 + n6 * 6 + n5 * 7 + n4 * 8 + n3 * 9 + n2 * 10 + n1 * 11;
-            d2 = 11 - (d2 % 11);
-            if (d2 >= 10) d2 = 0;
+            d2 = 11 - (d2 % 11); if (d2 >= 10) d2 = 0;
             return `${n1}${n2}${n3}.${n4}${n5}${n6}.${n7}${n8}${n9}-${d1}${d2}`;
         }
 
-        // Gerador de CNPJ válido (matematicamente)
-        function gerarCNPJ() {
+        function generateCNPJ() {
             const n = () => Math.floor(Math.random() * 10);
             let n1 = n(), n2 = n(), n3 = n(), n4 = n(), n5 = n(), n6 = n(), n7 = n(), n8 = n();
             let n9 = 0, n10 = 0, n11 = 0, n12 = 1;
             let d1 = n12 * 2 + n11 * 3 + n10 * 4 + n9 * 5 + n8 * 6 + n7 * 7 + n6 * 8 + n5 * 9 + n4 * 2 + n3 * 3 + n2 * 4 + n1 * 5;
-            d1 = 11 - (d1 % 11);
-            if (d1 >= 10) d1 = 0;
+            d1 = 11 - (d1 % 11); if (d1 >= 10) d1 = 0;
             let d2 = d1 * 2 + n12 * 3 + n11 * 4 + n10 * 5 + n9 * 6 + n8 * 7 + n7 * 8 + n6 * 9 + n5 * 2 + n4 * 3 + n3 * 4 + n2 * 5 + n1 * 6;
-            d2 = 11 - (d2 % 11);
-            if (d2 >= 10) d2 = 0;
+            d2 = 11 - (d2 % 11); if (d2 >= 10) d2 = 0;
             return `${n1}${n2}.${n3}${n4}${n5}.${n6}${n7}${n8}/0001-${d1}${d2}`;
         }
 
-        // Função Principal que preenche os dados
-        function gerarDados() {
-            // Nomes e E-mail
-            let nome1 = rand(nomes);
-            let nome2 = rand(sobrenomes);
-            let nome3 = rand(sobrenomes);
-            let nomeCompleto = `${nome1} ${nome2} ${nome3}`;
-            let email = `${removerAcentos(nome1).toLowerCase()}.${removerAcentos(nome3).toLowerCase()}${randNum(10, 999)}@ficticio.com.br`;
-
-            // Empresa
-            let empresa = `${rand(prefixoEmpresa)} ${rand(sufixoEmpresa)} ${rand(tipoEmpresa)}`;
-
-            // Endereço e DDD
-            let local = rand(enderecosReais);
-            let numero = randNum(10, 3000);
-            let enderecoCompleto = `${local.rua}, ${numero} - CEP: ${local.cep}`;
-
-            // Telefones (usando o DDD real do estado sorteado)
-            let telefoneFixo = `(${local.ddd}) 3${randNum(100, 999)}-${randNum(1000, 9999)}`;
-            let celular = `(${local.ddd}) 9${randNum(6000, 9999)}-${randNum(1000, 9999)}`;
-
-            // WhatsApp (Pode ser igual ao celular ou um número diferente, aqui geramos outro para dar variedade)
-            let whatsapp = `(${local.ddd}) 9${randNum(6000, 9999)}-${randNum(1000, 9999)}`;
-
-            // Data Nascimento
-            let dia = randNum(1, 28).toString().padStart(2, '0');
-            let mes = randNum(1, 12).toString().padStart(2, '0');
-            let ano = randNum(1960, 2004);
-
-            // Preenchendo os Inputs
-            document.getElementById("nome").value = nomeCompleto;
-            document.getElementById("email").value = email;
-            document.getElementById("cpf").value = gerarCPF();
-            document.getElementById("nascimento").value = `${dia}/${mes}/${ano}`;
-            document.getElementById("empresa").value = empresa;
-            document.getElementById("cnpj").value = gerarCNPJ();
-            document.getElementById("endereco").value = enderecoCompleto;
-            document.getElementById("bairro").value = local.bairro;
-            document.getElementById("cidade_uf").value = `${local.cidade} / ${local.uf}`;
-            document.getElementById("telefone").value = telefoneFixo;
-            document.getElementById("celular").value = celular;
-            document.getElementById("whatsapp").value = whatsapp;
+        function removeDiacritics(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
 
-        // Gera os primeiros dados ao carregar a página
-        window.onload = gerarDados;
-    </script>
+        function generate() {
+            const isMale = Math.random() > 0.5;
+            const firstName = pick(isMale ? firstNamesMale : firstNamesFemale);
+            const surname1 = pick(surnames);
+            const surname2 = pick(surnames);
+            const fullName = `${firstName} ${surname1} ${surname2}`;
 
+            const birthYear = randRange(1965, 2005);
+            const birthMonth = String(randRange(1, 12)).padStart(2, '0');
+            const birthDay = String(randRange(1, 28)).padStart(2, '0');
+            const age = 2026 - birthYear;
+
+            const email = `${removeDiacritics(firstName)}.${removeDiacritics(surname2)}${randRange(10, 99)}@example.com.br`;
+            const companyName = `${pick(companyPrefix)} ${pick(companySuffix)} ${pick(companyLegal)}`;
+
+            const location = pick(residentialDatabase);
+            const houseNumber = randRange(10, 2500);
+
+            const fixed = `(${location.ddd}) 3${randRange(100, 999)}-${randRange(1000, 9999)}`;
+            const cell = `(${location.ddd}) 9${randRange(7000, 9999)}-${randRange(1000, 9999)}`;
+
+            // Populate DOM
+            document.getElementById('nome').value = fullName;
+            document.getElementById('genero').value = isMale ? "Masculino" : "Feminino";
+            document.getElementById('cpf').value = generateCPF();
+            document.getElementById('nascimento').value = `${birthDay}/${birthMonth}/${birthYear} (${age} anos)`;
+            document.getElementById('email').value = email;
+            document.getElementById('telefones').value = `${fixed} / ${cell}`;
+            document.getElementById('empresa').value = companyName;
+            document.getElementById('cnpj').value = generateCNPJ();
+            document.getElementById('endereco').value = `${location.rua}, n° ${houseNumber}`;
+            document.getElementById('bairro').value = location.bairro;
+            document.getElementById('cidade_uf').value = `${location.cidade} - ${location.uf}`;
+            document.getElementById('cep').value = location.cep;
+
+            // Trigger animation
+            const container = document.querySelector('.container');
+            container.style.animation = 'none';
+            container.offsetHeight; // trigger reflow
+            container.style.animation = 'fadeIn 0.5s ease-out';
+        }
+
+        function copyToClipboard(element) {
+            element.select();
+            document.execCommand('copy');
+
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        window.onload = generate;
+    </script>
 </body>
 
 </html>

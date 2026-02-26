@@ -1,89 +1,87 @@
-require_once 'session_validator.php';
-require_once 'config.php';
-require_once 'ConnectionManager.php';
-require_once 'PropostaRepository.php';
+<?php
+/**
+ * ARQUIVO: atualizar_proposta.php (UPGRADE v2.0)
+ * OBJETIVO: Atualizar proposta existente com planilha de custos completa
+ * DIFERENÇA do salvar: UPDATE em vez de INSERT, mantém ID e data de criação
+ */
 
-// Carrega biblioteca PHPWord
-require_once __DIR__ . '/vendor/autoload.php';
-use PhpOffice\PhpWord\TemplateProcessor;
+require_once __DIR__ . '/session_validator.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/PropostaRepository.php';
 
+// Validações básicas
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: painel.php");
-    exit;
+    http_response_code(405);
+    exit('Método não permitido');
+}
+
+// CSRF
+if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    exit('Token de segurança inválido');
 }
 
 $id_usuario = $_SESSION['usuario_id'] ?? 0;
-$id_proposta = intval($_POST['id_proposta'] ?? 0);
+$id_proposta = (int)($_POST['id_proposta'] ?? 0);
 
 if (!$id_usuario || !$id_proposta) {
-    die("Acesso negado ou ID inválido.");
+    header('Location: painel.php?erro=dados_invalidos');
+    exit;
 }
 
 try {
     $repo = new PropostaRepository();
     
-    // 1. PERSISTÊNCIA (Centralizada no Repo)
-    // O método salvar() já gerencia transação, atualização de itens e cálculos.
-    $id = $repo->salvar($_POST);
-
-    // 2. REGENERAÇÃO DO ARQUIVO DOCX
-    // Busca dados completos (incluindo clientes e metadados de template)
-    $dadosCompleto = $repo->buscarPorId($id);
+    // Atualiza proposta completa (usa o mesmo extrairDadosPlanilha do salvar)
+    $sucesso = $repo->atualizarCompleto($id_proposta, $_POST, $id_usuario);
     
-    if (!$dadosCompleto) throw new Exception("Erro ao recuperar dados da proposta para o DOCX.");
-
-    // Busca metadados extras (arquivo_modelo, logo) - Poderia estar no buscarPorId, mas mantemos isolado por enquanto
-    $conn = ConnectionManager::get();
-    $meta = $conn->query("SELECT d.logo_caminho, ts.arquivo_modelo 
-                          FROM DadosEmpresa d 
-                          JOIN Propostas p ON p.id_criador = d.id_criador
-                          LEFT JOIN Tipo_Servicos ts ON p.id_servico = ts.id_servico
-                          WHERE p.id_proposta = $id LIMIT 1")->fetch_assoc();
-
-    $ambiente = $_SESSION['ambiente'] ?? 'producao';
-    $pastaModelos = ($ambiente === 'demo') ? 'modelos_demo' : 'modelos_prod';
-    $arquivoModelo = !empty($meta['arquivo_modelo']) ? $meta['arquivo_modelo'] : 'ModeloPropostaPadrao.docx';
-    $caminhoModelo = __DIR__ . "/$pastaModelos/" . $arquivoModelo;
-
-    if (file_exists($caminhoModelo)) {
-        $template = new TemplateProcessor($caminhoModelo);
-
-        // Substituição de Variáveis
-        $template->setValue('NOME_CLIENTE', $dadosCompleto['nome_cliente_salvo']);
-        $template->setValue('NUMERO_PROPOSTA', $dadosCompleto['numero_proposta']);
-        $template->setValue('VALOR_FINAL', number_format($dadosCompleto['valor_final_proposta'], 2, ',', '.'));
-        $template->setValue('DATA_HOJE', date('d/m/Y', strtotime($dadosCompleto['data_criacao'])));
-        $template->setValue('OBJETO', $dadosCompleto['finalidade']);
-        $template->setValue('AREA', $dadosCompleto['area_obra']);
-        $template->setValue('CIDADE_OBRA', $dadosCompleto['cidade_obra']);
-        $template->setValue('PRAZO', $dadosCompleto['prazo_execucao']);
-        
-        // Logo
-        if (!empty($meta['logo_caminho']) && file_exists(__DIR__ . '/' . $meta['logo_caminho'])) {
-            $template->setImageValue('LOGO_EMPRESA', [
-                'path' => __DIR__ . '/' . $meta['logo_caminho'], 
-                'width' => 150, 'height' => 80, 'ratio' => true
-            ]);
-        } else {
-            $template->setValue('LOGO_EMPRESA', '');
-        }
-
-        // Nome do Arquivo amigável
-        $nomeEmpresa = trim(explode(' ', $dadosCompleto['empresa_proponente_nome'])[0]);
-        $nomeEmpresaClean = preg_replace('/[^a-zA-Z0-9]/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $nomeEmpresa));
-        $partesNum = explode('-', $dadosCompleto['numero_proposta']);
-        $ano = $partesNum[1] ?? date('Y');
-        $seq = $partesNum[2] ?? '000';
-        
-        $novoNomeArquivo = "{$nomeEmpresaClean}-{$ano}-{$seq}.docx";
-        $caminhoSaida = __DIR__ . '/propostas_emitidas/' . $novoNomeArquivo;
-
-        $template->saveAs($caminhoSaida);
+    if (!$sucesso) {
+        throw new Exception("Não foi possível atualizar a proposta");
     }
+    
+    // Log de auditoria (opcional)
+    error_log("Proposta #{$id_proposta} atualizada pelo usuário #{$id_usuario} em " . date('Y-m-d H:i:s'));
+    
+    // Redirecionamento baseado na ação ou formato_saida
+    $acao = $_POST['acao'] ?? 'salvar';
+    $formato = $_POST['formato_saida'] ?? '';
 
-    header("Location: painel.php?msg=sucesso");
+    // Se o JS sinalizou que devemos ir para o editor avançado
+    if ($formato === 'editor') {
+        $modelo = $_POST['modelo_docx'] ?? 'PropostaDrone';
+        header("Location: editor_dinamico.php?id={$id_proposta}&modelo_docx=" . urlencode($modelo) . "&msg=atualizado");
+        exit;
+    }
+    
+    switch ($acao) {
+        case 'salvar_visualizar':
+            // Salva e vai para visualização
+            header("Location: visualizar_proposta.php?id={$id_proposta}&msg=atualizado");
+            break;
+            
+        case 'salvar_editor':
+            // Salva e vai para editor de documento
+            header("Location: editor_dinamico.php?id={$id_proposta}&msg=atualizado");
+            break;
+            
+        case 'salvar_nova':
+            // Salva e cria nova proposta
+            header("Location: criar_proposta.php?nova=1&msg=atualizado&anterior={$id_proposta}");
+            break;
+            
+        case 'salvar':
+        default:
+            // Salva e volta para painel
+            header("Location: painel.php?msg=proposta_atualizada&id={$id_proposta}");
+            break;
+    }
+    
     exit;
-
+    
 } catch (Exception $e) {
-    die("Erro ao salvar proposta: " . $e->getMessage());
+    error_log("Erro ao atualizar proposta #{$id_proposta}: " . $e->getMessage());
+    
+    // Redireciona com mensagem de erro
+    header("Location: editar_proposta.php?id={$id_proposta}&erro=" . urlencode($e->getMessage()));
+    exit;
 }

@@ -229,18 +229,11 @@ function gerarCSSPorTema($cores) {
     ";
 }
 
-/**
- * Remove vírgulas trailing de arrays exportados para compatibilidade PHP < 7.3
- */
-function removeTrailingComma($str) {
-    return preg_replace('/,([\s\)]*\))/', '$1', $str);
-}
-
 function gerarCodigoPHP($dados, $nomeClasseSuffix, $temaCor = 'azul') {
     $nomeClasse = "Modelo" . $nomeClasseSuffix;
     $data = date('d/m/Y H:i');
-        $blocosStr = removeTrailingComma(var_export($dados['blocos'], true));
-    $varsGerais = removeTrailingComma(var_export($dados['variaveis'], true));
+    $blocosStr = var_export($dados['blocos'], true);
+    $varsGerais = var_export($dados['variaveis'], true);
     
     // Injeta CSS baseado no tema
     $cores = getCoresTema($temaCor);

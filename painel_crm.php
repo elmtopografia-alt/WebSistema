@@ -137,10 +137,12 @@ try {
                c.nome_cliente, c.whatsapp, c.whatsapp_handle, c.telefone,
                DATEDIFF(NOW(), p.data_criacao) as dias_decorridos,
                p.data_atualizacao,
-               ts.nome as tipo_nome, ts.cor as tipo_cor, ts.icone as tipo_icone
+                ts.nome as tipo_nome, ts.cor as tipo_cor, ts.icone as tipo_icone,
+               s.nome as servico_nome_original
         FROM Propostas p
         LEFT JOIN Clientes c ON p.id_cliente = c.id_cliente
         LEFT JOIN tipos_servico ts ON p.tipo_servico_id = ts.id
+        LEFT JOIN Tipo_Servicos s ON p.id_servico = s.id_servico
         WHERE p.id_criador = ? 
         ORDER BY 
             CASE 
@@ -622,12 +624,23 @@ function getZapLink($numero, $handle) {
                             <?= htmlspecialchars($card['nome_cliente']) ?>
                         </h3>
                         
-                        <?php if (!empty($card['tipo_nome'])): ?>
+                        <?php 
+                        $exibirTipo = !empty($card['tipo_nome']);
+                        $exibirFallback = !$exibirTipo && !empty($card['servico_nome_original']);
+                        
+                        if ($exibirTipo): ?>
                             <div class="mb-3">
                                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium text-white shadow-sm" 
                                       style="background-color: <?= htmlspecialchars($card['tipo_cor'] ?? '#64748b') ?>">
                                     <i class="ph ph-<?= htmlspecialchars($card['tipo_icone'] ?? 'tag') ?>"></i>
                                     <?= htmlspecialchars($card['tipo_nome']) ?>
+                                </span>
+                            </div>
+                        <?php elseif ($exibirFallback): ?>
+                            <div class="mb-3">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium text-slate-300 bg-white/10 border border-white/10 shadow-sm">
+                                    <i class="ph ph-briefcase"></i>
+                                    <?= htmlspecialchars($card['servico_nome_original']) ?>
                                 </span>
                             </div>
                         <?php else: ?>
@@ -654,7 +667,7 @@ function getZapLink($numero, $handle) {
                             </a>
                             <a href="editar_proposta.php?id=<?= $cardId ?>" 
                                class="col-span-1 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 py-2 rounded text-center transition-colors flex items-center justify-center p-1"
-                               title="Editar Proposta">
+                               title="Editar Proposta (Custos)">
                                 <i class="ph ph-pencil-simple text-lg"></i>
                             </a>
                             <button onclick="novaTarefa(<?= $cardId ?>, '<?= addslashes($card['nome_cliente']) ?>')" 
@@ -681,8 +694,8 @@ function getZapLink($numero, $handle) {
                             </button>
                             <button onclick="gerarPropostaWord(<?= $cardId ?>)" 
                                     class="col-span-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 py-1.5 rounded text-center transition-colors flex items-center justify-center gap-1 mt-1 text-xs"
-                                    title="Gerar Proposta em Word">
-                                <i class="ph ph-file-doc"></i> Word
+                                    title="Gerar Arquivo DOCX">
+                                <i class="ph ph-file-doc"></i> DOCX
                             </button>
                         </div>
                         

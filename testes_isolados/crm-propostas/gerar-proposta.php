@@ -1,8 +1,12 @@
 <?php
 /**
- * GERADOR DE PROPOSTAS - SGT Propostas
+ * GERADOR DE PROPROSTAS - SGT Propostas v5.0 (FINAL CORRIGIDO)
  * 
- * Versão com Integração Real ao Banco de Dados (Corrigida 17/02)
+ * Todas as correções consolidadas:
+ * - Logo do criador
+ * - Dados completos do cliente/obra
+ * - Sem duplicações
+ * - Cores personalizadas
  */
 
 define('SGT_PROPOSTAS', true);
@@ -11,10 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. Carrega configurações do sistema isolado
 require_once __DIR__ . '/config.php';
-
-// 2. Carrega conexão e configurações do sistema real (CRM)
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../ConnectionManager.php';
 require_once __DIR__ . '/../../PropostaRepository.php';
@@ -25,231 +26,412 @@ if (!isset($conn)) {
 }
 
 // ============================================
-// BUSCA DE DADOS REAIS
+// FUNÇÕES AUXILIARES
+// ============================================
+
+if (!function_exists('dataPorExtenso')) {
+    function dataPorExtenso($data = null) {
+        $meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        $ts = $data ? strtotime($data) : time();
+        return date('d', $ts) . ' de ' . $meses[date('n', $ts) - 1] . ' de ' . date('Y', $ts);
+    }
+}
+
+if (!function_exists('formatarMoeda')) {
+    function formatarMoeda($valor) {
+        $v = floatval(str_replace(['R$', '.', ','], ['', '', '.'], $valor));
+        return number_format($v, 2, ',', '.');
+    }
+}
+
+// ============================================
+// BUSCA DA PROPOSTA
 // ============================================
 
 $id_proposta = intval($_GET['id'] ?? 0);
-$tema_forcado = $_GET['tema'] ?? null;
-
 if ($id_proposta <= 0) {
-    die("ID da proposta inválido ou não fornecido.");
+    die("ID da proposta inválido.");
 }
 
-// 1. Busca Proposta Principal (Campos mapeados conforme SHOW COLUMNS)
-// 1. Busca Proposta Principal com relacionamentos e itens (Master-Detail) via Repository Oficial
-$repo = new PropostaRepository();
+$repo = new PropostaRepository($conn);
 $dados_proposta = $repo->buscarPorId($id_proposta);
+
 if (!$dados_proposta) {
-    die("Proposta ID $id_proposta não encontrada.");
+    die("Proposta #{$id_proposta} não encontrada.");
 }
 
-// 2. Busca Dados da Empresa (Configurações do CRM)
-$idUsuarioCriador = $_SESSION['usuario_id'] ?? $dados_proposta['id_criador'] ?? 0;
-// Filtra para pegar a empresa REAL do usuário dono da proposta (multi-tenant)
-$res_empresa = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $idUsuarioCriador LIMIT 1");
-$dados_empresa = $res_empresa->fetch_assoc();
+// ============================================
+// BUSCA COMPLETA DO CLIENTE
+// ============================================
 
-// Fallback se o usuário não configurou os Dados da Empresa ainda
-if (!$dados_empresa) {
-    $res_empresa_fallback = $conn->query("SELECT * FROM DadosEmpresa LIMIT 1");
-    $dados_empresa = $res_empresa_fallback->fetch_assoc() ?: [];
+$dadosCliente = [];
+if (!empty($dados_proposta['id_cliente'])) {
+    $stmt = $conn->prepare("SELECT nome_cliente as nome, email, telefone, celular, whatsapp FROM Clientes WHERE id_cliente = ? LIMIT 1");
+    $stmt->bind_param("i", $dados_proposta['id_cliente']);
+    $stmt->execute();
+    $dadosCliente = $stmt->get_result()->fetch_assoc() ?: [];
 }
 
-// 3. Busca Conteúdo Personalizado (Blocos do Editor)
-$blocos_dados = [];
-$res_blocos = $conn->query("SELECT block_id, conteudo_texto FROM Proposta_Conteudo_Personalizado WHERE id_proposta = $id_proposta");
-while ($bloco_personalizado = $res_blocos->fetch_assoc()) {
-    $blocos_dados[$bloco_personalizado['block_id']] = $bloco_personalizado['conteudo_texto'];
+// ============================================
+// BUSCA COMPLETA DA OBRA
+// ============================================
+
+$dadosObra = [];
+if (!empty($dados_proposta['id_obra'])) {
+    $stmt = $conn->prepare("SELECT endereco, bairro, cidade, estado, area, unidade_area, tipo_terreno, cobertura_vegetal, acesso_local, restricoes_aereas, finalidade FROM obras WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $dados_proposta['id_obra']);
+    $stmt->execute();
+    $dadosObra = $stmt->get_result()->fetch_assoc() ?: [];
 }
 
-// 4. Busca Estrutura de Blocos (Manteve lógica de fallback)
-$service_id = intval($dados_proposta['id_servico'] ?? 0);
-$sq_blocks = "SELECT sb.block_slug, sb.block_title, sb.display_order 
-              FROM service_type_blocks sb 
-              WHERE sb.service_type_id = $service_id AND sb.is_active = 1
-              UNION
-              SELECT pt.slug as block_slug, pt.name as block_title, pt.order as display_order
-              FROM proposal_block_templates pt
-              WHERE pt.is_active = 1 AND pt.slug NOT IN (SELECT block_slug FROM service_type_blocks WHERE service_type_id = $service_id)
-              ORDER BY display_order ASC";
+// ============================================
+// BUSCA DA EMPRESA DO CRIADOR
+// ============================================
 
-$res_estrutura = $conn->query($sq_blocks);
-$blocos_finais = [];
-while ($est = $res_estrutura->fetch_assoc()) {
-    $slug = $est['block_slug'];
-    if (isset($blocos_dados[$slug])) {
-        $blocos_finais[] = [
-            'titulo' => $est['block_title'],
-            'conteudo' => $blocos_dados[$slug]
-        ];
+$idCriador = intval($dados_proposta['id_criador'] ?? 0);
+$dadosEmpresa = [];
+
+if ($idCriador > 0) {
+    $stmt = $conn->prepare("SELECT * FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
+    $stmt->bind_param("i", $idCriador);
+    $stmt->execute();
+    $dadosEmpresa = $stmt->get_result()->fetch_assoc() ?: [];
+}
+
+// Fallback para empresa do usuário logado
+if (empty($dadosEmpresa) && !empty($_SESSION['usuario_id'])) {
+    $stmt = $conn->prepare("SELECT * FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
+    $stmt->bind_param("i", $_SESSION['usuario_id']);
+    $stmt->execute();
+    $dadosEmpresa = $stmt->get_result()->fetch_assoc() ?: [];
+}
+
+// Fallback final
+if (empty($dadosEmpresa)) {
+    $dadosEmpresa = [
+        'Empresa' => 'ELM Serviços Topográficos Ltda.',
+        'CNPJ' => '14.059.118/0001-08',
+        'Cidade' => 'Belo Horizonte',
+        'Estado' => 'MG',
+        'Telefone' => '(31) 9922-2617',
+        'Email' => 'contato@elmtopografia.com.br',
+        'Banco' => 'Banco Inter',
+        'Agencia' => '0001',
+        'Conta' => '12456-45',
+        'PIX' => '31 9 9922-2617'
+    ];
+}
+
+// ============================================
+// RESOLVER LOGO DA EMPRESA
+// ============================================
+
+$logoPath = '';
+$logoCandidatos = [
+    $dadosEmpresa['logo_caminho'] ?? null,
+    $dadosEmpresa['logo_url'] ?? null,
+    $dadosEmpresa['logo_empresa'] ?? null,
+];
+
+foreach ($logoCandidatos as $logo) {
+    if (empty($logo)) continue;
+    
+    // URL externa
+    if (strpos($logo, 'http') === 0) {
+        $logoPath = $logo;
+        break;
+    }
+    
+    // Path local
+    $basename = basename($logo);
+    $paths = [
+        __DIR__ . '/../../uploads/' . $basename => '../../uploads/' . $basename,
+        __DIR__ . '/../../assets/' . $basename => '../../assets/' . $basename,
+    ];
+    
+    foreach ($paths as $fisico => $web) {
+        if (file_exists($fisico)) {
+            $logoPath = $web;
+            break 2;
+        }
+    }
+}
+
+// Logo padrão
+if (empty($logoPath)) {
+    if (file_exists(__DIR__ . '/../../assets/logo_sgt.png')) {
+        $logoPath = '../../assets/logo_sgt.png';
     }
 }
 
 // ============================================
-// INTEGRAÇÃO DOCX V3 (Verifica se é modelo Word)
+// CONFIGURAÇÃO DA EMPRESA
 // ============================================
-$is_docx = false;
-$html_docx = '';
 
-if (!empty($dados_proposta['modelo_docx'])) {
-    $is_docx = true;
+$config['empresa'] = [
+    'nome' => $dadosEmpresa['Empresa'],
+    'cnpj' => $dadosEmpresa['CNPJ'],
+    'cidade' => $dadosEmpresa['Cidade'] ?? 'Belo Horizonte',
+    'estado' => $dadosEmpresa['Estado'] ?? 'MG',
+    'endereco' => ($dadosEmpresa['Cidade'] ?? 'Belo Horizonte') . ' - ' . ($dadosEmpresa['Estado'] ?? 'MG'),
+    'telefone' => $dadosEmpresa['Telefone'] ?? '(31) 9922-2617',
+    'email' => $dadosEmpresa['Email'] ?? 'contato@elmtopografia.com.br',
+    'logo' => $logoPath,
+];
+
+$config['banco'] = [
+    'nome' => $dadosEmpresa['Banco'] ?? 'Banco Inter',
+    'agencia' => $dadosEmpresa['Agencia'] ?? '0001',
+    'conta' => $dadosEmpresa['Conta'] ?? '12456-45',
+    'pix' => $dadosEmpresa['PIX'] ?? $dadosEmpresa['CNPJ'] ?? '14.059.118/0001-08',
+];
+
+// ============================================
+// MONTAR DADOS DA PROPOSTA
+// ============================================
+
+// Valores
+$valorTotal = floatval($dados_proposta['valor_proposta'] ?? 0);
+$mobPercent = floatval($dados_proposta['mobilizacao_percentual'] ?? 30);
+$mobValor = $valorTotal * ($mobPercent / 100);
+$restValor = $valorTotal - $mobValor;
+$restPercent = 100 - $mobPercent;
+
+// Data
+$dataProposta = !empty($dados_proposta['data_proposta']) ? $dados_proposta['data_proposta'] : date('Y-m-d');
+
+// Área (evitar duplicação de unidade)
+$areaValor = $dadosObra['area'] ?? $dados_proposta['area_obra'] ?? '0';
+$areaUnidade = $dadosObra['unidade_area'] ?? $dados_proposta['unidade_area'] ?? 'm²';
+
+// Limpeza agressiva de duplicações de unidades comuns
+$areaLimpo = trim(preg_replace('/\b(m²|ha|km|km²|m2)\s+\1\b/i', '$1', $areaValor));
+$areaLimpo = trim(preg_replace('/\s*(m²|ha|km|km²|m2)\s*$/i', '', $areaLimpo));
+
+$proposta = [
+    'numero' => $dados_proposta['numero_proposta'] ?? '0000',
+    'tipo_servico' => $dados_proposta['nome_servico'] ?? 'Levantamento Topográfico com Drone',
+    'data_extenso' => dataPorExtenso($dataProposta),
+    'cidade_empresa' => $config['empresa']['cidade'],
     
-    // Tratamento do conteúdo estruturado do DB (se existir)
-    if (!empty($dados_proposta['docx_conteudo'])) {
-        $dados_proposta['docx_blocos'] = json_decode($dados_proposta['docx_conteudo'], true);
+    // CLIENTE
+    'cliente_nome' => $dadosCliente['nome'] ?? $dados_proposta['nome_cliente'] ?? '',
+    'cliente_email' => $dadosCliente['email'] ?? $dados_proposta['email_cliente'] ?? '',
+    'cliente_telefone' => $dadosCliente['telefone'] ?? $dados_proposta['telefone_cliente'] ?? '',
+    'cliente_celular' => $dadosCliente['celular'] ?? $dados_proposta['celular_cliente'] ?? '',
+    'cliente_whatsapp' => $dadosCliente['whatsapp'] ?? $dados_proposta['whatsapp_cliente'] ?? '',
+    
+    // OBRA
+    'obra_endereco' => $dadosObra['endereco'] ?? $dados_proposta['endereco_obra'] ?? '',
+    'obra_bairro' => $dadosObra['bairro'] ?? $dados_proposta['bairro_obra'] ?? '',
+    'obra_cidade' => $dadosObra['cidade'] ?? $dados_proposta['cidade_obra'] ?? '',
+    'obra_uf' => $dadosObra['estado'] ?? $dados_proposta['estado_obra'] ?? '',
+    'obra_area' => $areaLimpo . ' ' . $areaUnidade,
+    
+    // ESCOPO
+    'finalidade' => $dadosObra['finalidade'] ?? $dados_proposta['finalidade'] ?? '',
+    'tipo_terreno' => $dadosObra['tipo_terreno'] ?? $dados_proposta['tipo_terreno'] ?? 'Não informado',
+    'cobertura_vegetal' => $dadosObra['cobertura_vegetal'] ?? $dados_proposta['cobertura_vegetal'] ?? 'Não informado',
+    'acesso_local' => $dadosObra['acesso_local'] ?? $dados_proposta['acesso_local'] ?? 'Não informado',
+    'restricoes_aereas' => $dadosObra['restricoes_aereas'] ?? $dados_proposta['restricoes_aereas'] ?? 'Não informado',
+    
+    // VALORES
+    'valor' => $valorTotal,
+    'valor_extenso' => $dados_proposta['valor_extenso'] ?? '',
+    'mobilizacao_percentual' => $mobPercent,
+    'mobilizacao_valor' => $mobValor,
+    'restante_percentual' => $restPercent,
+    'restante_valor' => $restValor,
+    'validade_dias' => $dados_proposta['validade_dias'] ?? 15,
+    
+    // CONTROLE
+    'is_docx' => !empty($dados_proposta['modelo_docx']),
+    'cor_personalizada' => $dados_proposta['cor_personalizada'] ?? null,
+];
+
+// ============================================
+// FLUXO DOCX
+// ============================================
+
+if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
+    $modeloClass = $dados_proposta['modelo_docx'];
+    // Ajuste de path para a estrutura real: modelos_gerados
+    $modeloFile = __DIR__ . '/../../modelos_gerados/' . $modeloClass . '.php'; 
+    if (!file_exists($modeloFile)) {
+        $modeloFile = __DIR__ . '/../../modelos_gerados/Modelo' . $modeloClass . '.php';
     }
     
-    $idUsuarioCriador = $_SESSION['usuario_id'] ?? $dados_proposta['id_criador'] ?? 0;
-    $rendererDocx = new RenderizadorModeloDOCX(ConnectionManager::get());
-    $html_docx = $rendererDocx->renderizar($dados_proposta['modelo_docx'], $idUsuarioCriador, $dados_proposta);
-
-    // --- LIMPEZA DE VARIÁVEIS RESIDUAIS NO DOCX ---
-    // Encontra todas as tags ${var} ou {{var}} que sobraram no HTML final do modelo
-    preg_match_all('/(\$\{\s*([^}]+)\s*\}|\{\{\s*([^}]+)\s*\}\})/', $html_docx, $matches);
-    $chavesResiduais = array_filter(array_merge($matches[2], $matches[3]));
-    if (!empty($chavesResiduais)) {
-        $resolvedor = new ResolvedorChavesSistema(ConnectionManager::get());
-        $dadosResolvidos = $resolvedor->resolver(array_unique($chavesResiduais), $idUsuarioCriador, $dados_proposta);
+    if (file_exists($modeloFile)) {
+        require_once $modeloFile;
         
-        foreach ($matches[0] as $i => $tagCompleta) {
-            $chaveLimpa = trim($matches[2][$i] ?: $matches[3][$i]);
-            if (isset($dadosResolvidos[$chaveLimpa]) && $dadosResolvidos[$chaveLimpa] !== "[{$chaveLimpa}]") {
-                $html_docx = str_replace($tagCompleta, $dadosResolvidos[$chaveLimpa], $html_docx);
+        $classeFull = "SGT\\Propostas\\" . (strpos($modeloClass, 'Modelo') === 0 ? $modeloClass : "Modelo" . $modeloClass);
+        
+        if (class_exists($classeFull)) {
+            $modelo = new $classeFull();
+            $dadosRender = [
+                // EMPRESA (v5.1 mapeamento expandido)
+                'Empresa' => $config['empresa']['nome'],
+                'empresa_nome' => $config['empresa']['nome'],
+                'CNPJ' => $config['empresa']['cnpj'],
+                'empresa_cnpj' => $config['empresa']['cnpj'],
+                'Cidade' => $config['empresa']['cidade'],
+                'empresa_cidade' => $config['empresa']['cidade'],
+                'Estado' => $config['empresa']['estado'],
+                'empresa_estado' => $config['empresa']['estado'],
+                'Endereco' => $config['empresa']['endereco'],
+                'empresa_endereco' => $config['empresa']['endereco'],
+                'Telefone' => $config['empresa']['telefone'],
+                'empresa_telefone' => $config['empresa']['telefone'],
+                'whatsapp' => $config['empresa']['telefone'],
+                'whatsapp_empresa' => $config['empresa']['telefone'],
+                'Email' => $config['empresa']['email'],
+                'empresa_email' => $config['empresa']['email'],
+                'Logo' => $config['empresa']['logo'],
+                'empresa_logo' => $config['empresa']['logo'],
+                
+                // CLIENTE (todas as variações de chave)
+                'nome_cliente' => $proposta['cliente_nome'],
+                'nome_cliente_salvo' => $proposta['cliente_nome'],
+                'email_cliente' => $proposta['cliente_email'],
+                'email_salvo' => $proposta['cliente_email'],
+                'telefone_cliente' => $proposta['cliente_telefone'],
+                'telefone_salvo' => $proposta['cliente_telefone'],
+                'celular_cliente' => $proposta['cliente_celular'],
+                'celular_salvo' => $proposta['cliente_celular'],
+                'whatsapp_cliente' => $proposta['cliente_whatsapp'],
+                'whatsapp_salvo' => $proposta['cliente_whatsapp'],
+                
+                // OBRA
+                'endereco_obra' => $proposta['obra_endereco'],
+                'bairro_obra' => $proposta['obra_bairro'],
+                'cidade_obra' => $proposta['obra_cidade'],
+                'estado_obra' => $proposta['obra_uf'],
+                'cidade_limpo' => $proposta['obra_cidade'],
+                'area_obra' => $areaLimpo,
+                'unidade_area' => $areaUnidade,
+                'AreaEstimada' => $proposta['obra_area'],
+                
+                // ESCOPO
+                'finalidade' => $proposta['finalidade'],
+                'TipoTerreno' => $proposta['tipo_terreno'],
+                'CoberturaVegetal' => $proposta['cobertura_vegetal'],
+                'AcessoLocal' => $proposta['acesso_local'],
+                'RestricoesAereas' => $proposta['restricoes_aereas'],
+                
+                // PROPOSTA
+                'numero_proposta' => $proposta['numero'],
+                'DataExtenso' => $proposta['data_extenso'],
+                'data_criacao' => $dataProposta,
+                
+                // VALORES
+                'valor_final_proposta' => $valorTotal,
+                'ValorProposta' => formatarMoeda($valorTotal),
+                'ValorExtenso' => $proposta['valor_extenso'],
+                'mobilizacao_percentual' => $mobPercent,
+                'mobilizacao_valor' => formatarMoeda($mobValor),
+                'restante_percentual' => $restPercent,
+                'restante_valor' => formatarMoeda($restValor),
+                
+                // BANCO
+                'Banco' => $config['banco']['nome'],
+                'Agencia' => $config['banco']['agencia'],
+                'Conta' => $config['banco']['conta'],
+                'PIX' => $config['banco']['pix'],
+                
+                // EQUIPAMENTOS
+                'Drone' => $dados_proposta['equipamento_drone'] ?? 'Não aplicável',
+                'GPS' => $dados_proposta['equipamento_gps'] ?? 'Par de Receptores GNSS RTK',
+                'Estacao_Total' => $dados_proposta['equipamento_estacao'] ?? 'Não inclusa',
+                'Veiculo' => $dados_proposta['equipamento_veiculo'] ?? 'Não incluso',
+                
+                // COR PERSONALIZADA
+                'cor_personalizada' => $proposta['cor_personalizada'],
+            ];
+            
+            // Blocos dinâmicos (v5.1 Prioridade absoluta para o que vem do Editor Dinâmico)
+            $blocosInjetados = [];
+            
+            // 1. Tenta carregar do array docx_blocos (já decodificado pelo PropostaRepository)
+            if (!empty($dados_proposta['docx_blocos']) && is_array($dados_proposta['docx_blocos'])) {
+                $blocosInjetados = $dados_proposta['docx_blocos'];
+            }
+            // 2. Fallback para docx_conteudo (JSON bruto)
+            elseif (!empty($dados_proposta['docx_conteudo'])) {
+                $decoded = json_decode($dados_proposta['docx_conteudo'], true);
+                if (is_array($decoded)) {
+                    $blocosInjetados = $decoded;
+                }
+            }
+            
+            if (!empty($blocosInjetados)) {
+                $dadosRender['blocos_custom'] = $blocosInjetados;
+            }
+
+            // Fallback para campos individuais docx_bloco_X
+            for ($i = 0; $i < 40; $i++) {
+                $campo = "docx_bloco_{$i}_content";
+                if (!empty($dados_proposta[$campo])) {
+                    $dadosRender["docx_bloco_{$i}"] = $dados_proposta[$campo];
+                }
+            }
+            
+            // Renderizar SEM passar pelo resolvedor (dados já estão completos)
+            if (method_exists($modelo, 'renderDireto')) {
+                $proposta['html_docx'] = $modelo->renderDireto($dadosRender);
+            } else {
+                // Fallback se ainda não implementado
+                require_once __DIR__ . '/../../ResolvedorChavesSistema.php';
+                $resolvedor = new ResolvedorChavesSistema($conn);
+                $proposta['html_docx'] = $modelo->render($dadosRender, $resolvedor, $idCriador);
             }
         }
     }
-
-    // --- REMOÇÃO DA ASSINATURA DUPLICADA DO DOCX ---
-    // Remove "Atenciosamente," e tudo o que vier a seguir (linha, nome empresa) 
-    // Que entrava em conflito com o Footer perfeitamente formatado da class .footer-proposta
-    $html_docx = preg_replace('/<p[^>]*>\s*Atenciosamente,?\s*<\/p>[\s\S]*$/i', '', $html_docx);
 }
 
 // ============================================
-// MAPEAMENTO E FORMATAÇÃO (DE -> PARA REAL)
+// EQUIPAMENTOS PARA LEGACY
 // ============================================
 
-$data_base = $dados_proposta['data_criacao'] ?? date('Y-m-d');
-$meses = [
-    '01'=>'Janeiro', '02'=>'Fevereiro', '03'=>'Março', '04'=>'Abril', 
-    '05'=>'Maio', '06'=>'Junho', '07'=>'Julho', '08'=>'Agosto', 
-    '09'=>'Setembro', '10'=>'Outubro', '11'=>'Novembro', '12'=>'Dezembro'
-];
-$cidade_assinatura = trim($dados_empresa['Cidade'] ?? 'Belo Horizonte');
-$data_formatada = $cidade_assinatura . ', ' . date('d', strtotime($data_base)) . ' de ' . $meses[date('m', strtotime($data_base))] . ' de ' . date('Y', strtotime($data_base));
-
-// Variáveis para substituição (Campos reais do banco SGT)
-$vars = [
-    'numero_proposta' => $dados_proposta['numero_proposta'],
-    'cliente_nome'    => $dados_proposta['nome_cliente_salvo'] ?? '',
-    'obra_endereco'   => $dados_proposta['endereco_obra'] ?? '',
-    'obra_bairro'     => $dados_proposta['bairro_obra'] ?? '',
-    'obra_cidade'     => $dados_proposta['cidade_obra'] ?? '',
-    'obra_uf'         => $dados_proposta['estado_obra'] ?? '',
-    'obra_area'       => ($dados_proposta['area_obra'] ?? '') . ' ' . ($dados_proposta['unidade_area'] ?? 'm²'),
-    'valor_total'     => number_format((float)($dados_proposta['valor_final_proposta'] ?? 0), 2, ',', '.'),
-    'valor_extenso'   => $dados_proposta['Valor_proposta_extenso'] ?? '',
-    'validade'        => $dados_proposta['prazo_execucao'] ?? '15 dias',
-    'cidade_emissao'  => $dados_proposta['cidade_obra'] ?? 'Belo Horizonte',
+$proposta['equipamentos'] = [
+    ['nome' => 'Aeronave', 'descricao' => ($dados_proposta['equipamento_drone'] ?? 'Não aplicável') . ' (Câmera de Alta Resolução)'],
+    ['nome' => 'GPS - Geodésia', 'descricao' => ($dados_proposta['equipamento_gps'] ?? 'Par de Receptores GNSS RTK')],
+    ['nome' => 'Estação Total', 'descricao' => ($dados_proposta['equipamento_estacao'] ?? 'Não inclusa')],
+    ['nome' => 'Processamento', 'descricao' => 'Workstations com placas gráficas de alto desempenho'],
+    ['nome' => 'Veiculo', 'descricao' => ($dados_proposta['equipamento_veiculo'] ?? 'Não incluso')],
 ];
 
-// Substituição nos textos
-foreach ($blocos_finais as &$bloco) {
-    foreach ($vars as $key => $val) {
-        $bloco['conteudo'] = str_replace('${' . $key . '}', (string)$val, $bloco['conteudo']);
-    }
-}
+// ============================================
+// PARCELAS
+// ============================================
 
-$proposta = [
-    'id'                => $id_proposta,
-    'numero'            => $dados_proposta['numero_proposta'],
-    'tipo_servico'      => $dados_proposta['tipo_levantamento'] ?? 'Serviços Técnicos',
-    'data'              => $data_base,
-    'data_extenso'      => $data_formatada,
-    'validade_dias'     => 15, // Fallback fixo
-    'cidade'            => $dados_proposta['cidade_obra'] ?? 'BH',
-    
-    // Cliente
-    'cliente_nome'      => $dados_proposta['nome_cliente_salvo'] ?? '',
-    'cliente_email'     => $dados_proposta['email_salvo'] ?? '',
-    'cliente_telefone'  => $dados_proposta['telefone_salvo'] ?? '',
-    'cliente_whatsapp'  => $dados_proposta['whatsapp_salvo'] ?? '',
-    
-    // Obra
-    'obra_endereco'     => $dados_proposta['endereco_obra'] ?? '',
-    'obra_bairro'       => $dados_proposta['bairro_obra'] ?? '',
-    'obra_cidade'       => $dados_proposta['cidade_obra'] ?? '',
-    'obra_uf'           => $dados_proposta['estado_obra'] ?? '',
-    'obra_area'         => ($dados_proposta['area_obra'] ?? '') . ' ' . ($dados_proposta['unidade_area'] ?? 'm²'),
-    
-    // Valores
-    'valor'             => (float)($dados_proposta['valor_final_proposta'] ?? 0),
-    'valor_extenso'     => $dados_proposta['Valor_proposta_extenso'] ?? '',
-    'observacao_valor'  => 'Investimento calculado com base na complexidade técnica.',
-    
-    // Parcelas
-    'parcelas'          => [
-        [
-            'descricao'  => 'Mobilização (Sinal)',
-            'percentual' => (float)($dados_proposta['mobilizacao_percentual'] ?? 40),
-            'valor'      => (float)($dados_proposta['mobilizacao_valor'] ?? 0),
-            'condicao'   => 'No aceite da proposta',
-        ],
-        [
-            'descricao'  => 'Entrega Final',
-            'percentual' => (float)($dados_proposta['restante_percentual'] ?? 60),
-            'valor'      => (float)($dados_proposta['restante_valor'] ?? 0),
-            'condicao'   => 'Na entrega dos arquivos',
-        ],
+$proposta['parcelas'] = [
+    [
+        'descricao' => 'Mobilização (Sinal)',
+        'percentual' => $mobPercent,
+        'valor' => $mobValor,
+        'condicao' => 'No aceite da proposta'
     ],
-    
-    'blocos'            => $blocos_finais,
-    
-    // Equipamentos (Campos reais)
-    'equipamentos'      => [
-        ['nome' => 'Veículo', 'descricao' => trim(($dados_proposta['marca_veiculo'] ?? '') . ' ' . ($dados_proposta['modelo_veiculo'] ?? ''))],
-        ['nome' => 'Estação Total', 'descricao' => trim(($dados_proposta['marca_estacao_total'] ?? '') . ' ' . ($dados_proposta['modelo_estacao_total'] ?? ''))],
-        ['nome' => 'GPS/GNSS', 'descricao' => trim(($dados_proposta['marca_gps'] ?? '') . ' ' . ($dados_proposta['modelo_gps'] ?? ''))],
-        ['nome' => 'Vant/Drone', 'descricao' => trim(($dados_proposta['marca_drone'] ?? '') . ' ' . ($dados_proposta['modelo_drone'] ?? ''))],
-    ],
+    [
+        'descricao' => 'Entrega Final',
+        'percentual' => $restPercent,
+        'valor' => $restValor,
+        'condicao' => 'Na entrega dos arquivos digitais e físicos'
+    ]
 ];
 
-// Equipamentos Vazios (Limpeza)
-$proposta['equipamentos'] = array_filter($proposta['equipamentos'], function($e) {
-    return !empty($e['descricao']);
-});
-
-// Adiciona variáveis docx
-$proposta['is_docx'] = $is_docx;
-$proposta['html_docx'] = $html_docx;
-
 // ============================================
-// LÓGICA DE TEMA
+// TEMA
 // ============================================
 
-if ($tema_forcado && isset($TEMAS[$tema_forcado])) {
-    $tema_nome = $tema_forcado;
-} else {
-    $tema_nome = detectarTema($proposta['tipo_servico']);
-}
+$tema_info = [
+    'nome' => 'classico',
+    'fontes' => ['Inter', 'Playfair Display'],
+    'css_inline' => '',
+    'header_template' => 'header-classico.php'
+];
 
-$tema_info = carregarTema($tema_nome);
-$config = $CONFIG;
-
-if (!empty($dados_empresa)) {
-    $config['empresa']['nome']     = $dados_empresa['Empresa'];
-    $config['empresa']['cnpj']     = $dados_empresa['CNPJ'] ?? '';
-    // Corrigido mapeamento de cidade/estado empresa se disponível
-    $config['empresa']['endereco'] = ($dados_empresa['Cidade'] ?? '') . ' - ' . ($dados_empresa['Estado'] ?? '');
-    
-    if (!empty($dados_empresa['logo_caminho'])) {
-        $config['empresa']['logo'] = $dados_empresa['logo_caminho'];
-    } elseif (!empty($dados_empresa['logo_url'])) {
-        $config['empresa']['logo'] = $dados_empresa['logo_url'];
-    } elseif (!empty($dados_empresa['logo_empresa'])) {
-        // Fallback pro upload no painel antigo
-        $config['empresa']['logo'] = '../../uploads/' . $dados_empresa['logo_empresa'];
-    }
-}
+// ============================================
+// INCLUIR TEMPLATE
+// ============================================
 
 include 'templates/base.php';

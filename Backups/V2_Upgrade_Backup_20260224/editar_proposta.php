@@ -26,8 +26,8 @@ try {
     // 1. Dados de Apoio (Lookup)
     $dados_lookup = $repo->getAllLookupData($id_usuario);
     
-    // 2. Dados da Proposta Principal + Itens (v2.0 Aware)
-    $proposta_atual = $repo->buscarCompletaPorId($id_proposta, $id_usuario);
+    // 2. Dados da Proposta Principal + Itens
+    $proposta_atual = $repo->buscarPorId($id_proposta);
     
     if (!$proposta_atual || $proposta_atual['id_criador'] != $id_usuario) {
         die("<div class='alert alert-danger'>Proposta não encontrada ou acesso negado.</div>");
@@ -181,7 +181,6 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
         // Dados PHP para LEITURA (Opções e Itens Salvos)
         window.SGT_DATA = {
             opcoesFuncao: <?= json_encode($tipos_funcao, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
@@ -211,7 +210,80 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
     <!-- <script src="assets/js/autosave.js?v=<?= time() ?>"></script> -->
     <script src="assets/js/proposta.js?v=<?= time() ?>"></script>
     
+    <!-- Script Específico de Edição (Popula Campos Fixos) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // 1. Função de espera (para garantir que Select2 e outros scripts carregaram)
+        const waitForLib = (check, callback, totalTime=0) => {
+            if(totalTime > 5000) return; // Timeout 5s
+            if(check()) callback();
+            else setTimeout(() => waitForLib(check, callback, totalTime+100), 100);
+        };
 
+        waitForLib(() => window.CostsManager && window.Calculator, () => {
+            console.log('🔄 Iniciando população de campos fixos...');
+            const data = window.SGT_EDIT_DATA;
+            if(!data || !data.proposta) return;
+
+            const p = data.proposta;
+
+            // --- CAMPOS SIMPLES ---
+            const fields = [
+                // Step 1
+                'contato_obra', 'endereco', 'bairro', 'cidade', 'estado', 
+                // Step 2
+                'finalidade', 'tipo_levantamento', 'area', 'prazo_execucao',
+                'dias_campo', 'dias_escritorio',
+                // Step 4
+                'mobilizacao_percentual', 'percentual_lucro', 'valor_desconto'
+            ];
+            
+            // Selects simples (native select sem Select2)
+            const simpleSelects = [
+                'acesso_local', 'tipo_terreno', 'cobertura_vegetal',
+                'restricoes_aereas', 'modelo_docx', 'tipo_servico_id', 'unidade_area'
+            ];
+            
+            simpleSelects.forEach(f => {
+                const val = p[f];
+                if (val !== undefined && val !== null && val !== '') {
+                    const el = document.querySelector(`[name="${f}"]`);
+                    if (el) {
+                        el.value = val;
+                        el.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                }
+            });
+
+            const fieldMap = {
+                'endereco': 'endereco_obra',
+                'bairro': 'bairro_obra',
+                'cidade': 'cidade_obra',
+                'estado': 'estado_obra',
+                'area': 'area_obra'
+            };
+
+            fields.forEach(f => {
+                const dbField = fieldMap[f] || f;
+                if(p[dbField] !== undefined && p[dbField] !== null) {
+                    const el = document.getElementsByName(f)[0] || document.getElementById(f);
+                    if(el) {
+                        el.value = p[dbField];
+                        // Disparar evento para inputs que dependem disto (recalc)
+                        el.dispatchEvent(new Event('input', {bubbles:true}));
+                    }
+                }
+            });
+
+            // --- SELECTS SELECT2 ---
+            if(p.id_cliente) $('#id_cliente').val(p.id_cliente).trigger('change');
+            if(p.id_servico) $('#id_servico').val(p.id_servico).trigger('change');
+
+            console.log('✅ Campos fixos populados. O Master-Detail carregará em seguida.');
+        });
+    });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

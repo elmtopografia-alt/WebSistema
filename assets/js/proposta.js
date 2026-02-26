@@ -141,7 +141,7 @@ window.irParaEditor = function () {
 
     // Sinalizar redirecionamento para o editor avançado após salvar
     createHidden('formato_saida', 'editor');
-    
+
     // FORÇAR MODO DOCX (Provisório até o usuário implementar Select de Modelos na View)
     // Isso garante que salvar_proposta.php crie corretamente a relação no banco
     const selectModelo = document.querySelector('select[name="modelo_docx"]');
@@ -195,9 +195,25 @@ window.irParaEditor = function () {
         createHidden('admin_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
     });
 
-    // Define ação: Se existe id_proposta_original, é uma revisão
-    const idOriginal = document.querySelector('input[name="id_proposta_original"]')?.value;
-    form.action = 'salvar_proposta.php';
+    // Define ação: Se existe id_proposta, é uma atualização (Overwrite), senão é novo (Insert)
+    const idProposta = document.getElementById('hidden_id_proposta')?.value;
+    const isEdit = !!idProposta;
+
+    if (isEdit) {
+        const msg = "ATENÇÃO: Ir para o Editor Avançado atualizará esta proposta no banco de dados agora.\n\n" +
+                    "Caso tenha feito alterações nos itens acima, elas serão salvas.\n\n" +
+                    "Deseja continuar?";
+        if (!confirm(msg)) return;
+        form.action = 'atualizar_proposta.php';
+        
+        // Garante que o ID da proposta vá no POST mesmo se o input estiver fora do form
+        if (!form.querySelector('input[name="id_proposta"]')) {
+            createHidden('id_proposta', idProposta);
+        }
+    } else {
+        form.action = 'salvar_proposta.php';
+    }
+
     form.submit();
 };
 

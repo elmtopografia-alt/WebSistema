@@ -1,6 +1,7 @@
 /**
  * SGT CostsManager - Gerenciamento dinâmico de custos operacionais
  * Adiciona/remove itens e realiza cálculos em tempo real
+ * VERSÃO CORRIGIDA v3.2
  */
 
 const CostsManager = {
@@ -12,119 +13,111 @@ const CostsManager = {
         admin: 0
     },
 
-    templates: {},
-
     init() {
-        this.cacheTemplates();
+        // NÃO cacheia templates aqui - cria dinamicamente quando necessário
         this.bindEvents();
-        // Inicializa totais zerados
         this.updateAllTotals();
 
         // Fase 3 Master-Detail: Restaura os itens salvos do banco na Edição
-        setTimeout(() => this.loadSavedItems(), 100);
+        setTimeout(() => this.carregarPlanilhaCompleta(), 100);
     },
 
     /**
      * Motor Master-Detail (Reconstruindo planilhas pela Memória do JS)
-     * Lê os itens injetados através da tag SGT_DATA no criar_proposta.php
+     * Lê os itens injetados através da tag SGT_DATA (Legado) ou SGT_EDIT_DATA (v2.0)
      */
-    loadSavedItems() {
-        if (!window.SGT_DATA || !window.SGT_DATA.itensSalvos) return;
-        const saved = window.SGT_DATA.itensSalvos;
-        
-        // Helper para injetar a linha e setar os valores
+    carregarPlanilhaCompleta() {
+        const v2 = window.SGT_EDIT_DATA?.proposta?.planilha;
+        const v1 = window.SGT_DATA?.itensSalvos;
+
+        if (!v2 && (!v1 || Object.keys(v1).length === 0)) {
+            console.log('ℹ️ Nenhuma planilha salva encontrada.');
+            return;
+        }
+
+        console.log('🔄 Carregando itens salvos...', v2 ? '(Modo v2.0)' : '(Modo Legado)');
+
         const inject = (categoryName, list, fieldMapping) => {
             if (!list || !Array.isArray(list)) return;
-            
+
             list.forEach(itemData => {
-                // Emula um clique no botão "Adicionar" daquele painel
                 this.addItem(categoryName);
-                
-                // Pega a linha recém-criada (a última do container)
+
                 const container = document.getElementById(`list-${categoryName}`);
                 const row = container.lastElementChild;
                 if (!row) return;
 
-                // Preencher select de Tipo
+                // Preencher select de Tipo/Função
                 const typeSelect = row.querySelector('select[name$="[tipo]"], select[name$="[funcao]"]');
                 if (typeSelect && fieldMapping.tipo) {
-                    typeSelect.value = itemData[fieldMapping.tipo];
-                    // Dispara select2 nativo pra frente se estiver hidratado
-                    if ($(typeSelect).hasClass('select2-hidden-accessible')) {
-                        $(typeSelect).val(itemData[fieldMapping.tipo]).trigger('change');
-                    } else {
-                        typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    const tipoVal = itemData[fieldMapping.tipo];
+                    if (tipoVal) {
+                        if ($(typeSelect).hasClass('select2-hidden-accessible')) {
+                            $(typeSelect).val(tipoVal).trigger('change');
+                        } else {
+                            typeSelect.value = tipoVal;
+                            typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
                 }
 
-                // Preencher Marca (Locação) se houver timeout (pra dar tempo do select pai inflar a marca)
+                // Preencher Marca (Locação)
                 if (categoryName === 'locacao' && fieldMapping.marca) {
                     setTimeout(() => {
                         const marcaSelect = row.querySelector('select[name$="[marca]"]');
-                        if (marcaSelect) {
-                            marcaSelect.value = itemData[fieldMapping.marca];
+                        const marcaVal = itemData[fieldMapping.marca];
+                        if (marcaSelect && marcaVal) {
                             if ($(marcaSelect).hasClass('select2-hidden-accessible')) {
-                                $(marcaSelect).val(itemData[fieldMapping.marca]).trigger('change');
+                                $(marcaSelect).val(marcaVal).trigger('change');
+                            } else {
+                                marcaSelect.value = marcaVal;
                             }
                         }
-                    }, 100);
+                    }, 150);
                 }
 
-                // Dispara preenchimento dos inputs de texto/number mapeados
+                // Preencher inputs mapeados
                 Object.keys(fieldMapping.inputs).forEach(inputKey => {
                     const dbColName = fieldMapping.inputs[inputKey];
                     const inputEl = row.querySelector(`input[name$="[${inputKey}]"]`);
-                    if (inputEl && itemData[dbColName] !== undefined) {
+                    if (inputEl && itemData[dbColName] !== undefined && itemData[dbColName] !== null) {
                         inputEl.value = itemData[dbColName];
+                        inputEl.dispatchEvent(new Event('input', { bubbles: true }));
                     }
                 });
 
-                // Força o recálculo do total dessa linha recém hidratada
                 this.calculateItemTotal(row);
             });
         };
 
-        // 1. Salários
-        inject('salarios', saved.salarios, {
-            tipo: 'id_funcao',
-            inputs: { quantidade: 'quantidade', valor: 'salario_base', encargos: 'fator_encargos', dias: 'dias' }
+        // Mapeamentos unificados
+        inject('salarios', v2?.salarios || v1?.salarios, {
+            tipo: v2 ? 'funcao' : 'id_funcao',
+            inputs: { quantidade: 'quantidade', valor: 'valor', encargos: 'encargos', dias: 'dias' }
         });
 
-        // 2. Estadia
-        inject('estadia', saved.estadia, {
-            tipo: 'id_estadia',
-            inputs: { quantidade: 'quantidade', valor: 'valor_unitario', noites: 'dias' }
+        inject('estadia', v2?.estadias || v1?.estadia, {
+            tipo: v2 ? 'tipo' : 'id_estadia',
+            inputs: { quantidade: 'quantidade', valor: v2 ? 'valor' : 'valor_unitario', noites: v2 ? 'noites' : 'dias' }
         });
 
-        // 3. Consumo
-        inject('consumos', saved.consumo, {
-            tipo: 'id_consumo',
-            inputs: { quantidade: 'quantidade', kml: 'consumo_kml', valor_litro: 'valor_litro', km: 'km_total' }
+        inject('consumos', v2?.consumos || v1?.consumo, {
+            tipo: v2 ? 'tipo' : 'id_consumo',
+            inputs: { quantidade: 'quantidade', kml: v2 ? 'kml' : 'consumo_kml', valor_litro: v2 ? 'valor_litro' : 'valor_litro', km: v2 ? 'km' : 'km_total' }
         });
 
-        // 4. Locação
-        inject('locacao', saved.locacao, {
-            tipo: 'id_locacao',
-            marca: 'id_marca',
-            inputs: { quantidade: 'quantidade', valor: 'valor_mensal', dias: 'dias' }
+        inject('locacao', v2?.locacoes || v1?.locacao, {
+            tipo: v2 ? 'tipo' : 'id_locacao',
+            marca: v2 ? 'marca' : 'id_marca',
+            inputs: { quantidade: 'quantidade', valor: v2 ? 'valor' : 'valor_mensal', dias: 'dias' }
         });
 
-        // 5. Admin
-        inject('admin', saved.admin, {
-            tipo: 'id_custo_admin',
+        inject('admin', v2?.admin || v1?.admin, {
+            tipo: v2 ? 'tipo' : 'id_custo_admin',
             inputs: { quantidade: 'quantidade', valor: 'valor' }
         });
 
-        // Após preencher a memória de todos, manda o total geral atualizar
-        setTimeout(() => this.updateAllTotals(), 300);
-    },
-
-    cacheTemplates() {
-        this.templates.salarios = this.createSalarioTemplate();
-        this.templates.estadia = this.createEstadiaTemplate();
-        this.templates.consumos = this.createConsumoTemplate();
-        this.templates.locacao = this.createLocacaoTemplate();
-        this.templates.admin = this.createAdminTemplate();
+        setTimeout(() => this.updateAllTotals(), 500);
     },
 
     bindEvents() {
@@ -144,8 +137,6 @@ const CostsManager = {
         }
 
         // Listener para mudanças na margem de lucro/desconto (Step 4)
-        // Isso deveria estar em outro lugar, mas como CostsManager gerencia valores...
-        // Melhor deixar aqui ou criar um FinanceManager? Vou deixar aqui por enquanto.
         const step4 = document.getElementById('step-4');
         if (step4) {
             step4.addEventListener('input', (e) => this.updateFinalTotals());
@@ -162,12 +153,11 @@ const CostsManager = {
 
     handleChange(e) {
         const target = e.target;
-        // Se mudou o select de tipo (preencher valor default)
         if (target.tagName === 'SELECT') {
             const item = target.closest('.cost-item');
             if (item) {
                 const option = target.options[target.selectedIndex];
-                const valorDefault = option.dataset.valor;
+                const valorDefault = option?.dataset?.valor;
 
                 // Se for estadia (Refeição), atualiza qtd
                 if (item.dataset.type === 'estadia') {
@@ -187,7 +177,7 @@ const CostsManager = {
                             if (selectedId && window.SGT_DATA?.marcasPorTipo?.[selectedId]) {
                                 window.SGT_DATA.marcasPorTipo[selectedId].forEach(m => {
                                     const opt = document.createElement('option');
-                                    opt.value = m.id; // CORREÇÃO: Usando ID para salvar corretamente no banco
+                                    opt.value = m.id;
                                     opt.textContent = m.nome;
                                     marcaSelect.appendChild(opt);
                                 });
@@ -199,12 +189,11 @@ const CostsManager = {
 
                 // Se for combustível, tem lógica extra
                 if (item.dataset.type === 'consumo') {
-                    const litro = option.dataset.litro;
-                    const kml = option.dataset.kml;
+                    const litro = option?.dataset?.litro;
+                    const kml = option?.dataset?.kml;
                     if (litro) item.querySelector('input[name*="[valor_litro]"]').value = litro;
                     if (kml) item.querySelector('input[name*="[kml]"]').value = kml;
                 } else if (valorDefault) {
-                    // Preenche valor unitário se existir campo
                     const inputValor = item.querySelector('input[name*="[valor]"]');
                     if (inputValor) inputValor.value = valorDefault;
                 }
@@ -216,17 +205,13 @@ const CostsManager = {
 
     handleClick(e) {
         const target = e.target;
-        // Remover item
         if (target.closest('.btn-remove')) {
             const item = target.closest('.cost-item');
             this.removeItem(item);
         }
-        // Calcular KM (botão calculadora no consumo)
         if (target.closest('.btn-km-small')) {
-            // Lógica de chamar modal calculadora se necessário, ou apenas focar
-            // Por enquanto, apenas foca no input
             const input = target.closest('.input-group').querySelector('input');
-            input.focus();
+            input?.focus();
             if (window.openCalculator) window.openCalculator();
         }
     },
@@ -236,9 +221,10 @@ const CostsManager = {
         const id = `${type}_${this.counters[type]}`;
         const container = document.getElementById(`list-${type}`);
 
-        if (!container || !this.templates[type]) return;
+        if (!container) return;
 
-        const html = this.templates[type](id);
+        // CRIA TEMPLATE DINAMICAMENTE (não cacheado)
+        const html = this.getTemplate(type, id);
         const wrapper = document.createElement('div');
         wrapper.innerHTML = html;
         const item = wrapper.firstElementChild;
@@ -255,215 +241,34 @@ const CostsManager = {
         this.initItemSelects(item);
     },
 
-    removeItem(item) {
-        const type = item.dataset.type; // salario, estadia...
-        // Mapear singular para plural se necessário, ou recalcular tudo
+    /**
+     * NOVO: Gera template dinamicamente com dados atuais do SGT_DATA
+     */
+    getTemplate(type, id) {
+        const data = window.SGT_DATA || {};
 
-        item.style.opacity = '0';
-        setTimeout(() => {
-            item.remove();
-            this.updateAllTotals(); // Recalcula tudo após remover
-        }, 300);
-    },
-
-    initItemSelects(item) {
-        $(item).find('select').select2({
-            theme: 'default',
-            width: '100%'
-        });
-        // Select2 não dispara 'change' nativo bubble, precisa capturar via jQuery
-        $(item).find('select').on('select2:select', (e) => {
-            // Dispara evento nativo para nosso handler
-            e.target.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-    },
-
-    calculateItemTotal(item) {
-        const type = item.dataset.type;
-        let total = 0;
-
-        try {
-            if (type === 'salario') {
-                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-                const valor = parseFloat(item.querySelector('input[name*="[valor]"]').value) || 0;
-                const encargos = parseFloat(item.querySelector('input[name*="[encargos]"]').value) || 0;
-                const dias = parseFloat(item.querySelector('input[name*="[dias]"]').value) || 0;
-
-                // (Salario * (1 + Encargos%) / 30) * Qtd * Dias
-                total = (valor * (1 + encargos / 100) / 30) * qtd * dias;
-
-                // Atualiza Refeições quando muda equipe
-                this.updateMealQuantities();
-
-            } else if (type === 'estadia') {
-                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-                const valor = parseFloat(item.querySelector('input[name*="[valor]"]').value) || 0;
-                const noites = parseFloat(item.querySelector('input[name*="[noites]"]').value) || 0;
-                total = qtd * valor * noites;
-
-            } else if (type === 'consumo') {
-                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-                const kml = parseFloat(item.querySelector('input[name*="[kml]"]').value) || 1;
-                const preco = parseFloat(item.querySelector('input[name*="[valor_litro]"]').value) || 0;
-                const km = parseFloat(item.querySelector('input[name*="[km]"]').value) || 0;
-
-                // (KM / KmL) * Preço * QtdVeiculos
-                if (kml > 0) total = (km / kml) * preco * qtd;
-
-            } else if (type === 'locacao') {
-                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-                const valor = parseFloat(item.querySelector('input[name*="[valor]"]').value) || 0;
-                const dias = parseFloat(item.querySelector('input[name*="[dias]"]').value) || 0;
-                // Valor mensal / 30 * dias
-                total = (qtd * valor / 30) * dias;
-
-            } else if (type === 'admin') {
-                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-                const valor = parseFloat(item.querySelector('input[name*="[valor]"]').value) || 0;
-                total = qtd * valor;
-            }
-
-            // Atualiza input visual do item
-            const display = item.querySelector('.summary-box-display');
-            if (display) display.value = this.formatCurrency(total);
-
-            // Guarda valor bruto num data attribute para somar depois (opcional, ou recalcular tudo)
-            item.dataset.total = total;
-
-        } catch (e) {
-            console.error('Erro cálculo item:', e);
+        switch (type) {
+            case 'salarios':
+                return this.createSalarioHTML(id, data.opcoesFuncao || []);
+            case 'estadia':
+                return this.createEstadiaHTML(id, data.opcoesEstadia || []);
+            case 'consumos':
+                return this.createConsumoHTML(id, data.opcoesConsumo || []);
+            case 'locacao':
+                return this.createLocacaoHTML(id, data.opcoesLocacao || []);
+            case 'admin':
+                return this.createAdminHTML(id, data.opcoesAdmin || []);
+            default:
+                return '';
         }
-
-        this.updateAllTotals();
     },
 
-    updateAllTotals() {
-        // Categorias map: ID da lista -> ID do hidden
-        const categories = {
-            'salario': { list: 'list-salarios', hidden: 'hidden_total_custos_salarios', display: 'resumo-salarios-display' },
-            'estadia': { list: 'list-estadia', hidden: 'hidden_total_custos_estadia', display: 'resumo-estadia-display' },
-            'consumo': { list: 'list-consumos', hidden: 'hidden_total_custos_consumos', display: 'resumo-consumos-display' },
-            'locacao': { list: 'list-locacao', hidden: 'hidden_total_custos_locacao', display: 'resumo-locacao-display' },
-            'admin': { list: 'list-admin', hidden: 'hidden_total_custos_admin', display: 'resumo-admin-display' }
-            // Ops, admin display id pode variar, vou checar partial
-        };
+    createSalarioHTML(id, opcoes) {
+        const optionsHtml = opcoes.map(f =>
+            `<option value="${f.id}" data-valor="${f.valor}">${f.nome}</option>`
+        ).join('');
 
-        let totalGeralCustos = 0;
-
-        for (const [type, config] of Object.entries(categories)) {
-            let catTotal = 0;
-            const container = document.getElementById(config.list);
-            if (container) {
-                const items = container.querySelectorAll('.cost-item');
-                items.forEach(item => {
-                    catTotal += parseFloat(item.dataset.total || 0);
-                });
-            }
-
-            // Atualiza Hidden
-            const hidden = document.getElementById(config.hidden);
-            if (hidden) hidden.value = catTotal.toFixed(2);
-
-            // Atualiza Display no Step 4 (Resumo)
-            const display = document.getElementById(config.display);
-            if (display) display.textContent = this.formatCurrency(catTotal);
-            // Para admin, o ID no partial step 3 não existe display lá, mas no step 4 sim?
-            // No partial step 4: resumo-salarios-display, resumo-estadia-display, resumo-consumos-display, resumo-locacao-display.
-            // Falta resumo-admin-display no HTML do Step 4? 
-            // O HTML do Step 4 mostra 4 linhas. Admin está "escondido" ou somado?
-            // No original, admin era somado. Vou manter apenas 4 se o original era assim, ou somar admin no geral.
-            // Vou somar ao totalGeral.
-
-            totalGeralCustos += catTotal;
-        }
-
-        // Atualiza Total Geral de Custos (Step 4)
-        const totalDisplay = document.getElementById('total-custos-geral');
-        if (totalDisplay) totalDisplay.textContent = this.formatCurrency(totalGeralCustos);
-
-        this.totalCustosCache = totalGeralCustos;
-        this.updateFinalTotals();
-    },
-
-    updateMealQuantities() {
-        // Calcula total dias da equipe (Qtd * Dias)
-        let totalDias = 0;
-        const salarios = document.querySelectorAll('#list-salarios .cost-item');
-        salarios.forEach(item => {
-            const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]').value) || 0;
-            const dias = parseFloat(item.querySelector('input[name*="[dias]"]').value) || 0;
-            totalDias += qtd * dias;
-        });
-
-        // Atualiza estadias "Refeição" ou "Alimentação"
-        const estadias = document.querySelectorAll('#list-estadia .cost-item');
-        estadias.forEach(item => {
-            const select = item.querySelector('select[name*="[tipo]"]');
-            const text = select.options[select.selectedIndex]?.text || '';
-            const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-            if (normalizedText.includes('refeicao') || normalizedText.includes('alimentacao')) {
-                const inputQtd = item.querySelector('input[name*="[quantidade]"]');
-                // Só atualiza qtd (dias/noites geralmente é 1 para refeição consolidada, ou o usuário ajusta)
-                // A lógica é: Qtd Refeições = Total Dias Trabalhados
-                if (inputQtd && inputQtd.value != totalDias) {
-                    inputQtd.value = totalDias || 1;
-                    // Recalcula total da linha sem loop infinito (pois chamará updateAllTotals, não updateMealQuantities de novo se type for estadia)
-                    // Mas updateMealQuantities é chamado no calculateItemTotal de SALARIO.
-                    // Aqui estamos em ESTADIA.
-                    this.calculateItemTotal(item);
-                }
-            }
-        });
-    },
-
-    updateFinalTotals() {
-        const totalCustos = this.totalCustosCache || 0;
-
-        // Lucro
-        const margemPercent = parseFloat(document.getElementById('percentual_lucro')?.value || 30);
-        const valorLucro = totalCustos * (margemPercent / 100);
-
-        document.getElementById('valor-lucro').textContent = '+ ' + this.formatCurrency(valorLucro);
-        document.getElementById('hidden_valor_lucro').value = valorLucro.toFixed(2);
-
-        // Desconto
-        const desconto = parseFloat(document.getElementById('valor_desconto')?.value || 0);
-
-        // Subtotal com lucro
-        const subtotal = totalCustos + valorLucro;
-        document.getElementById('hidden_subtotal_com_lucro').value = subtotal.toFixed(2);
-
-        // Valor Final
-        const valorFinal = subtotal - desconto;
-        document.getElementById('valor-final-proposta').textContent = this.formatCurrency(valorFinal);
-        document.getElementById('hidden_valor_final_proposta').value = valorFinal.toFixed(2);
-
-        // Condições Pagamento
-        const entradaPercent = parseFloat(document.getElementById('mobilizacao_percentual')?.value || 30);
-        const entradaValor = valorFinal * (entradaPercent / 100);
-        const restanteValor = valorFinal - entradaValor;
-        const restantePercent = 100 - entradaPercent;
-
-        document.getElementById('mobilizacao_valor_display').value = this.formatCurrency(entradaValor);
-        document.getElementById('hidden_mobilizacao_valor').value = entradaValor.toFixed(2);
-
-        document.getElementById('restante_percentual_display').value = restantePercent;
-        document.getElementById('hidden_restante_percentual').value = restantePercent;
-
-        document.getElementById('restante_valor_display').value = this.formatCurrency(restanteValor);
-        document.getElementById('hidden_restante_valor').value = restanteValor.toFixed(2);
-    },
-
-    formatCurrency(val) {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-    },
-
-    templates: {},
-
-    // ... createTemplates (manter os mesmos do arquivo anterior) ...
-    createSalarioTemplate() {
-        return (id) => `
+        return `
             <div class="cost-item" data-id="${id}" data-type="salario">
                 <div class="cost-icon"><i class="bi bi-person"></i></div>
                 <div class="cost-details">
@@ -471,26 +276,24 @@ const CostsManager = {
                         <label class="form-label">Função</label>
                         <select name="salarios[${id}][funcao]" class="form-select" required>
                             <option value="">Selecione...</option>
-                            ${window.SGT_DATA?.opcoesFuncao?.map(f =>
-            `<option value="${f.id}" data-valor="${f.valor}">${f.nome}</option>`
-        ).join('') || ''}
+                            ${optionsHtml}
                         </select>
                     </div>
                     <div>
                         <label class="form-label">Qtd</label>
-                        <input type="number" name="salarios[\${id}][quantidade]" class="form-control" value="1" min="1" required autocomplete="off">
+                        <input type="number" name="salarios[${id}][quantidade]" class="form-control" value="1" min="1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Valor Unit.</label>
-                        <input type="number" name="salarios[\${id}][valor]" class="form-control" step="0.01" required autocomplete="off">
+                        <input type="number" name="salarios[${id}][valor]" class="form-control" step="0.01" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Encargos %</label>
-                        <input type="number" name="salarios[\${id}][encargos]" class="form-control" value="67" step="0.1" required autocomplete="off">
+                        <input type="number" name="salarios[${id}][encargos]" class="form-control" value="67" step="0.1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Dias</label>
-                        <input type="number" name="salarios[\${id}][dias]" class="form-control" value="1" min="1" required autocomplete="off">
+                        <input type="number" name="salarios[${id}][dias]" class="form-control" value="1" min="1" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Total</label>
@@ -504,8 +307,12 @@ const CostsManager = {
         `;
     },
 
-    createEstadiaTemplate() {
-        return (id) => `
+    createEstadiaHTML(id, opcoes) {
+        const optionsHtml = opcoes.map(e =>
+            `<option value="${e.id}" data-valor="${e.valor}">${e.nome}</option>`
+        ).join('');
+
+        return `
             <div class="cost-item" data-id="${id}" data-type="estadia">
                 <div class="cost-icon"><i class="bi bi-house"></i></div>
                 <div class="cost-details">
@@ -513,9 +320,7 @@ const CostsManager = {
                         <label class="form-label">Tipo</label>
                         <select name="estadias[${id}][tipo]" class="form-select" required>
                             <option value="">Selecione...</option>
-                            ${window.SGT_DATA?.opcoesEstadia?.map(e =>
-            `<option value="${e.id}" data-valor="${e.valor}">${e.nome}</option>`
-        ).join('') || ''}
+                            ${optionsHtml}
                         </select>
                     </div>
                     <div>
@@ -542,8 +347,12 @@ const CostsManager = {
         `;
     },
 
-    createConsumoTemplate() {
-        return (id) => `
+    createConsumoHTML(id, opcoes) {
+        const optionsHtml = opcoes.map(c =>
+            `<option value="${c.id}" data-litro="${c.litro}" data-kml="${c.kml}">${c.nome}</option>`
+        ).join('');
+
+        return `
             <div class="cost-item" data-id="${id}" data-type="consumo">
                 <div class="cost-icon"><i class="bi bi-fuel-pump"></i></div>
                 <div class="cost-details cost-details-fuel">
@@ -551,9 +360,7 @@ const CostsManager = {
                         <label class="form-label">Combustível</label>
                         <select name="consumos[${id}][tipo]" class="form-select" required>
                             <option value="">Selecione...</option>
-                            ${window.SGT_DATA?.opcoesConsumo?.map(c =>
-            `<option value="${c.id}" data-litro="${c.litro}" data-kml="${c.kml}">${c.nome}</option>`
-        ).join('') || ''}
+                            ${optionsHtml}
                         </select>
                     </div>
                     <div>
@@ -592,8 +399,12 @@ const CostsManager = {
         `;
     },
 
-    createLocacaoTemplate() {
-        return (id) => `
+    createLocacaoHTML(id, opcoes) {
+        const optionsHtml = opcoes.map(l =>
+            `<option value="${l.id}" data-valor="${l.valor}">${l.nome}</option>`
+        ).join('');
+
+        return `
             <div class="cost-item" data-id="${id}" data-type="locacao">
                 <div class="cost-icon"><i class="bi bi-tools"></i></div>
                 <div class="cost-details">
@@ -601,9 +412,7 @@ const CostsManager = {
                         <label class="form-label">Equipamento</label>
                         <select name="locacoes[${id}][tipo]" class="form-select" required>
                             <option value="">Selecione...</option>
-                            ${window.SGT_DATA?.opcoesLocacao?.map(l =>
-            `<option value="${l.id}" data-valor="${l.valor}">${l.nome}</option>`
-        ).join('') || ''}
+                            ${optionsHtml}
                         </select>
                     </div>
                     <div>
@@ -636,8 +445,12 @@ const CostsManager = {
         `;
     },
 
-    createAdminTemplate() {
-        return (id) => `
+    createAdminHTML(id, opcoes) {
+        const optionsHtml = opcoes.map(a =>
+            `<option value="${a.id}" data-valor="${a.valor}">${a.nome}</option>`
+        ).join('');
+
+        return `
             <div class="cost-item" data-id="${id}" data-type="admin">
                 <div class="cost-icon"><i class="bi bi-briefcase"></i></div>
                 <div class="cost-details">
@@ -645,9 +458,7 @@ const CostsManager = {
                         <label class="form-label">Custo</label>
                         <select name="admin[${id}][tipo]" class="form-select" required>
                             <option value="">Selecione...</option>
-                            ${window.SGT_DATA?.opcoesAdmin?.map(a =>
-            `<option value="${a.id}" data-valor="${a.valor}">${a.nome}</option>`
-        ).join('') || ''}
+                            ${optionsHtml}
                         </select>
                     </div>
                     <div>
@@ -672,6 +483,300 @@ const CostsManager = {
                 </button>
             </div>
         `;
+    },
+
+    removeItem(item) {
+        item.style.opacity = '0';
+        setTimeout(() => {
+            item.remove();
+            this.updateAllTotals();
+        }, 300);
+    },
+
+    initItemSelects(item) {
+        $(item).find('select').select2({
+            theme: 'default',
+            width: '100%'
+        });
+
+        $(item).find('select').on('select2:select', (e) => {
+            e.target.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    },
+
+    calculateItemTotal(item) {
+        const type = item.dataset.type;
+        let total = 0;
+
+        try {
+            if (type === 'salario') {
+                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+                const valor = parseFloat(item.querySelector('input[name*="[valor]"]')?.value) || 0;
+                const encargos = parseFloat(item.querySelector('input[name*="[encargos]"]')?.value) || 0;
+                const dias = parseFloat(item.querySelector('input[name*="[dias]"]')?.value) || 0;
+
+                total = (valor * (1 + encargos / 100) / 30) * qtd * dias;
+                this.updateMealQuantities();
+
+            } else if (type === 'estadia') {
+                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+                const valor = parseFloat(item.querySelector('input[name*="[valor]"]')?.value) || 0;
+                const noites = parseFloat(item.querySelector('input[name*="[noites]"]')?.value) || 0;
+                total = qtd * valor * noites;
+
+            } else if (type === 'consumo') {
+                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+                const kml = parseFloat(item.querySelector('input[name*="[kml]"]')?.value) || 1;
+                const preco = parseFloat(item.querySelector('input[name*="[valor_litro]"]')?.value) || 0;
+                const km = parseFloat(item.querySelector('input[name*="[km]"]')?.value) || 0;
+
+                if (kml > 0) total = (km / kml) * preco * qtd;
+
+            } else if (type === 'locacao') {
+                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+                const valor = parseFloat(item.querySelector('input[name*="[valor]"]')?.value) || 0;
+                const dias = parseFloat(item.querySelector('input[name*="[dias]"]')?.value) || 0;
+                total = (qtd * valor / 30) * dias;
+
+            } else if (type === 'admin') {
+                const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+                const valor = parseFloat(item.querySelector('input[name*="[valor]"]')?.value) || 0;
+                total = qtd * valor;
+            }
+
+            const display = item.querySelector('.summary-box-display');
+            if (display) display.value = this.formatCurrency(total);
+
+            item.dataset.total = total;
+
+        } catch (e) {
+            console.error('Erro cálculo item:', e);
+        }
+
+        this.updateAllTotals();
+    },
+
+    updateAllTotals() {
+        const categories = {
+            'salario': { list: 'list-salarios', hidden: 'hidden_total_custos_salarios', display: 'resumo-salarios-display' },
+            'estadia': { list: 'list-estadia', hidden: 'hidden_total_custos_estadia', display: 'resumo-estadia-display' },
+            'consumo': { list: 'list-consumos', hidden: 'hidden_total_custos_consumos', display: 'resumo-consumos-display' },
+            'locacao': { list: 'list-locacao', hidden: 'hidden_total_custos_locacao', display: 'resumo-locacao-display' },
+            'admin': { list: 'list-admin', hidden: 'hidden_total_custos_admin', display: 'resumo-admin-display' }
+        };
+
+        let totalGeralCustos = 0;
+
+        for (const [type, config] of Object.entries(categories)) {
+            let catTotal = 0;
+            const container = document.getElementById(config.list);
+            if (container) {
+                const items = container.querySelectorAll('.cost-item');
+                items.forEach(item => {
+                    catTotal += parseFloat(item.dataset.total || 0);
+                });
+            }
+
+            const hidden = document.getElementById(config.hidden);
+            if (hidden) hidden.value = catTotal.toFixed(2);
+
+            const display = document.getElementById(config.display);
+            if (display) display.textContent = this.formatCurrency(catTotal);
+
+            totalGeralCustos += catTotal;
+        }
+
+        const totalDisplay = document.getElementById('total-custos-geral');
+        if (totalDisplay) totalDisplay.textContent = this.formatCurrency(totalGeralCustos);
+
+        this.totalCustosCache = totalGeralCustos;
+        this.updateFinalTotals();
+    },
+
+    updateMealQuantities() {
+        let totalDias = 0;
+        const salarios = document.querySelectorAll('#list-salarios .cost-item');
+        salarios.forEach(item => {
+            const qtd = parseFloat(item.querySelector('input[name*="[quantidade]"]')?.value) || 0;
+            const dias = parseFloat(item.querySelector('input[name*="[dias]"]')?.value) || 0;
+            totalDias += qtd * dias;
+        });
+
+        const estadias = document.querySelectorAll('#list-estadia .cost-item');
+        estadias.forEach(item => {
+            const select = item.querySelector('select[name*="[tipo]"]');
+            const text = select?.options[select.selectedIndex]?.text || '';
+            const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            if (normalizedText.includes('refeicao') || normalizedText.includes('alimentacao')) {
+                const inputQtd = item.querySelector('input[name*="[quantidade]"]');
+                if (inputQtd && inputQtd.value != totalDias) {
+                    inputQtd.value = totalDias || 1;
+                    this.calculateItemTotal(item);
+                }
+            }
+        });
+    },
+
+    updateFinalTotals() {
+        const totalCustos = this.totalCustosCache || 0;
+
+        const margemPercent = parseFloat(document.getElementById('percentual_lucro')?.value || 30);
+        const valorLucro = totalCustos * (margemPercent / 100);
+
+        const elLucro = document.getElementById('valor-lucro');
+        if (elLucro) elLucro.textContent = '+ ' + this.formatCurrency(valorLucro);
+
+        const hiddenLucro = document.getElementById('hidden_valor_lucro');
+        if (hiddenLucro) hiddenLucro.value = valorLucro.toFixed(2);
+
+        const desconto = parseFloat(document.getElementById('valor_desconto')?.value || 0);
+
+        const subtotal = totalCustos + valorLucro;
+        const hiddenSubtotal = document.getElementById('hidden_subtotal_com_lucro');
+        if (hiddenSubtotal) hiddenSubtotal.value = subtotal.toFixed(2);
+
+        const valorFinal = subtotal - desconto;
+        const elFinal = document.getElementById('valor-final-proposta');
+        if (elFinal) elFinal.textContent = this.formatCurrency(valorFinal);
+
+        const hiddenFinal = document.getElementById('hidden_valor_final_proposta');
+        if (hiddenFinal) hiddenFinal.value = valorFinal.toFixed(2);
+
+        const entradaPercent = parseFloat(document.getElementById('mobilizacao_percentual')?.value || 30);
+        const entradaValor = valorFinal * (entradaPercent / 100);
+        const restanteValor = valorFinal - entradaValor;
+        const restantePercent = 100 - entradaPercent;
+
+        const elMobValor = document.getElementById('mobilizacao_valor_display');
+        if (elMobValor) elMobValor.value = this.formatCurrency(entradaValor);
+
+        const hiddenMobValor = document.getElementById('hidden_mobilizacao_valor');
+        if (hiddenMobValor) hiddenMobValor.value = entradaValor.toFixed(2);
+
+        const elRestPercent = document.getElementById('restante_percentual_display');
+        if (elRestPercent) elRestPercent.value = restantePercent;
+
+        const hiddenRestPercent = document.getElementById('hidden_restante_percentual');
+        if (hiddenRestPercent) hiddenRestPercent.value = restantePercent;
+
+        const elRestValor = document.getElementById('restante_valor_display');
+        if (elRestValor) elRestValor.value = this.formatCurrency(restanteValor);
+
+        const hiddenRestValor = document.getElementById('hidden_restante_valor');
+        if (hiddenRestValor) hiddenRestValor.value = restanteValor.toFixed(2);
+    },
+
+    formatCurrency(val) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    },
+
+    /**
+     * Limpa todas as linhas de custos da planilha
+     */
+    clearAll() {
+        console.log('🧹 Limpando planilha de custos...');
+        document.querySelectorAll('.cost-item').forEach(item => item.remove());
+        this.counters = { salarios: 0, estadia: 0, consumos: 0, locacao: 0, admin: 0 };
+    },
+
+    /**
+     * Métodos auxiliares para carregar itens
+     */
+    addFuncao(data) {
+        this.addItem('salarios');
+        const row = document.getElementById('list-salarios')?.lastElementChild;
+        if (!row) return;
+
+        this._fillRow(row, data, {
+            'funcao': 'funcao',
+            'quantidade': 'quantidade',
+            'valor': 'valor',
+            'encargos': 'encargos',
+            'dias': 'dias'
+        });
+    },
+
+    addEstadia(data) {
+        this.addItem('estadia');
+        const row = document.getElementById('list-estadia')?.lastElementChild;
+        if (!row) return;
+
+        this._fillRow(row, data, {
+            'tipo': 'tipo',
+            'quantidade': 'quantidade',
+            'valor': 'valor',
+            'noites': 'noites'
+        });
+    },
+
+    addConsumo(data) {
+        this.addItem('consumos');
+        const row = document.getElementById('list-consumos')?.lastElementChild;
+        if (!row) return;
+
+        this._fillRow(row, data, {
+            'tipo': 'tipo',
+            'quantidade': 'quantidade',
+            'kml': 'kml',
+            'valor_litro': 'valor_litro',
+            'km': 'km'
+        });
+    },
+
+    addLocacao(data) {
+        this.addItem('locacao');
+        const row = document.getElementById('list-locacao')?.lastElementChild;
+        if (!row) return;
+
+        this._fillRow(row, data, {
+            'tipo': 'tipo',
+            'marca': 'marca',
+            'quantidade': 'quantidade',
+            'valor': 'valor',
+            'dias': 'dias'
+        });
+    },
+
+    addAdmin(data) {
+        this.addItem('admin');
+        const row = document.getElementById('list-admin')?.lastElementChild;
+        if (!row) return;
+
+        this._fillRow(row, data, {
+            'tipo': 'tipo',
+            'quantidade': 'quantidade',
+            'valor': 'valor',
+            'periodo': 'periodo'
+        });
+    },
+
+    /**
+     * Preenche os campos de uma linha baseado no mapeamento
+     * @private
+     */
+    _fillRow(row, data, mapping) {
+        Object.entries(mapping).forEach(([formField, dbField]) => {
+            const val = data[dbField];
+            if (val === undefined || val === null) return;
+
+            const input = row.querySelector(`[name$="[${formField}]"]`);
+            if (!input) return;
+
+            if (input.tagName === 'SELECT') {
+                if ($(input).hasClass('select2-hidden-accessible')) {
+                    $(input).val(val).trigger('change');
+                } else {
+                    input.value = val;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else {
+                input.value = val;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+
+        this.calculateItemTotal(row);
     }
 };
 

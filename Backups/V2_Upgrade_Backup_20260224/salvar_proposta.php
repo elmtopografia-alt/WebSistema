@@ -20,27 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log("MODO DOCX: " . ($isDocxMode ? 'SIM (' . $_POST['modelo_docx'] . ')' : 'NÃO'));
 }
 
-    $repo = new PropostaRepository();
-    $conn = $repo->getConn();
-
-    // ============================================================
-    // FUNÇÕES AUXILIARES DE EXTRAÇÃO (DOCX -> Legacy)
-    // ============================================================
-    function extrairTextoLimpo($htmlContent) {
-        if (empty($htmlContent)) return '';
-        $texto = strip_tags($htmlContent);
-        $texto = html_entity_decode($texto, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        return trim($texto);
-    }
-
-    function extrairAposPrefixo($html, $prefixo) {
-        $texto = extrairTextoLimpo($html);
-        $pos = stripos($texto, $prefixo);
-        if ($pos !== false) {
-            return trim(substr($texto, $pos + strlen($prefixo)));
-        }
-        return $texto;
-    }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die("<h1>Erro: Método Inválido</h1><p>Este script espera uma requisição POST.</p><button onclick='history.back()'>Voltar</button>");
+}
 
 try {
     // BYPASS PERMITIDO APENAS POR NOSSO SCRIPT DE TESTE DE DIAGNÓSTICO (simulador_fluxo.php)
@@ -85,67 +67,19 @@ try {
     }
 
     // ============================================================
-    // MODO EXCLUSIVO DO EDITOR DINÂMICO (Prevenção de Wipe + Sincronização Legacy)
+    // MODO EXCLUSIVO DO EDITOR DINÂMICO (Prevenção de Wipe)
     // ============================================================
+    // Se for o Editor Salvando, fazemos o update SOMENTE do conteúdo Docx e saímos.
     if (!empty($_POST['is_editor_save']) && !empty($_POST['id_proposta'])) {
         $idEdit = intval($_POST['id_proposta']);
         $conteudoDocx = $dadosProcessados['docx_blocos_serializado'] ?? null;
-        
-        // Extração de metadados para sincronia legacy
-        $syncData = [];
-        $syncData['docx_conteudo'] = $conteudoDocx;
-
-        // Extrai Endereço (Bloco 9)
-        if (!empty($_POST['docx_bloco_9_content'])) {
-            $syncData['endereco_obra'] = extrairAposPrefixo($_POST['docx_bloco_9_content'], 'Endereço:');
-        }
-        // Extrai Bairro (Bloco 10)
-        if (!empty($_POST['docx_bloco_10_content'])) {
-            $syncData['bairro_obra'] = extrairAposPrefixo($_POST['docx_bloco_10_content'], 'Bairro:');
-        }
-        // Extrai Cidade/Estado (Bloco 11)
-        if (!empty($_POST['docx_bloco_11_content'])) {
-            $cidadeEstado = extrairAposPrefixo($_POST['docx_bloco_11_content'], 'Cidade/Estado:');
-            if (preg_match('/^([^-]+)[\s-]+(\w{2})$/', trim($cidadeEstado), $m)) {
-                $syncData['cidade_obra'] = trim($m[1]);
-                $syncData['estado_obra'] = strtoupper($m[2]);
-            }
-        }
-        // Extrai Área (Bloco 12)
-        if (!empty($_POST['docx_bloco_12_content'])) {
-            $areaTexto = extrairAposPrefixo($_POST['docx_bloco_12_content'], 'Área Estimada:');
-            if (preg_match('/(\d+(?:\.\d+)?)\s*(ha|m²|m2|km²|km2)/i', $areaTexto, $m)) {
-                $syncData['area_obra'] = $m[1];
-                $syncData['unidade_area'] = strtolower(str_replace('m2', 'm²', $m[2]));
-            }
-        }
-        // Extrai Nome Cliente (Bloco 3) para sincronia de busca
-        if (!empty($_POST['docx_bloco_3_content'])) {
-            $syncData['nome_cliente_salvo'] = extrairAposPrefixo($_POST['docx_bloco_3_content'], 'Nome:');
-        }
-
         if ($conteudoDocx) {
-            $fields = [];
-            $values = [];
-            $types = '';
-            
-            foreach ($syncData as $col => $val) {
-                $fields[] = "$col = ?";
-                $values[] = $val;
-                $types .= 's';
-            }
-            
-            $values[] = $idEdit;
-            $types .= 'i';
-            
-            $sql = "UPDATE Propostas SET " . implode(', ', $fields) . ", docx_ultima_edicao = NOW() WHERE id_proposta = ?";
-            $stmt = $conn->prepare($sql);
-            if ($stmt) {
-                $stmt->bind_param($types, ...$values);
-                $stmt->execute();
-            }
+            $stmt = $repo->getConn()->prepare("UPDATE Propostas SET docx_conteudo = ?, docx_ultima_edicao = NOW() WHERE id_proposta = ?");
+            $stmt->bind_param('si', $conteudoDocx, $idEdit);
+            $stmt->execute();
         }
         
+        // Define redirect de sucesso e sai imediatamente
         $redirectUrl = "editor_dinamico.php?id=$idEdit&modelo_docx=" . urlencode($modeloDocx ?? 'PropostaDrone') . "&success=1";
         
         $isAjax = !empty($_POST['ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');

@@ -18,6 +18,6 @@
 </header>
 
 <div class="header-meta">
-    <span><?= htmlspecialchars($proposta['cidade']) ?>, <?= $proposta['data_extenso'] ?></span>
+    <span><?= $proposta['data_extenso'] ?></span>
     <span class="numero-proposta">Nº <?= htmlspecialchars($proposta['numero']) ?></span>
 </div>
