@@ -22,7 +22,41 @@ try {
     $modelosDisponiveis = [];
 }
 
-$modeloDocxAtivo = $_GET['modelo_docx'] ?? null;
+// Tenta obter ID da proposta
+$id_proposta_ativo = (int)($_GET['id'] ?? 0);
+$incomingData = [];
+
+if ($id_proposta_ativo > 0) {
+    try {
+        $incomingData = $repo->buscarPorId($id_proposta_ativo) ?: [];
+        
+        // CORREÇÃO: Garante que equipamentos estão nos dados para o resolvedor
+        // Se vieram vazios do banco, tenta reconstruir das locações
+        if (empty($incomingData['modelo_drone']) || $incomingData['modelo_drone'] === 'Não se aplica') {
+            if (!empty($incomingData['itens']['locacoes'])) {
+                foreach ($incomingData['itens']['locacoes'] as $loc) {
+                    $tipoNome = mb_strtolower($loc['tipo_nome'] ?? $loc['tipo'] ?? '');
+                    $marcaNome = $loc['marca_nome'] ?? $loc['marca'] ?? 'Não informada';
+                    
+                    if (strpos($tipoNome, 'drone') !== false) {
+                        $incomingData['modelo_drone'] = $marcaNome;
+                    } elseif (strpos($tipoNome, 'gps') !== false || strpos($tipoNome, 'gnss') !== false) {
+                        $incomingData['modelo_gps'] = $marcaNome;
+                    } elseif (strpos($tipoNome, 'estação') !== false || strpos($tipoNome, 'estacao') !== false) {
+                        $incomingData['modelo_estacao_total'] = $marcaNome;
+                    } elseif (strpos($tipoNome, 'veículo') !== false || strpos($tipoNome, 'veiculo') !== false) {
+                        $incomingData['modelo_veiculo'] = $marcaNome;
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao carregar proposta no editor: " . $e->getMessage());
+    }
+}
+
+// Detecta modelo DOCX (URL > Banco > Null)
+$modeloDocxAtivo = $_GET['modelo_docx'] ?? $incomingData['modelo_docx'] ?? null;
 
 // =====================================================
 // SISTEMA DE TEMAS PREMIUM V3.1 E MAPEAMENTO INTELIGENTE
@@ -130,6 +164,7 @@ class VariableResolver {
             'bairro_obra'      => $d['bairro_obra']     ?? '',
             // CORREÇÃO: fallback para campo genérico 'cidade'/'estado'
             'cidade_obra'      => $d['cidade_obra']     ?? $d['cidade'] ?? '',
+            'cidade_limpo'     => trim(explode(',', $d['cidade_obra'] ?? '')[0] ?? ''),
             'estado_obra'      => $d['estado_obra']     ?? $d['estado'] ?? '',
             'ClienteCidadeUF'  => ($d['cidade_obra'] ?? $d['cidade'] ?? '') . '-' . ($d['estado_obra'] ?? $d['estado'] ?? ''),
             // CORREÇÃO: Cidade mapeada com fallback em cascata
@@ -154,10 +189,10 @@ class VariableResolver {
             'RestricoesAereas' => $d['restricoes_aereas']?? 'Não informado',
 
             // ── Equipamentos ──────────────────────────────────────────────────
-            'Drone'        => $d['marca_drone']        ?? $d['drone']        ?? 'Não aplicável',
-            'Veiculo'      => $d['marca_veiculo']      ?? $d['veiculo']      ?? 'Não incluso',
-            'Estacao_Total'=> $d['marca_estacao_total']?? $d['estacao_total']?? 'Não inclusa',
-            'GPS'          => $d['marca_gps']          ?? $d['gps']          ?? 'Par de Receptores GNSS RTK',
+            'Drone'        => $d['modelo_drone']        ?? $d['drone']        ?? 'Não aplicável',
+            'Veiculo'      => $d['modelo_veiculo']      ?? $d['veiculo']      ?? 'Não incluso',
+            'Estacao_Total'=> $d['modelo_estacao_total']?? $d['estacao_total']?? 'Não inclusa',
+            'GPS'          => $d['modelo_gps']          ?? $d['gps']          ?? 'Par de Receptores GNSS RTK',
 
             // ── Empresa Proponente (campos reais do banco) ────────────────────
             'Empresa'                  => $d['empresa_proponente_nome']   ?? $d['nome_empresa'] ?? 'SGT Topografia',
@@ -186,7 +221,7 @@ class VariableResolver {
             'mobilizacao_percentual' => $this->formatarPercentual($d['mobilizacao_percentual'] ?? 30),
             'mobilizacao_valor'      => $this->formatarMoedaSemPrefixo($d['mobilizacao_valor'] ?? 0),
             'restante_percentual'    => $this->formatarPercentual($d['restante_percentual'] ?? 70),
-            'restante_valor'         => $this->formatarMoedaSemPrefixo($d['restante_valor'] ?? 0),
+            'restante_valor'         => $this->formatarMoedaSemPrefixo($d['restante_valor'] ?? 0)
         ];
 
         // Adiciona todas as chaves originais como fallback (campos que não foram explicitamente mapeados)
@@ -311,9 +346,9 @@ class GenericBlockRenderer {
         $html = "<div class='{$this->theme->cardClass('technical')}' id='{$id}' data-tipo='{$tipo}'>";
         
         // Header do bloco
-        $html .= "<div class='flex justify-between items-center mb-4 pb-3 border-b border-white/10'>";
+        $html .= "<div class='flex justify-between items-center mb-4 pb-3 border-b border-white/10 block-header'>";
         $html .= "<div class='flex items-center gap-3'>";
-        $html .= "<span class='w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center text-emerald-400 text-xs font-bold'>";
+        $html .= "<span class='w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold block-header-indicator' style='background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;'>";
         $html .= ($index + 1);
         $html .= "</span>";
         $html .= "<span class='text-xs font-bold text-slate-400 uppercase tracking-wider'>" . ucfirst($tipo) . "</span>";
@@ -497,6 +532,32 @@ try {
     }
     
     // Inicializa o resolvedor de variáveis
+       // =====================================================
+    // CORREÇÃO CRÍTICA: Preenche equipamentos antes do resolvedor
+    // =====================================================
+    // Verifica se equipamentos estão vazios ou "Não se aplica"
+    $equipamentosVazios = 
+        (empty($incomingData['modelo_drone']) || $incomingData['modelo_drone'] === 'Não se aplica') &&
+        (empty($incomingData['modelo_gps']) || $incomingData['modelo_gps'] === 'Não se aplica') &&
+        (empty($incomingData['modelo_estacao_total']) || $incomingData['modelo_estacao_total'] === 'Não se aplica') &&
+        (empty($incomingData['modelo_veiculo']) || $incomingData['modelo_veiculo'] === 'Não se aplica');
+    
+    // Se equipamentos estão vazios mas temos locações no banco, reconstrói
+    if ($equipamentosVazios && !empty($incomingData['itens']['locacoes'])) {
+        // Converte formato do banco para o formato esperado por preencherEquipamentosFlat
+        $incomingData['locacoes'] = [];
+        foreach ($incomingData['itens']['locacoes'] as $loc) {
+            $incomingData['locacoes'][] = [
+                'tipo' => $loc['tipo'] ?? $loc['id_locacao'] ?? 0,
+                'marca' => $loc['marca'] ?? $loc['id_marca'] ?? null
+            ];
+        }
+        
+        // Chama o método do repository para preencher os campos flat
+        $repo->preencherEquipamentosFlat($incomingData);
+    }
+    
+    // Inicializa o resolvedor de variáveis
     $varResolver = new VariableResolver($incomingData);
     $variaveis = $varResolver->getAll();
     
@@ -561,6 +622,7 @@ try {
         // Se ainda não tem modelo, define estrutura de metadata básica para o modo legacy funcionar
         if (!$modoDocx) {
             $metadata = ['name' => 'Editor de Proposta', 'blocos' => []];
+            if (!isset($structure)) $structure = [];
         }
     }
     
@@ -616,6 +678,38 @@ try {
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* Cores alternadas para os headers dos blocos no editor - Azul/Marrom/Cinza */
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+1) .block-header-indicator {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+2) .block-header-indicator {
+            background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+            color: white;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+3) .block-header-indicator {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n) .block-header-indicator {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+        }
+
+        /* Bordas coloridas nos cards dos blocos */
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+1) {
+            border-left: 4px solid #3b82f6;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+2) {
+            border-left: 4px solid #92400e;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n+3) {
+            border-left: 4px solid #6b7280;
+        }
+        .modelo-docx-editor > div[data-tipo="texto"]:nth-child(4n) {
+            border-left: 4px solid #2563eb;
         }
         
         .glass-legacy {
@@ -717,16 +811,6 @@ try {
 <?php $theme = new ThemeManager($modoDocx); ?>
 <body class="<?= $theme->get('bg') ?> text-slate-100 font-sans antialiased min-h-screen">
 
-<?php /* === DIAGNÓSTICO TEMPORÁRIO - REMOVER APÓS DEBUG === */
-echo '<div style="position:fixed;top:0;left:0;z-index:9999;background:#1e293b;color:#94a3b8;font-family:monospace;font-size:12px;padding:10px;border:2px solid #f97316;max-width:600px;">';
-echo '<b style="color:#f97316">🔍 DIAGNÓSTICO EDITOR</b><br>';
-echo 'modoDocx: ' . ($modoDocx ? 'TRUE ✅' : 'FALSE ❌') . '<br>';
-echo 'docxData[nome]: ' . ($docxData['nome'] ?? '-- ausente --') . '<br>';
-echo 'id_prop: ' . $id_prop . '<br>';
-echo 'theme.bg: ' . $theme->get('bg') . '<br>';
-echo 'blocos count: ' . count($docxData['blocos'] ?? []) . '<br>';
-echo '</div>';
-?>
 
     <!-- Header Premium -->
     <header class="sticky top-0 z-50 glass-premium border-b border-white/10">
@@ -759,25 +843,25 @@ echo '</div>';
                 <!-- Direita: Ações -->
                 <div class="flex items-center gap-3">
                     <!-- Salvar Rascunho -->
-                    <button type="button" onclick="salvarRascunho()" id="btn-rascunho"
+                    <button type="button" onclick="salvarRascunhoSilencioso()" id="btn-salvar-rascunho"
                         class="btn-premium px-4 py-2.5 rounded-xl bg-slate-700 text-slate-200 font-medium text-sm hover:bg-slate-600 border border-slate-600 transition-all flex items-center gap-2 shadow-lg shadow-black/20">
                         <i class="bi bi-cloud-arrow-up"></i>
                         <span>Salvar Rascunho</span>
                     </button>
                     
-                    <!-- Visualizar -->
-                    <button type="button" onclick="submitForm('html')" id="btn-visualizar"
-                        class="btn-premium px-4 py-2.5 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-500 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20">
-                        <i class="bi bi-eye"></i>
-                        <span>Visualizar</span>
+                    <!-- Visualizar no CRM -->
+                    <button type="button" onclick="visualizarNoCRM()" id="btn-visualizar-crm"
+                        class="btn-premium px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-500 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20" title="Salvar e ir para o CRM">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>Ir para o CRM e Salvar Rascunho</span>
                     </button>
                     
                     <!-- Dropdown Modelos -->
                     <div class="relative" id="dropdown-container">
                         <button type="button" onclick="toggleDropdown()" id="btn-modelos"
-                            class="btn-premium px-4 py-2.5 rounded-xl bg-slate-700 text-slate-200 font-medium text-sm hover:bg-slate-600 border border-slate-600 transition-all flex items-center gap-2">
+                            class="btn-premium px-4 py-2.5 rounded-xl bg-slate-800/50 text-slate-300 font-medium text-sm hover:bg-slate-800 border border-white/5 transition-all flex items-center gap-2">
                             <i class="bi bi-collection"></i>
-                            <span><?= $modeloDocxAtivo ? str_replace('_', ' ', $modeloDocxAtivo) : 'Modelo Padrão' ?></span>
+                            <span><?= $modeloDocxAtivo ? str_replace('_', ' ', $modeloDocxAtivo) : 'Trocar Modelo' ?></span>
                             <i class="bi bi-chevron-down text-xs"></i>
                         </button>
                         
@@ -819,12 +903,10 @@ echo '</div>';
                         </div>
                     </div>
 
-                    <!-- Gerar Word -->
-                    <button type="button" onclick="submitForm('docx')" id="btn-word"
-                        class="btn-premium px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium text-sm hover:from-orange-400 hover:to-orange-500 transition-all flex items-center gap-2 shadow-lg shadow-orange-500/20">
-                        <i class="bi bi-file-earmark-word"></i>
-                        <span>Gerar Word</span>
-                    </button>
+                    <a href="painel.php" class="btn-premium px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 font-medium text-sm hover:bg-slate-700 border border-white/5 transition-all flex items-center gap-2">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Sair</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -859,7 +941,7 @@ echo '</div>';
                                 <span class="text-[11px] <?= $isResolved ? 'text-emerald-400' : 'text-slate-400' ?> font-mono font-semibold">${<?= htmlspecialchars($var) ?>}</span>
                                 <i class="bi bi-clipboard opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 text-xs"></i>
                             </div>
-                            <div class="text-[11px] text-slate-300 truncate" title="<?= htmlspecialchars($valor) ?>"><?= htmlspecialchars($curto) ?></div>
+                            <div class="text-[11px] text-slate-300 truncate" title="<?= htmlspecialchars($curto) ?>"><?= htmlspecialchars($curto) ?></div>
                         </button>
                     <?php endforeach; ?>
                 </div>
@@ -893,7 +975,7 @@ echo '</div>';
         <main class="flex-1 overflow-y-auto p-8 scroll-smooth custom-scrollbar relative" id="main-scroll">
             <div class="max-w-4xl mx-auto pb-32">
                 
-                <form id="formProposta" method="POST" action="salvar_proposta.php">
+                <form id="formEditorDinamico" method="POST" action="salvar_proposta.php">
                     <input type="hidden" name="id_proposta" value="<?= $id_prop ?>">
                     <input type="hidden" name="id_proposta_original" value="<?= $id_prop ?>">
                     <input type="hidden" name="modelo_docx" value="<?= htmlspecialchars($modeloDocxAtivo ?? '') ?>">
@@ -1215,119 +1297,119 @@ echo '</div>';
                 });
             });
             
-            // Atalho Ctrl+S
+            // Atalho Ctrl+S - Unificado
             document.addEventListener('keydown', function(e) {
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                     e.preventDefault();
-                    salvarRascunho();
+                    salvarRascunhoSilencioso();
                 }
             });
         });
 
-        // --- SUBMISSÕES (RASCUNHO E FINAL) ---
-        async function salvarRascunho() {
+        // --- SUBMISSÕES E INTEGRAÇÃO CRM ---
+        
+        /**
+         * Função comum para envio de rascunho via AJAX
+         */
+        async function enviarRascunho() {
+            // Sincroniza TinyMCE e Tabelas
             tinymce.triggerSave();
-            
-            // Atualiza todas as tabelas antes de enviar
             document.querySelectorAll('[id^="tabela-"]').forEach(tabela => {
                 const index = tabela.id.replace('tabela-', '');
                 atualizarEstruturaTabela(index);
             });
+
+            const form = document.getElementById('formEditorDinamico');
+            const formData = new FormData(form);
+            formData.append('ajax', '1');
             
-            const btn = document.getElementById('btn-rascunho');
+            // Garante modelo_docx se não estiver no form
+            if (!formData.get('modelo_docx')) {
+                formData.append('modelo_docx', '<?= htmlspecialchars($modeloDocxAtivo) ?>');
+            }
+
+            const resp = await fetch('salvar_rascunho.php', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            const textResp = await resp.text();
+            try {
+                return JSON.parse(textResp);
+            } catch(e) {
+                console.error("Resposta do servidor:", textResp);
+                return { success: false, message: "Resposta inválida do servidor." };
+            }
+        }
+
+        /**
+         * Salva rascunho sem sair da página
+         */
+        async function salvarRascunhoSilencioso() {
+            const btn = document.getElementById('btn-salvar-rascunho');
             const originalIcon = btn.innerHTML;
+            
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i><span>Salvando...</span>';
-            
+
             try {
-                const formData = new FormData(document.getElementById('formProposta'));
-                formData.append('ajax', '1');
-                
-                const resp = await fetch('salvar_rascunho.php', { 
-                    method: 'POST', 
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                
-                const textResp = await resp.text();
-                let data;
-                try {
-                    data = JSON.parse(textResp);
-                } catch(e) {
-                    console.error("Resposta não-JSON:", textResp);
-                    throw new Error("Erro de servidor (HTML retornado).");
-                }
-                
+                const data = await enviarRascunho();
                 if (data.success) {
                     btn.innerHTML = '<i class="bi bi-check-circle text-emerald-400"></i><span>Salvo!</span>';
-                    showToast('Rascunho salvo com sucesso!');
-                    setTimeout(() => btn.innerHTML = originalIcon, 2000);
+                    showToast('Rascunho salvo com sucesso!', 'success');
+                    
+                    // Atualiza ID na URL se for uma nova proposta sendo salva pela primeira vez
+                    if (data.is_new && data.id_proposta) {
+                        const url = new URL(window.location);
+                        url.searchParams.set('id', data.id_proposta);
+                        window.history.replaceState({}, '', url);
+                        const idInput = document.querySelector('input[name="id_proposta"]');
+                        if (idInput) idInput.value = data.id_proposta;
+                    }
                 } else {
-                    throw new Error(data.error || "Erro desconhecido");
+                    showToast('Erro ao salvar: ' + (data.message || data.error), 'error');
                 }
-            } catch(e) {
-                showToast(e.message, 'error');
-                btn.innerHTML = originalIcon;
+            } catch (err) {
+                showToast('Erro de conexão', 'error');
             } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        /**
+         * Salva e redireciona para o visualizador do CRM
+         */
+        async function visualizarNoCRM() {
+            const btn = document.getElementById('btn-visualizar-crm');
+            const originalIcon = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i><span>Preparando...</span>';
+
+            try {
+                const data = await enviarRascunho();
+                if (data.success) {
+                    const id = data.id_proposta || '<?= $id_prop ?>';
+                    showToast('Redirecionando para o CRM...', 'success');
+                    setTimeout(() => {
+                        window.location.href = `testes_isolados/crm-propostas/gerar-proposta.php?id=${id}`;
+                    }, 500);
+                } else {
+                    showToast('Erro ao salvar para visualizar: ' + (data.message || data.error), 'error');
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                showToast('Erro de conexão ao salvar', 'error');
+                btn.innerHTML = originalIcon;
                 btn.disabled = false;
             }
         }
 
-        async function submitForm(formato) {
-            tinymce.triggerSave();
-            
-            // Atualiza todas as tabelas antes de enviar
-            document.querySelectorAll('[id^="tabela-"]').forEach(tabela => {
-                const index = tabela.id.replace('tabela-', '');
-                atualizarEstruturaTabela(index);
-            });
-            
-            const form = document.getElementById('formProposta');
-            const formData = new FormData(form);
-            formData.append('formato_saida', formato);
-            formData.append('ajax', '1');
-            
-            const btnHtml = document.getElementById('btn-visualizar');
-            const btnWord = document.getElementById('btn-word');
-            const targetBtn = formato === 'html' ? btnHtml : btnWord;
-            const originalIcon = targetBtn.innerHTML;
-            
-            targetBtn.disabled = true;
-            targetBtn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Processando...';
-            
-            try {
-                const resp = await fetch('salvar_proposta.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                
-                const textResp = await resp.text();
-                let data;
-                try {
-                    data = JSON.parse(textResp);
-                } catch(err) {
-                    console.error(textResp);
-                    throw new Error('Retorno do servidor inválido (possível erro PHP).');
-                }
-                
-                if (data.success) {
-                    showToast('Documento gerado!', 'success');
-                    if (formato === 'html') {
-                        window.open(data.redirect, '_blank');
-                    } else {
-                        window.location.href = data.redirect;
-                    }
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch(e) {
-                showToast(e.message, 'error');
-            } finally {
-                targetBtn.innerHTML = originalIcon;
-                targetBtn.disabled = false;
-            }
-        }
     </script>
 </body>
 </html>
