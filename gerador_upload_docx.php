@@ -27,7 +27,7 @@ define('UPLOAD_DIR', __DIR__ . '/uploads_temp/');
 $pythonCmd = (stripos(PHP_OS, 'WIN') === 0) ? 'python' : 'python3';
 define('PYTHON_EXE', $pythonCmd); 
 define('PYTHON_SCRIPT', __DIR__ . '/conversor_docx.py');
-define('MODELOS_DIR', __DIR__ . '/modelos_gerados/');
+define('MODELOS_DIR', __DIR__ . '/modelos_prod/');
 
 foreach (array(UPLOAD_DIR, MODELOS_DIR) as $dir) {
     if (!is_dir($dir)) @mkdir($dir, 0755, true);
@@ -84,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'gerar_php') {
     header('Content-Type: application/json');
+    try {
     $dados = json_decode($_POST['dados'], true);
+    if (!$dados || !isset($dados['blocos'])) {
+        echo json_encode(array('erro' => 'Dados inválidos ou corrompidos. Tente re-fazer o upload.'));
+        exit;
+    }
     
     // CORREÇÃO CASO 1: Extrair nome base sem o hash do uniqid
     $nomeBase = $_POST['nome_modelo'];
@@ -101,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     }
     
     // CORREÇÃO CASO 1: Sobrescreve arquivo existente (não cria duplicatas)
-    $temaCor = isset($_POST['tema_cor']) ? $_POST['tema_cor'] : 'azul';
-    $codigo = gerarCodigoPHP($dados, $nomeModelo, $temaCor);
+    $corPadrao = isset($_POST['cor_padrao']) ? $_POST['cor_padrao'] : 'verde';
+    $codigo = gerarCodigoPHP($dados, $nomeModelo, $corPadrao);
     $caminhoFinal = MODELOS_DIR . 'Modelo' . $nomeModelo . '.php';
     
     // Se arquivo já existe, faz backup temporário (opcional, pode remover)
@@ -156,7 +161,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             'mensagem_sync' => $msgSync
         ));
     } else {
-        echo json_encode(array('erro' => 'Erro ao salvar arquivo'));
+        echo json_encode(array('erro' => 'Erro ao salvar arquivo. Verifique permissões da pasta modelos_prod/'));
+    }
+    } catch (Throwable $e) {
+        echo json_encode(array('erro' => 'Exceção PHP: ' . $e->getMessage() . ' em ' . basename($e->getFile()) . ':' . $e->getLine()));
     }
     exit;
 }
@@ -177,183 +185,87 @@ function limparBackupsAntigos($diretorio, $prefixo, $manter = 3) {
 }
 
 /**
- * Retorna as cores da paleta SGT baseadas no tema
- */
-function getCoresTema($temaCor) {
-    $paletas = array(
-        'azul' => array(
-            'h1' => '#1e3a8a',
-            'h2' => '#1e40af',
-            'h3' => '#3b82f6',
-            'borda' => '#3b82f6'
-        ),
-        'marrom' => array(
-            'h1' => '#78350f',
-            'h2' => '#92400e',
-            'h3' => '#b45309',
-            'borda' => '#92400e'
-        ),
-        'cinza' => array(
-            'h1' => '#1f2937',
-            'h2' => '#374151',
-            'h3' => '#4b5563',
-            'borda' => '#6b7280'
-        ),
-        'verde' => array(
-            'h1' => '#14532d',
-            'h2' => '#166534',
-            'h3' => '#22c55e',
-            'borda' => '#16a34a'
-        ),
-        'vermelho' => array(
-            'h1' => '#7f1d1d',
-            'h2' => '#991b1b',
-            'h3' => '#dc2626',
-            'borda' => '#ef4444'
-        )
-    );
-    return isset($paletas[$temaCor]) ? $paletas[$temaCor] : $paletas['azul'];
-}
-
-/**
- * Gera o bloco CSS baseado no tema escolhido
- */
-function gerarCSSPorTema($cores) {
-    return "
-        .modelo-docx-container h1 { color: {$cores['h1']} !important; border-bottom: 2px solid {$cores['borda']} !important; padding-bottom: 5px; }
-        .modelo-docx-container h2 { color: {$cores['h2']} !important; margin-top: 20px; border-left: 4px solid {$cores['borda']} !important; padding-left: 10px; }
-        .modelo-docx-container h3 { color: {$cores['h3']} !important; }
-        .modelo-docx-container p { line-height: 1.6; color: #333; }
-        .modelo-docx-container table { border: 1px solid {$cores['borda']} !important; }
-        .modelo-docx-container th { background-color: {$cores['h1']}; color: white !important; }
-    ";
-}
-
-/**
- * Remove vírgulas trailing de arrays exportados para compatibilidade PHP < 7.3
+ * Remove vírgulas trailing de arrays PHP exportados (compatibilidade PHP < 7.3)
  */
 function removeTrailingComma($str) {
     return preg_replace('/,([\s\)]*\))/', '$1', $str);
 }
 
-function gerarCodigoPHP($dados, $nomeClasseSuffix, $temaCor = 'azul') {
+/**
+ * Converte blocos do formato DOCX Parser → formato ModeloBase v2
+ */
+function converterBlocosParaModeloBase(array $blocos): array {
+    $resultado = array();
+    foreach ($blocos as $bloco) {
+        if ($bloco['tipo'] === 'texto') {
+            $nivel    = intval($bloco['nivel_titulo'] ?? 0);
+            $conteudo = $bloco['conteudo'] ?? '';
+            if ($nivel > 0) {
+                $resultado[] = array('tipo' => 'titulo', 'conteudo' => $conteudo, 'nivel' => $nivel);
+            } else {
+                $estilo = (!empty($bloco['estilos_css']['font-weight']) && $bloco['estilos_css']['font-weight'] === 'bold')
+                    ? 'destaque'
+                    : 'normal';
+                $resultado[] = array('tipo' => 'texto', 'conteudo' => $conteudo, 'estilo' => $estilo);
+            }
+        } elseif ($bloco['tipo'] === 'tabela') {
+            $linhas = array();
+            foreach ($bloco['linhas'] as $linha) {
+                $linhaSimples = array();
+                foreach ($linha as $celula) {
+                    $linhaSimples[] = $celula['texto'] ?? '';
+                }
+                $linhas[] = $linhaSimples;
+            }
+            $resultado[] = array('tipo' => 'tabela', 'linhas' => $linhas);
+        }
+    }
+    return $resultado;
+}
+
+function gerarCodigoPHP($dados, $nomeClasseSuffix, $corPadrao = 'verde') {
     $nomeClasse = "Modelo" . $nomeClasseSuffix;
     $data = date('d/m/Y H:i');
-        $blocosStr = removeTrailingComma(var_export($dados['blocos'], true));
-    $varsGerais = removeTrailingComma(var_export($dados['variaveis'], true));
-    
-    // Injeta CSS baseado no tema
-    $cores = getCoresTema($temaCor);
-    $cssTema = gerarCSSPorTema($cores);
-    $cssGeral = addslashes($cssTema . "\n" . $dados['css_geral']);
 
-    // NOTA: CODE; deve estar na coluna 0 para compatibilidade com PHP < 7.3
+    // Converte blocos DOCX → formato ModeloBase v2
+    $blocosConvertidos = converterBlocosParaModeloBase($dados['blocos']);
+    $blocosStr = removeTrailingComma(var_export($blocosConvertidos, true));
+
+    // NOTA: CODE; deve estar na COLUNA 0 para compatibilidade com PHP < 7.3
     $template = <<<'CODE'
 <?php
 /**
- * MODELO GERADO AUTOMATICAMENTE - SGT DOCX Parser
- * Fonte: {{NOME_ARQUIVO}}
+ * MODELO GERADO - SGT Template Engine v2
+ * Fonte: {{NOME_ARQUIVO}} | Gerado em: {{DATA}}
  */
 
-namespace SGT\Propostas;
+require_once __DIR__ . '/../core/ModeloBase.php';
 
-require_once __DIR__ . '/../ResolvedorChavesSistema.php';
-
-class {{NOME_CLASSE}} 
+class {{NOME_CLASSE}} extends ModeloBase
 {
-    const NOME = '{{NOME_SUFFIX}}';
-    
-    protected $blocos;
-    protected $variaveisDetectadas;
-    protected $cssCustom;
+    const COR_PADRAO = '{{COR_PADRAO}}';
 
-    public function __construct() {
-        $this->blocos = {{BLOCOS}};
-        $this->variaveisDetectadas = {{VARS}};
-        $this->cssCustom = "{{CSS}}";
-    }
-
-    public function getConfig(): array
+    public function getNome(): string
     {
-        return array(
-            'nome' => self::NOME,
-            'blocos' => $this->blocos,
-            'variaveis' => $this->variaveisDetectadas,
-            'css' => $this->cssCustom
-        );
+        return '{{NOME_SUFFIX}}';
     }
 
-    public function render($dadosManuais, $resolvedor, $id_usuario)
+    protected function definirBlocos(): array
     {
-        $dadosSistema = $resolvedor->resolver($this->variaveisDetectadas, $id_usuario, $dadosManuais);
-        $contexto = array_merge($dadosManuais, $dadosSistema);
-        
-        $html = "<div class='modelo-docx-container'>";
-        $html .= "<style>{$this->cssCustom}</style>";
-        
-        foreach ($this->blocos as $bloco) {
-            $html .= $this->renderBloco($bloco, $contexto);
-        }
-        
-        $html .= "</div>";
-        return $html;
-    }
-
-    private function renderBloco($bloco, $contexto)
-    {
-        if ($bloco['tipo'] === 'texto') {
-            $tag = ($bloco['nivel_titulo'] > 0) ? 'h' . $bloco['nivel_titulo'] : 'p';
-            $conteudo = $bloco['conteudo'];
-            
-            foreach ($bloco['variaveis'] as $var) {
-                $valor = isset($contexto[$var]) ? $contexto[$var] : "[{$var}]";
-                $pattern = '/(\$\{\s*' . preg_quote($var, '/') . '\s*\}|\{\{\s*' . preg_quote($var, '/') . '\s*\}\})/';
-                $conteudo = preg_replace($pattern, $valor, $conteudo);
-            }
-            
-            $estilos = $this->mapEstilos($bloco['estilos_css']);
-            return "<$tag style='$estilos'>$conteudo</$tag>";
-        }
-        
-        if ($bloco['tipo'] === 'tabela') {
-            $html = "<table style='width:100%; border-collapse:collapse; border: 1px solid #dee2e6; margin-bottom: 25px;'>";
-            foreach ($bloco['linhas'] as $i => $linha) {
-                $html .= "<tr>";
-                foreach ($linha as $celula) {
-                    $tag = ($i === 0) ? 'th' : 'td';
-                    $texto = $celula['texto'];
-                    foreach ($bloco['variaveis'] as $var) {
-                         $valor = isset($contexto[$var]) ? $contexto[$var] : "[{$var}]";
-                         $pattern = '/(\$\{\s*' . preg_quote($var, '/') . '\s*\}|\{\{\s*' . preg_quote($var, '/') . '\s*\}\})/';
-                         $texto = preg_replace($pattern, $valor, $texto);
-                    }
-                    $estilos = $this->mapEstilos($celula['estilos']);
-                    $html .= "<$tag colspan='{$celula['colspan']}' style='$estilos'>$texto</$tag>";
-                }
-                $html .= "</tr>";
-            }
-            $html .= "</table>";
-            return $html;
-        }
-        return "";
-    }
-
-    private function mapEstilos($estilos) {
-        $out = "";
-        foreach ($estilos as $k => $v) $out .= "$k:$v; ";
-        return $out;
+        return {{BLOCOS}};
     }
 }
 CODE;
 
     $out = str_replace(
-        array('{{NOME_ARQUIVO}}', '{{DATA}}', '{{NOME_CLASSE}}', '{{NOME_SUFFIX}}', '{{BLOCOS}}', '{{VARS}}', '{{CSS}}'),
-        array($dados['nome_arquivo'], $data, $nomeClasse, $nomeClasseSuffix, $blocosStr, $varsGerais, $cssGeral),
+        array('{{NOME_ARQUIVO}}', '{{DATA}}', '{{NOME_CLASSE}}', '{{NOME_SUFFIX}}', '{{BLOCOS}}', '{{COR_PADRAO}}'),
+        array($dados['nome_arquivo'], $data, $nomeClasse, $nomeClasseSuffix, $blocosStr, $corPadrao),
         $template
     );
     return $out;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -380,6 +292,12 @@ CODE;
         .btn-secundario { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; margin-right: 8px; }
         .btn-secundario:hover { background: #475569; color: white; }
         .aviso-sobrescrita { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; display: none; }
+        /* Seletor visual de cor */
+        .cor-card { cursor: pointer; }
+        .cor-card input { display: none; }
+        .cor-card-label { display: inline-block; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
+        .cor-card-label:hover { transform: translateY(-2px); opacity: 0.9; }
+        .cor-card input:checked + .cor-card-label { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.4); }
     </style>
 </head>
 <body class="py-5">
@@ -434,15 +352,26 @@ CODE;
             </div>
 
             <div class="mb-4">
-                <label class="form-label text-light">🎨 Escolher Tema de Cor</label>
-                <select id="tema-cor" class="form-select bg-dark text-white border-secondary" onchange="atualizarPreview()">
-                    <option value="azul" selected>🔵 Azul (Padrão)</option>
-                    <option value="marrom">🟤 Marrom</option>
-                    <option value="cinza">⚫ Cinza</option>
-                    <option value="verde">🟢 Verde</option>
-                    <option value="vermelho">🔴 Vermelho</option>
-                </select>
-                <small class="text-muted">As cores dos títulos e bordas serão ajustadas automaticamente.</small>
+                <label class="form-label text-light">🎨 Cor Padrão do Modelo</label>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                    <label class="cor-card">
+                        <input type="radio" name="cor_padrao" value="verde" checked onchange="atualizarPreview()">
+                        <span class="cor-card-label" style="background:#065f46;">🌿 Topografia</span>
+                    </label>
+                    <label class="cor-card">
+                        <input type="radio" name="cor_padrao" value="azul" onchange="atualizarPreview()">
+                        <span class="cor-card-label" style="background:#1e3a8a;">🏢 Corporativo</span>
+                    </label>
+                    <label class="cor-card">
+                        <input type="radio" name="cor_padrao" value="laranja" onchange="atualizarPreview()">
+                        <span class="cor-card-label" style="background:#7c2d12;">⚡ Energia</span>
+                    </label>
+                    <label class="cor-card">
+                        <input type="radio" name="cor_padrao" value="cinza" onchange="atualizarPreview()">
+                        <span class="cor-card-label" style="background:#1f2937;">📋 Institucional</span>
+                    </label>
+                </div>
+                <small class="text-muted mt-1 d-block">Cor padrão do modelo gerado — pode ser alterada ao gerar o documento.</small>
             </div>
 
             <!-- Editor Inline de Blocos -->
@@ -576,39 +505,34 @@ CODE;
 
         function atualizarPreview() {
             if (!analysisData) return;
-            
-            const tema = document.getElementById('tema-cor').value;
-            const cores = getCoresJS(tema);
-            
-            // CSS Dinâmico do Tema para o Preview
+
+            const tema = getCorSelecionada();
+            const p    = getCoresJS(tema);
+
+            // CSS espelhando TemaEngine v2 via variáveis CSS
             let cssTema = `
-                .modelo-docx h1 { color: ${cores.h1} !important; border-bottom: 2px solid ${cores.borda} !important; padding-bottom: 5px; }
-                .modelo-docx h2 { color: ${cores.h2} !important; margin-top: 20px; border-left: 4px solid ${cores.borda} !important; padding-left: 10px; }
-                .modelo-docx h3 { color: ${cores.h3} !important; }
-                .modelo-docx table { border: 1px solid ${cores.borda} !important; }
-                .modelo-docx th { background-color: ${cores.h1}; color: white !important; }
+                .modelo-docx { background: white; color: #333; }
+                .modelo-docx h1 { color: ${p.primaria} !important; border-bottom: 3px solid ${p.primaria} !important; text-align: center; padding-bottom: 8px; }
+                .modelo-docx h2 { color: ${p.texto} !important; border-left: 4px solid ${p.secundaria} !important; padding-left: 10px; margin-top: 18px; }
+                .modelo-docx h3 { color: ${p.secundaria} !important; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.04em; }
+                .modelo-docx table { border: 1px solid ${p.secundaria} !important; border-collapse: collapse; width: 100%; margin: 15px 0; }
+                .modelo-docx table th { background: ${p.primaria}; color: white !important; padding: 8px; }
+                .modelo-docx table td { border-bottom: 1px solid #e5e7eb; padding: 8px; }
+                .modelo-docx table tr:nth-child(even) { background: ${p.fundo}; }
             `;
 
             let html = `<style>${cssTema} ${analysisData.css_geral}</style>`;
-            html += "<div class='modelo-docx' style='padding:20px; color:#333; background:white;'>";
-            
+            html += "<div class='modelo-docx' style='padding:24px;'>";
+
             blocosEditados.forEach(bloco => {
                 if (bloco.tipo === 'texto') {
                     let tag = 'p';
-                    let classes = [bloco.subtipo || 'texto_geral'];
-                    
-                    if (bloco.nivel_titulo == 1) { tag = 'h1'; classes.push('titulo-principal'); }
-                    else if (bloco.nivel_titulo == 2) { tag = 'h2'; classes.push('titulo-secao'); }
-                    else if (bloco.nivel_titulo == 3) { tag = 'h3'; }
-                    
-                    let estilos = "";
-                    if (bloco.estilos_css) {
-                        for (let k in bloco.estilos_css) estilos += `${k}:${bloco.estilos_css[k]}; `;
-                    }
-                    
-                    html += `<${tag} class="${classes.join(' ')}" style="${estilos}">${bloco.conteudo}</${tag}>`;
+                    if (bloco.nivel_titulo == 1) tag = 'h1';
+                    else if (bloco.nivel_titulo == 2) tag = 'h2';
+                    else if (bloco.nivel_titulo == 3) tag = 'h3';
+                    html += `<${tag}>${bloco.conteudo}</${tag}>`;
                 } else if (bloco.tipo === 'tabela') {
-                    html += '<table class="tabela-proposta" border="1" style="width:100%; border-collapse:collapse; margin:20px 0;">';
+                    html += '<table border="1">';
                     bloco.linhas.forEach((linha, i) => {
                         html += '<tr>';
                         linha.forEach(celula => {
@@ -625,8 +549,8 @@ CODE;
                 }
             });
             html += "</div>";
-            document.getElementById('preview-html').innerHTML = html;
         }
+
 
         function verificarExistencia() {
             // Simulação simples - em produção, fazer requisição AJAX para verificar
@@ -661,14 +585,18 @@ CODE;
             const fd = new FormData(); 
             fd.append('acao', 'gerar_php'); 
             fd.append('nome_modelo', name); 
-            fd.append('tema_cor', document.getElementById('tema-cor').value);
+            fd.append('cor_padrao', getCorSelecionada());
             fd.append('dados', JSON.stringify(dadosAtualizados));
             
             fetch('', { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(data => {
+            .then(r => r.text())
+            .then(raw => {
+                let data;
+                try { data = JSON.parse(raw); }
+                catch(e) { alert('Resposta inesperada do servidor:\n' + raw.substring(0, 300)); return; }
+
                 if(data.erro) { 
-                    alert(data.erro); 
+                    alert('❌ Erro ao salvar:\n' + data.erro); 
                     return; 
                 }
                 
@@ -678,12 +606,14 @@ CODE;
                 let msgSyncHtml = data.mensagem_sync ? `<br>${data.mensagem_sync}` : '';
 
                 const msg = data.sobrescrito 
-                    ? `Modelo substituído: modelos_gerados/${data.arquivo}<br><small>Backup anterior criado automaticamente</small>${msgSyncHtml}`
-                    : `Novo modelo salvo: modelos_gerados/${data.arquivo}${msgSyncHtml}`;
+                    ? `✅ Modelo substituído: <code>modelos_prod/${data.arquivo}</code><br><small>Backup anterior criado automaticamente</small>${msgSyncHtml}`
+                    : `✅ Novo modelo salvo: <code>modelos_prod/${data.arquivo}</code>${msgSyncHtml}`;
                 
                 document.getElementById('file-path-msg').innerHTML = msg;
-            });
+            })
+            .catch(e => alert('Erro de rede: ' + e));
         }
+
 
         function voltarUpload() {
             document.getElementById('step-2').classList.add('d-none');
@@ -695,15 +625,19 @@ CODE;
             location.reload();
         }
 
+        function getCorSelecionada() {
+            const checked = document.querySelector('input[name="cor_padrao"]:checked');
+            return checked ? checked.value : 'verde';
+        }
+
         function getCoresJS(tema) {
             const paletas = {
-                azul: { h1: '#1e3a8a', h2: '#1e40af', h3: '#3b82f6', borda: '#3b82f6' },
-                marrom: { h1: '#78350f', h2: '#92400e', h3: '#b45309', borda: '#92400e' },
-                cinza: { h1: '#1f2937', h2: '#374151', h3: '#4b5563', borda: '#6b7280' },
-                verde: { h1: '#14532d', h2: '#166534', h3: '#22c55e', borda: '#16a34a' },
-                vermelho: { h1: '#7f1d1d', h2: '#991b1b', h3: '#dc2626', borda: '#ef4444' }
+                verde:   { primaria: '#065f46', secundaria: '#10b981', fundo: '#ecfdf5', texto: '#047857' },
+                azul:    { primaria: '#1e3a8a', secundaria: '#3b82f6', fundo: '#eff6ff', texto: '#1e40af' },
+                laranja: { primaria: '#7c2d12', secundaria: '#f59e0b', fundo: '#fffbeb', texto: '#92400e' },
+                cinza:   { primaria: '#1f2937', secundaria: '#6b7280', fundo: '#f9fafb', texto: '#374151' }
             };
-            return paletas[tema] || paletas.azul;
+            return paletas[tema] || paletas.verde;
         }
     </script>
 </body>

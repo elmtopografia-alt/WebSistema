@@ -132,10 +132,10 @@ const Wizard = {
                 return true;
             },
             2: () => {
-                const servico = document.getElementById('id_servico')?.value;
+                const servico = document.getElementById('hidden_id_servico')?.value || document.getElementById('tipo_servico_id')?.value;
                 if (!servico) {
-                    SGTUtils.showToast('Selecione o tipo de serviço', 'error');
-                    document.getElementById('id_servico')?.focus();
+                    SGTUtils.showToast('Selecione o tipo de serviço (Classificação)', 'error');
+                    document.getElementById('tipo_servico_id')?.focus();
                     return false;
                 }
                 return true;

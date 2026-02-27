@@ -269,13 +269,17 @@ if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
         if (class_exists($classeFull)) {
             $modelo = new $classeFull();
             $dadosRender = [
-                // EMPRESA (v5.1 mapeamento expandido)
+                // EMPRESA (mapeamento expandido para compatibilidade com editor)
                 'Empresa' => $config['empresa']['nome'],
                 'empresa_nome' => $config['empresa']['nome'],
+                'empresa_proponente_nome' => $config['empresa']['nome'],
                 'CNPJ' => $config['empresa']['cnpj'],
                 'empresa_cnpj' => $config['empresa']['cnpj'],
+                'empresa_proponente_cnpj' => $config['empresa']['cnpj'],
                 'Cidade' => $config['empresa']['cidade'],
+                'cidade' => $config['empresa']['cidade'],
                 'empresa_cidade' => $config['empresa']['cidade'],
+                'empresa_proponente_cidade' => $config['empresa']['cidade'],
                 'Estado' => $config['empresa']['estado'],
                 'empresa_estado' => $config['empresa']['estado'],
                 'Endereco' => $config['empresa']['endereco'],
@@ -287,7 +291,18 @@ if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
                 'Email' => $config['empresa']['email'],
                 'empresa_email' => $config['empresa']['email'],
                 'Logo' => $config['empresa']['logo'],
+                'logo_empresa' => $config['empresa']['logo'],
                 'empresa_logo' => $config['empresa']['logo'],
+                
+                // BANCO (chaves do editor)
+                'Banco' => $config['banco']['nome'],
+                'empresa_proponente_banco' => $config['banco']['nome'],
+                'Agencia' => $config['banco']['agencia'],
+                'empresa_proponente_agencia' => $config['banco']['agencia'],
+                'Conta' => $config['banco']['conta'],
+                'empresa_proponente_conta' => $config['banco']['conta'],
+                'PIX' => mb_strtoupper($config['banco']['pix']),
+                'empresa_proponente_pix' => $config['banco']['pix'],
                 
                 // CLIENTE (todas as variações de chave)
                 'nome_cliente' => $proposta['cliente_nome'],
@@ -331,12 +346,6 @@ if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
                 'mobilizacao_valor' => formatarMoeda($mobValor),
                 'restante_percentual' => $restPercent,
                 'restante_valor' => formatarMoeda($restValor),
-                
-                // BANCO
-                'Banco' => $config['banco']['nome'],
-                'Agencia' => $config['banco']['agencia'],
-                'Conta' => $config['banco']['conta'],
-                'PIX' => $config['banco']['pix'],
                 
                 // EQUIPAMENTOS
                 'Drone' => $dados_proposta['equipamento_drone'] ?? 'Não aplicável',

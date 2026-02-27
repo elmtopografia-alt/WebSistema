@@ -26,6 +26,7 @@
                     <option value="<?= $s['id'] ?>"
                             data-cor="<?= $cor ?>"
                             data-icone="<?= $icone ?>"
+                            data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>"
                             <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $s['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($s['nome']) ?>
                     </option>
@@ -39,6 +40,8 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const select = document.getElementById('tipo_servico_id');
                 const preview = document.getElementById('tipoPreview');
+                const tituloInput = document.getElementById('tipo_levantamento');
+                const hiddenIdServico = document.getElementById('id_servico');
                 
                 function updateBadge() {
                     const option = select.options[select.selectedIndex];
@@ -52,8 +55,21 @@
                                 <i class="bi bi-${icone}" style="font-size:10px;"></i> ${nome}
                             </span>
                         `;
+
+                        // PREENCHER AUTOMÁTICO (Título da Proposta e Finalidade/Descricao)
+                        if (tituloInput && (!tituloInput.dataset.modificado || tituloInput.value === '')) {
+                            tituloInput.value = 'Levantamento ' + nome;
+                        }
+                        const finalidadeInput = document.getElementById('finalidade');
+                        if (finalidadeInput && (!finalidadeInput.dataset.modificado || finalidadeInput.value === '')) {
+                            finalidadeInput.value = option.getAttribute('data-descricao') || '';
+                        }
+
+                        // Sincronizar com ID Serviço original
+                        if (hiddenIdServico) hiddenIdServico.value = select.value;
                     } else {
                         preview.innerHTML = '';
+                        if (hiddenIdServico) hiddenIdServico.value = '';
                     }
                 }
                 
@@ -62,43 +78,20 @@
                     // Run once on load
                     setTimeout(updateBadge, 500); 
                 }
+
+                if (tituloInput) {
+                    tituloInput.addEventListener('input', () => {
+                        tituloInput.dataset.modificado = 'true';
+                    });
+                }
+                const finalidadeInput = document.getElementById('finalidade');
+                if (finalidadeInput) {
+                    finalidadeInput.addEventListener('input', () => {
+                        finalidadeInput.dataset.modificado = 'true';
+                    });
+                }
             });
             </script>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="id_servico">Modelo de Proposta (Sistema) *</label>
-            <select class="form-select" name="id_servico" id="id_servico" required>
-                <option value="">Selecione...</option>
-                <?php if (!empty($servicos)): ?>
-                    <?php foreach ($servicos as $s): ?>
-                        <option value="<?= $s['id'] ?>" data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>"
-                            <?= (isset($proposta['id_servico']) && $proposta['id_servico'] == $s['id']) ? 'selected' : '' ?>>  
-                            <?= htmlspecialchars($s['nome']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
-        </div>
-
-        <!-- NOVO: Seletor de Modelo DOCX (Word) -->
-        <div class="form-group">
-            <label class="form-label" for="modelo_docx" style="color: var(--brand); font-weight: 600;">
-                <i class="bi bi-file-earmark-word-fill"></i> Modelo Word Gerado
-            </label>
-            <select class="form-select" name="modelo_docx" id="modelo_docx" style="border-color: var(--brand-light);">
-                <option value="">-- Usar Modelo Padrão do Sistema --</option>
-                <?php
-                require_once __DIR__ . '/../renderizador_modelo_docx.php';
-                $renderer = new RenderizadorModeloDOCX(ConnectionManager::get());
-                $modelosDocx = $renderer->listarModelos();
-                foreach ($modelosDocx as $mod): ?>
-                    <option value="<?= $mod['id'] ?>" <?= (isset($proposta['modelo_docx']) && $proposta['modelo_docx'] == $mod['id']) ? 'selected' : '' ?>>
-                        📄 <?= htmlspecialchars($mod['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <small class="text-muted" style="font-size: 10px;">Opcional: Substitui o design do sistema pelo design do Word.</small>
         </div>
 
         <div class="form-group">
@@ -106,6 +99,35 @@
             <input type="text" name="tipo_levantamento" id="tipo_levantamento" class="form-control"
                    value="<?= htmlspecialchars($proposta['tipo_levantamento'] ?? '') ?>"
                    placeholder="Ex: Levantamento Planialtimétrico">
+        </div>
+
+        <!-- Hidden input for id_servico to satisfy backend needs without showing duplicate field -->
+        <input type="hidden" name="id_servico" id="id_servico" value="<?= htmlspecialchars($proposta['id_servico'] ?? '') ?>">
+
+        <!-- NOVO: Seletor de Tema Visual -->
+        <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label text-brand fw-bold mb-2"><i class="bi bi-palette-fill"></i> Tema Visual (Para Padrão do Sistema)</label>
+            <?php
+            $temas = [
+                'verde' => ['nome' => 'Topografia', 'icone' => '🌿', 'hex' => '#065f46'],
+                'azul' => ['nome' => 'Corporativo', 'icone' => '🏢', 'hex' => '#1e3a8a'],
+                'laranja' => ['nome' => 'Energia', 'icone' => '⚡', 'hex' => '#7c2d12'],
+                'cinza' => ['nome' => 'Institucional', 'icone' => '📋', 'hex' => '#1f2937']
+            ];
+            $corAtual = $proposta['cor'] ?? 'verde';
+            ?>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <?php foreach ($temas as $key => $tema): ?>
+                    <label class="tema-card" style="border: 2px solid <?= $corAtual === $key ? $tema['hex'] : '#e5e7eb' ?>; border-radius: 8px; padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: <?= $corAtual === $key ? '0 0 0 2px rgba(0,0,0,0.1)' : 'none' ?>;" 
+                           onmouseover="this.style.borderColor='<?= $tema['hex'] ?>'" 
+                           onmouseout="if(!document.getElementById('cor_<?= $key ?>').checked) this.style.borderColor='#e5e7eb'"
+                           onclick="document.querySelectorAll('.tema-card').forEach(el=> { el.style.borderColor='#e5e7eb'; el.style.boxShadow='none'; }); this.style.borderColor='<?= $tema['hex'] ?>'; this.style.boxShadow='0 0 0 2px rgba(0,0,0,0.1)';">
+                        <input type="radio" name="cor" id="cor_<?= $key ?>" value="<?= $key ?>" <?= $corAtual === $key ? 'checked' : '' ?> style="display: none;">
+                        <div style="width: 20px; height: 20px; border-radius: 50%; background: <?= $tema['hex'] ?>;"></div>
+                        <div style="font-size: 13px; font-weight: 500; color: #374151;"><?= $tema['icone'] ?> <?= $tema['nome'] ?></div>
+                    </label>
+                <?php endforeach; ?>
+            </div>
         </div>
 
         <!-- Linha Customizada: Finalidade (9) + Área (3) -->

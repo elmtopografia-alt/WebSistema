@@ -791,6 +791,7 @@ public function getAllLookupData($idUsuario)
             'id_cliente' => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
             'id_criador' => $this->idCriador,
             'is_demo' => $isDemo,
+            'cor' => $dados['cor'] ?? 'verde',
             'nome_cliente_salvo' => $dados['nome_cliente_salvo'] ?? '',
             'empresa_cliente_salvo' => $dados['empresa_cliente_salvo'] ?? ($dados['empresa_cliente'] ?? ''),
             'email_salvo' => $dados['email_salvo'] ?? '',
@@ -849,6 +850,10 @@ public function getAllLookupData($idUsuario)
             'modelo_gps' => $dados['modelo_gps'] ?? null,
             'modelo_drone' => $dados['modelo_drone'] ?? null,
             'modelo_docx' => $dados['modelo_docx'] ?? null,
+            'cor'         => (function($v) {
+                                $v = is_array($v) ? ($v[0] ?? 'verde') : ($v ?? 'verde');
+                                return in_array($v, ['verde','azul','laranja','cinza']) ? $v : 'verde';
+                             })($dados['cor'] ?? 'verde'),
             'docx_conteudo' => $dados['docx_blocos_serializado'] ?? null,
             'config_docx_json' => $dados['config_docx_json'] ?? null,
             'docx_ultima_edicao' => !empty($dados['docx_blocos_serializado']) ? date('Y-m-d H:i:s') : ($dados['docx_ultima_edicao'] ?? null)
@@ -920,6 +925,7 @@ public function getAllLookupData($idUsuario)
     {
         $map = [
             'id_cliente'                  => !empty($dados['id_cliente']) ? intval($dados['id_cliente']) : null,
+            'cor'                         => $dados['cor'] ?? 'verde',
             'nome_cliente_salvo'          => $dados['nome_cliente_salvo'] ?? '',
             'empresa_cliente_salvo'       => $dados['empresa_cliente_salvo'] ?? ($dados['empresa_cliente'] ?? ''),
             'email_salvo'                 => $dados['email_salvo'] ?? '',

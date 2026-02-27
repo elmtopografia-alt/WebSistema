@@ -98,6 +98,10 @@ if ($id_proposta_ativo > 0) {
 // Detecta modelo DOCX (URL > Banco > Null)
 $modeloDocxAtivo = $_GET['modelo_docx'] ?? $incomingData['modelo_docx'] ?? null;
 
+// Cor do tema: URL > Banco > Padrão
+$corAtiva = $_GET['cor'] ?? $incomingData['cor'] ?? 'verde';
+$corAtiva = in_array($corAtiva, ['verde', 'azul', 'laranja', 'cinza']) ? $corAtiva : 'verde';
+
 // =====================================================
 // SISTEMA DE TEMAS PREMIUM V3.1 E MAPEAMENTO INTELIGENTE
 // =====================================================
@@ -583,11 +587,72 @@ try {
     $modoDocx = false;
     $docxData = null;
     
-    // Se o usuário clicou para trocar o modelo, usa o do GET, senão usa o salvo no banco (migração V3.0)
+    // O modelo vem do GET (troca manual) ou do banco (salvo anteriormente)
     $modeloDocxAtivo = $_GET['modelo_docx'] ?? $incomingData['modelo_docx'] ?? null;
     
-    if ($modeloDocxAtivo) {
-        // Tenta carregar modelo DOCX
+    // =====================================================
+    // NOVO SISTEMA: ModeloBase + TemaEngine (modelo único + cor)
+    // Ativado quando modelo_docx = 'PropostaDrone' (sistema v2)
+    // =====================================================
+    if ($modeloDocxAtivo === 'PropostaDrone') {
+        try {
+            require_once __DIR__ . '/core/TemaEngine.php';
+            require_once __DIR__ . '/core/ModeloBase.php';
+            
+            // Carrega modelos PHP do /modelos/ (não do /modelos_gerados/)
+            $modelosPHPDir = __DIR__ . '/modelos/';
+            // Tenta carregar ModeloPropostaDrone.php se existir no /modelos/
+            // Por ora usa os blocos inline — estrutura extensível futuramente.
+            
+            // Cria estrutura de blocos compatível com o editor
+            require_once __DIR__ . '/core/TemaEngine.php';
+            $temaAtivo = new TemaEngine($corAtiva);
+            $paleta    = $temaAtivo->getPaleta();
+            
+            // Constrói docxData no formato esperado pelo editor (blocos + variaveis + nome)
+            $docxData = [
+                'nome'      => 'Proposta de Levantamento — Tema ' . ucfirst($corAtiva),
+                'cor'       => $corAtiva,
+                'paleta'    => $paleta,
+                'variaveis' => [
+                    'tipo_levantamento','finalidade','nome_cliente_salvo','email_salvo',
+                    'telefone_salvo','empresa_cliente_salvo',
+                    'endereco_obra','bairro_obra','cidade_obra','estado_obra',
+                    'AreaEstimada','unidade_area','TipoTerreno','CoberturaVegetal',
+                    'AcessoLocal','RestricoesAereas',
+                    'Drone','GPS','Estacao_Total','Veiculo',
+                    'ValorProposta','ValorExtenso','DataExtenso','numero_proposta',
+                    'mobilizacao_percentual','mobilizacao_valor','restante_percentual','restante_valor',
+                    'prazo_execucao','dias_campo','dias_escritorio',
+                    'Empresa','CNPJ','Endereco','Cidade','Estado','Banco','Agencia','Conta','PIX','whatsapp'
+                ],
+                'blocos' => [
+                    ['tipo' => 'texto', 'conteudo' => '${tipo_levantamento}', 'variaveis' => ['tipo_levantamento','finalidade']],
+                    ['tipo' => 'texto', 'conteudo' => '${finalidade}',        'variaveis' => ['finalidade']],
+                    ['tipo' => 'texto', 'conteudo' => 'Cliente: ${nome_cliente_salvo}', 'variaveis' => ['nome_cliente_salvo','email_salvo','empresa_cliente_salvo']],
+                    ['tipo' => 'texto', 'conteudo' => 'Local: ${endereco_obra}, ${bairro_obra}, ${cidade_obra} - ${estado_obra}', 'variaveis' => ['endereco_obra','bairro_obra','cidade_obra','estado_obra']],
+                    ['tipo' => 'texto', 'conteudo' => 'Área: ${AreaEstimada} | Terreno: ${TipoTerreno} | Vegetação: ${CoberturaVegetal}', 'variaveis' => ['AreaEstimada','TipoTerreno','CoberturaVegetal','AcessoLocal','RestricoesAereas']],
+                    ['tipo' => 'texto', 'conteudo' => 'Equipamentos: Drone ${Drone} | GPS ${GPS} | Estação ${Estacao_Total} | Veículo ${Veiculo}', 'variaveis' => ['Drone','GPS','Estacao_Total','Veiculo']],
+                    ['tipo' => 'texto', 'conteudo' => 'Valor: R$ ${ValorProposta} (${ValorExtenso})', 'variaveis' => ['ValorProposta','ValorExtenso']],
+                    ['tipo' => 'texto', 'conteudo' => 'Mobilização: ${mobilizacao_percentual}% = R$ ${mobilizacao_valor} | Restante: ${restante_percentual}% = R$ ${restante_valor}', 'variaveis' => ['mobilizacao_percentual','mobilizacao_valor','restante_percentual','restante_valor']],
+                    ['tipo' => 'texto', 'conteudo' => 'Prazo: ${prazo_execucao} dias | Campo: ${dias_campo} | Escritório: ${dias_escritorio}', 'variaveis' => ['prazo_execucao','dias_campo','dias_escritorio']],
+                    ['tipo' => 'texto', 'conteudo' => '${Empresa} | CNPJ: ${CNPJ} | PIX: ${PIX} | Banco: ${Banco} Ag: ${Agencia} / C: ${Conta}', 'variaveis' => ['Empresa','CNPJ','PIX','Banco','Agencia','Conta']],
+                ]
+            ];
+            $modoDocx = true;
+            error_log("EDITOR [SISTEMA NOVO]: PropostaDrone instanciado com cor={$corAtiva}");
+            
+        } catch (Throwable $e) {
+            error_log("EDITOR [SISTEMA NOVO] Erro: " . $e->getMessage());
+            // Deixa cair para o modo legacy como segurança
+        }
+    }
+    
+    // =====================================================
+    // SISTEMA LEGADO: Modelos físicos em modelos_gerados/
+    // Ativado para modelos antigos (PropostaDroneAzul, etc.)
+    // =====================================================
+    if (!$modoDocx && $modeloDocxAtivo) {
         $caminhoModelo = __DIR__ . '/modelos_gerados/Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo) . '.php';
         
         if (file_exists($caminhoModelo)) {
@@ -596,75 +661,32 @@ try {
                 $classeModelo = 'SGT\\Propostas\\Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
                 
                 if (class_exists($classeModelo)) {
-                    try {
-                        $instanciaModelo = new $classeModelo();
-                        
-                        // DEBUG CRÍTICO
-                        error_log("EDITOR: Instância criada: " . get_class($instanciaModelo));
-                        
-                        $docxData = $instanciaModelo->getConfig();
-                        
-                        // DEBUG CRÍTICO - Verificar o que veio
-                        error_log("EDITOR: getConfig() retornou keys: " . print_r(array_keys($docxData), true));
-                        error_log("EDITOR: blocos está vazio? " . (empty($docxData['blocos']) ? 'SIM' : 'NÃO'));
-                        error_log("EDITOR: count(blocos) = " . count($docxData['blocos'] ?? []));
-                        
-                        if (empty($docxData['blocos'])) {
-                            error_log("EDITOR: ERRO - Blocos vazios! Conteúdo de docxData: " . print_r($docxData, true));
-                        }
-                        
-                        $modoDocx = true;
-                    } catch (Throwable $e) {
-                        error_log("Editor - Erro Fatal carregando DOCX: " . $e->getMessage());
-                        die("<div style='padding:20px; background:#f8d7da; color:#721c24;'><b>Erro Crítico:</b> " . $e->getMessage() . "</div>");
-                    }
+                    $instanciaModelo = new $classeModelo();
+                    $docxData        = $instanciaModelo->getConfig();
+                    $modoDocx        = true;
+                    error_log("EDITOR [LEGADO]: " . $classeModelo . " carregado.");
                 } else {
                     error_log("Editor - Classe DOCX não encontrada: {$classeModelo}");
-                    die("<div style='padding:20px; background:#fff3cd; color:#856404; font-family:sans-serif;'><b>Aviso:</b> A classe {$classeModelo} não foi encontrada no arquivo gerado. O upload do seu DOCX pode ter falhado ou o nome possui caracteres inválidos. Tente fazer o upload novamente no Gerador.</div>");
                 }
-            } catch (Throwable $e) { // Usando Throwable para pegar Error fatal no PHP7/8
-                error_log("Editor - Erro Fatal carregando DOCX: " . $e->getMessage());
-                die("<div style='padding:20px; background:#f8d7da; color:#721c24; font-family:sans-serif;'><b>Erro Crítico no DOCX:</b> " . $e->getMessage() . "<br><br>Verifique se o seu template possui variáveis que conflitam com código PHP (por exemplo, chaves de array sem aspas).</div>");
+            } catch (Throwable $e) {
+                error_log("Editor - Erro carregando DOCX legado: " . $e->getMessage());
             }
         } else {
-            die("<div style='padding:20px; background:#fff3cd; color:#856404; font-family:sans-serif;'><b>Aviso:</b> O arquivo físico do modelo DOCX ({$modeloDocxAtivo}) não foi encontrado no servidor. Por favor, volte ao Gerador DOCX e envie o arquivo novamente.</div>");
+            // Modelo não encontrado — avisa mas não mata a página, cai para legacy
+            error_log("EDITOR: Arquivo físico não encontrado para modelo '{$modeloDocxAtivo}'. Usando modo legacy.");
         }
     }
     
-    // Se não achou DOCX válido, verifica se tem modelo salvo na proposta ou usa fallback
+    // Se nenhum modelo DOCX foi carregado — usa modo legacy (editor de campos abertos)
     if (!$modoDocx) {
-        // CORREÇÃO: ProposalArchitect não existe no servidor — removendo chamada que causava Fatal Error silencioso
-        // Tenta usar o primeiro modelo DOCX disponível no sistema como fallback
-        if (!empty($modelosDisponiveis)) {
-            $primeiroModelo = $modelosDisponiveis[0];
-            $modeloDocxAtivo = $primeiroModelo['id'];
-            $caminhoModelo = __DIR__ . '/modelos_gerados/Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo) . '.php';
-            
-            if (file_exists($caminhoModelo)) {
-                try {
-                    require_once $caminhoModelo;
-                    $classeModelo = 'SGT\\Propostas\\Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
-                    if (class_exists($classeModelo)) {
-                        $instanciaModelo = new $classeModelo();
-                        $docxData = $instanciaModelo->getConfig();
-                        $modoDocx = true;
-                    }
-                } catch (Throwable $e) {
-                    error_log("Editor fallback DOCX falhou: " . $e->getMessage());
-                }
-            }
-        }
-        
-        // Se ainda não tem modelo, define estrutura de metadata básica para o modo legacy funcionar
-        if (!$modoDocx) {
-            $metadata = ['name' => 'Editor de Proposta', 'blocos' => []];
-            if (!isset($structure)) $structure = [];
-        }
+        $metadata  = ['name' => 'Editor de Proposta', 'blocos' => []];
+        if (!isset($structure)) $structure = [];
     }
     
 } catch (Exception $e) {
     die("Erro ao carregar dados: " . $e->getMessage());
 }
+
 
 // =====================================================
 // VIEW

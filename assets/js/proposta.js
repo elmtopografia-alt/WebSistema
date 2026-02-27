@@ -117,7 +117,9 @@ window.irParaEditor = function () {
     const createHidden = (name, value) => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = name + (name.includes('formato_saida') ? '' : '[]'); // Array notation except for special flags
+        // Campos singulares não usam notação []: formato_saida, cor, modelo_docx
+        const singular = ['formato_saida', 'cor', 'modelo_docx'];
+        input.name = singular.includes(name) ? name : name + '[]';
         input.value = value;
         input.className = 'legacy-hidden-mapper';
         form.appendChild(input);
@@ -142,8 +144,12 @@ window.irParaEditor = function () {
     // Sinalizar redirecionamento para o editor avançado após salvar
     createHidden('formato_saida', 'editor');
 
-    // FORÇAR MODO DOCX (Provisório até o usuário implementar Select de Modelos na View)
-    // Isso garante que salvar_proposta.php crie corretamente a relação no banco
+    // COR TEMA — envia a cor semântica (verde, azul, laranja, cinza)
+    const corAtiva = document.querySelector('input[name="cor"]:checked')?.value || 'verde';
+    createHidden('cor', corAtiva);
+
+    // SISTEMA DEFINITIVO: Modelo único 'PropostaDrone' + cor separada.
+    // O backend (editor_dinamico.php) instancia new PropostaDrone($cor) dinamicamente.
     const selectModelo = document.querySelector('select[name="modelo_docx"]');
     const modeloAtivo = selectModelo ? selectModelo.value : 'PropostaDrone';
     createHidden('modelo_docx', modeloAtivo);
@@ -201,11 +207,11 @@ window.irParaEditor = function () {
 
     if (isEdit) {
         const msg = "ATENÇÃO: Ir para o Editor Avançado atualizará esta proposta no banco de dados agora.\n\n" +
-                    "Caso tenha feito alterações nos itens acima, elas serão salvas.\n\n" +
-                    "Deseja continuar?";
+            "Caso tenha feito alterações nos itens acima, elas serão salvas.\n\n" +
+            "Deseja continuar?";
         if (!confirm(msg)) return;
         form.action = 'atualizar_proposta.php';
-        
+
         // Garante que o ID da proposta vá no POST mesmo se o input estiver fora do form
         if (!form.querySelector('input[name="id_proposta"]')) {
             createHidden('id_proposta', idProposta);

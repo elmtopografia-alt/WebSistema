@@ -5,6 +5,44 @@ require_once 'db.php';
 $conn = Database::getProd();
 
 echo "<h2>📋 Últimas 10 Propostas Salvas</h2>";
+
+// ── VERIFICAÇÃO RÁPIDA: Campo 'cor' e TemaEngine ─────────────────────────────
+echo "<hr><h3>🎨 Verificação: Campo <code>cor</code> (Sistema v2)</h3>";
+$resCor = $conn->query("SHOW COLUMNS FROM Propostas LIKE 'cor'");
+if ($resCor && $resCor->num_rows > 0) {
+    $colCor = $resCor->fetch_assoc();
+    echo "<p style='color:green'>✅ Coluna <b>cor</b> existe — Tipo: <code>{$colCor['Type']}</code> | Default: <code>{$colCor['Default']}</code></p>";
+    
+    // Mostra as últimas 5 com cor e modelo
+    $resSnap = $conn->query("SELECT id_proposta, modelo_docx, cor FROM Propostas ORDER BY id_proposta DESC LIMIT 5");
+    echo "<table><tr><th>ID</th><th>modelo_docx</th><th>cor</th></tr>";
+    while ($rr = $resSnap->fetch_assoc()) {
+        $corVal = $rr['cor'] ?: '<em style="color:#999">(vazia)</em>';
+        echo "<tr><td>{$rr['id_proposta']}</td><td>{$rr['modelo_docx']}</td><td>{$corVal}</td></tr>";
+    }
+    echo "</table>";
+} else {
+    echo "<p style='color:red'>❌ Coluna <b>cor</b> NÃO existe! Rodando ALTER TABLE...</p>";
+    if ($conn->query("ALTER TABLE Propostas ADD COLUMN cor VARCHAR(20) NOT NULL DEFAULT 'verde' AFTER modelo_docx")) {
+        echo "<p style='color:green'>✅ Coluna 'cor' criada. Recarregue para confirmar.</p>";
+    } else {
+        echo "<p style='color:red'>Falhou: " . $conn->error . "</p>";
+    }
+}
+
+// TemaEngine
+$temaFile = __DIR__ . '/core/TemaEngine.php';
+if (file_exists($temaFile)) {
+    require_once $temaFile;
+    echo "<p style='color:green'>✅ <b>TemaEngine.php</b> encontrado e carregado.</p>";
+    $t = new TemaEngine('azul');
+    $p = $t->getPaleta();
+    echo "<p style='color:#1d6de5'>→ Teste azul: primaria=#{$p['primaria']} | nome={$p['nome']}</p>";
+} else {
+    echo "<p style='color:red'>❌ core/TemaEngine.php não encontrado no servidor!</p>";
+}
+echo "<hr>";
+
 echo "<style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }

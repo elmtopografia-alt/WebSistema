@@ -48,6 +48,13 @@ $tema = $tema_info;
                 --brand: <?= $proposta['cor_personalizada'] ?>;
             }
         <?php endif; ?>
+        
+        /* CORREÇÃO: Esconder header do template quando DOCX */
+        <?php if (!empty($proposta['is_docx'])): ?>
+        .header-proposta, .header-meta {
+            display: none !important;
+        }
+        <?php endif; ?>
     </style>
 </head>
 <body>
@@ -61,19 +68,21 @@ $tema = $tema_info;
     <div class="page">
         
         <?php 
-        // Inclui header específico do tema
-        $header_file = __DIR__ . '/' . $tema['header_template'];
-        if (file_exists($header_file)) {
-            include $header_file;
-        } else {
-            // Header fallback
-            include __DIR__ . '/header-classico.php';
+        // CORREÇÃO: Inclui header do tema APENAS se NÃO for DOCX
+        // O modelo DOCX já tem o cabeçalho completo (logo, título, data, etc)
+        if (empty($proposta['is_docx'])) {
+            $header_file = __DIR__ . '/' . $tema['header_template'];
+            if (file_exists($header_file)) {
+                include $header_file;
+            } else {
+                include __DIR__ . '/header-classico.php';
+            }
         }
         ?>
         
         <?php if (!empty($proposta['is_docx'])): ?>
             <!-- FLUXO DOCX V3 (A4 Premium) -->
-            <div class="conteudo-blocos docx-viewer" style="padding-top: 2rem;">
+            <div class="conteudo-blocos docx-viewer" style="padding-top: 0;">
                 <?= $proposta['html_docx'] ?>
             </div>
         <?php else: ?>
@@ -125,16 +134,14 @@ $tema = $tema_info;
             <!-- CONTEÚDO DINÂMICO -->
             <div class="conteudo-blocos">
                 <?php 
-                // Blocos vêm do CRM - cada um é uma seção
                 $blocos = $proposta['blocos'] ?? [];
-                
                 $numero_bloco = 1;
                 foreach ($blocos as $bloco): 
                 ?>
                     <div class="bloco-secao">
                         <h2><?= $numero_bloco ?>. <?= htmlspecialchars($bloco['titulo']) ?></h2>
                         <div class="bloco-conteudo">
-                            <?= $bloco['conteudo'] // HTML permitido do editor ?>
+                            <?= $bloco['conteudo'] ?>
                         </div>
                     </div>
                 <?php 

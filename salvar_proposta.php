@@ -234,11 +234,11 @@ try {
     switch ($formato) {
         case 'editor':
             $_SESSION['id_proposta_ativa'] = $id;
-            // Se veio de modelo DOCX, redireciona mantendo o contexto
+            $corRedirect = in_array($_POST['cor'] ?? '', ['verde','azul','laranja','cinza']) ? $_POST['cor'] : 'verde';
             if ($modeloDocx) {
-                $redirectUrl = "editor_dinamico.php?id=$id&modelo_docx=" . urlencode($modeloDocx) . "&success=1";
+                $redirectUrl = "editor_dinamico.php?id=$id&modelo_docx=" . urlencode($modeloDocx) . "&cor=" . urlencode($corRedirect) . "&success=1";
             } else {
-                $redirectUrl = "editor_dinamico.php?id=$id&success=1";
+                $redirectUrl = "editor_dinamico.php?id=$id&cor=" . urlencode($corRedirect) . "&success=1";
             }
             break;
             

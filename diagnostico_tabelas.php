@@ -124,5 +124,62 @@ if (file_exists($arquivo_modelo)) {
     echo "<div class='warning'>Arquivo 'ModeloPropostaDrone.php' não existe no servidor (ainda não gerado).</div>";
 }
 
+echo "<h2>5. Coluna 'cor' e TemaEngine — Sistema v2</h2>";
+try {
+    // 5a. Coluna 'cor' existe?
+    $resCor = $conn->query("SHOW COLUMNS FROM Propostas LIKE 'cor'");
+    if ($resCor && $resCor->num_rows > 0) {
+        $colCor = $resCor->fetch_assoc();
+        echo "<div class='success'>[OK] Coluna 'cor' existe — Tipo: {$colCor['Type']} | Default: {$colCor['Default']}</div>";
+        
+        // 5b. Verifica se propostas recentes têm cor salva
+        $resRecentes = $conn->query("SELECT id_proposta, modelo_docx, cor FROM Propostas ORDER BY id_proposta DESC LIMIT 5");
+        echo "<div class='info'>Últimas 5 propostas:</div>";
+        echo "<pre>";
+        while ($r = $resRecentes->fetch_assoc()) {
+            $corVal = $r['cor'] ?: '(NULL/vazia)';
+            $modeloVal = $r['modelo_docx'] ?: '(sem modelo)';
+            echo sprintf("  ID %-6s | modelo: %-20s | cor: %s\n", $r['id_proposta'], $modeloVal, $corVal);
+        }
+        echo "</pre>";
+        
+        // 5c. Estatística geral
+        $stat = $conn->query("SELECT COUNT(*) as total, SUM(CASE WHEN cor IS NOT NULL AND cor != '' THEN 1 ELSE 0 END) as com_cor FROM Propostas")->fetch_assoc();
+        echo "<div class='info'>Total propostas: {$stat['total']} | Com cor definida: {$stat['com_cor']}</div>";
+        if ($stat['com_cor'] == 0) {
+            echo "<div class='warning'>[AVISO] Nenhuma proposta ainda tem cor. Isso é normal se o sistema foi migrado agora — novas propostas já salvarão a cor.</div>";
+        }
+        
+    } else {
+        echo "<div class='error'>[FALHA] Coluna 'cor' NÃO existe na tabela Propostas!</div>";
+        echo "<div class='warning'>Execute: ALTER TABLE Propostas ADD COLUMN cor VARCHAR(20) NOT NULL DEFAULT 'verde' AFTER modelo_docx;</div>";
+        // Tenta criar automaticamente
+        if ($conn->query("ALTER TABLE Propostas ADD COLUMN cor VARCHAR(20) NOT NULL DEFAULT 'verde' AFTER modelo_docx")) {
+            echo "<div class='success'>[AUTO-HEAL] Coluna 'cor' criada com sucesso! Recarregue a página para confirmar.</div>";
+        } else {
+            echo "<div class='error'>Auto-heal falhou: " . $conn->error . "</div>";
+        }
+    }
+    
+    // 5d. TemaEngine
+    if (file_exists(__DIR__ . '/core/TemaEngine.php')) {
+        require_once __DIR__ . '/core/TemaEngine.php';
+        $cores = ['verde','azul','laranja','cinza'];
+        echo "<div class='info'>TemaEngine — testando 4 cores:</div><pre>";
+        foreach ($cores as $c) {
+            $t = new TemaEngine($c);
+            $p = $t->getPaleta();
+            echo "  {$c}: primaria=#{$p['primaria']} | nome={$p['nome']}\n";
+        }
+        echo "</pre>";
+        echo "<div class='success'>[OK] TemaEngine funcional.</div>";
+    } else {
+        echo "<div class='error'>[FALHA] core/TemaEngine.php não encontrado no servidor.</div>";
+    }
+    
+} catch (Throwable $e) {
+    echo "<div class='error'>[ERRO] " . $e->getMessage() . " (linha " . $e->getLine() . ")</div>";
+}
+
 echo "<h2>Fim do Diagnóstico</h2>";
 echo "</body></html>";

@@ -106,3 +106,30 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-02-25 18:00:06] Backup conclu√≠do com sucesso.
 [2026-02-26 18:00:03] Iniciando backup...
+[2026-02-26 18:00:03] GIT ADD: git : warning: in the working copy of 'config.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'db.php', LF will be replaced by CRLF the next time Git touches it
+
+[2026-02-26 18:00:03] GIT COMMIT: [main 34d9e48] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-26 18:00:03
+ 6 files changed, 676 insertions(+), 81 deletions(-)
+ create mode 100644 config.php
+ create mode 100644 db.php
+ create mode 100644 simular.php
+ create mode 100644 v.php
+
+[2026-02-26 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   cf4f779..34d9e48  main -> main
+
+[2026-02-26 18:00:03] Backup conclu√≠do com sucesso.
+[2026-02-27 18:00:05] Iniciando backup...

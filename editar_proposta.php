@@ -1,225 +1,345 @@
 <?php
-
 /**
- * ARQUIVO: editar_proposta.php (Refatorado v3.0)
- * OBJETIVO: Versão modular com CSS/JS externos e Partials (IGUAL AO CRIAR), mas carregando dados.
+ * EDITAR PROPOSTA - SGT Propostas v2
+ * Edição com suporte a modelo único + cor
  */
 
-require_once 'session_validator.php';
-require_once 'config.php';
-require_once 'ConnectionManager.php';
-require_once 'PropostaRepository.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/ConnectionManager.php';
+require_once __DIR__ . '/core/TemaEngine.php';
+require_once __DIR__ . '/core/ModeloBase.php';
+require_once __DIR__ . '/ResolvedorChavesSistema.php';
 
-$id_usuario = $_SESSION['usuario_id'] ?? 0;
-if (!$id_usuario) {
-    header('Location: login.php');
-    exit;
+use SGT\Core\TemaEngine;
+
+// Autoloader
+spl_autoload_register(function ($class) {
+    $prefix = 'SGT\\Modelos\\';
+    $baseDir = __DIR__ . '/modelos/';
+    
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) return;
+    
+    $relativeClass = substr($class, $len);
+    $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+    
+    if (file_exists($file)) require $file;
+});
+
+// Configurações
+$temas = [
+    'azul' => ['nome' => 'Corporativo', 'icone' => '🏢', 'hex' => '#1e3a8a'],
+    'verde' => ['nome' => 'Topografia', 'icone' => '🌿', 'hex' => '#065f46'],
+    'laranja' => ['nome' => 'Energia', 'icone' => '⚡', 'hex' => '#7c2d12'],
+    'cinza' => ['nome' => 'Institucional', 'icone' => '📋', 'hex' => '#1f2937'],
+];
+
+// Buscar proposta
+$id = $_GET['id'] ?? $_POST['id'] ?? null;
+
+if (!$id) {
+    die("ID da proposta não informado");
 }
 
-if (!isset($_GET['id'])) { header("Location: painel.php"); exit; }
-$id_proposta = intval($_GET['id']);
-
-// ==================== CARREGAMENTO DE DADOS (Refatorado via Repo) ====================
 try {
-    $repo = new PropostaRepository();
+    $conn = ConnectionManager::get();
+    $stmt = $conn->prepare("SELECT * FROM Propostas WHERE id_proposta = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $proposta = $res->fetch_assoc();
     
-    // 1. Dados de Apoio (Lookup)
-    $dados_lookup = $repo->getAllLookupData($id_usuario);
-    
-    // 2. Dados da Proposta Principal + Itens (v2.0 Aware)
-    $proposta_atual = $repo->buscarCompletaPorId($id_proposta, $id_usuario);
-    
-    if (!$proposta_atual || $proposta_atual['id_criador'] != $id_usuario) {
-        die("<div class='alert alert-danger'>Proposta não encontrada ou acesso negado.</div>");
+    if (!$proposta) {
+        die("Proposta não encontrada");
     }
-
-    // Variáveis para a View (Compatibilidade com Partials)
-    $clientes = $dados_lookup['clientes'] ?? [];
-    $servicos = $dados_lookup['arrays_js']['Tipo_Servicos'] ?? [];
-    $estados = $dados_lookup['estados'] ?? [];
-    $tipos_funcao = $dados_lookup['arrays_js']['Tipo_Funcoes'] ?? [];
-    $tipos_estadia = $dados_lookup['arrays_js']['Tipo_Estadia'] ?? [];
-    $tipos_consumo = $dados_lookup['arrays_js']['Tipo_Consumo'] ?? [];
-    $tipos_locacao = $dados_lookup['arrays_js']['Tipo_Locacao'] ?? [];
-    $tipos_admin = $dados_lookup['arrays_js']['Tipo_Custo_Admin'] ?? [];
-    $marcas_por_tipo = $dados_lookup['marcas'] ?? [];
-    $empresa_endereco = $dados_lookup['empresa_endereco'] ?? '';
     
-    // Itens Populados
-    $itens_atuais = $proposta_atual['itens'];
-    
-    // Define $proposta para compatibilidade com os partials PHP (step1, step2)
-    $proposta = $proposta_atual;
-    $proposta['endereco'] = $proposta_atual['endereco_obra'] ?? '';
-    $proposta['bairro']   = $proposta_atual['bairro_obra']   ?? '';
-    $proposta['cidade']   = $proposta_atual['cidade_obra']   ?? '';
-    $proposta['estado']   = $proposta_atual['estado_obra']   ?? '';
-    $proposta['area']     = $proposta_atual['area_obra']     ?? '';
-
 } catch (Exception $e) {
-    die("Erro ao carregar dados: " . $e->getMessage());
+    die("Erro ao buscar proposta: " . $e->getMessage());
 }
 
-// CSRF
-if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Processar atualização
+$mensagem = '';
+$previewHtml = '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $acao = $_POST['acao'] ?? '';
+    
+    $modeloNome = $_POST['modelo'] ?? $proposta['modelo_docx'];
+    $cor = $_POST['cor'] ?? $proposta['cor'] ?? 'verde';
+    $dadosManual = $_POST['dados'] ?? json_decode($proposta['dados_manual'] ?? '{}', true);
+    
+    if ($acao === 'atualizar' || $acao === 'preview') {
+        // Atualizar no banco
+        try {
+            $stmt = $conn->prepare("
+                UPDATE Propostas 
+                SET modelo_docx = ?, cor = ?, dados_manual = ?, data_atualizacao = NOW()
+                WHERE id_proposta = ?
+            ");
+            $dadosJson = json_encode($dadosManual);
+            $stmt->bind_param("sssi", $modeloNome, $cor, $dadosJson, $id);
+            $stmt->execute();
+            
+            // Recarregar proposta atualizada
+            $stmt = $conn->prepare("SELECT * FROM Propostas WHERE id_proposta = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $proposta = $res->fetch_assoc();
+            
+            if ($acao === 'atualizar') {
+                $mensagem = "✅ Proposta #{$id} atualizada com sucesso!";
+            }
+            
+        } catch (Exception $e) {
+            $mensagem = "❌ Erro ao atualizar: " . $e->getMessage();
+        }
+    }
+    
+    // Gerar preview
+    if ($modeloNome) {
+        $classe = "SGT\\Modelos\\{$modeloNome}";
+        $resolvedor = new ResolvedorChavesSistema();
+        
+        try {
+            $modelo = new $classe($cor);
+            $previewHtml = $modelo->render($dadosManual, $resolvedor, $_SESSION['usuario_id'] ?? 1);
+        } catch (Exception $e) {
+            $mensagem = "Erro ao gerar preview: " . $e->getMessage();
+        }
+    }
+}
+
+// Dados atuais
+$modeloAtual = $proposta['modelo_docx'] ?? 'PropostaDrone';
+$corAtual = $proposta['cor'] ?? 'verde';
+$dadosAtuais = json_decode($proposta['dados_manual'] ?? '{}', true);
+
+// Buscar clientes
+$clientes = [];
+try {
+    $res = $conn->query("SELECT id_cliente, nome_cliente, email FROM Clientes ORDER BY nome_cliente");
+    if ($res) {
+        while($r = $res->fetch_assoc()) {
+            $clientes[] = $r;
+        }
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
-<html lang="pt-br" data-theme="light">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="theme-color" content="#2563eb">
-    <title>Editar Proposta #<?= $proposta_atual['numero_proposta'] ?> | SGT Premium</title>
-    
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- CSS Crítico -->
+    <title>Editar Proposta #<?= $id ?> - SGT Propostas v2</title>
     <style>
-        :root{--primary:#2563eb;--bg:#fafbfc;--card:#fff;--border:#94a3b8}
-        body{margin:0;font-family:Inter,sans-serif;background:var(--bg)}
-        .wizard-wrapper{background:var(--card);min-height:100vh}
-        @media(min-width:768px){.wizard-wrapper{max-width:900px;margin:1rem auto;border-radius:16px;box-shadow:0 4px 6px -1px rgba(0,0,0,.05);border:1px solid var(--border)}}
-        /* Skeleton Loading Inicial */
-        .step-panel { display: none; }
-        .step-panel.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        /* Mesmos estilos do criar_proposta.php */
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         
-        .badge-edicao { background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.2); display: flex; align-items: center; gap: 0.35rem; }
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        h1 { margin: 0; font-size: 1.5rem; }
+        .proposta-id { opacity: 0.9; font-size: 0.9rem; margin-top: 5px; }
+        
+        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+        
+        .painel { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        h2 { font-size: 1.25rem; color: #1f2937; margin-top: 0; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #374151; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; }
+        
+        .cor-opcao { border: 2px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; }
+        .cor-opcao.selecionada { box-shadow: 0 0 0 3px currentColor; }
+        .cor-opcao input { display: none; }
+        .cor-preview { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-secondary { background: #f3f4f6; color: #374151; }
+        .btn-success { background: #10b981; color: white; }
+        
+        .acoes { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        
+        .preview-container { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .preview-header { background: #f9fafb; padding: 15px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; }
+        .preview-content { padding: 20px; max-height: 70vh; overflow-y: auto; }
+        
+        .mensagem { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .mensagem.sucesso { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .mensagem.erro { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        
+        .info-box { background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; }
+        .info-box label { margin-bottom: 0; }
+        
+        .dados-rapidos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .secao-titulo { font-size: 14px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb; }
     </style>
-
-    <!-- CSS Externo (Async) -->
-    <link rel="stylesheet" href="assets/css/proposta.css?v=<?= time() ?>" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="assets/css/proposta.css?v=<?= time() ?>"></noscript>
-
-    <!-- Libs CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" media="print" onload="this.media='all'">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgt_mobile.css?v=<?= time() ?>">
 </head>
 <body>
-    <div class="ambient-glow"></div>
-    <div class="toast-container" id="toast-container"></div>
-
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-            <a class="navbar-brand" href="painel.php">
-                <i class="bi bi-lightning-charge-fill text-warning"></i> SGT Propostas
-                <span class="badge-edicao">
-                    <i class="bi bi-pencil-square"></i> Modo de Edição
-                </span>
-            </a>
-            <a href="painel.php" class="btn btn-outline" style="min-height: 36px; padding: 0.5rem 1rem;">
-                <i class="bi bi-x-lg"></i>
-            </a>
-        </div>
-    </nav>
-
-    <!-- FORM WIZARD -->
-    <form action="salvar_proposta.php" method="POST" id="form-proposta" novalidate>
-        <input type="hidden" name="id_proposta_original" value="<?= $id_proposta ?>">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <input type="hidden" name="form_complete" value="1">
+    <div class="container">
+        <header>
+            <h1>✏️ Editar Proposta</h1>
+            <div class="proposta-id">ID: #<?= $id ?> | Criada em: <?= date('d/m/Y H:i', strtotime($proposta['data_criacao'])) ?></div>
+        </header>
         
-        <div class="wizard-wrapper">
-            <!-- PROGRESS -->
-            <div class="wizard-progress">
-                <div class="steps-container">
-                    <div class="step active" data-step="1"><div class="step-number">1</div><span class="step-label">Cliente</span></div>
-                    <div class="step" data-step="2"><div class="step-number">2</div><span class="step-label">Escopo</span></div>
-                    <div class="step" data-step="3"><div class="step-number">3</div><span class="step-label">Custos</span></div>
-                    <div class="step" data-step="4"><div class="step-number">4</div><span class="step-label">Fechamento</span></div>
+        <?php if ($mensagem): ?>
+            <div class="mensagem <?= strpos($mensagem, '✅') !== false ? 'sucesso' : 'erro' ?>">
+                <?= htmlspecialchars($mensagem) ?>
+            </div>
+        <?php endif; ?>
+        
+        <form method="post" id="formEditar">
+            <input type="hidden" name="id" value="<?= $id ?>">
+            
+            <div class="grid">
+                <!-- Coluna Esquerda -->
+                <div>
+                    <!-- Status atual -->
+                    <div class="info-box">
+                        <label>Modelo atual: <strong><?= htmlspecialchars($modeloAtual) ?></strong></label><br>
+                        <label>Tema atual: <strong><?= $temas[$corAtual]['nome'] ?? $corAtual ?></strong></label>
+                    </div>
+                    
+                    <!-- Alterar Tema -->
+                    <div class="painel">
+                        <h2>Alterar Tema Visual</h2>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <?php foreach ($temas as $key => $tema): ?>
+                                <label class="cor-opcao <?= $corAtual === $key ? 'selecionada' : '' ?>" 
+                                       style="color: <?= $tema['hex'] ?>">
+                                    <input type="radio" name="cor" value="<?= $key ?>" 
+                                           <?= $corAtual === $key ? 'checked' : '' ?>>
+                                    <div class="cor-preview" style="background: <?= $tema['hex'] ?>"></div>
+                                    <div style="font-size: 12px;"><?= $tema['icone'] ?> <?= $tema['nome'] ?></div>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Editar Dados -->
+                    <div class="painel">
+                        <h2>Dados da Proposta</h2>
+                        
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <select name="cliente_id" disabled>
+                                <?php foreach ($clientes as $c): ?>
+                                    <option value="<?= $c['id_cliente'] ?>" <?= $proposta['id_cliente'] == $c['id_cliente'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($c['nome_cliente']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small style="color: #6b7280;">Cliente não pode ser alterado. Crie nova proposta se necessário.</small>
+                        </div>
+                        
+                        <div class="secao-titulo">Dados da Obra</div>
+                        <div class="dados-rapidos">
+                            <div class="form-group">
+                                <label>Área (m²)</label>
+                                <input type="number" name="dados[AreaEstimada]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['AreaEstimada'] ?? '') ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo Terreno</label>
+                                <input type="text" name="dados[TipoTerreno]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['TipoTerreno'] ?? '') ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Cobertura</label>
+                                <input type="text" name="dados[CoberturaVegetal]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['CoberturaVegetal'] ?? '') ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Acesso</label>
+                                <input type="text" name="dados[AcessoLocal]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['AcessoLocal'] ?? '') ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="secao-titulo">Valores</div>
+                        <div class="dados-rapidos">
+                            <div class="form-group">
+                                <label>Valor Total (R$)</label>
+                                <input type="text" name="dados[ValorProposta]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['ValorProposta'] ?? '') ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Mobilização (%)</label>
+                                <input type="number" name="dados[mobilizacao_percentual]" 
+                                       value="<?= htmlspecialchars($dadosAtuais['mobilizacao_percentual'] ?? '50') ?>">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ações -->
+                    <div class="painel">
+                        <div class="acoes">
+                            <button type="submit" name="acao" value="preview" class="btn btn-secondary">
+                                👁️ Preview
+                            </button>
+                            <button type="submit" name="acao" value="atualizar" class="btn btn-primary">
+                                💾 Salvar Alterações
+                            </button>
+                        </div>
+                        <div class="acoes" style="margin-top: 10px;">
+                            <a href="visualizar_proposta.php?id=<?= $id ?>" class="btn btn-success" style="text-decoration: none; display: inline-block;">
+                                📄 Visualizar Final
+                            </a>
+                            <a href="lista_propostas.php" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">
+                                ← Voltar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coluna Direita: Preview -->
+                <div>
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <strong>Preview Atualizado</strong>
+                            <span style="color: #6b7280; font-size: 12px;">
+                                Tema: <?= $temas[$corAtual]['nome'] ?? $corAtual ?>
+                            </span>
+                        </div>
+                        <div class="preview-content">
+                            <?php if ($previewHtml): ?>
+                                <?= $previewHtml ?>
+                            <?php else: ?>
+                                <?php
+                                // Preview inicial com dados salvos
+                                try {
+                                    $classe = "SGT\\Modelos\\{$modeloAtual}";
+                                    $resolvedor = new ResolvedorChavesSistema();
+                                    $modelo = new $classe($corAtual);
+                                    echo $modelo->render($dadosAtuais, $resolvedor, $_SESSION['usuario_id'] ?? 1);
+                                } catch (Exception $e) {
+                                    echo "<p style='color: #ef4444;'>Erro ao carregar preview: " . $e->getMessage() . "</p>";
+                                }
+                                ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- CONTENT (Reutiliza os mesmos partials de criar_proposta) -->
-            <div class="wizard-content">
-                <?php include 'partials/proposta_step1.php'; ?>
-                <?php include 'partials/proposta_step2.php'; ?>
-                <?php include 'partials/proposta_step3.php'; ?>
-                <?php include 'partials/proposta_step4.php'; ?>
-            </div>
-
-            <!-- FOOTER NAVIGATION -->
-            <div class="wizard-footer">
-                <div class="footer-left">
-                    <button type="button" class="btn btn-outline hidden" id="btn-prev">
-                        <i class="bi bi-arrow-left"></i> <span class="hidden sm:inline">Voltar</span>
-                    </button>
-                    <!-- BOTÃO EDITOR AVANÇADO (Lado Esquerdo inferior se solicitado, ou mantendo padrão footer) -->
-                    <!-- Mantendo no padrão mas garantindo funcionalidade -->
-                </div>
-                
-                <div style="flex:1"></div>
-                
-                <button type="button" class="btn btn-primary" id="btn-next">
-                    Próximo <i class="bi bi-arrow-right"></i>
-                </button>
-                
-                <!-- Botão Legado (Salvar Dados Apenas) -->
-                <button type="submit" class="btn btn-secondary hidden" id="btn-legacy" name="acao" value="salvar_edicao" style="margin-right: 10px;" title="Apenas Salvar Dados">
-                    <i class="bi bi-save"></i> Salvar Dados
-                </button>
-
-                <!-- Botão Principal: Editor Avançado (Target: editor_dinamico.php) -->
-                <button type="button" class="btn btn-success hidden" id="btn-finish" onclick="irParaEditor()">
-                    <i class="bi bi-magic"></i> Editor Avançado ✨
-                </button>
-            </div>
-        </div>
-
-        <?php include 'partials/proposta_hiddens.php'; ?>
-    </form>
-
-    <?php include 'partials/proposta_modais.php'; ?>
-
-    <!-- SCRIPTS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        // Dados PHP para LEITURA (Opções e Itens Salvos)
-        window.SGT_DATA = {
-            opcoesFuncao: <?= json_encode($tipos_funcao, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            opcoesEstadia: <?= json_encode($tipos_estadia, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            opcoesConsumo: <?= json_encode($tipos_consumo, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            opcoesLocacao: <?= json_encode($tipos_locacao, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            opcoesAdmin: <?= json_encode($tipos_admin, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            marcasPorTipo: <?= json_encode($marcas_por_tipo, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            enderecoEmpresa: <?= json_encode($empresa_endereco, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            itensSalvos: <?= json_encode($itens_atuais, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
-        };
-
-        // Dados PHP da PROPOSTA ATUAL (Para popular os campos fixos do Wizard)
-        window.SGT_EDIT_DATA = {
-            proposta: <?= json_encode($proposta_atual, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
-        };
-       
-    </script>
-
-    <!-- MODULAR JS -->
-    <script src="assets/js/utils.js?v=<?= time() ?>"></script>
-    <script src="assets/js/calculator.js?v=<?= time() ?>"></script>
-    <script src="assets/js/wizard.js?v=<?= time() ?>"></script>
-    <script src="assets/js/cliente-modal.js?v=<?= time() ?>"></script>
-    <script src="assets/js/costs-manager.js?v=<?= time() ?>"></script>
-    <!-- Substitui autosave por script de população -->
-    <!-- <script src="assets/js/autosave.js?v=<?= time() ?>"></script> -->
-    <script src="assets/js/proposta.js?v=<?= time() ?>"></script>
+        </form>
+    </div>
     
-
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (typeof SGTUtils !== 'undefined') {
-                    SGTUtils.showToast('Modo de Edição ativado. Suas alterações gerarão uma nova revisão desta proposta.', 'info');
-                }
-            }, 1000);
+        document.querySelectorAll('.cor-opcao input').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.cor-opcao').forEach(el => el.classList.remove('selecionada'));
+                this.closest('.cor-opcao').classList.add('selecionada');
+            });
         });
     </script>
 </body>
