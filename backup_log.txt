@@ -133,3 +133,36 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-02-26 18:00:03] Backup conclu√≠do com sucesso.
 [2026-02-27 18:00:05] Iniciando backup...
+[2026-02-27 18:00:05] GIT ADD: git : warning: in the working copy of 'editar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'salvar_proposta.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'modelos_prod/ModeloPropostaUsucapiao.php', LF will be replaced by CRLF the next time 
+Git touches it
+
+[2026-02-27 18:00:05] GIT COMMIT: [main ccb0ea1] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-02-27 18:00:05
+ 22 files changed, 2491 insertions(+), 1070 deletions(-)
+ create mode 100644 core/ModeloBase.php
+ create mode 100644 core/TemaEngine.php
+ create mode 100644 migracao_tema.php
+ create mode 100644 modelos_prod/ModeloPropostaUsucapiao.php
+ create mode 100644 modelos_prod/PropostaDrone.php
+ create mode 100644 sgt_propostas_v2.php
+ create mode 100644 temas/tema.php
+
+[2026-02-27 18:00:05] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   34d9e48..ccb0ea1  main -> main
+
+[2026-02-27 18:00:05] Backup conclu√≠do com sucesso.
+[2026-02-28 18:00:05] Iniciando backup...

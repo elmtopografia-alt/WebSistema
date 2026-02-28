@@ -2,11 +2,12 @@
 /**
  * SGT TemaEngine v2
  * Gerencia cores e estilos do sistema
+ * Compatível: PHP 7.0+
  */
 
 class TemaEngine 
 {
-    private const CORES = [
+    private static $CORES = [
         'azul' => [
             'primaria'   => '1e3a8a',
             'secundaria' => '3b82f6',
@@ -37,35 +38,39 @@ class TemaEngine
         ]
     ];
 
-    private string $corAtiva;
+    private $corAtiva;
 
-    public function __construct(string $cor = 'verde')
+    public function __construct($cor = 'verde')
     {
-        $this->corAtiva = isset(self::CORES[$cor]) ? $cor : 'verde';
+        $this->corAtiva = isset(self::$CORES[$cor]) ? $cor : 'verde';
     }
 
-    public function getCssUrl(): string
+    public function getCssUrl()
     {
         return "temas/tema.php?cor={$this->corAtiva}";
     }
 
-    public function getPaleta(): array
+    public function getPaleta()
     {
-        return self::CORES[$this->corAtiva];
+        return self::$CORES[$this->corAtiva];
     }
 
-    public function getCorAtiva(): string
+    public function getCorAtiva()
     {
         return $this->corAtiva;
     }
 
-    public static function listarCores(): array
+    public static function listarCores()
     {
-        return array_map(fn($c) => $c['nome'], self::CORES);
+        $nomes = [];
+        foreach (self::$CORES as $key => $c) {
+            $nomes[$key] = $c['nome'];
+        }
+        return $nomes;
     }
 
-    public static function coresDisponiveis(): array
+    public static function coresDisponiveis()
     {
-        return array_keys(self::CORES);
+        return array_keys(self::$CORES);
     }
 }

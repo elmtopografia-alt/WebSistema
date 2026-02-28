@@ -34,6 +34,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_acao'])) {
             $sucesso = $repo->atualizarStatus($id, $_POST['status']);
         } elseif ($acao === 'mudar_data') {
             $sucesso = $repo->atualizarData($id, $_POST['nova_data']);
+
+        } elseif ($acao === 'preparar_editor') {
+            // Preenche campos vazios desta proposta com valores de teste
+            // para que o editor funcione mesmo em propostas incompletas
+            $cor = $_POST['cor'] ?? 'verde';
+            if (!in_array($cor, ['verde','azul','laranja','cinza'])) $cor = 'verde';
+
+            $conn->query("UPDATE Propostas SET
+                cor            = IF(cor IS NULL OR cor = '', '$cor', cor),
+                modelo_docx    = IF(modelo_docx IS NULL OR modelo_docx = '', 'PropostaDrone', modelo_docx),
+                tipo_levantamento = IF(tipo_levantamento IS NULL OR tipo_levantamento = '', 'Levantamento Aerofotogramétrico com Drone', tipo_levantamento),
+                finalidade        = IF(finalidade IS NULL OR finalidade = '', 'Mapeamento topográfico para projeto de engenharia', finalidade),
+                tipo_terreno      = IF(tipo_terreno IS NULL OR tipo_terreno = '', 'Acidentado', tipo_terreno),
+                cobertura_vegetal = IF(cobertura_vegetal IS NULL OR cobertura_vegetal = '', 'Moderada', cobertura_vegetal),
+                acesso_local      = IF(acesso_local IS NULL OR acesso_local = '', 'Estrada de terra', acesso_local),
+                restricoes_aereas = IF(restricoes_aereas IS NULL OR restricoes_aereas = '', 'Nenhuma restrição identificada', restricoes_aereas),
+                modelo_drone      = IF(modelo_drone IS NULL OR modelo_drone = '', 'DJI Phantom 4 RTK', modelo_drone),
+                modelo_gps        = IF(modelo_gps IS NULL OR modelo_gps = '', 'Trimble R10', modelo_gps),
+                modelo_estacao_total = IF(modelo_estacao_total IS NULL OR modelo_estacao_total = '', 'Leica TS16', modelo_estacao_total),
+                modelo_veiculo    = IF(modelo_veiculo IS NULL OR modelo_veiculo = '', 'Toyota Hilux', modelo_veiculo),
+                prazo_execucao    = IF(prazo_execucao IS NULL OR prazo_execucao = '', '30 dias', prazo_execucao),
+                dias_campo        = IF(dias_campo IS NULL OR dias_campo = 0, 5, dias_campo),
+                dias_escritorio   = IF(dias_escritorio IS NULL OR dias_escritorio = 0, 10, dias_escritorio),
+                area_obra         = IF(area_obra IS NULL OR area_obra = '', '250', area_obra),
+                unidade_area      = IF(unidade_area IS NULL OR unidade_area = '', 'ha', unidade_area)
+                WHERE id_proposta = $id AND id_criador = $id_usuario
+            ");
+
+            $url = "editor_dinamico.php?id={$id}&modelo_docx=PropostaDrone&cor={$cor}&success=1";
+            echo json_encode(['sucesso' => true, 'url' => $url]);
+            exit;
         }
 
         echo json_encode(['sucesso' => $sucesso]);
@@ -702,6 +733,15 @@ try {
                                             <span class="hidden md:inline ml-1 text-xs font-medium">Editar</span>
                                         </a>
                                         
+                                        <!-- Editor Dinâmico DOCX -->
+                                        <button type="button"
+                                           onclick="prepararEditor(<?= $id ?>, '<?= htmlspecialchars($row['cor'] ?? 'verde') ?>')"
+                                           class="w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all touch-target" 
+                                           title="Editor Dinâmico">
+                                            <i class="ph ph-magic-wand text-lg"></i>
+                                            <span class="hidden md:inline ml-1 text-xs font-medium">Editor</span>
+                                        </button>
+                                        
                                         <!-- Relatório -->
                                         <a href="relatorio_proposta.php?id=<?= $id ?>" 
                                            class="w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-1.5 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500 hover:text-white flex items-center justify-center transition-all touch-target" 
@@ -983,6 +1023,42 @@ try {
                     .finally(() => document.body.style.cursor = 'default');
             }
         }
+
+        /**
+         * Preenche campos vazios da proposta com dados de teste e abre o Editor Dinâmico
+         */
+        function prepararEditor(id, cor) {
+            const btn = event.currentTarget;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner" style="animation:spin 1s linear infinite"></i>';
+
+            const dados = new FormData();
+            dados.append('ajax_acao', 'preparar_editor');
+            dados.append('id', id);
+            dados.append('cor', cor || 'verde');
+
+            fetch('painel.php', { method: 'POST', body: dados })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.sucesso && res.url) {
+                        window.location.href = res.url;
+                    } else {
+                        alert('Erro ao preparar editor: ' + (res.msg || 'Tente novamente'));
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="ph ph-magic-wand text-lg"></i>';
+                    }
+                })
+                .catch(() => {
+                    alert('Erro de conexão.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="ph ph-magic-wand text-lg"></i>';
+                });
+        }
+
+        // Animação spinner inline
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
 
         // Novidades
         function closeModal() {

@@ -636,11 +636,13 @@ try {
                     ['tipo' => 'texto', 'conteudo' => 'Valor: R$ ${ValorProposta} (${ValorExtenso})', 'variaveis' => ['ValorProposta','ValorExtenso']],
                     ['tipo' => 'texto', 'conteudo' => 'Mobilização: ${mobilizacao_percentual}% = R$ ${mobilizacao_valor} | Restante: ${restante_percentual}% = R$ ${restante_valor}', 'variaveis' => ['mobilizacao_percentual','mobilizacao_valor','restante_percentual','restante_valor']],
                     ['tipo' => 'texto', 'conteudo' => 'Prazo: ${prazo_execucao} dias | Campo: ${dias_campo} | Escritório: ${dias_escritorio}', 'variaveis' => ['prazo_execucao','dias_campo','dias_escritorio']],
-                    ['tipo' => 'texto', 'conteudo' => '${Empresa} | CNPJ: ${CNPJ} | PIX: ${PIX} | Banco: ${Banco} Ag: ${Agencia} / C: ${Conta}', 'variaveis' => ['Empresa','CNPJ','PIX','Banco','Agencia','Conta']],
+                    ['tipo' => 'texto', 'conteudo' => 'Empresa: ${Empresa} | CNPJ: ${CNPJ}', 'variaveis' => ['Empresa','CNPJ']],
+                    ['tipo' => 'texto', 'conteudo' => 'PIX: ${PIX} | Banco: ${Banco} | Ag: ${Agencia} | C: ${Conta}', 'variaveis' => ['PIX','Banco','Agencia','Conta']],
                 ]
             ];
             $modoDocx = true;
             error_log("EDITOR [SISTEMA NOVO]: PropostaDrone instanciado com cor={$corAtiva}");
+
             
         } catch (Throwable $e) {
             error_log("EDITOR [SISTEMA NOVO] Erro: " . $e->getMessage());
@@ -1040,6 +1042,7 @@ try {
                     <input type="hidden" name="config_docx_json" value="<?= htmlspecialchars($incomingData['config_docx_json'] ?? '') ?>">
                     <input type="hidden" name="formato_saida" id="inputFormatoSaida" value="html">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                    <input type="hidden" name="cor" value="<?= htmlspecialchars($corAtiva) ?>">
                     
                     <?php if ($modoDocx && $docxData): ?>
                         <!-- MODO DOCX: Renderização Genérica -->
@@ -1452,9 +1455,12 @@ try {
                 const data = await enviarRascunho();
                 if (data.success) {
                     const id = data.id_proposta || '<?= $id_prop ?>';
+                    const cor = '<?= htmlspecialchars($corAtiva) ?>';
+                    const modelo = '<?= htmlspecialchars($modeloDocxAtivo ?? 'PropostaDrone') ?>';
+                    
                     showToast('Redirecionando para o CRM...', 'success');
                     setTimeout(() => {
-                        window.location.href = `testes_isolados/crm-propostas/gerar-proposta.php?id=${id}`;
+                        window.location.href = `testes_isolados/crm-propostas/gerar-proposta.php?id=${id}&cor=${cor}&modelo=${modelo}`;
                     }, 500);
                 } else {
                     showToast('Erro ao salvar para visualizar: ' + (data.message || data.error), 'error');

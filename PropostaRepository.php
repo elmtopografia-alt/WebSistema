@@ -42,7 +42,8 @@ class PropostaRepository
     {
         $critical_cols = [
             'modelo_docx' => "VARCHAR(255) DEFAULT NULL AFTER status",
-            'docx_conteudo' => "LONGTEXT DEFAULT NULL AFTER modelo_docx",
+            'cor'         => "VARCHAR(50) DEFAULT 'verde' AFTER modelo_docx",
+            'docx_conteudo' => "LONGTEXT DEFAULT NULL AFTER cor",
             'docx_blocos_count' => "INT DEFAULT 0 AFTER docx_conteudo",
             'docx_ultima_edicao' => "DATETIME DEFAULT NULL AFTER docx_blocos_count",
             'config_docx_json' => "LONGTEXT DEFAULT NULL AFTER docx_ultima_edicao",

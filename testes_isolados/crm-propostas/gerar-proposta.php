@@ -254,19 +254,44 @@ $proposta = [
 // ============================================
 
 if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
-    $modeloClass = $dados_proposta['modelo_docx'];
-    // Ajuste de path para a estrutura real: modelos_gerados
-    $modeloFile = __DIR__ . '/../../modelos_gerados/' . $modeloClass . '.php'; 
-    if (!file_exists($modeloFile)) {
-        $modeloFile = __DIR__ . '/../../modelos_gerados/Modelo' . $modeloClass . '.php';
+    // Determina a cor: URL > banco > padrão
+    $corAtiva = $_GET['cor'] ?? $dados_proposta['cor'] ?? 'verde';
+    $coresValidas = ['verde', 'azul', 'laranja', 'cinza', 'marrom'];
+    if (!in_array($corAtiva, $coresValidas)) $corAtiva = 'verde';
+    $corCapital = ucfirst($corAtiva);
+
+    $modeloBase = $dados_proposta['modelo_docx']; // ex: 'PropostaDrone'
+
+    // Mapeamento: tenta nome com cor primeiro, depois fallbacks
+    $candidatos = [
+        __DIR__ . "/../../modelos_gerados/Modelo{$modeloBase}{$corCapital}.php",  // ModeloPropostaDroneVerde.php
+        __DIR__ . "/../../modelos_gerados/Modelo{$modeloBase}.php",               // ModeloPropostaDrone.php
+        __DIR__ . "/../../modelos_gerados/{$modeloBase}{$corCapital}.php",         // PropostaDroneVerde.php
+        __DIR__ . "/../../modelos_gerados/{$modeloBase}.php",                      // PropostaDrone.php
+        __DIR__ . "/../../modelos_gerados/bk/Modelo{$modeloBase}.php",            // bk/ModeloPropostaDrone.php
+    ];
+
+    $modeloFile = null;
+    foreach ($candidatos as $c) {
+        if (file_exists($c)) { $modeloFile = $c; break; }
     }
-    
-    if (file_exists($modeloFile)) {
+
+    if ($modeloFile) {
         require_once $modeloFile;
         
-        $classeFull = "SGT\\Propostas\\" . (strpos($modeloClass, 'Modelo') === 0 ? $modeloClass : "Modelo" . $modeloClass);
+        // Tenta encontrar a classe correta com e sem cor
+        $classesCandidatas = [
+            "SGT\\Propostas\\Modelo{$modeloBase}{$corCapital}",  // SGT\Propostas\ModeloPropostaDroneVerde
+            "SGT\\Propostas\\Modelo{$modeloBase}",               // SGT\Propostas\ModeloPropostaDrone
+            "Modelo{$modeloBase}{$corCapital}",                  // ModeloPropostaDroneVerde (sem namespace)
+            "Modelo{$modeloBase}",                               // ModeloPropostaDrone (sem namespace)
+        ];
+        $classeFull = null;
+        foreach ($classesCandidatas as $c) {
+            if (class_exists($c)) { $classeFull = $c; break; }
+        }
         
-        if (class_exists($classeFull)) {
+        if ($classeFull) {
             $modelo = new $classeFull();
             $dadosRender = [
                 // EMPRESA (mapeamento expandido para compatibilidade com editor)

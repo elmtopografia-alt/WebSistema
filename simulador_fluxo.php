@@ -1,116 +1,284 @@
 <?php
-// simulador_fluxo.php - Ferramenta de Teste de Integração SGT V3.0
-// Evitamos dar 'require session_validator' direto nele pois a regra do SGT 
-// diz que todo POST consome e gera nova token rotativa (One-Time-Use).
-session_start();
-if (!isset($_SESSION['usuario_id'])) {
-    die("Você precisa estar logado no SGT para rodar esse teste.");
-}
-
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-
+/**
+ * simulador_fluxo.php
+ * Simula o fluxo completo: Dados → Salvar → Editor
+ * Bypassa o CSRF para testes. Use: /Orcamento/simulador_fluxo.php
+ */
+require_once __DIR__ . '/session_validator.php';
+require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/ConnectionManager.php';
-$conn = ConnectionManager::get();
+require_once __DIR__ . '/PropostaRepository.php';
 
-// Força a inserção de um cliente "dummy" se não houver NENHUM cliente real no banco 
-// (Para evitar o erro FK na tabela Propostas que exige um id_cliente ativo)
-$resCli = $conn->query("SELECT id_cliente, nome_cliente FROM Clientes ORDER BY id_cliente DESC LIMIT 1");
-$clienteReal = $resCli->fetch_assoc();
+$repo = new PropostaRepository();
+$conn = $repo->getConn();
+$idUsuario = $_SESSION['usuario_id'] ?? 0;
 
-if (!$clienteReal) {
-    // Insere cliente provisório pro Simulador funcionar
-    $conn->query("INSERT INTO Clientes (nome_cliente, status) VALUES ('Cliente Simulador API', 'Ativo')");
-    $id_cli = $conn->insert_id;
-    $nome_cli = 'Cliente Simulador API';
-} else {
-    $id_cli = $clienteReal['id_cliente'];
-    $nome_cli = $clienteReal['nome_cliente'];
-}
+// Busca dados da empresa do usuário logado
+$empresa = $conn->query("SELECT * FROM DadosEmpresa WHERE id_criador = $idUsuario LIMIT 1")->fetch_assoc();
+
+// Busca clientes do usuário para o select
+$clientes = [];
+$res = $conn->query("SELECT id_cliente, nome_cliente, empresa, email, telefone FROM Clientes WHERE id_criador = $idUsuario ORDER BY nome_cliente ASC LIMIT 50");
+if ($res) while ($r = $res->fetch_assoc()) $clientes[] = $r;
+
+$cores = ['verde', 'azul', 'laranja', 'cinza'];
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>SGT Simulador de Fluxo de Criação</title>
+    <title>Simulador de Fluxo | SGT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #fff; padding: 40px; }
-        .box { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; }
-        h1 { color: #38bdf8; font-size: 24px; margin-bottom: 10px; }
-        p { color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
-        button { padding: 12px 24px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; font-size: 16px; }
-        .btn-legacy { background: #f97316; color: white; }
-        .btn-legacy:hover { background: #ea580c; }
-        .btn-docx { background: #10b981; color: white; }
-        .btn-docx:hover { background: #059669; }
-        .data-preview { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; color: #a1a1aa; font-family: monospace; font-size: 12px; margin-top: 20px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 30px 20px; }
+        h1 { color: #10b981; margin-bottom: 4px; font-size: 1.4rem; }
+        .sub { color: #64748b; font-size: 0.82rem; margin-bottom: 24px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .full { grid-column: 1 / -1; }
+        .card { background: rgba(30,41,59,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .section-title { color: #60a5fa; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+        label { display: block; font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        input, select, textarea {
+            width: 100%; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0; padding: 9px 12px; border-radius: 8px; font-size: 0.85rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #10b981; }
+        select option { background: #1e293b; }
+        .field { margin-bottom: 12px; }
+
+        /* Seletor de cor visual */
+        .cor-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .cor-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .cor-btn input[type=radio] { display: none; }
+        .cor-circulo {
+            width: 42px; height: 42px; border-radius: 50%; border: 3px solid transparent;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .cor-btn input:checked + .cor-circulo { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 12px rgba(255,255,255,0.3); }
+        .verde  .cor-circulo { background: linear-gradient(135deg, #10b981, #059669); }
+        .azul   .cor-circulo { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .laranja .cor-circulo { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .cinza  .cor-circulo { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .cor-nome { font-size: 0.7rem; color: #94a3b8; text-transform: capitalize; }
+
+        .btn-submit {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff; font-size: 1rem; font-weight: 700; border: none; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-submit:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
+        .info-box { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: #93c5fd; }
+        .warn-box { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: #fcd34d; margin-bottom: 16px; }
     </style>
 </head>
 <body>
 
-    <div style="max-width: 800px; margin: 0 auto;">
-        <h1>🧪 Simulador de Redirecionamento </h1>
-        <p>Estes botões enviam dados falsos diretamente para o <b>salvar_proposta.php</b>, cortando o passo-a-passo. É a forma mais rápida de descobrir se o sistema está desviando a rota pro lugar certo.</p>
+<h1><i class="bi bi-play-circle"></i> Simulador de Fluxo — Criar Proposta</h1>
+<p class="sub">Preencha os dados abaixo para criar uma proposta de teste e abrir direto no editor.</p>
 
-        <!-- SIMULAÇÃO 1: FLUXO ANTIGO LEGACY -->
-        <div class="box">
-            <h2 style="color: #fdba74;">Situação 1: "Gerar Proposta Tradicional (Legacy)"</h2>
-            <p>Se você não preencher <code>modelo_docx</code> e disser que o formato de saída é 'html', o sistema tem que gerar uma ID, salvar os custos e te mandar para a <b>gerar_proposta_html.php</b> (visualização antiga com barra lateral).</p>
-            
-            <form action="salvar_proposta.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                <!-- Dados Falsos -->
-                <input type="hidden" name="id_cliente" value="<?= $id_cli ?>">
-                <input type="hidden" name="nome_cliente_salvo" value="<?= $nome_cli ?>">
-                <input type="hidden" name="id_servico" value="1">
-                <input type="hidden" name="cidade_obra" value="Belo Horizonte">
-                
-                <!-- Informações cruciais da rota 1 -->
-                <input type="hidden" name="formato_saida" value="html"> 
-                <!-- Sem modelo_docx inserido! -->
-                
-                <!-- Bypass de Teste Anti-Fraude (Válido apenas para esse simulador) -->
-                <input type="hidden" name="simulador_bypass" value="1">
-                <button type="submit" class="btn-legacy">Testar Fluxo Tradicional ➡️</button>
-            </form>
-            
-            <div class="data-preview">
-                Dados enviados:<br>
-                - formato_saida = 'html'<br>
-                - modelo_docx = VAZIO<br>
-                <b>Destino Esperado:</b> gerar_proposta_html.php?id=[NOVA_ID]
+<div class="warn-box">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Modo Teste:</strong> Esta proposta será criada de verdade no banco. Delete depois se não precisar.
+</div>
+
+<form method="POST" action="salvar_proposta.php">
+    <!-- Campos de bypass -->
+    <input type="hidden" name="simulador_bypass" value="1">
+    <input type="hidden" name="formato_saida" value="editor">
+    <input type="hidden" name="modelo_docx" value="PropostaDrone">
+    <input type="hidden" name="is_demo" value="0">
+
+    <!-- 1. CLIENTE -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-person"></i> Cliente</div>
+        <div class="grid">
+            <div class="field">
+                <label>Selecionar Cliente Existente</label>
+                <select name="id_cliente" id="sel-cliente" onchange="preencherCliente(this)">
+                    <option value="">— Selecione ou preencha abaixo —</option>
+                    <?php foreach ($clientes as $c): ?>
+                        <option value="<?= $c['id_cliente'] ?>" 
+                            data-nome="<?= htmlspecialchars($c['nome_cliente']) ?>"
+                            data-empresa="<?= htmlspecialchars($c['empresa'] ?? '') ?>"
+                            data-email="<?= htmlspecialchars($c['email'] ?? '') ?>"
+                            data-telefone="<?= htmlspecialchars($c['telefone'] ?? '') ?>">
+                            <?= htmlspecialchars($c['nome_cliente']) ?>
+                            <?= $c['empresa'] ? '— '.$c['empresa'] : '' ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="field">
+                <label>Nome do Cliente</label>
+                <input type="text" name="nome_cliente_salvo" id="f-nome" placeholder="João da Silva" required>
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <input type="email" name="email_salvo" id="f-email" placeholder="joao@empresa.com">
+            </div>
+            <div class="field">
+                <label>Telefone</label>
+                <input type="text" name="telefone_salvo" id="f-tel" placeholder="(31) 99999-9999">
+            </div>
+            <div class="field full">
+                <label>Empresa do Cliente</label>
+                <input type="text" name="empresa_cliente_salvo" id="f-emp" placeholder="Empresa Ltda.">
             </div>
         </div>
-
-        <!-- SIMULAÇÃO 2: FLUXO PREMIUM DOCX -->
-        <div class="box">
-            <h2 style="color: #6ee7b7;">Situação 2: "Editor Avançado ✨ (DOCX)"</h2>
-            <p>Se você enviar com <code>modelo_docx = PropostaDrone</code> e <code>formato_saida = editor</code>, o sistema TEM que salvar a mesma proposta no banco associada à esse layout, e ao invés do html antigo, ele te proíbe de abrir a tela antiga e te taca de volta para o <b>editor_dinamico.php</b> preenchido.</p>
-            
-            <form action="salvar_proposta.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                <input type="hidden" name="id_cliente" value="<?= $id_cli ?>">
-                <input type="hidden" name="nome_cliente_salvo" value="<?= $nome_cli ?>">
-                <input type="hidden" name="id_servico" value="1">
-                <input type="hidden" name="cidade_obra" value="São Paulo">
-                
-                <!-- Informações cruciais da rota 2 (Botão atual editado) -->
-                <input type="hidden" name="formato_saida" value="editor">
-                <input type="hidden" name="modelo_docx" value="PropostaDrone">
-                
-                <!-- Bypass de Teste Anti-Fraude (Válido apenas para esse simulador) -->
-                <input type="hidden" name="simulador_bypass" value="1">
-                <button type="submit" class="btn-docx">Testar Fluxo Editor DOCX ➡️</button>
-            </form>
-            
-             <div class="data-preview">
-                Dados enviados:<br>
-                - formato_saida = 'editor'<br>
-                - modelo_docx = 'PropostaDrone'<br>
-                <b>Destino Esperado:</b> editor_dinamico.php?id=[NOVA_ID]&modelo_docx=PropostaDrone&success=1
-            </div>
-        </div>
-        
     </div>
+
+    <!-- 2. LOCAL DA OBRA -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-geo-alt"></i> Local da Obra</div>
+        <div class="grid">
+            <div class="field full">
+                <label>Endereço</label>
+                <input type="text" name="endereco_obra" placeholder="Rua das Flores, 123" value="Rodovia BR-040, Km 12">
+            </div>
+            <div class="field">
+                <label>Bairro</label>
+                <input type="text" name="bairro_obra" placeholder="Centro" value="Zona Rural">
+            </div>
+            <div class="field">
+                <label>Cidade</label>
+                <input type="text" name="cidade_obra" placeholder="Belo Horizonte" value="Belo Horizonte">
+            </div>
+            <div class="field">
+                <label>Estado (UF)</label>
+                <input type="text" name="estado_obra" placeholder="MG" maxlength="2" value="MG">
+            </div>
+            <div class="field">
+                <label>Área Estimada</label>
+                <input type="text" name="area_obra" placeholder="250" value="250">
+            </div>
+            <div class="field">
+                <label>Unidade</label>
+                <select name="unidade_area">
+                    <option value="ha">ha</option>
+                    <option value="m²" selected>m²</option>
+                    <option value="km²">km²</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ESCOPO TÉCNICO -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-tools"></i> Escopo Técnico</div>
+        <div class="grid">
+            <div class="field">
+                <label>Tipo de Levantamento</label>
+                <input type="text" name="tipo_levantamento" value="Levantamento Aerofotogramétrico com Drone">
+            </div>
+            <div class="field">
+                <label>Finalidade</label>
+                <input type="text" name="finalidade" value="Mapeamento topográfico para projeto de terraplenagem">
+            </div>
+            <div class="field">
+                <label>Tipo de Terreno</label>
+                <input type="text" name="tipo_terreno" value="Acidentado">
+            </div>
+            <div class="field">
+                <label>Cobertura Vegetal</label>
+                <input type="text" name="cobertura_vegetal" value="Moderada">
+            </div>
+            <div class="field">
+                <label>Acesso ao Local</label>
+                <input type="text" name="acesso_local" value="Estrada de terra">
+            </div>
+            <div class="field">
+                <label>Restrições Aéreas</label>
+                <input type="text" name="restricoes_aereas" value="Nenhuma restrição identificada">
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. EQUIPAMENTOS -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-cpu"></i> Equipamentos</div>
+        <div class="grid">
+            <div class="field">
+                <label>Drone</label>
+                <input type="text" name="modelo_drone" value="DJI Phantom 4 RTK">
+            </div>
+            <div class="field">
+                <label>GPS / GNSS</label>
+                <input type="text" name="modelo_gps" value="Trimble R10">
+            </div>
+            <div class="field">
+                <label>Estação Total</label>
+                <input type="text" name="modelo_estacao_total" value="Leica TS16">
+            </div>
+            <div class="field">
+                <label>Veículo</label>
+                <input type="text" name="modelo_veiculo" value="Toyota Hilux">
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. VALORES -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-currency-dollar"></i> Valores</div>
+        <div class="grid">
+            <div class="field">
+                <label>Valor Final (R$)</label>
+                <input type="number" name="valor_proposta_manual" step="0.01" value="18500.00" placeholder="18500.00">
+                <input type="hidden" name="percentual_lucro" value="30">
+                <input type="hidden" name="mobilizacao_percentual" value="30">
+                <input type="hidden" name="valor_desconto" value="0">
+            </div>
+            <div class="field">
+                <label>Prazo de Execução</label>
+                <input type="text" name="prazo_execucao" value="30 dias">
+            </div>
+            <div class="field">
+                <label>Dias em Campo</label>
+                <input type="number" name="dias_campo" value="5">
+            </div>
+            <div class="field">
+                <label>Dias no Escritório</label>
+                <input type="number" name="dias_escritorio" value="10">
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. COR DO TEMA -->
+    <div class="card">
+        <div class="section-title"><i class="bi bi-palette"></i> Cor do Tema</div>
+        <div class="cor-selector">
+            <?php foreach ($cores as $i => $c): ?>
+            <label class="cor-btn <?= $c ?>">
+                <input type="radio" name="cor" value="<?= $c ?>" <?= $i === 0 ? 'checked' : '' ?>>
+                <div class="cor-circulo"></div>
+                <span class="cor-nome"><?= ucfirst($c) ?></span>
+            </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="info-box" style="margin-bottom:16px;">
+        <i class="bi bi-info-circle"></i>
+        Ao clicar em <strong>Criar e Abrir Editor</strong>, o sistema vai: (1) salvar a proposta no banco, (2) associar o modelo <code>PropostaDrone</code> e a cor escolhida, (3) redirecionar para o editor dinâmico.
+    </div>
+
+    <button type="submit" class="btn-submit">
+        <i class="bi bi-play-circle-fill"></i>
+        Criar Proposta e Abrir no Editor
+    </button>
+</form>
+
+<script>
+function preencherCliente(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('f-nome').value  = opt.dataset.nome     || '';
+    document.getElementById('f-email').value = opt.dataset.email    || '';
+    document.getElementById('f-tel').value   = opt.dataset.telefone || '';
+    document.getElementById('f-emp').value   = opt.dataset.empresa  || '';
+}
+</script>
 
 </body>
 </html>

@@ -190,3 +190,15 @@
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.74MB
 [2026-02-27 09:40:48] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.8MB
+[2026-02-28 14:32:12] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+[2026-02-28 14:32:14] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.58MB
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.58MB
+[2026-02-28 14:32:46] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/ (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.61MB
+[2026-02-28 14:33:10] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
+[2026-02-28 14:33:32] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
+[2026-02-28 14:33:53] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
