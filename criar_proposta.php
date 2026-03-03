@@ -105,6 +105,16 @@ if ($id_proposta_edicao > 0) {
         .step-panel { display: none; }
         .step-panel.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Animação Spin para salvamento */
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 
     <!-- CSS Externo (Async) -->

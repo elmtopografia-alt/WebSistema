@@ -40,7 +40,7 @@
 
 # Bloqueia scripts de teste
 
-<FilesMatch "^(teste_.*|testar_.*|test_.*|criar_usuario_.*|criar_demo_.*|exemplo_.*|estudo_.*|backup_criar_proposta.*)\.php$">
+<FilesMatch "^(teste_.*|test_.*|criar_usuario_.*|criar_demo_.*|exemplo_.*|estudo_.*|backup_criar_proposta.*)\.php$">
     Order deny,allow
     Deny from all
 </FilesMatch>

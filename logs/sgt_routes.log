@@ -202,3 +202,35 @@
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
 [2026-02-28 14:33:53] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
+[2026-03-02 21:23:30] [N/A] [ENV:unknown] [UID:guest] N/A unknown (Root: testar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB
+[2026-03-02 21:38:04] [N/A] [ENV:unknown] [UID:guest] N/A unknown (Root: testar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB
+[2026-03-02 21:39:55] [N/A] [ENV:unknown] [UID:guest] N/A unknown (Root: testar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB
+[2026-03-02 21:46:51] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/testar_fluxo.php (Root: testar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB
+[2026-03-02 21:47:23] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/painel.php (Root: painel.php)
+  └─ [SHUTDOWN] Arquivos: 8 | Memória: 1.18MB
+[2026-03-02 21:47:25] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/index.php?redirect=%2FSistemaWeb%2Fpainel.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.61MB
+[2026-03-02 21:47:32] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.62MB
+[2026-03-02 21:48:01] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
+[2026-03-02 21:48:03] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/painel.php (Root: painel.php)
+  └─ [SHUTDOWN] Arquivos: 10 | Memória: 1.78MB
+[2026-03-02 21:48:07] [::1] [ENV:producao] [UID:5] POST /SistemaWeb/index.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.62MB
+[2026-03-02 21:48:08] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/painel.php (Root: painel.php)
+  └─ [SHUTDOWN] Arquivos: 11 | Memória: 1.78MB
+[2026-03-02 21:48:24] [::1] [ENV:producao] [UID:5] GET /SistemaWeb/admin_parametros.php (Root: admin_parametros.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.63MB
+[2026-03-02 21:49:05] [::1] [ENV:producao] [UID:5] GET /SistemaWeb/index.php?redirect=%2FSistemaWeb%2Fpainel.php (Root: index.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.61MB
+[2026-03-02 21:49:05] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/painel.php (Root: painel.php)
+  └─ [SHUTDOWN] Arquivos: 11 | Memória: 1.78MB
+[2026-03-02 22:04:01] [N/A] [ENV:unknown] [UID:guest] N/A unknown (Root: validar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB
+[2026-03-02 22:04:35] [N/A] [ENV:unknown] [UID:guest] N/A unknown (Root: validar_fluxo.php)
+  └─ [SHUTDOWN] Arquivos: 7 | Memória: 1.06MB

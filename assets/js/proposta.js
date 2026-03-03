@@ -101,126 +101,101 @@ function initConnectionMonitor() {
 }
 
 /**
- * Função global para ir para o editor (chamada do HTML)
+ * Função global para ir para o editor após persistência real no BD
  */
-window.irParaEditor = function () {
+window.irParaEditor = async function () {
     const form = document.getElementById('form-proposta');
-    if (!form) return;
+    const btnFinish = document.getElementById('btn-finish');
 
-    // Validação final antes de enviar
-    if (!window.Wizard?.validate()) return;
+    if (!form || !btnFinish) return;
 
-    // --- MAPPING FIX: Converter inputs aninhados (CostsManager) para Flat Arrays (salvar_proposta) ---
-    // Remove inputs ocultos antigos se houver (para evitar duplicação em múltiplos cliques)
-    document.querySelectorAll('.legacy-hidden-mapper').forEach(el => el.remove());
-
-    const createHidden = (name, value) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        // Campos singulares não usam notação []: formato_saida, cor, modelo_docx
-        const singular = ['formato_saida', 'cor', 'modelo_docx'];
-        input.name = singular.includes(name) ? name : name + '[]';
-        input.value = value;
-        input.className = 'legacy-hidden-mapper';
-        form.appendChild(input);
-    };
-
-    // 0. Validação de custo (Evitar proposta vazia)
-    const temSalario = document.querySelectorAll('#list-salarios .cost-item').length > 0;
-    const temEstadia = document.querySelectorAll('#list-estadia .cost-item').length > 0;
-    const temConsumo = document.querySelectorAll('#list-consumos .cost-item').length > 0;
-    const temLocacao = document.querySelectorAll('#list-locacao .cost-item').length > 0;
-    const temAdmin = document.querySelectorAll('#list-admin .cost-item').length > 0;
-
-    if (!temSalario && !temEstadia && !temConsumo && !temLocacao && !temAdmin) {
-        SGTUtils.showToast('Adicione pelo menos um item de custo (Salário, Estadia ou Equipamento)', 'error');
-        // Redireciona para aba de custos se necessário
-        if (typeof Wizard !== 'undefined' && Wizard.current !== 3) {
-            Wizard.goTo(3);
+    // 1. Validação do Cliente (Obrigatório)
+    const idCliente = document.getElementById('id_cliente')?.value;
+    if (!idCliente || idCliente === '') {
+        alert('Por favor, selecione um cliente na Etapa 1.');
+        if (typeof Wizard !== 'undefined' && typeof Wizard.goTo === 'function') {
+            Wizard.goTo(1);
         }
         return;
     }
 
-    // Sinalizar redirecionamento para o editor avançado após salvar
-    createHidden('formato_saida', 'editor');
+    // 2. Validação do Valor Final
+    const valorFinalInput = document.getElementById('valor-final-proposta');
+    const valorFinalText = valorFinalInput ? valorFinalInput.innerText.replace('R$', '').replace(/\./g, '').replace(',', '.') : '0';
+    const valorFinal = parseFloat(valorFinalText);
 
-    // COR TEMA — envia a cor semântica (verde, azul, laranja, cinza)
-    const corAtiva = document.querySelector('input[name="cor"]:checked')?.value || 'verde';
-    createHidden('cor', corAtiva);
-
-    // SISTEMA DEFINITIVO: Modelo único 'PropostaDrone' + cor separada.
-    // O backend (editor_dinamico.php) instancia new PropostaDrone($cor) dinamicamente.
-    const selectModelo = document.querySelector('select[name="modelo_docx"]');
-    const modeloAtivo = selectModelo ? selectModelo.value : 'PropostaDrone';
-    createHidden('modelo_docx', modeloAtivo);
-
-    // 1. Salários
-    document.querySelectorAll('#list-salarios .cost-item').forEach(row => {
-        createHidden('salario_id_funcao', row.querySelector('select[name*="[funcao]"]')?.value || '');
-        createHidden('salario_nome', row.querySelector('select[name*="[funcao]"] option:checked')?.text || '');
-        createHidden('salario_qtd', row.querySelector('input[name*="[quantidade]"]')?.value || 0);
-        createHidden('salario_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
-        createHidden('encargos', row.querySelector('input[name*="[encargos]"]')?.value || 0);
-        createHidden('salario_dias', row.querySelector('input[name*="[dias]"]')?.value || 0);
-    });
-
-    // 2. Estadia
-    document.querySelectorAll('#list-estadia .cost-item').forEach(row => {
-        createHidden('estadia_id', row.querySelector('select[name*="[tipo]"]')?.value || '');
-        createHidden('estadia_nome', row.querySelector('select[name*="[tipo]"] option:checked')?.text || ''); // NECESSÁRIO PARA DB
-        createHidden('estadia_qtd', row.querySelector('input[name*="[quantidade]"]')?.value || 0);
-        createHidden('estadia_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
-        createHidden('estadia_dias', row.querySelector('input[name*="[noites]"]')?.value || 0);
-    });
-
-    // 3. Consumos
-    document.querySelectorAll('#list-consumos .cost-item').forEach(row => {
-        createHidden('consumo_id', row.querySelector('select[name*="[tipo]"]')?.value || '');
-        createHidden('consumo_nome', row.querySelector('select[name*="[tipo]"] option:checked')?.text || ''); // NECESSÁRIO PARA DB
-        createHidden('consumo_qtd', row.querySelector('input[name*="[quantidade]"]')?.value || 0);
-        createHidden('consumo_kml', row.querySelector('input[name*="[kml]"]')?.value || 0);
-        createHidden('consumo_litro', row.querySelector('input[name*="[valor_litro]"]')?.value || 0);
-        createHidden('consumo_km_total', row.querySelector('input[name*="[km]"]')?.value || 0);
-    });
-
-    // 4. Locação
-    document.querySelectorAll('#list-locacao .cost-item').forEach(row => {
-        createHidden('locacao_id', row.querySelector('select[name*="[tipo]"]')?.value || '');
-        createHidden('locacao_nome', row.querySelector('select[name*="[tipo]"] option:checked')?.text || ''); // NECESSÁRIO PARA DB
-        createHidden('locacao_id_marca', row.querySelector('select[name*="[marca]"]')?.value || '');
-        createHidden('locacao_qtd', row.querySelector('input[name*="[quantidade]"]')?.value || 0);
-        createHidden('locacao_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
-        createHidden('locacao_dias', row.querySelector('input[name*="[dias]"]')?.value || 0);
-    });
-
-    // 5. Admin
-    document.querySelectorAll('#list-admin .cost-item').forEach(row => {
-        createHidden('admin_id', row.querySelector('select[name*="[tipo]"]')?.value || '');
-        createHidden('admin_nome', row.querySelector('select[name*="[tipo]"] option:checked')?.text || ''); // NECESSÁRIO PARA DB
-        createHidden('admin_qtd', row.querySelector('input[name*="[quantidade]"]')?.value || 0);
-        createHidden('admin_valor', row.querySelector('input[name*="[valor]"]')?.value || 0);
-    });
-
-    // Define ação: Se existe id_proposta, é uma atualização (Overwrite), senão é novo (Insert)
-    const idProposta = document.getElementById('hidden_id_proposta')?.value;
-    const isEdit = !!idProposta;
-
-    if (isEdit) {
-        const msg = "ATENÇÃO: Ir para o Editor Avançado atualizará esta proposta no banco de dados agora.\n\n" +
-            "Caso tenha feito alterações nos itens acima, elas serão salvas.\n\n" +
-            "Deseja continuar?";
-        if (!confirm(msg)) return;
-        form.action = 'atualizar_proposta.php';
-
-        // Garante que o ID da proposta vá no POST mesmo se o input estiver fora do form
-        if (!form.querySelector('input[name="id_proposta"]')) {
-            createHidden('id_proposta', idProposta);
+    if (isNaN(valorFinal) || valorFinal <= 0) {
+        if (!confirm('O valor final da proposta parece estar zerado. Deseja continuar mesmo assim?')) {
+            return;
         }
-    } else {
-        form.action = 'salvar_proposta.php';
     }
 
-    form.submit();
+    // 3. Validação geral do Wizard
+    if (typeof window.Wizard?.validate === 'function' && !window.Wizard.validate()) {
+        return;
+    }
+
+    // Prepara botão (Feedback visual)
+    const originalBtnHTML = btnFinish.innerHTML;
+    btnFinish.disabled = true;
+    btnFinish.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Salvando no Banco...';
+
+    try {
+        // Coleta TODOS os dados do formulário via FormData
+        const formData = new FormData(form);
+
+        // COR TEMA - fallback de segurança
+        const corAtiva = document.querySelector('input[name="cor"]:checked')?.value || 'verde';
+        if (!formData.has('cor')) formData.append('cor', corAtiva);
+
+        // MODELO DOCX - fallback
+        const selectModelo = document.querySelector('select[name="modelo_docx"]');
+        const modeloAtivo = selectModelo ? selectModelo.value : 'PropostaDrone';
+        if (!formData.has('modelo_docx')) formData.append('modelo_docx', modeloAtivo);
+
+        // Dispara requisição AJAX com fetch API nativa
+        const response = await fetch('salvar_rascunho.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        // Parse Seguro
+        let data;
+        const textResponse = await response.text();
+        try {
+            data = JSON.parse(textResponse);
+        } catch (parseError) {
+            console.error("Erro parsing JSON. Raw content:", textResponse);
+            throw new Error('A resposta do servidor foi inválida (não JSON). Tente novamente.');
+        }
+
+        // Verifica sucesso na resposta
+        if (!data.success || !data.id_proposta) {
+            throw new Error(data.message || data.error || 'Falha ao obter ID da proposta.');
+        }
+
+        // Sucesso = Redirecionamento Final
+        btnFinish.innerHTML = '<i class="bi bi-check-circle"></i> Salvo! Abrindo editor...';
+
+        const idGerado = data.id_proposta;
+        const urlRedirect = `editor_dinamico.php?id=${idGerado}&modelo_docx=${encodeURIComponent(modeloAtivo)}&cor=${encodeURIComponent(corAtiva)}`;
+
+        // Redireciona
+        setTimeout(() => {
+            window.location.href = urlRedirect;
+        }, 800);
+
+    } catch (error) {
+        console.error('Erro no fluxo de persistência:', error);
+        alert('Erro ao salvar proposta: ' + error.message);
+
+        // Restaura botão em caso de falha (não sai da tela)
+        btnFinish.disabled = false;
+        btnFinish.innerHTML = originalBtnHTML;
+    }
 };
 
 /**
