@@ -16,9 +16,18 @@ abstract class ModeloBase
     abstract protected function definirBlocos(): array;
     abstract public function getNome(): string;
 
-    public function __construct(string $cor = 'verde')
+    public function __construct(string $cor = null)
     {
-        $this->tema     = new TemaEngine($cor);
+        // Prioridade: 1. Argumento explicito (escolha do usuario no Passo 2)
+        //             2. Constante COR_PADRAO (do modelo legado)
+        //             3. Default 'verde'
+        $corFinal = $cor;
+        
+        if (empty($corFinal) && defined('static::COR_PADRAO')) {
+             $corFinal = static::COR_PADRAO;
+        }
+        
+        $this->tema     = new TemaEngine($corFinal ?? 'verde');
         $this->blocos   = $this->definirBlocos();
         $this->variaveis = $this->extrairVariaveis();
     }
@@ -41,6 +50,11 @@ abstract class ModeloBase
     }
 
     // ─── Container ────────────────────────────────────────────────────────────
+
+    public function getCorAtiva(): string
+    {
+        return $this->tema->getCorAtiva();
+    }
 
     protected function abrirContainer(): string
     {
@@ -88,9 +102,38 @@ abstract class ModeloBase
     {
         $conteudo = $this->substituirVariaveis($bloco['conteudo'], $contexto);
         $estilo   = $bloco['estilo'] ?? 'normal';
-        $classe   = "sgt-texto sgt-texto-{$estilo}";
+        
+        $tag = 'p';
+        $classes = ['sgt-texto'];
+        
+        switch ($estilo) {
+            case 'titulo1':
+                $tag = 'h1';
+                $classes[] = 'sgt-titulo-principal';
+                break;
+            case 'titulo2':
+                $tag = 'h2';
+                $classes[] = 'sgt-titulo';
+                break;
+            case 'titulo3':
+                $tag = 'h3';
+                $classes[] = 'sgt-titulo';
+                break;
+            case 'header_footer':
+                $classes[] = 'sgt-texto-header_footer';
+                break;
+            case 'destaque':
+                $classes[] = 'sgt-texto-destaque';
+                break;
+            case 'valor':
+                $classes[] = 'sgt-texto-valor';
+                break;
+            default:
+                $classes[] = "sgt-texto-{$estilo}";
+        }
 
-        return "<p class='{$classe}'>{$conteudo}</p>";
+        $classList = implode(' ', $classes);
+        return "<{$tag} class='{$classList}'>{$conteudo}</{$tag}>";
     }
 
     protected function renderDados(array $bloco, array $contexto): string
@@ -141,7 +184,16 @@ abstract class ModeloBase
     {
         return preg_replace_callback('/\$\{(\w+)\}/', function ($matches) use ($contexto) {
             $var = $matches[1];
-            return isset($contexto[$var]) ? htmlspecialchars((string)$contexto[$var], ENT_QUOTES, 'UTF-8') : "[{$var}]";
+            if (isset($contexto[$var])) {
+                $valor = (string)$contexto[$var];
+                // Se for chave de logo, renderiza como imagem
+                if (in_array($var, ['logo_empresa', 'logomarca', 'logo', 'logotipo'])) {
+                    $url = htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
+                    return "<img src='{$url}' alt='Logo' class='sgt-logo-dinamica' style='max-height: 80px; vertical-align: middle;'>";
+                }
+                return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
+            }
+            return "[{$var}]";
         }, $texto);
     }
 

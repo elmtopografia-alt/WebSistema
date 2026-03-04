@@ -220,3 +220,28 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-03-02 18:00:03] Backup conclu√≠do com sucesso.
 [2026-03-03 18:00:05] Iniciando backup...
+[2026-03-03 18:00:05] GIT ADD: git : warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-03-03 18:00:05] GIT COMMIT: [main c2dad4f] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-03 18:00:05
+ 9 files changed, 598 insertions(+), 202 deletions(-)
+ create mode 100644 copy_files.php
+ create mode 100644 modelos_prod/Documento1.docx
+ create mode 100644 validar_fluxo.php
+
+[2026-03-03 18:00:05] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   75dd1aa..c2dad4f  main -> main
+
+[2026-03-03 18:00:05] Backup conclu√≠do com sucesso.
+[2026-03-04 18:00:03] Iniciando backup...

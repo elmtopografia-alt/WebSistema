@@ -20,12 +20,14 @@
                 // ✅ UNIFICAÇÃO: Usando a mesma lista de serviços para a classificação técnica
                 foreach ($servicos as $s): 
                     // Fallback para modelos que não tenham cor/icone definidos na tabela principal
-                    $cor = $s['cor'] ?? '#64748b';
+                    $cor = $s['cor'] ?? '#10b981'; // Default verde SGT
                     $icone = $s['icone'] ?? 'briefcase';
+                    $modelo = $s['modelo'] ?? 'ModeloPropostaDrone.docx';
                 ?>
                     <option value="<?= $s['id'] ?>"
                             data-cor="<?= $cor ?>"
                             data-icone="<?= $icone ?>"
+                            data-modelo="<?= $modelo ?>"
                             data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>"
                             <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $s['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($s['nome']) ?>
@@ -33,6 +35,10 @@
                 <?php endforeach; ?>
             </select>
             
+            <!-- Hidden inputs para persistir cor e modelo baseado na classificação -->
+            <input type="hidden" name="cor" id="hidden_cor" value="<?= htmlspecialchars($proposta['cor'] ?? 'verde') ?>">
+            <input type="hidden" name="modelo_docx" id="hidden_modelo_docx" value="<?= htmlspecialchars($proposta['modelo_docx'] ?? 'PropostaDrone') ?>">
+
             <!-- Preview do Badge (Perfumaria UI) -->
             <div id="tipoPreview" style="margin-top: 8px; min-height: 24px;"></div>
             
@@ -42,23 +48,72 @@
                 const preview = document.getElementById('tipoPreview');
                 const tituloInput = document.getElementById('tipo_levantamento');
                 const hiddenIdServico = document.getElementById('id_servico');
+                const hiddenCor = document.getElementById('hidden_cor');
+                const hiddenModelo = document.getElementById('hidden_modelo_docx');
                 
+                function getColorName(hex) {
+                    if (!hex) return 'verde';
+                    hex = hex.toLowerCase();
+                    // Mapeamento para os temas do SGT Premium (verde, azul, laranja/marrom, cinza)
+                    const map = {
+                        'verde': ['#10b981', '#059669', '#16a34a', '#10b981'],
+                        'azul': ['#3b82f6', '#2563eb', '#1d4ed8', '#1e3a8a', '#1e40af'],
+                        'laranja': ['#f97316', '#ea580c', '#c2410c', '#f59e0b', '#d97706'],
+                        'cinza': ['#64748b', '#475569', '#1e293b', '#94a3b8', '#334155']
+                    };
+                    
+                    for (const [name, colors] of Object.entries(map)) {
+                        if (colors.includes(hex)) return name;
+                    }
+                    
+                    if (hex.startsWith('#1') || hex.startsWith('#0')) return 'verde';
+                    if (hex.startsWith('#3') || hex.startsWith('#2') || hex.startsWith('#1e3')) return 'azul';
+                    if (hex.startsWith('#f') || hex.startsWith('#e') || hex.startsWith('#d')) return 'laranja';
+                    
+                    return 'cinza';
+                }
+
                 function updateBadge() {
                     const option = select.options[select.selectedIndex];
                     if (select.value && option) {
-                        const cor = option.getAttribute('data-cor') || '#95a5a6';
+                        const hexCor = option.getAttribute('data-cor') || '#10b981';
                         const icone = option.getAttribute('data-icone') || 'tag';
+                        const modeloRaw = option.getAttribute('data-modelo') || 'ModeloPropostaDrone.docx';
                         const nome = option.text;
                         
+                        // 1. Atualiza Cor Visual (Hex)
                         preview.innerHTML = `
-                            <span class="badge-tipo" style="background:${cor}; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:500; color:white;">
+                            <span class="badge-tipo" style="background:${hexCor}; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:500; color:white;">
                                 <i class="bi bi-${icone}" style="font-size:10px;"></i> ${nome}
                             </span>
                         `;
 
-                        // PREENCHER AUTOMÁTICO (Título da Proposta e Finalidade/Descricao)
+                        // 2. Atualiza Hidden Inputs para o Banco
+                        let corName = getColorName(hexCor);
+                        if (hiddenCor) hiddenCor.value = corName;
+                        
+                        // Normaliza modelo: tira prefixo e ext
+                        let modeloBase = modeloRaw.replace('Modelo', '').replace('.docx', '');
+                        if (!modeloBase) modeloBase = 'PropostaDrone';
+                        
+                        // O SGT usa modelos com a cor no nome (ex: PropostaDroneVerde)
+                        // Para laranja, o modelo físico costuma ser "Marrom"
+                        let corSufixo = corName.charAt(0).toUpperCase() + corName.slice(1);
+                        if (corName === 'laranja') corSufixo = 'Marrom'; // Compatibilidade com arquivos físicos
+                        
+                        const modeloFinal = modeloBase + corSufixo;
+                        if (hiddenModelo) hiddenModelo.value = modeloFinal;
+
+                        // ✅ Sincroniza Rádio de Cores com base na Classificação (Sugestão automática)
+                        const radios = document.getElementsByName('cor_visual');
+                        radios.forEach(r => {
+                            if(r.value === corName) r.checked = true;
+                        });
+                        if (hiddenCor) hiddenCor.value = corName;
+
+                        // 3. PREENCHER AUTOMÁTICO (Título da Proposta e Finalidade/Descricao)
                         if (tituloInput && (!tituloInput.dataset.modificado || tituloInput.value === '')) {
-                            tituloInput.value = 'Levantamento ' + nome;
+                            tituloInput.value = 'Levantamento + ' + nome;
                         }
                         const finalidadeInput = document.getElementById('finalidade');
                         if (finalidadeInput && (!finalidadeInput.dataset.modificado || finalidadeInput.value === '')) {
@@ -104,33 +159,43 @@
         <!-- Hidden input for id_servico to satisfy backend needs without showing duplicate field -->
         <input type="hidden" name="id_servico" id="id_servico" value="<?= htmlspecialchars($proposta['id_servico'] ?? '') ?>">
 
-        <!-- NOVO: Seletor de Tema Visual -->
-        <div class="form-group" style="grid-column: 1 / -1;">
-            <label class="form-label text-brand fw-bold mb-2"><i class="bi bi-palette-fill"></i> Tema Visual (Para Padrão do Sistema)</label>
-            <?php
-            $temas = [
-                'verde' => ['nome' => 'Topografia', 'icone' => '🌿', 'hex' => '#065f46'],
-                'azul' => ['nome' => 'Corporativo', 'icone' => '🏢', 'hex' => '#1e3a8a'],
-                'laranja' => ['nome' => 'Energia', 'icone' => '⚡', 'hex' => '#7c2d12'],
-                'cinza' => ['nome' => 'Institucional', 'icone' => '📋', 'hex' => '#1f2937']
-            ];
-            $corAtual = $proposta['cor'] ?? 'verde';
-            ?>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <?php foreach ($temas as $key => $tema): ?>
-                    <label class="tema-card" style="border: 2px solid <?= $corAtual === $key ? $tema['hex'] : '#e5e7eb' ?>; border-radius: 8px; padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: <?= $corAtual === $key ? '0 0 0 2px rgba(0,0,0,0.1)' : 'none' ?>;" 
-                           onmouseover="this.style.borderColor='<?= $tema['hex'] ?>'" 
-                           onmouseout="if(!document.getElementById('cor_<?= $key ?>').checked) this.style.borderColor='#e5e7eb'"
-                           onclick="document.querySelectorAll('.tema-card').forEach(el=> { el.style.borderColor='#e5e7eb'; el.style.boxShadow='none'; }); this.style.borderColor='<?= $tema['hex'] ?>'; this.style.boxShadow='0 0 0 2px rgba(0,0,0,0.1)';">
-                        <input type="radio" name="cor" id="cor_<?= $key ?>" value="<?= $key ?>" <?= $corAtual === $key ? 'checked' : '' ?> style="display: none;">
-                        <div style="width: 20px; height: 20px; border-radius: 50%; background: <?= $tema['hex'] ?>;"></div>
-                        <div style="font-size: 13px; font-weight: 500; color: #374151;"><?= $tema['icone'] ?> <?= $tema['nome'] ?></div>
-                    </label>
-                <?php endforeach; ?>
-            </div>
-        </div>
+        <!-- Seletor de Tema Visual (Garante a liberdade do usuário) -->
+        <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 5px;">
+            <label class="form-label"><i class="bi bi-palette-fill text-tech"></i> Identidade Visual da Proposta</label>
+            <div style="display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                
+                <label class="color-option" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="cor_visual" value="verde" <?= ($proposta['cor'] ?? 'verde') === 'verde' ? 'checked' : '' ?> onchange="atualizarCorProposta('verde')">
+                    <span style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: inline-block;"></span>
+                    <span>Verde SGT</span>
+                </label>
 
-        <!-- Linha Customizada: Finalidade (9) + Área (3) -->
+                <label class="color-option" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="cor_visual" value="azul" <?= ($proposta['cor'] ?? '') === 'azul' ? 'checked' : '' ?> onchange="atualizarCorProposta('azul')">
+                    <span style="width: 24px; height: 24px; background: #3b82f6; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: inline-block;"></span>
+                    <span>Azul Tech</span>
+                </label>
+
+                <label class="color-option" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="cor_visual" value="laranja" <?= ($proposta['cor'] ?? '') === 'laranja' ? 'checked' : '' ?> onchange="atualizarCorProposta('laranja')">
+                    <span style="width: 24px; height: 24px; background: #f97316; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: inline-block;"></span>
+                    <span>Laranja Energia</span>
+                </label>
+
+                <label class="color-option" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="cor_visual" value="cinza" <?= ($proposta['cor'] ?? '') === 'cinza' ? 'checked' : '' ?> onchange="atualizarCorProposta('cinza')">
+                    <span style="width: 24px; height: 24px; background: #64748b; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: inline-block;"></span>
+                    <span>Institucional</span>
+                </label>
+
+            </div>
+            <script>
+                function atualizarCorProposta(cor) {
+                    const hCor = document.getElementById('hidden_cor');
+                    if (hCor) hCor.value = cor;
+                }
+            </script>
+        </div>
         <div class="form-group" style="grid-column: 1 / -1;">
             <div class="row-custom-9-3" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <div style="flex: 9; min-width: 300px;">

@@ -27,7 +27,7 @@ define('UPLOAD_DIR', __DIR__ . '/uploads_temp/');
 $pythonCmd = (stripos(PHP_OS, 'WIN') === 0) ? 'python' : 'python3';
 define('PYTHON_EXE', $pythonCmd); 
 define('PYTHON_SCRIPT', __DIR__ . '/conversor_docx.py');
-define('MODELOS_DIR', __DIR__ . '/modelos_prod/');
+define('MODELOS_DIR', __DIR__ . '/modelos_gerados/');
 
 foreach (array(UPLOAD_DIR, MODELOS_DIR) as $dir) {
     if (!is_dir($dir)) @mkdir($dir, 0755, true);
@@ -106,8 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     }
     
     // CORREÇÃO CASO 1: Sobrescreve arquivo existente (não cria duplicatas)
-    $corPadrao = isset($_POST['cor_padrao']) ? $_POST['cor_padrao'] : 'verde';
-    $codigo = gerarCodigoPHP($dados, $nomeModelo, $corPadrao);
+    $codigo = gerarCodigoPHP($dados, $nomeModelo);
     $caminhoFinal = MODELOS_DIR . 'Modelo' . $nomeModelo . '.php';
     
     // Se arquivo já existe, faz backup temporário (opcional, pode remover)
@@ -206,6 +205,11 @@ function converterBlocosParaModeloBase(array $blocos): array {
                 $estilo = (!empty($bloco['estilos_css']['font-weight']) && $bloco['estilos_css']['font-weight'] === 'bold')
                     ? 'destaque'
                     : 'normal';
+                
+                if (isset($bloco['subtipo']) && $bloco['subtipo'] === 'header_footer') {
+                    $estilo = 'header_footer';
+                }
+                
                 $resultado[] = array('tipo' => 'texto', 'conteudo' => $conteudo, 'estilo' => $estilo);
             }
         } elseif ($bloco['tipo'] === 'tabela') {
@@ -223,7 +227,7 @@ function converterBlocosParaModeloBase(array $blocos): array {
     return $resultado;
 }
 
-function gerarCodigoPHP($dados, $nomeClasseSuffix, $corPadrao = 'verde') {
+function gerarCodigoPHP($dados, $nomeClasseSuffix) {
     $nomeClasse = "Modelo" . $nomeClasseSuffix;
     $data = date('d/m/Y H:i');
 
@@ -243,8 +247,6 @@ require_once __DIR__ . '/../core/ModeloBase.php';
 
 class {{NOME_CLASSE}} extends ModeloBase
 {
-    const COR_PADRAO = '{{COR_PADRAO}}';
-
     public function getNome(): string
     {
         return '{{NOME_SUFFIX}}';
@@ -258,8 +260,8 @@ class {{NOME_CLASSE}} extends ModeloBase
 CODE;
 
     $out = str_replace(
-        array('{{NOME_ARQUIVO}}', '{{DATA}}', '{{NOME_CLASSE}}', '{{NOME_SUFFIX}}', '{{BLOCOS}}', '{{COR_PADRAO}}'),
-        array($dados['nome_arquivo'], $data, $nomeClasse, $nomeClasseSuffix, $blocosStr, $corPadrao),
+        array('{{NOME_ARQUIVO}}', '{{DATA}}', '{{NOME_CLASSE}}', '{{NOME_SUFFIX}}', '{{BLOCOS}}'),
+        array($dados['nome_arquivo'], $data, $nomeClasse, $nomeClasseSuffix, $blocosStr),
         $template
     );
     return $out;
@@ -292,12 +294,7 @@ CODE;
         .btn-secundario { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; margin-right: 8px; }
         .btn-secundario:hover { background: #475569; color: white; }
         .aviso-sobrescrita { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; display: none; }
-        /* Seletor visual de cor */
-        .cor-card { cursor: pointer; }
-        .cor-card input { display: none; }
-        .cor-card-label { display: inline-block; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
-        .cor-card-label:hover { transform: translateY(-2px); opacity: 0.9; }
-        .cor-card input:checked + .cor-card-label { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.4); }
+
     </style>
 </head>
 <body class="py-5">
@@ -351,28 +348,6 @@ CODE;
                 <div id="vars-list" class="p-2 bg-dark rounded"></div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label text-light">🎨 Cor Padrão do Modelo</label>
-                <div class="d-flex gap-2 flex-wrap mt-2">
-                    <label class="cor-card">
-                        <input type="radio" name="cor_padrao" value="verde" checked onchange="atualizarPreview()">
-                        <span class="cor-card-label" style="background:#065f46;">🌿 Topografia</span>
-                    </label>
-                    <label class="cor-card">
-                        <input type="radio" name="cor_padrao" value="azul" onchange="atualizarPreview()">
-                        <span class="cor-card-label" style="background:#1e3a8a;">🏢 Corporativo</span>
-                    </label>
-                    <label class="cor-card">
-                        <input type="radio" name="cor_padrao" value="laranja" onchange="atualizarPreview()">
-                        <span class="cor-card-label" style="background:#7c2d12;">⚡ Energia</span>
-                    </label>
-                    <label class="cor-card">
-                        <input type="radio" name="cor_padrao" value="cinza" onchange="atualizarPreview()">
-                        <span class="cor-card-label" style="background:#1f2937;">📋 Institucional</span>
-                    </label>
-                </div>
-                <small class="text-muted mt-1 d-block">Cor padrão do modelo gerado — pode ser alterada ao gerar o documento.</small>
-            </div>
 
             <!-- Editor Inline de Blocos -->
             <div class="editor-inline">
@@ -403,6 +378,7 @@ CODE;
     <script>
         let analysisData = null;
         let blocosEditados = [];
+        let corSelecionada = 'cinza';
 
         function uploadDocx(file) {
             if(!file) return;
@@ -431,10 +407,6 @@ CODE;
                 // Preenche campos
                 document.getElementById('model-name').value = nomeLimpo.replace(/[^a-zA-Z0-9]/g, '');
                 
-                // Injeta CSS no preview
-                const previewHtml = `<style>${data.css_geral}</style><div class="modelo-docx">${data.html_preview}</div>`;
-                document.getElementById('preview-html').innerHTML = previewHtml;
-                
                 // Variáveis
                 const vBox = document.getElementById('vars-list');
                 vBox.innerHTML = '';
@@ -452,6 +424,9 @@ CODE;
 
                 // CORREÇÃO CASO 2: Inicializa editor inline de blocos
                 inicializarEditorBlocos(data.blocos);
+                
+                // Inicia preview dinâmico com o tema padrão (verde) agora que os blocos existem
+                atualizarPreview();
                 
                 // Verifica se arquivo já existe
                 verificarExistencia();
@@ -506,49 +481,73 @@ CODE;
         function atualizarPreview() {
             if (!analysisData) return;
 
-            const tema = getCorSelecionada();
+            const tema = corSelecionada;
             const p    = getCoresJS(tema);
 
-            // CSS espelhando TemaEngine v2 via variáveis CSS
+            // CSS espelhando TemaEngine v2 e scripts Python V2.1
             let cssTema = `
-                .modelo-docx { background: white; color: #333; }
-                .modelo-docx h1 { color: ${p.primaria} !important; border-bottom: 3px solid ${p.primaria} !important; text-align: center; padding-bottom: 8px; }
-                .modelo-docx h2 { color: ${p.texto} !important; border-left: 4px solid ${p.secundaria} !important; padding-left: 10px; margin-top: 18px; }
-                .modelo-docx h3 { color: ${p.secundaria} !important; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.04em; }
-                .modelo-docx table { border: 1px solid ${p.secundaria} !important; border-collapse: collapse; width: 100%; margin: 15px 0; }
-                .modelo-docx table th { background: ${p.primaria}; color: white !important; padding: 8px; }
-                .modelo-docx table td { border-bottom: 1px solid #e5e7eb; padding: 8px; }
-                .modelo-docx table tr:nth-child(even) { background: ${p.fundo}; }
+                .modelo-docx { background: white !important; color: #333 !important; font-family: 'Segoe UI', Arial, sans-serif; }
+                .modelo-docx h1 { color: ${p.primaria} !important; border-bottom: 2px solid ${p.primaria} !important; text-align: center; padding-bottom: 8px; font-weight: bold !important; font-size: 22px !important; }
+                .modelo-docx h2 { color: ${p.primaria} !important; border-left: 5px solid ${p.secundaria} !important; padding-left: 12px; margin-top: 25px; font-weight: bold !important; font-size: 18px !important; }
+                .modelo-docx h3 { color: ${p.secundaria} !important; text-transform: uppercase; font-size: 13px !important; font-weight: bold !important; margin-top: 15px; }
+                .modelo-docx p { margin-bottom: 8px; line-height: 1.5; font-size: 14px; }
+                .modelo-docx table { border: 1px solid #dee2e6 !important; border-collapse: collapse; width: 100%; margin: 15px 0; }
+                .modelo-docx table th { background: #f8f9fa; color: ${p.primaria} !important; padding: 10px; border: 1px solid #dee2e6; }
+                .modelo-docx table td { border: 1px solid #dee2e6 !important; padding: 8px; }
+                
+                /* Classes vindas do conversor V2.1 */
+                .sgt-texto-header_footer { font-size: 11px !important; color: #64748b !important; text-align: center !important; }
+                .docx-header { border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; }
+                .docx-footer { border-top: 1px solid #e2e8f0; margin-top: 30px; padding-top: 10px; }
             `;
 
-            let html = `<style>${cssTema} ${analysisData.css_geral}</style>`;
-            html += "<div class='modelo-docx' style='padding:24px;'>";
+            let htmlFull = `<style>${cssTema}</style>`;
+            htmlFull += "<div class='modelo-docx' style='padding:40px; border:1px solid #ddd; border-radius:8px; box-shadow: 0 0 20px rgba(0,0,0,0.1);'>";
 
             blocosEditados.forEach(bloco => {
+                // Estilos CSS inline vindos do Python
+                let estiloStr = "";
+                if (bloco.estilos_css) {
+                    for (let prop in bloco.estilos_css) {
+                        estiloStr += `${prop}:${bloco.estilos_css[prop]}; `;
+                    }
+                }
+
                 if (bloco.tipo === 'texto') {
                     let tag = 'p';
-                    if (bloco.nivel_titulo == 1) tag = 'h1';
-                    else if (bloco.nivel_titulo == 2) tag = 'h2';
-                    else if (bloco.nivel_titulo == 3) tag = 'h3';
-                    html += `<${tag}>${bloco.conteudo}</${tag}>`;
+                    const nivel = parseInt(bloco.nivel_titulo || 0);
+                    if (nivel === 1) tag = 'h1';
+                    else if (nivel === 2) tag = 'h2';
+                    else if (nivel === 3) tag = 'h3';
+                    
+                    // Se estiver em negrito, força negrito no preview mesmo que não seja título
+                    if (bloco.estilos_css && bloco.estilos_css['font-weight'] === 'bold') {
+                        estiloStr += "font-weight: bold !important; ";
+                    }
+
+                    // Se for header/footer, aplica classe especial
+                    let classe = (bloco.subtipo === 'header_footer') ? 'sgt-texto-header_footer' : '';
+                    
+                    htmlFull += `<${tag} class="${classe}" style="${estiloStr}">${bloco.conteudo.replace(/\n/g, '<br>')}</${tag}>`;
                 } else if (bloco.tipo === 'tabela') {
-                    html += '<table border="1">';
+                    htmlFull += '<table>';
                     bloco.linhas.forEach((linha, i) => {
-                        html += '<tr>';
+                        htmlFull += '<tr>';
                         linha.forEach(celula => {
                             const tag = i === 0 ? 'th' : 'td';
-                            let estilos = "";
+                            let estiloCell = "";
                             if (celula.estilos) {
-                                for (let k in celula.estilos) estilos += `${k}:${celula.estilos[k]}; `;
+                                for (let k in celula.estilos) estiloCell += `${k}:${celula.estilos[k]}; `;
                             }
-                            html += `<${tag} colspan="${celula.colspan || 1}" style="${estilos}">${celula.texto.replace(/\n/g, '<br>')}</${tag}>`;
+                            htmlFull += `<${tag} colspan="${celula.colspan || 1}" style="${estiloCell}">${(celula.texto || '').replace(/\n/g, '<br>')}</${tag}>`;
                         });
-                        html += '</tr>';
+                        htmlFull += '</tr>';
                     });
-                    html += '</table>';
+                    htmlFull += '</table>';
                 }
             });
-            html += "</div>";
+            htmlFull += "</div>";
+            document.getElementById('preview-html').innerHTML = htmlFull;
         }
 
 
@@ -585,7 +584,6 @@ CODE;
             const fd = new FormData(); 
             fd.append('acao', 'gerar_php'); 
             fd.append('nome_modelo', name); 
-            fd.append('cor_padrao', getCorSelecionada());
             fd.append('dados', JSON.stringify(dadosAtualizados));
             
             fetch('', { method: 'POST', body: fd })
@@ -606,8 +604,8 @@ CODE;
                 let msgSyncHtml = data.mensagem_sync ? `<br>${data.mensagem_sync}` : '';
 
                 const msg = data.sobrescrito 
-                    ? `✅ Modelo substituído: <code>modelos_prod/${data.arquivo}</code><br><small>Backup anterior criado automaticamente</small>${msgSyncHtml}`
-                    : `✅ Novo modelo salvo: <code>modelos_prod/${data.arquivo}</code>${msgSyncHtml}`;
+                    ? `✅ Modelo substituído: <code>modelos_gerados/${data.arquivo}</code><br><small>Backup anterior criado automaticamente</small>${msgSyncHtml}`
+                    : `✅ Novo modelo salvo: <code>modelos_gerados/${data.arquivo}</code>${msgSyncHtml}`;
                 
                 document.getElementById('file-path-msg').innerHTML = msg;
             })
@@ -625,10 +623,6 @@ CODE;
             location.reload();
         }
 
-        function getCorSelecionada() {
-            const checked = document.querySelector('input[name="cor_padrao"]:checked');
-            return checked ? checked.value : 'verde';
-        }
 
         function getCoresJS(tema) {
             const paletas = {

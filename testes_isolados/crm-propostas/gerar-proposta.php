@@ -292,7 +292,9 @@ if ($proposta['is_docx'] && !empty($dados_proposta['modelo_docx'])) {
         }
         
         if ($classeFull) {
-            $modelo = new $classeFull();
+            $modelo = new $classeFull($corAtiva);
+            // Sincroniza corAtiva caso o modelo tenha alguma lógica interna de override (opcional)
+            $corAtiva = $modelo->getCorAtiva();
             $dadosRender = [
                 // EMPRESA (mapeamento expandido para compatibilidade com editor)
                 'Empresa' => $config['empresa']['nome'],

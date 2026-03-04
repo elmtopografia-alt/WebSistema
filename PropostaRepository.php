@@ -478,7 +478,7 @@ public function getAllLookupData($idUsuario)
     
     // 2. Tabelas Auxiliares
     $tabelas = [
-        'Tipo_Servicos' => ['id' => 'id_servico', 'nome' => 'nome', 'extra' => 'descricao'],
+        'Tipo_Servicos' => ['id' => 'id_servico', 'nome' => 'nome', 'extra' => 'descricao', 'modelo' => 'arquivo_modelo'],
         'Tipo_Funcoes' => ['id' => 'id_funcao', 'nome' => 'nome', 'valor' => 'salario_base_default'],
         'Tipo_Estadia' => ['id' => 'id_estadia', 'nome' => 'nome', 'valor' => 'valor_unitario_default'],
         'Tipo_Consumo' => ['id' => 'id_consumo', 'nome' => 'nome', 'litro' => 'valor_litro_default', 'kml' => 'consumo_kml_default'],
@@ -494,11 +494,15 @@ public function getAllLookupData($idUsuario)
             while ($row = $r->fetch_assoc()) {
                 $item = ['id' => $row[$cols['id']], 'nome' => $row[$cols['nome']]];
                 if (isset($cols['extra'])) $item['descricao'] = $row[$cols['extra']];
+                if (isset($cols['modelo'])) $item['modelo'] = $row[$cols['modelo']]; // DOCX File
                 if (isset($cols['valor'])) $item['valor'] = (float)$row[$cols['valor']];
                 if (isset($cols['litro'])) $item['litro'] = (float)$row[$cols['litro']];
                 if (isset($cols['kml'])) $item['kml'] = (float)$row[$cols['kml']];
-                if (isset($cols['cor'])) $item['cor'] = $row[$cols['cor']];
-                if (isset($cols['icone'])) $item['icone'] = $row[$cols['icone']];
+                
+                // Fallback para cor/icone se existirem colunas na tabela
+                if (isset($row['cor'])) $item['cor'] = $row['cor'];
+                if (isset($row['icone'])) $item['icone'] = $row['icone'];
+                
                 $data['arrays_js'][$tbl][] = $item;
             }
         }

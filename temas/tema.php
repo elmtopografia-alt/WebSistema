@@ -105,6 +105,22 @@ h3.sgt-titulo {
     text-align: center;
 }
 
+.sgt-texto-header_footer {
+    font-size: 0.75rem;
+    color: var(--sgt-cinza-700);
+    text-align: center;
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sgt-logo-dinamica {
+    max-width: 250px;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+}
+
 /* ── Dados (grid label:valor) ───────────────────────────────── */
 .sgt-dados {
     background: var(--sgt-fundo);

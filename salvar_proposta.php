@@ -423,9 +423,12 @@ try {
     $redirectUrl = match($formato) {
         'editor' => (function() use ($id, $modeloDocx, $_POST): string {
             $_SESSION['id_proposta_ativa'] = $id;
-            $cor = in_array($_POST['cor'] ?? '', ['verde','azul','laranja','cinza'], true) 
-                ? $_POST['cor'] 
-                : 'verde';
+            
+            // Pega a cor que veio do form (se houver, setada por persistência) ou força 'verde'
+            $cor = $_POST['cor'] ?? 'verde';
+            if (!in_array($cor, ['verde','azul','laranja','cinza'], true)) {
+                $cor = 'verde';
+            }
             
             if ($modeloDocx !== null) {
                 return sprintf(

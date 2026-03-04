@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Conversor DOCX -> Estrutura JSON para SGT Propostas V2.0
-Preserva formatação, tabelas, imagens, detecta variáveis e GERA CSS DINÂMICO por seção
+Conversor DOCX -> Estrutura JSON para SGT Propostas V2.1
+CORREÇÃO: Preserva formatação de runs individuais (negrito, itálico, tamanho)
 """
 
 import sys
@@ -38,29 +38,158 @@ VARIAVEIS_SISTEMA = [
     'whatsapp',          # WhatsApp da empresa
 ]
 
-def extrair_estilos(paragraph):
-    """Extrai estilos CSS de um parágrafo do Word"""
+# =====================================================
+# FUNÇÕES DE EXTRAÇÃO DE ESTILOS (CORRIGIDAS V2.1)
+# =====================================================
+
+def extrair_estilos_run(run):
+    """
+    Extrai estilos CSS de um run específico (trecho de texto formatado).
+    CORREÇÃO V2.1: Agora verifica run.font diretamente para negrito, itálico, tamanho.
+    """
     estilos = {}
-    
-    if paragraph.style and paragraph.style.font:
-        font = paragraph.style.font
-        if font.size:
-            estilos['font-size'] = f"{font.size.pt}px"
+
+    if run.font:
+        font = run.font
+
+        # Tamanho da fonte (prioridade máxima: run individual)
+        if font.size and font.size.pt:
+            estilos['font-size'] = f"{font.size.pt}pt"
+
+        # NEGRITO - verifica propriedade direta do run (CORREÇÃO PRINCIPAL)
         if font.bold:
             estilos['font-weight'] = 'bold'
+
+        # Itálico
         if font.italic:
             estilos['font-style'] = 'italic'
+
+        # Sublinhado
+        if font.underline:
+            estilos['text-decoration'] = 'underline'
+
+        # Cor da fonte
         if font.color and font.color.rgb:
             estilos['color'] = f"#{font.color.rgb}"
-    
-    # Alinhamento
+
+        # Fonte family (se disponível)
+        if font.name:
+            estilos['font-family'] = font.name
+
+    return estilos
+
+
+def extrair_estilos_paragrafo(paragraph):
+    """
+    Extrai estilos do parágrafo (alinhamento, espaçamento, etc.).
+    NÃO inclui formatação de caracteres (negrito, itálico) - isso vem dos runs.
+    """
+    estilos = {}
+
+    # Alinhamento do parágrafo
     alignment_map = {
         0: 'left', 1: 'center', 2: 'right', 3: 'justify'
     }
     if paragraph.alignment is not None:
         estilos['text-align'] = alignment_map.get(paragraph.alignment, 'left')
-    
+
+    # Tamanho base do parágrafo (fallback se run não tiver tamanho)
+    if paragraph.style and paragraph.style.font:
+        font = paragraph.style.font
+        if font.size and font.size.pt:
+            estilos['font-size-base'] = f"{font.size.pt}pt"
+        if font.bold:
+            estilos['font-weight-base'] = 'bold'
+        if font.italic:
+            estilos['font-style-base'] = 'italic'
+
     return estilos
+
+
+def processar_paragrafo_com_runs(paragraph):
+    """
+    Processa parágrafo preservando formatação de cada run individual.
+    Retorna lista de partes com seus estilos específicos.
+    """
+    partes = []
+    estilos_para = extrair_estilos_paragrafo(paragraph)
+
+    for run in paragraph.runs:
+        texto = run.text
+        if not texto:
+            continue
+
+        # Extrai estilos específicos deste run (CORREÇÃO V2.1)
+        estilos_run = extrair_estilos_run(run)
+
+        # Merge: run tem prioridade sobre parágrafo
+        estilos_finais = {**estilos_para, **estilos_run}
+
+        # Se run não tem tamanho definido, usa o tamanho base do parágrafo
+        if 'font-size' not in estilos_finais and 'font-size-base' in estilos_finais:
+            estilos_finais['font-size'] = estilos_finais.pop('font-size-base')
+
+        partes.append({
+            'texto': texto,
+            'estilos': estilos_finais,
+            'negrito': estilos_finais.get('font-weight') == 'bold',
+            'italico': estilos_finais.get('font-style') == 'italic'
+        })
+
+    return partes
+
+
+def extrair_estilos_unificados(paragraph):
+    """
+    Extrai estilos unificados de todo o parágrafo, detectando negrito/itálico 
+    em qualquer run e aplicando ao bloco inteiro (para compatibilidade com SGT).
+    """
+    partes = processar_paragrafo_com_runs(paragraph)
+
+    if not partes:
+        return extrair_estilos_paragrafo(paragraph), ""
+
+    # Junta todo o texto preservando a ordem
+    texto_completo = ''.join([p['texto'] for p in partes])
+
+    # Obtém os estilos base do parágrafo para verificar herança
+    estilos_para = extrair_estilos_paragrafo(paragraph)
+
+    # Verifica se ALGUM run tem formatação especial OU o parágrafo inteiro é formatado
+    tem_negrito = any(p['negrito'] for p in partes) or estilos_para.get('font-weight-base') == 'bold'
+    tem_italico = any(p['italico'] for p in partes) or estilos_para.get('font-style-base') == 'italic'
+
+    # Coleta todos os tamanhos únicos encontrados
+    tamanhos = list(set([p['estilos'].get('font-size') for p in partes if p['estilos'].get('font-size')]))
+
+    # Usa o tamanho mais frequente ou o primeiro encontrado
+    tamanho_principal = None
+    if tamanhos:
+        from collections import Counter
+        tamanho_counts = Counter([p['estilos'].get('font-size') for p in partes if p['estilos'].get('font-size')])
+        tamanho_principal = tamanho_counts.most_common(1)[0][0]
+
+    # Monta estilos CSS finais unificados
+    estilos_finais = extrair_estilos_paragrafo(paragraph)
+
+    if tem_negrito:
+        estilos_finais['font-weight'] = 'bold'
+    if tem_italico:
+        estilos_finais['font-style'] = 'italic'
+    if tamanho_principal:
+        estilos_finais['font-size'] = tamanho_principal
+
+    # Limpa chaves temporárias
+    estilos_finais.pop('font-size-base', None)
+    estilos_finais.pop('font-weight-base', None)
+    estilos_finais.pop('font-style-base', None)
+
+    return estilos_finais, texto_completo
+
+
+# =====================================================
+# FUNÇÕES AUXILIARES (mantidas da V2.0)
+# =====================================================
 
 def processar_tabela(table):
     """Converte tabela DOCX em estrutura HTML/CSS"""
@@ -73,7 +202,7 @@ def processar_tabela(table):
             for para in cell.paragraphs:
                 if para.text.strip():
                     textos.append(para.text)
-            
+
             cells.append({
                 'texto': ' '.join(textos),
                 'colspan': cell._tc.grid_span if hasattr(cell._tc, 'grid_span') else 1,
@@ -85,7 +214,7 @@ def processar_tabela(table):
                 }
             })
         rows.append(cells)
-    
+
     return {
         'tipo': 'tabela',
         'linhas': rows,
@@ -97,32 +226,35 @@ def processar_tabela(table):
         }
     }
 
+
 def detectar_variaveis(texto):
     """Detecta ${var}, ${ var }, {{var}} ou {{ var }} no texto"""
     padrao = r'\$\{\s*(\w+)\s*\}|\{\{\s*(\w+)\s*\}\}'
     matches = re.findall(padrao, texto)
     return list(set([m[0] or m[1] for m in matches if m[0] or m[1]]))
 
+
 def detectar_variaveis_implicitas(texto):
     """Detecta variáveis que devem ser adicionadas implicitamente baseado no contexto"""
     vars_implicitas = []
     texto_lower = texto.lower()
-    
+
     # Se menciona cidade + data, provavelmente precisa de cidade_limpo
     if any(x in texto_lower for x in ['cidade', 'data', 'extenso']) and '${cidade' in texto:
         vars_implicitas.append('cidade_limpo')
-    
+
     # Se tem número de proposta
     if 'proposta' in texto_lower and ('nº' in texto_lower or 'numero' in texto_lower):
         vars_implicitas.append('numero_proposta')
-    
+
     return vars_implicitas
+
 
 def processar_imagens(doc, docx_path):
     """Extrai imagens embutidas e converte para base64"""
     imagens = []
     rels = doc.part.rels
-    
+
     for rel in rels.values():
         if "image" in rel.target_ref:
             try:
@@ -137,17 +269,18 @@ def processar_imagens(doc, docx_path):
                 })
             except Exception as e:
                 pass
-    
+
     return imagens
+
 
 def classificar_bloco(texto, estilos, nivel_titulo):
     """Classifica o bloco por conteúdo e contexto"""
     texto_lower = texto.strip().lower()
-    
+
     # Se já detectou como título pelo nível, prioriza
     if nivel_titulo > 0:
         return 'titulo'
-    
+
     # Detecção por conteúdo específico
     if any(x in texto_lower for x in ['cliente', 'contratante', 'nome:', 'e-mail:', 'email:']):
         return 'dados_cliente'
@@ -166,14 +299,15 @@ def classificar_bloco(texto, estilos, nivel_titulo):
     else:
         return 'texto_geral'
 
+
 def detectar_nivel_titulo(para):
     """Detecta se é H1, H2, H3 baseado no estilo do Word ou numeração manual"""
     texto = para.text.strip()
     if not texto: 
         return 0
-    
+
     style_name = para.style.name if para.style else ''
-    
+
     # 1. Checa Estilos Oficiais do Word
     if 'Heading 1' in style_name or 'Título 1' in style_name: 
         return 1
@@ -181,7 +315,7 @@ def detectar_nivel_titulo(para):
         return 2
     if 'Heading 3' in style_name or 'Título 3' in style_name: 
         return 3
-    
+
     # 2. Heurística: Numeração Manual (Ex: "5. Equipamentos")
     # Títulos principais (X.) -> H2 (No SGT h1 é reservado para o título da proposta)
     if re.match(r'^\d+\.\s+[A-Z]', texto):
@@ -192,18 +326,19 @@ def detectar_nivel_titulo(para):
     # FASE X -> H3
     if re.match(r'^FASE\s+\d+', texto, re.IGNORECASE):
         return 3
-        
+
     # 3. Fallback para Texto em Caixa Alta (Título principal se for curto)
     if texto.isupper() and len(texto) < 100:
         return 1
-        
+
     return 0
+
 
 def gerar_css_dinamico(blocos):
     """Gera CSS dinâmico com cores alternadas por seção de título H2"""
     css_base = """
         .modelo-docx { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; }
-        
+
         /* Título principal H1 */
         .modelo-docx h1 { 
             color: #1e3a8a; 
@@ -213,7 +348,7 @@ def gerar_css_dinamico(blocos):
             font-weight: bold; 
             text-align: center;
         }
-        
+
         /* Subtítulos H3 */
         .modelo-docx h3 { 
             color: #4b5563; 
@@ -221,19 +356,33 @@ def gerar_css_dinamico(blocos):
             font-weight: bold; 
             margin-top: 20px; 
         }
-        
+
         /* Classes utilitárias */
         .titulo-principal { color: #1e3a8a; border-bottom: 3px solid #1e3a8a; padding-bottom: 10px; }
         .titulo-secao { color: #1e40af; margin-top: 25px; }
         .var-placeholder { background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-family: monospace; border: 1px dashed #3b82f6; }
         .tabela-proposta th { background: #f1f5f9; font-weight: 600; }
         .dados_cliente, .dados_obra { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0; }
+
+        /* Cabeçalho e Rodapé vindos do DOCX */
+        .sgt-texto-header_footer { 
+            font-size: 11px !important; 
+            color: #64748b !important; 
+            text-align: center !important;
+            margin: 0 !important;
+            padding: 2px 0 !important;
+        }
+        .docx-header { border-bottom: 1px solid #e2e8f0; margin-bottom: 30px; padding-bottom: 15px; }
+        .docx-footer { border-top: 1px solid #e2e8f0; margin-top: 50px; padding-top: 15px; }
+
+        /* CORREÇÃO V2.1: Preservar negrito e tamanho de fonte inline */
+        .sgt-texto-destaque { font-weight: bold !important; }
     """
-    
+
     # Conta apenas os H2 para aplicar cores alternadas
     contador_h2 = 0
     css_secoes = []
-    
+
     for bloco in blocos:
         if bloco.get('nivel_titulo') == 2:
             cor = CORES_SECAO[contador_h2 % len(CORES_SECAO)]
@@ -248,54 +397,114 @@ def gerar_css_dinamico(blocos):
             padding-left: 12px; 
         }}""")
             contador_h2 += 1
-    
-    return css_base + '\\n'.join(css_secoes)
+
+    return css_base + '\n'.join(css_secoes)
+
+
+def processar_secao_especial(secao_docx, variaveis_globais):
+    """Processa parágrafos de uma seção especial (Header/Footer)"""
+    blocos = []
+    for para in secao_docx.paragraphs:
+        texto = para.text
+        if not texto.strip():
+            continue
+
+        # Detecta variáveis
+        vars_para = detectar_variaveis(texto)
+        vars_implicitas = detectar_variaveis_implicitas(texto)
+        todas_vars = list(set(vars_para + vars_implicitas))
+        variaveis_globais.update(todas_vars)
+
+        # CORREÇÃO V2.1: Usa extração unificada de estilos
+        estilos, texto_extraido = extrair_estilos_unificados(para)
+
+        blocos.append({
+            'tipo': 'texto',
+            'subtipo': 'header_footer',
+            'conteudo': texto,
+            'estilos_css': estilos,
+            'variaveis': todas_vars,
+            'nivel_titulo': 0
+        })
+
+    # Processa tabelas na seção especial
+    for table in secao_docx.tables:
+        tabela_proc = processar_tabela(table)
+        texto_tabela = ' '.join([' '.join([c['texto'] for c in row]) for row in tabela_proc['linhas']])
+        vars_tabela = detectar_variaveis(texto_tabela)
+        variaveis_globais.update(vars_tabela)
+        tabela_proc['variaveis'] = vars_tabela
+        tabela_proc['subtipo'] = 'header_footer_table'
+        blocos.append(tabela_proc)
+
+    return blocos
+
+
+# =====================================================
+# FUNÇÃO PRINCIPAL DE CONVERSÃO (CORRIGIDA V2.1)
+# =====================================================
 
 def converter_docx(caminho_docx):
-    """Função principal de conversão V2.0"""
-    
+    """
+    Função principal de conversão V2.1
+    CORREÇÃO: Preserva formatação de runs individuais (negrito, itálico, tamanho)
+    """
+
     if not os.path.exists(caminho_docx):
         return {'sucesso': False, 'erro': f'Arquivo nao encontrado: {caminho_docx}'}
 
     doc = Document(caminho_docx)
-    
+
     # Extrai imagens primeiro
     imagens = processar_imagens(doc, caminho_docx)
-    
+
     blocos = []
     variaveis_globais = set(VARIAVEIS_SISTEMA)  # Inicia com variáveis do sistema
-    
-    # Primeira passada: detectar estrutura de títulos
+
+    # Extração de Header e Footer (NOVO)
+    blocos_header = []
+    blocos_footer = []
+
+    for section in doc.sections:
+        if section.header:
+            blocos_header.extend(processar_secao_especial(section.header, variaveis_globais))
+        if section.footer:
+            blocos_footer.extend(processar_secao_especial(section.footer, variaveis_globais))
+
+    # =====================================================
+    # CORREÇÃO V2.1: Processamento de parágrafos com runs
+    # =====================================================
     for element in doc.element.body:
         if element.tag.endswith('p'):
             para = next((p for p in doc.paragraphs if p._element == element), None)
             if para:
                 nivel = detectar_nivel_titulo(para)
-                estilos = extrair_estilos(para)
-                texto = para.text
-                
+
+                # CORREÇÃO PRINCIPAL: Usa extração unificada que verifica runs individuais
+                estilos, texto = extrair_estilos_unificados(para)
+
                 # Preserva blocos vazios se forem títulos (estrutura)
                 if not texto.strip() and nivel == 0:
                     continue  # Pula parágrafos vazios sem significado
-                
+
                 # Detecta variáveis
                 vars_para = detectar_variaveis(texto)
                 vars_implicitas = detectar_variaveis_implicitas(texto)
                 todas_vars = list(set(vars_para + vars_implicitas))
                 variaveis_globais.update(todas_vars)
-                
-                # Classifica o bloco
+
+                # Classifica o bloco (agora com negrito detectado corretamente)
                 tipo_bloco = classificar_bloco(texto, estilos, nivel)
-                
+
                 blocos.append({
                     'tipo': 'texto',
                     'subtipo': tipo_bloco,
                     'conteudo': texto,
-                    'estilos_css': estilos,
+                    'estilos_css': estilos,  # ← Agora contém font-weight: bold quando aplicável
                     'variaveis': todas_vars,
                     'nivel_titulo': nivel
                 })
-                
+
         elif element.tag.endswith('tbl'):
             table = next((t for t in doc.tables if t._element == element), None)
             if table:
@@ -306,25 +515,34 @@ def converter_docx(caminho_docx):
                 todas_vars_tabela = list(set(vars_tabela + vars_imp_tabela))
                 variaveis_globais.update(todas_vars_tabela)
                 tabela_proc['variaveis'] = todas_vars_tabela
-                
+
                 blocos.append(tabela_proc)
-    
+
+    # Une os blocos (Header -> Body -> Footer)
+    todos_blocos = blocos_header + blocos + blocos_footer
+
     # Gera CSS dinâmico baseado nos blocos processados
-    css_dinamico = gerar_css_dinamico(blocos)
-    
+    css_dinamico = gerar_css_dinamico(todos_blocos)
+
     # Gera HTML preservando formatação
     try:
         with open(caminho_docx, "rb") as docx_file:
             result_mammoth = mammoth.convert_to_html(docx_file)
             html_base = result_mammoth.value
+
+            # Se mammoth funcionou, adicionamos o header e footer manualmente no preview
+            if blocos_header or blocos_footer:
+                html_header = gerar_html_blocos(blocos_header, [])
+                html_footer = gerar_html_blocos(blocos_footer, [])
+                html_base = f'<header class="docx-header">{html_header}</header>' + html_base + f'<footer class="docx-footer">{html_footer}</footer>'
     except:
-        html_base = gerar_html_blocos(blocos, imagens)
-    
+        html_base = gerar_html_blocos(todos_blocos, imagens)
+
     return {
         'sucesso': True,
         'nome_arquivo': os.path.basename(caminho_docx),
-        'blocos': blocos,
-        'total_blocos': len(blocos),
+        'blocos': todos_blocos,
+        'total_blocos': len(todos_blocos),
         'variaveis': sorted(list(variaveis_globais)),
         'total_variaveis': len(variaveis_globais),
         'imagens': len(imagens),
@@ -332,15 +550,16 @@ def converter_docx(caminho_docx):
         'css_geral': css_dinamico
     }
 
+
 def gerar_html_blocos(blocos, imagens):
     """Gera HTML preservando formatação original fallback"""
     html_parts = []
-    
+
     for bloco in blocos:
         if bloco['tipo'] == 'texto':
             tag = 'p'
             classes = [bloco['subtipo']]
-            
+
             if bloco['nivel_titulo'] == 1:
                 tag = 'h1'
                 classes.append('titulo-principal')
@@ -349,17 +568,21 @@ def gerar_html_blocos(blocos, imagens):
                 classes.append('titulo-secao')
             elif bloco['nivel_titulo'] == 3:
                 tag = 'h3'
-            
+
+            # CORREÇÃO V2.1: Adiciona classe especial se tiver negrito
+            if bloco['estilos_css'].get('font-weight') == 'bold':
+                classes.append('sgt-texto-destaque')
+
             estilos_inline = '; '.join([f"{k}:{v}" for k,v in bloco['estilos_css'].items()])
             conteudo = bloco['conteudo']
-            
+
             # Substitui variáveis por placeholders visuais
             for var in bloco['variaveis']:
-                conteudo = conteudo.replace(f"${{{var}}}", f'<span class="var-placeholder" data-var="{var}">{{{var}}}</span>')
-                conteudo = conteudo.replace(f"{{{var}}}", f'<span class="var-placeholder" data-var="{var}">{{{var}}}</span>')
-            
+                conteudo = conteudo.replace(f"${{{var}}}", f'<span class="var-placeholder" data-var="{var}">{{{{{var}}}}}</span>')
+                conteudo = conteudo.replace(f"{{{var}}}", f'<span class="var-placeholder" data-var="{var}">{{{{{var}}}}}</span>')
+
             html_parts.append(f'<{tag} class="{" ".join(classes)}" style="{estilos_inline}">{conteudo}</{tag}>')
-            
+
         elif bloco['tipo'] == 'tabela':
             html_tbl = ['<table class="tabela-proposta" border="1" style="width:100%;border-collapse:collapse;margin:20px 0;">']
             for i, row in enumerate(bloco['linhas']):
@@ -367,13 +590,18 @@ def gerar_html_blocos(blocos, imagens):
                 html_tbl.append('<tr>')
                 for cell in row:
                     estilos = ';'.join([f"{k}:{v}" for k,v in cell['estilos'].items()])
-                    texto_celula = cell["texto"].replace('\\n', '<br>')
+                    texto_celula = cell["texto"].replace('\n', '<br>')
                     html_tbl.append(f'<{tag_row} colspan="{cell["colspan"]}" style="{estilos}">{texto_celula}</{tag_row}>')
                 html_tbl.append('</tr>')
             html_tbl.append('</table>')
             html_parts.append(''.join(html_tbl))
-    
-    return '\\n'.join(html_parts)
+
+    return '\n'.join(html_parts)
+
+
+# =====================================================
+# ENTRY POINT
+# =====================================================
 
 if __name__ == "__main__":
     # Configura o terminal para UTF-8 (Vital para Windows)
@@ -384,7 +612,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--test':
         print(json.dumps({
             "sucesso": True,
-            "mensagem": "Python e dependências OK",
+            "mensagem": "Python e dependências OK (V2.1 - Correção Negrito)",
             "python_version": sys.version,
             "mammoth": "OK" if importlib.util.find_spec("mammoth") else "Faltando",
             "docx": "OK" if importlib.util.find_spec("docx") else "Faltando"
@@ -397,7 +625,7 @@ if __name__ == "__main__":
             "erro": "Uso: python conversor_docx.py <arquivo.docx> ou --test"
         }, ensure_ascii=False))
         sys.exit(1)
-    
+
     try:
         resultado = converter_docx(sys.argv[1])
         print(json.dumps(resultado, ensure_ascii=False, indent=2))

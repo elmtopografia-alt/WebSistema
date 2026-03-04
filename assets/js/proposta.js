@@ -144,13 +144,12 @@ window.irParaEditor = async function () {
         // Coleta TODOS os dados do formulário via FormData
         const formData = new FormData(form);
 
-        // COR TEMA - fallback de segurança
-        const corAtiva = document.querySelector('input[name="cor"]:checked')?.value || 'verde';
-        if (!formData.has('cor')) formData.append('cor', corAtiva);
+        // COR TEMA e MODELO DOCX - Já estão nos hidden inputs do Step 2
+        const corAtiva = document.getElementById('hidden_cor')?.value || 'verde';
+        const modeloAtivo = document.getElementById('hidden_modelo_docx')?.value || 'PropostaDrone';
 
-        // MODELO DOCX - fallback
-        const selectModelo = document.querySelector('select[name="modelo_docx"]');
-        const modeloAtivo = selectModelo ? selectModelo.value : 'PropostaDrone';
+        // Garante que estão no FormData (fallback caso o DOM mude)
+        if (!formData.has('cor')) formData.append('cor', corAtiva);
         if (!formData.has('modelo_docx')) formData.append('modelo_docx', modeloAtivo);
 
         // Dispara requisição AJAX com fetch API nativa
@@ -181,7 +180,8 @@ window.irParaEditor = async function () {
         btnFinish.innerHTML = '<i class="bi bi-check-circle"></i> Salvo! Abrindo editor...';
 
         const idGerado = data.id_proposta;
-        const urlRedirect = `editor_dinamico.php?id=${idGerado}&modelo_docx=${encodeURIComponent(modeloAtivo)}&cor=${encodeURIComponent(corAtiva)}`;
+        // Prioriza URL do servidor, mas reconstrói se falhar
+        const urlRedirect = data.redirect_url || `editor_dinamico.php?id=${idGerado}&modelo_docx=${encodeURIComponent(modeloAtivo)}&cor=${encodeURIComponent(corAtiva)}`;
 
         // Redireciona
         setTimeout(() => {

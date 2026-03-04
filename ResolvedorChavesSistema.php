@@ -39,6 +39,14 @@ class ResolvedorChavesSistema
                 case 'cidade_empresa':
                     $resolvidas[$chave] = $empresa['Cidade'] ?? 'Belo Horizonte';
                     break;
+                case 'logo_empresa':
+                case 'logomarca':
+                case 'logo':
+                    // Para HTML, se estivermos no ModeloBase, as imagens podem ser injetadas
+                    // mas ModeloBase usa htmlspecialchars. 
+                    // No entanto, podemos retornar o URL da imagem aqui.
+                    $resolvidas[$chave] = $empresa['logo_url'] ?? 'assets/logo_sgt.png';
+                    break;
                 
                 // CLIENTE - CORREÇÃO: Priorizar $dadosExtras
                 case 'nome_cliente_salvo':
