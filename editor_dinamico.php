@@ -660,15 +660,27 @@ try {
         if (file_exists($caminhoModelo)) {
             try {
                 require_once $caminhoModelo;
-                $classeModelo = 'SGT\\Propostas\\Modelo' . preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
+                $sufixo = preg_replace('/[^a-zA-Z0-9]/', '', $modeloDocxAtivo);
+                // Tenta sem namespace (novos modelos gerados pelo gerador_upload_docx)
+                $classeModelo = 'Modelo' . $sufixo;
+                if (!class_exists($classeModelo)) {
+                    // Fallback: namespace antigo (modelos legados)
+                    $classeModelo = 'SGT\\Propostas\\Modelo' . $sufixo;
+                }
                 
                 if (class_exists($classeModelo)) {
-                    $instanciaModelo = new $classeModelo();
-                    $docxData        = $instanciaModelo->getConfig();
-                    $modoDocx        = true;
-                    error_log("EDITOR [LEGADO]: " . $classeModelo . " carregado.");
+                    $instanciaModelo = new $classeModelo($corAtiva);
+                    
+                    $docxData = [
+                        'nome'      => $instanciaModelo->getNome(),
+                        'cor'       => $instanciaModelo->getCorAtiva(),
+                        'variaveis' => $instanciaModelo->getVariaveis(),
+                        'blocos'    => $instanciaModelo->getBlocos(),
+                    ];
+                    $modoDocx = true;
+                    error_log("EDITOR [LEGADO]: " . $classeModelo . " carregado com cor={$corAtiva}.");
                 } else {
-                    error_log("Editor - Classe DOCX não encontrada: {$classeModelo}");
+                    error_log("Editor - Classe DOCX não encontrada: Modelo{$sufixo}");
                 }
             } catch (Throwable $e) {
                 error_log("Editor - Erro carregando DOCX legado: " . $e->getMessage());

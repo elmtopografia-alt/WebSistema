@@ -56,6 +56,16 @@ abstract class ModeloBase
         return $this->tema->getCorAtiva();
     }
 
+    public function getBlocos(): array
+    {
+        return $this->blocos;
+    }
+
+    public function getVariaveis(): array
+    {
+        return $this->variaveis;
+    }
+
     protected function abrirContainer(): string
     {
         $cssUrl = $this->tema->getCssUrl();
@@ -168,7 +178,9 @@ abstract class ModeloBase
             $tag  = $i === 0 ? 'th' : 'td';
             $html .= "<tr>";
             foreach ($linha as $celula) {
-                $texto  = $this->substituirVariaveis($celula, $contexto);
+                // Suporta célula como array ['texto'=>'...'] (novo) ou string (legado)
+                $textoRaw = is_array($celula) ? ($celula['texto'] ?? '') : (string)$celula;
+                $texto  = $this->substituirVariaveis($textoRaw, $contexto);
                 $classe = (stripos($texto, 'TOTAL') !== false) ? ' class="sgt-total"' : '';
                 $html  .= "<{$tag}{$classe}>{$texto}</{$tag}>";
             }

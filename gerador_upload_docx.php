@@ -199,18 +199,27 @@ function converterBlocosParaModeloBase(array $blocos): array {
         if ($bloco['tipo'] === 'texto') {
             $nivel    = intval($bloco['nivel_titulo'] ?? 0);
             $conteudo = $bloco['conteudo'] ?? '';
+            // Usa conteudo_html quando disponível (preserva <strong>/<em> por run)
+            $conteudoHtml = isset($bloco['conteudo_html']) && $bloco['conteudo_html'] ? $bloco['conteudo_html'] : null;
+
             if ($nivel > 0) {
                 $resultado[] = array('tipo' => 'titulo', 'conteudo' => $conteudo, 'nivel' => $nivel);
             } else {
-                $estilo = (!empty($bloco['estilos_css']['font-weight']) && $bloco['estilos_css']['font-weight'] === 'bold')
-                    ? 'destaque'
-                    : 'normal';
-                
-                if (isset($bloco['subtipo']) && $bloco['subtipo'] === 'header_footer') {
-                    $estilo = 'header_footer';
+                // Se tem formatação mista (ex: só ${Empresa} é negrito), usa o tipo 'html'
+                // para que o ModeloBase renderize o conteudo_html diretamente sem wrapping
+                if ($conteudoHtml !== null) {
+                    // Usa tipo 'texto' com estilo especial para preservar a formatação inline
+                    $resultado[] = array('tipo' => 'texto', 'conteudo' => $conteudoHtml, 'estilo' => 'normal');
+                } else {
+                    $negritoTotal = (!empty($bloco['estilos_css']['font-weight']) && $bloco['estilos_css']['font-weight'] === 'bold');
+                    $estilo = $negritoTotal ? 'destaque' : 'normal';
+
+                    if (isset($bloco['subtipo']) && $bloco['subtipo'] === 'header_footer') {
+                        $estilo = 'header_footer';
+                    }
+
+                    $resultado[] = array('tipo' => 'texto', 'conteudo' => $conteudo, 'estilo' => $estilo);
                 }
-                
-                $resultado[] = array('tipo' => 'texto', 'conteudo' => $conteudo, 'estilo' => $estilo);
             }
         } elseif ($bloco['tipo'] === 'tabela') {
             $linhas = array();
@@ -490,11 +499,81 @@ CODE;
                 .modelo-docx h1 { color: ${p.primaria} !important; border-bottom: 2px solid ${p.primaria} !important; text-align: center; padding-bottom: 8px; font-weight: bold !important; font-size: 22px !important; }
                 .modelo-docx h2 { color: ${p.primaria} !important; border-left: 5px solid ${p.secundaria} !important; padding-left: 12px; margin-top: 25px; font-weight: bold !important; font-size: 18px !important; }
                 .modelo-docx h3 { color: ${p.secundaria} !important; text-transform: uppercase; font-size: 13px !important; font-weight: bold !important; margin-top: 15px; }
-                .modelo-docx p { margin-bottom: 8px; line-height: 1.5; font-size: 14px; }
-                .modelo-docx table { border: 1px solid #dee2e6 !important; border-collapse: collapse; width: 100%; margin: 15px 0; }
-                .modelo-docx table th { background: #f8f9fa; color: ${p.primaria} !important; padding: 10px; border: 1px solid #dee2e6; }
-                .modelo-docx table td { border: 1px solid #dee2e6 !important; padding: 8px; }
-                
+                .modelo-docx p { margin-bottom: 8px; line-height: 1.6; font-size: 14px; }
+
+                /* === TABELAS PREMIUM: largura dinâmica === */
+                .sgt-table-wrap {
+                    display: block;
+                    width: 100%;
+                    overflow-x: auto;
+                    margin: 18px 0;
+                }
+                .modelo-docx table {
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    /* Largura dinâmica: se o conteúdo couber, encolhe; caso contrário, 100% */
+                    width: auto;
+                    min-width: 200px;
+                    max-width: 100%;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+                    font-size: 13.5px;
+                    border: 1px solid #e2e8f0;
+                    table-layout: auto;
+                }
+                /* Linha de cabeçalho real (th) */
+                .modelo-docx table th {
+                    background: linear-gradient(135deg, ${p.primaria}f0 0%, ${p.primaria}cc 100%) !important;
+                    color: #ffffff !important;          /* Sempre branco — imune ao tema */
+                    padding: 11px 16px;
+                    font-weight: 600;
+                    font-size: 13px;
+                    letter-spacing: 0.02em;
+                    border-bottom: 2px solid ${p.secundaria};
+                    white-space: nowrap;
+                    text-align: left;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                }
+                /* Células de dados — cor FIXA, nunca herda o tema */
+                .modelo-docx table td {
+                    padding: 10px 16px;
+                    border-bottom: 1px solid #f1f5f9;
+                    color: #1f2937 !important;          /* Cinza escuro fixo — imune ao tema */
+                    background: transparent;
+                    vertical-align: top;
+                    line-height: 1.5;
+                    font-size: 13.5px;
+                }
+                /* Célula label (negrito 1ª coluna, tabelas sem header) */
+                /* Texto sempre escuro — só a borda/fundo usa a cor do tema */
+                .modelo-docx table td.sgt-td-label {
+                    font-weight: 600;
+                    color: #1f2937 !important;          /* Texto escuro fixo, legível em todos os temas */
+                    white-space: nowrap;
+                    background: #f8fafc !important;
+                    border-left: 3px solid ${p.primaria};   /* Accent bar com a cor do tema */
+                    border-right: 1px solid #e9edf2;
+                    padding-left: 14px;
+                }
+                /* Hover nas linhas — levíssimo, não interfere na leitura */
+                .modelo-docx table tr:hover td {
+                    background: #f0f4ff !important;
+                }
+                /* Zebra alternada */
+                .modelo-docx table tbody tr:nth-child(even) td {
+                    background: #fafbfc;
+                }
+                .modelo-docx table tbody tr:nth-child(even):hover td {
+                    background: #eef2ff !important;
+                }
+                /* Última linha sem borda inferior */
+                .modelo-docx table tr:last-child td,
+                .modelo-docx table tr:last-child th {
+                    border-bottom: none;
+                }
+
+
                 /* Classes vindas do conversor V2.1 */
                 .sgt-texto-header_footer { font-size: 11px !important; color: #64748b !important; text-align: center !important; }
                 .docx-header { border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; }
@@ -519,31 +598,66 @@ CODE;
                     if (nivel === 1) tag = 'h1';
                     else if (nivel === 2) tag = 'h2';
                     else if (nivel === 3) tag = 'h3';
-                    
-                    // Se estiver em negrito, força negrito no preview mesmo que não seja título
+
+                    // Se o parágrafo INTEIRO é negrito, aplica no bloco
+                    // Se for parcial (ex: só ${Empresa}), o conteudo_html já tem <strong>
                     if (bloco.estilos_css && bloco.estilos_css['font-weight'] === 'bold') {
                         estiloStr += "font-weight: bold !important; ";
                     }
 
+                    // Usa conteudo_html (com <strong>/<em> por run) quando disponível
+                    // Isso preserva negrito APENAS nos runs que realmente são negrito
+                    const conteudo = (bloco.conteudo_html || bloco.conteudo || '').replace(/\n/g, '<br>');
+
                     // Se for header/footer, aplica classe especial
                     let classe = (bloco.subtipo === 'header_footer') ? 'sgt-texto-header_footer' : '';
                     
-                    htmlFull += `<${tag} class="${classe}" style="${estiloStr}">${bloco.conteudo.replace(/\n/g, '<br>')}</${tag}>`;
+                    htmlFull += `<${tag} class="${classe}" style="${estiloStr}">${conteudo}</${tag}>`;
                 } else if (bloco.tipo === 'tabela') {
-                    htmlFull += '<table>';
+                    const meta = bloco.linhas_meta || [];
+                    const temHeader = meta.some(m => m && m.is_header);
+
+                    // Wrapper para overflow responsivo
+                    htmlFull += '<div class="sgt-table-wrap">';
+                    htmlFull += `<table${temHeader ? '' : ' data-no-header="true"'}>`;
+
+                    // Separa thead e tbody quando há linha de cabeçalho real
+                    const headerLinhas = [];
+                    const bodyLinhas  = [];
                     bloco.linhas.forEach((linha, i) => {
+                        const isH = meta[i] ? meta[i].is_header : false;
+                        if (isH) headerLinhas.push({ linha, i });
+                        else     bodyLinhas.push({ linha, i });
+                    });
+
+                    if (headerLinhas.length > 0) {
+                        htmlFull += '<thead>';
+                        headerLinhas.forEach(({ linha }) => {
+                            htmlFull += '<tr>';
+                            linha.forEach(celula => {
+                                const col = celula.colspan || 1;
+                                htmlFull += `<th colspan="${col}">${(celula.texto || '').replace(/\n/g, '<br>')}</th>`;
+                            });
+                            htmlFull += '</tr>';
+                        });
+                        htmlFull += '</thead>';
+                    }
+
+                    htmlFull += '<tbody>';
+                    bodyLinhas.forEach(({ linha }) => {
                         htmlFull += '<tr>';
-                        linha.forEach(celula => {
-                            const tag = i === 0 ? 'th' : 'td';
-                            let estiloCell = "";
-                            if (celula.estilos) {
-                                for (let k in celula.estilos) estiloCell += `${k}:${celula.estilos[k]}; `;
-                            }
-                            htmlFull += `<${tag} colspan="${celula.colspan || 1}" style="${estiloCell}">${(celula.texto || '').replace(/\n/g, '<br>')}</${tag}>`;
+                        linha.forEach((celula, ci) => {
+                            const col = celula.colspan || 1;
+                            // Detecta se a célula é uma "label" (negrito, primeira coluna)
+                            const isLabel = celula.negrito && ci === 0 && !temHeader;
+                            const cls = isLabel ? ' class="sgt-td-label"' : '';
+                            htmlFull += `<td${cls} colspan="${col}">${(celula.texto || '').replace(/\n/g, '<br>')}</td>`;
                         });
                         htmlFull += '</tr>';
                     });
-                    htmlFull += '</table>';
+                    htmlFull += '</tbody>';
+
+                    htmlFull += '</table></div>';
                 }
             });
             htmlFull += "</div>";

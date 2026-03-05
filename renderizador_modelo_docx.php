@@ -31,9 +31,11 @@ class RenderizadorModeloDOCX {
         
         foreach ($arquivos as $arquivo) {
             $nome = str_replace(['Modelo', '.php'], '', basename($arquivo));
+            // Ignora backups e arquivos sem nome válido
+            if (empty($nome) || strpos($nome, '.') !== false) continue;
             $modelos[] = [
-                'id' => $nome,
-                'nome' => str_replace('_', ' ', $nome),
+                'id'      => $nome,
+                'nome'    => str_replace('_', ' ', $nome),
                 'caminho' => $arquivo
             ];
         }
@@ -52,10 +54,13 @@ class RenderizadorModeloDOCX {
         }
 
         require_once $arquivo;
-        $classe = "\\SGT\\Propostas\\Modelo" . $idModelo;
-        
+        // Novos modelos não têm namespace — busca sem e com namespace
+        $classe = 'Modelo' . $idModelo;
         if (!class_exists($classe)) {
-            return "Erro: Classe do modelo não carregada ($classe)";
+            $classe = '\\SGT\\Propostas\\Modelo' . $idModelo;
+        }
+        if (!class_exists($classe)) {
+            return "Erro: Classe do modelo não carregada (Modelo{$idModelo})";
         }
 
         $modeloInstancia = new $classe();
@@ -131,10 +136,19 @@ class RenderizadorModeloDOCX {
         if (!file_exists($arquivo)) return null;
 
         require_once $arquivo;
-        $classe = "\\SGT\\Propostas\\Modelo" . $idModelo;
+        $classe = 'Modelo' . $idModelo;
+        if (!class_exists($classe)) {
+            $classe = '\\SGT\\Propostas\\Modelo' . $idModelo;
+        }
         if (!class_exists($classe)) return null;
 
         $instancia = new $classe();
-        return $instancia->getConfig();
+        // ModeloBase não tem getConfig() — retorna estrutura compatível
+        return [
+            'nome'      => $instancia->getNome(),
+            'cor'       => $instancia->getCorAtiva(),
+            'variaveis' => [],
+            'blocos'    => []
+        ];
     }
 }

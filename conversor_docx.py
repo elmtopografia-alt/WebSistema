@@ -139,85 +139,202 @@ def processar_paragrafo_com_runs(paragraph):
     return partes
 
 
+def gerar_html_runs(partes):
+    """
+    Gera HTML inline preservando formatação de cada run individualmente.
+    Ex: texto normal <strong>${Empresa}</strong> texto normal
+    """
+    html = ''
+    for parte in partes:
+        texto = parte['texto']
+        negrito = parte.get('negrito', False)
+        italico = parte.get('italico', False)
+        sublinhado = parte['estilos'].get('text-decoration') == 'underline'
+
+        # Aplica tags inline apenas onde o run realmente tem a formatação
+        if sublinhado:
+            texto = f'<u>{texto}</u>'
+        if italico:
+            texto = f'<em>{texto}</em>'
+        if negrito:
+            texto = f'<strong>{texto}</strong>'
+
+        html += texto
+    return html
+
+
 def extrair_estilos_unificados(paragraph):
     """
-    Extrai estilos unificados de todo o parágrafo, detectando negrito/itálico 
-    em qualquer run e aplicando ao bloco inteiro (para compatibilidade com SGT).
+    Extrai estilos do parágrafo e gera HTML inline preservando formatação por run.
+    CORREÇÃO: Só aplica font-weight:bold no bloco se TODOS os runs forem negrito.
+    Caso contrário, usa conteudo_html com <strong> apenas onde necessário.
     """
     partes = processar_paragrafo_com_runs(paragraph)
 
     if not partes:
-        return extrair_estilos_paragrafo(paragraph), ""
+        return extrair_estilos_paragrafo(paragraph), "", ""
 
-    # Junta todo o texto preservando a ordem
+    # Texto plano (sem formatação)
     texto_completo = ''.join([p['texto'] for p in partes])
 
-    # Obtém os estilos base do parágrafo para verificar herança
+    # HTML com formatação inline por run
+    html_completo = gerar_html_runs(partes)
+
+    # Obtém estilos base do parágrafo
     estilos_para = extrair_estilos_paragrafo(paragraph)
 
-    # Verifica se ALGUM run tem formatação especial OU o parágrafo inteiro é formatado
-    tem_negrito = any(p['negrito'] for p in partes) or estilos_para.get('font-weight-base') == 'bold'
-    tem_italico = any(p['italico'] for p in partes) or estilos_para.get('font-style-base') == 'italic'
+    # Negrito apenas se TODOS os runs forem negrito (parágrafo realmente todo negrito)
+    todos_negrito = all(p['negrito'] for p in partes) or estilos_para.get('font-weight-base') == 'bold'
+    algum_negrito = any(p['negrito'] for p in partes)
+    tem_italico = all(p['italico'] for p in partes) or estilos_para.get('font-style-base') == 'italic'
 
-    # Coleta todos os tamanhos únicos encontrados
-    tamanhos = list(set([p['estilos'].get('font-size') for p in partes if p['estilos'].get('font-size')]))
-
-    # Usa o tamanho mais frequente ou o primeiro encontrado
+    # Tamanho mais frequente entre os runs
     tamanho_principal = None
-    if tamanhos:
+    tamanhos_runs = [p['estilos'].get('font-size') for p in partes if p['estilos'].get('font-size')]
+    if tamanhos_runs:
         from collections import Counter
-        tamanho_counts = Counter([p['estilos'].get('font-size') for p in partes if p['estilos'].get('font-size')])
-        tamanho_principal = tamanho_counts.most_common(1)[0][0]
+        tamanho_principal = Counter(tamanhos_runs).most_common(1)[0][0]
 
-    # Monta estilos CSS finais unificados
+    # Monta estilos CSS do bloco (parágrafo como um todo)
     estilos_finais = extrair_estilos_paragrafo(paragraph)
 
-    if tem_negrito:
+    # Aplica negrito ao bloco apenas se for universal no parágrafo
+    if todos_negrito:
         estilos_finais['font-weight'] = 'bold'
     if tem_italico:
         estilos_finais['font-style'] = 'italic'
     if tamanho_principal:
         estilos_finais['font-size'] = tamanho_principal
 
+    # Flag para indicar que o HTML já tem formatação inline mista
+    estilos_finais['_tem_formatacao_mista'] = algum_negrito and not todos_negrito
+
     # Limpa chaves temporárias
     estilos_finais.pop('font-size-base', None)
     estilos_finais.pop('font-weight-base', None)
     estilos_finais.pop('font-style-base', None)
 
-    return estilos_finais, texto_completo
+    return estilos_finais, texto_completo, html_completo
 
 
 # =====================================================
 # FUNÇÕES AUXILIARES (mantidas da V2.0)
 # =====================================================
 
+def _celula_e_negrita(cell):
+    """Verifica se a célula tem texto e todas as partes com conteúdo são negrito."""
+    for para in cell.paragraphs:
+        if not para.text.strip():
+            continue
+        for run in para.runs:
+            if run.text.strip() and not run.bold:
+                return False
+    return True
+
+
+def _linha_e_cabecalho(row, row_index):
+    """
+    Detecta se uma linha da tabela é cabeçalho.
+    Critério 1: Estilo Word indica 'tblHeader' (linha de cabeçalho real).
+    Critério 2: Todas as células com conteúdo são negrito (heurística).
+    """
+    # Critério 1: Verifica atributo XML de cabeçalho de tabela
+    try:
+        ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+        trPr = row._tr.find(f'{{{ns}}}trPr')
+        if trPr is not None:
+            tblHeader = trPr.find(f'{{{ns}}}tblHeader')
+            if tblHeader is not None:
+                return True
+    except Exception:
+        pass
+
+    # Critério 2: Só aplica heurística de "todos negrito" na PRIMEIRA linha
+    # (para não tratar erroneamente linhas de dados que sejam bold)
+    if row_index == 0:
+        celulas_com_texto = [c for c in row.cells if c.text.strip()]
+        if celulas_com_texto and all(_celula_e_negrita(c) for c in celulas_com_texto):
+            return True
+
+    return False
+
+
 def processar_tabela(table):
-    """Converte tabela DOCX em estrutura HTML/CSS"""
+    """Converte tabela DOCX em estrutura HTML/CSS com detecção real de cabeçalho."""
     rows = []
-    for row in table.rows:
+    for row_index, row in enumerate(table.rows):
         cells = []
+        seen_ids = set()
+
+        # Detecta se esta linha é realmente um cabeçalho
+        is_header = _linha_e_cabecalho(row, row_index)
+
         for cell in row.cells:
-            # Extrai texto e estilos da célula
+            # Evita células duplicadas por colspan
+            cell_id = id(cell._tc)
+            if cell_id in seen_ids:
+                continue
+            seen_ids.add(cell_id)
+
+            # Lê colspan do XML
+            try:
+                ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+                tcPr = cell._tc.find(f'{{{ns}}}tcPr')
+                grid_span = 1
+                if tcPr is not None:
+                    gs = tcPr.find(f'{{{ns}}}gridSpan')
+                    if gs is not None:
+                        grid_span = int(gs.get(f'{{{ns}}}val', 1))
+            except Exception:
+                grid_span = 1
+
+            # Extrai texto e detecta negrito da célula
             textos = []
+            celula_negrita = True  # Presume negrito até achar run sem negrito
+            tem_texto = False
+
             for para in cell.paragraphs:
                 if para.text.strip():
                     textos.append(para.text)
+                    tem_texto = True
+                    for run in para.runs:
+                        if run.text.strip() and not run.bold:
+                            celula_negrita = False
+
+            if not tem_texto:
+                celula_negrita = False
 
             cells.append({
                 'texto': ' '.join(textos),
-                'colspan': cell._tc.grid_span if hasattr(cell._tc, 'grid_span') else 1,
+                'colspan': grid_span,
+                'negrito': celula_negrita,
+                'is_header_cell': is_header or celula_negrita,
                 'estilos': {
                     'border': '1px solid #dee2e6',
                     'padding': '12px 15px',
-                    'background': '#f8f9fa' if len(rows) == 0 else 'transparent',
-                    'vertical-align': 'top'
+                    'background': '#f8f9fa' if (is_header or celula_negrita) else 'transparent',
+                    'vertical-align': 'top',
+                    'font-weight': 'bold' if celula_negrita else 'normal'
                 }
             })
-        rows.append(cells)
+
+        rows.append({
+            'celulas': cells,
+            'is_header': is_header,
+            # Mantém 'linhas' no formato legado para compatibilidade
+            '__celulas_legado': cells
+        })
+
+    # Converte para formato de saída compatível com o sistema legado
+    # Cada item de rows agora é um dict com 'celulas' e 'is_header'
+    linhas_saida = []
+    for row_data in rows:
+        linhas_saida.append(row_data['celulas'])
 
     return {
         'tipo': 'tabela',
-        'linhas': rows,
+        'linhas': linhas_saida,
+        'linhas_meta': [{'is_header': r['is_header']} for r in rows],
         'estilos': {
             'width': '100%',
             'border-collapse': 'collapse',
@@ -301,33 +418,47 @@ def classificar_bloco(texto, estilos, nivel_titulo):
 
 
 def detectar_nivel_titulo(para):
-    """Detecta se é H1, H2, H3 baseado no estilo do Word ou numeração manual"""
+    """
+    Detecta nível de título H1/H2/H3.
+    Hierarquia:
+      H1 → Título do documento (Title), Heading 1, seções principais (8. Prazos)
+      H2 → Heading 2, subseções (8.1 Detalhe), FASE X
+      H3 → Heading 3, sub-subseções (8.1.1 ...)
+    """
     texto = para.text.strip()
-    if not texto: 
+    if not texto:
         return 0
 
     style_name = para.style.name if para.style else ''
 
-    # 1. Checa Estilos Oficiais do Word
-    if 'Heading 1' in style_name or 'Título 1' in style_name: 
+    # 1. Estilos oficiais do Word (PT + EN)
+    if style_name in ('Title', 'Título', 'title', 'título'):
         return 1
-    if 'Heading 2' in style_name or 'Título 2' in style_name: 
+    # Subtítulo do documento → H2
+    if style_name in ('Subtitle', 'Subtítulo', 'subtitle', 'subtítulo'):
         return 2
-    if 'Heading 3' in style_name or 'Título 3' in style_name: 
+    if 'Heading 1' in style_name or 'Título 1' in style_name or 'Cabeçalho 1' in style_name:
+        return 1
+    if 'Heading 2' in style_name or 'Título 2' in style_name or 'Cabeçalho 2' in style_name:
+        return 2
+    if 'Heading 3' in style_name or 'Título 3' in style_name or 'Cabeçalho 3' in style_name:
         return 3
 
-    # 2. Heurística: Numeração Manual (Ex: "5. Equipamentos")
-    # Títulos principais (X.) -> H2 (No SGT h1 é reservado para o título da proposta)
-    if re.match(r'^\d+\.\s+[A-Z]', texto):
-        return 2
-    # Subtítulos (X.X ou X.X.X) -> H3
-    if re.match(r'^\d+\.\d+(\.\d+)?\s+', texto):
+    # 2. Heurísticas por numeração manual
+    # Sub-subseções "8.1.1 Item" → H3 (verificar antes de X.X)
+    if re.match(r'^\d+\.\d+\.\d+\s+', texto):
         return 3
-    # FASE X -> H3
+    # Subseções "8.1 Detalhe" → H2
+    if re.match(r'^\d+\.\d+\s+', texto):
+        return 2
+    # Seções principais "8. Prazos Estimados" → H1 (título de seção)
+    if re.match(r'^\d+\.\s+[A-ZÀ-Ú]', texto):
+        return 1
+    # FASE X → H2
     if re.match(r'^FASE\s+\d+', texto, re.IGNORECASE):
-        return 3
+        return 2
 
-    # 3. Fallback para Texto em Caixa Alta (Título principal se for curto)
+    # 3. Fallback: todo em maiúsculas e curto = H1
     if texto.isupper() and len(texto) < 100:
         return 1
 
@@ -409,25 +540,24 @@ def processar_secao_especial(secao_docx, variaveis_globais):
         if not texto.strip():
             continue
 
-        # Detecta variáveis
         vars_para = detectar_variaveis(texto)
         vars_implicitas = detectar_variaveis_implicitas(texto)
         todas_vars = list(set(vars_para + vars_implicitas))
         variaveis_globais.update(todas_vars)
 
-        # CORREÇÃO V2.1: Usa extração unificada de estilos
-        estilos, texto_extraido = extrair_estilos_unificados(para)
+        estilos, texto_extraido, html_runs = extrair_estilos_unificados(para)
+        tem_mista = estilos.pop('_tem_formatacao_mista', False)
 
         blocos.append({
             'tipo': 'texto',
             'subtipo': 'header_footer',
             'conteudo': texto,
+            'conteudo_html': html_runs if tem_mista else None,
             'estilos_css': estilos,
             'variaveis': todas_vars,
             'nivel_titulo': 0
         })
 
-    # Processa tabelas na seção especial
     for table in secao_docx.tables:
         tabela_proc = processar_tabela(table)
         texto_tabela = ' '.join([' '.join([c['texto'] for c in row]) for row in tabela_proc['linhas']])
@@ -472,35 +602,55 @@ def converter_docx(caminho_docx):
             blocos_footer.extend(processar_secao_especial(section.footer, variaveis_globais))
 
     # =====================================================
-    # CORREÇÃO V2.1: Processamento de parágrafos com runs
+    # CORREÇÃO V2.2: Processamento de parágrafos com runs
+    # + Detecção de H1 consecutivo (título + subtítulo)
     # =====================================================
+    ultimo_nivel = 0          # Nível do último bloco detectado
+    blocos_sem_texto = 0      # Parágrafos de texto entre dois títulos
+
     for element in doc.element.body:
         if element.tag.endswith('p'):
             para = next((p for p in doc.paragraphs if p._element == element), None)
             if para:
                 nivel = detectar_nivel_titulo(para)
 
-                # CORREÇÃO PRINCIPAL: Usa extração unificada que verifica runs individuais
-                estilos, texto = extrair_estilos_unificados(para)
+                # ── Heurística Título + Subtítulo ────────────────────────────
+                # Se o parágrafo anterior era H1 e este também seria H1,
+                # e não houve texto entre eles → é o subtítulo do doc (H2)
+                if nivel == 1 and ultimo_nivel == 1 and blocos_sem_texto == 0:
+                    nivel = 2
 
-                # Preserva blocos vazios se forem títulos (estrutura)
+                # Atualiza rastreadores
+                if nivel > 0:
+                    ultimo_nivel = nivel
+                    blocos_sem_texto = 0
+                # ─────────────────────────────────────────────────────────────
+
+                # Extrai estilos + texto plano + HTML com runs preservados
+                estilos, texto, html_runs = extrair_estilos_unificados(para)
+
+                # Flag de formatação mista (ex: só ${Empresa} é negrito)
+                tem_mista = estilos.pop('_tem_formatacao_mista', False)
+
                 if not texto.strip() and nivel == 0:
-                    continue  # Pula parágrafos vazios sem significado
+                    blocos_sem_texto += 1
+                    continue
 
-                # Detecta variáveis
                 vars_para = detectar_variaveis(texto)
                 vars_implicitas = detectar_variaveis_implicitas(texto)
                 todas_vars = list(set(vars_para + vars_implicitas))
                 variaveis_globais.update(todas_vars)
 
-                # Classifica o bloco (agora com negrito detectado corretamente)
                 tipo_bloco = classificar_bloco(texto, estilos, nivel)
 
                 blocos.append({
                     'tipo': 'texto',
                     'subtipo': tipo_bloco,
                     'conteudo': texto,
-                    'estilos_css': estilos,  # ← Agora contém font-weight: bold quando aplicável
+                    # conteudo_html: HTML com <strong>/<em> apenas nos runs que têm formatação
+                    # Usado pelo editor quando a formatação é mista (não todo o parágrafo)
+                    'conteudo_html': html_runs if tem_mista else None,
+                    'estilos_css': estilos,
                     'variaveis': todas_vars,
                     'nivel_titulo': nivel
                 })
@@ -569,12 +719,15 @@ def gerar_html_blocos(blocos, imagens):
             elif bloco['nivel_titulo'] == 3:
                 tag = 'h3'
 
-            # CORREÇÃO V2.1: Adiciona classe especial se tiver negrito
             if bloco['estilos_css'].get('font-weight') == 'bold':
                 classes.append('sgt-texto-destaque')
 
-            estilos_inline = '; '.join([f"{k}:{v}" for k,v in bloco['estilos_css'].items()])
-            conteudo = bloco['conteudo']
+            # Filtra chaves internas que não são CSS
+            estilos_css = {k: v for k, v in bloco['estilos_css'].items() if not k.startswith('_')}
+            estilos_inline = '; '.join([f"{k}:{v}" for k, v in estilos_css.items()])
+
+            # Usa conteudo_html (com <strong>/<em> por run) se disponível
+            conteudo = bloco.get('conteudo_html') or bloco['conteudo']
 
             # Substitui variáveis por placeholders visuais
             for var in bloco['variaveis']:
