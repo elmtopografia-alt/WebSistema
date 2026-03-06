@@ -272,3 +272,39 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-03-04 18:00:03] Backup conclu√≠do com sucesso.
 [2026-03-05 18:00:02] Iniciando backup...
+[2026-03-05 18:00:02] GIT ADD: git : warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-03-05 18:00:02] GIT COMMIT: [main 4c8e7ab] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-05 18:00:02
+ 23 files changed, 521 insertions(+), 19725 deletions(-)
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneAzul.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneAzul.php.backup_20260226004419
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneCinza.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneMarrom.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneVerde.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneVermelho.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDroneweb.php
+ delete mode 100644 modelos_gerados/ModeloPropostaDronewebMarrom.php
+ delete mode 100644 modelos_gerados/ModeloPropostaUsucapiaoAzul.php
+ delete mode 100644 modelos_gerados/ModeloPropostaUsucapiaoCinza.php
+ delete mode 100644 modelos_gerados/ModeloPropostaUsucapiaoMarron.php
+ delete mode 100644 modelos_gerados/bk/ModeloPropostaDrone.php
+ delete mode 100644 modelos_prod/ModeloPropostaDroneweb.docx
+ create mode 100644 modelos_prod/~$deloPropostaDrone.docx
+ create mode 100644 modelos_prod/~WRL0003.tmp
+
+[2026-03-05 18:00:02] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   3b9f6d4..4c8e7ab  main -> main
+
+[2026-03-05 18:00:02] Backup conclu√≠do com sucesso.
