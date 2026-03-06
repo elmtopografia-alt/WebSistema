@@ -438,3 +438,23 @@
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
 [2026-03-06 06:47:04] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
+[2026-03-06 16:08:59] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
+[2026-03-06 16:09:08] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1MB
+[2026-03-06 16:10:42] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1.01MB
+[2026-03-06 16:21:08] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
+[2026-03-06 16:21:17] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1MB
+[2026-03-06 16:21:40] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1.01MB
+[2026-03-06 16:40:02] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
+[2026-03-06 16:40:25] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1MB
+[2026-03-06 16:40:46] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 1.01MB
+[2026-03-06 16:42:35] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB

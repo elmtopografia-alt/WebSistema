@@ -378,7 +378,8 @@ CODE;
             <h2>🚀 Modelo Salvo!</h2>
             <p id="file-path-msg" class="text-muted mb-4"></p>
             <div class="d-flex justify-content-center gap-3">
-                <a href="https://elmtopografia.com.br/Orcamento/painel.php" class="btn btn-sgt">Ir para o Painel principal</a>
+                <a id="btn-visualizar-modelo" href="#" target="_blank" class="btn btn-info fw-bold text-white">👀 Ver Layout Final</a>
+                <a href="painel.php" class="btn btn-sgt">Ir para o Painel principal</a>
                 <button class="btn btn-secundario" onclick="novoUpload()">Novo Upload</button>
             </div>
         </div>
@@ -722,6 +723,7 @@ CODE;
                     : `✅ Novo modelo salvo: <code>modelos_gerados/${data.arquivo}</code>${msgSyncHtml}`;
                 
                 document.getElementById('file-path-msg').innerHTML = msg;
+                document.getElementById('btn-visualizar-modelo').href = '/SistemaSaaS/modules/producao/visualizar_modelo_demo.php?modelo=' + data.nome_limpo;
             })
             .catch(e => alert('Erro de rede: ' + e));
         }
