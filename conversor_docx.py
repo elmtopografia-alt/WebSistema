@@ -38,6 +38,11 @@ VARIAVEIS_SISTEMA = [
     'whatsapp',          # WhatsApp da empresa
 ]
 
+def limpar_texto(t):
+    """Remove caracteres de controle e espaços não-quebráveis do Word"""
+    if not t: return ""
+    return t.replace('\xa0', ' ').replace('\r', '').replace('\u201d', '"').replace('\u201c', '"').replace('\u2019', "'").replace('\u2018', "'").replace('\u2013', '-').replace('\u2014', '-')
+
 # =====================================================
 # FUNÇÕES DE EXTRAÇÃO DE ESTILOS (CORRIGIDAS V2.1)
 # =====================================================
@@ -72,9 +77,9 @@ def extrair_estilos_run(run):
         if font.color and font.color.rgb:
             estilos['color'] = f"#{font.color.rgb}"
 
-        # Fonte family (se disponível)
-        if font.name:
-            estilos['font-family'] = font.name
+        # Fonte family (desativado para manter uniformidade SGT)
+        # if font.name:
+        #    estilos['font-family'] = font.name
 
     return estilos
 
@@ -115,7 +120,7 @@ def processar_paragrafo_com_runs(paragraph):
     estilos_para = extrair_estilos_paragrafo(paragraph)
 
     for run in paragraph.runs:
-        texto = run.text
+        texto = limpar_texto(run.text)
         if not texto:
             continue
 

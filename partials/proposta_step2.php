@@ -22,12 +22,21 @@
                     // Fallback para modelos que não tenham cor/icone definidos na tabela principal
                     $cor = $s['cor'] ?? '#10b981'; // Default verde SGT
                     $icone = $s['icone'] ?? 'briefcase';
-                    $modelo = $s['modelo'] ?? 'ModeloPropostaDrone.docx';
+                    $modeloRaw = $s['modelo'] ?? 'ModeloPropostaDrone.docx';
+                    
+                    // Lógica de detecção de existência de modelo físico (AUDITOR SÊNIOR)
+                    $modeloBase = str_replace(['Modelo', '.docx'], '', $modeloRaw);
+                    if (empty($modeloBase)) $modeloBase = 'PropostaDrone';
+                    
+                    $sufixoPHP = preg_replace('/[^a-zA-Z0-9]/', '', $modeloBase);
+                    $caminhoModeloPHP = __DIR__ . '/../modelos_gerados/Modelo' . $sufixoPHP . '.php';
+                    $existeModelo = (!empty($sufixoPHP) && file_exists($caminhoModeloPHP)) ? '1' : '0';
                 ?>
                     <option value="<?= $s['id'] ?>"
                             data-cor="<?= $cor ?>"
                             data-icone="<?= $icone ?>"
-                            data-modelo="<?= $modelo ?>"
+                            data-modelo="<?= $modeloRaw ?>"
+                            data-existe="<?= $existeModelo ?>"
                             data-descricao="<?= htmlspecialchars($s['descricao'] ?? '') ?>"
                             <?= (isset($proposta['tipo_servico_id']) && $proposta['tipo_servico_id'] == $s['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($s['nome']) ?>
@@ -82,11 +91,24 @@
                         const nome = option.text;
                         
                         // 1. Atualiza Cor Visual (Hex)
-                        preview.innerHTML = `
+                        const existe = option.getAttribute('data-existe') === '1';
+                        
+                        let htmlBadge = `
                             <span class="badge-tipo" style="background:${hexCor}; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:500; color:white;">
                                 <i class="bi bi-${icone}" style="font-size:10px;"></i> ${nome}
                             </span>
                         `;
+
+                        if (!existe) {
+                            htmlBadge += `
+                                <span class="badge-alert" style="background:#fef2f2; border:1px solid #fecaca; color:#dc2626; display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:10px; font-size:10px; margin-left:5px; font-weight:bold;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Modelo não configurado
+                                </span>
+                            `;
+                            console.warn("SGT Alerta: Modelo PHP não encontrado para " + nome + ". O editor dinâmico usará modo legacy.");
+                        }
+
+                        preview.innerHTML = htmlBadge;
 
                         // 2. Atualiza Hidden Inputs para o Banco
                         let corName = getColorName(hexCor);

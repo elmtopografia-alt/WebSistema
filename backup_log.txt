@@ -617,3 +617,36 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 [2026-03-07 18:00:06] Backup conclu√≠do com sucesso.
 [2026-03-08 18:00:03] Iniciando backup...
 [2026-03-09 18:00:03] Iniciando backup...
+[2026-03-09 18:00:03] GIT ADD: git : warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-03-09 18:00:03] GIT COMMIT: [main e07f175] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-09 18:00:03
+ 13 files changed, 304 insertions(+), 1641 deletions(-)
+ create mode 100644 modelos_prod/ModeloPropostaGeorreferenciamentoINCRA-II.docx
+ delete mode 100644 modelos_prod/ModeloPropostaUsucapiao.php
+ delete mode 100644 "modelos_prod/Proposta ELM-2026-005-Rv04 - ELM Servi\303\247os Topogr\303\241ficos Ltda..html"
+ delete mode 100644 "modelos_prod/Proposta ELM-2026-005-Rv04 - ELM Servi\303\247os Topogr\303\241ficos Ltda._files/css2"
+ delete mode 100644 "modelos_prod/Proposta ELM-2026-005-Rv04 - ELM Servi\303\247os Topogr\303\241ficos Ltda._files/css2(1)"
+ delete mode 100644 "modelos_prod/Proposta ELM-2026-005-Rv04 - ELM Servi\303\247os Topogr\303\241ficos Ltda._files/logo_1_8ba6cba04d653d3285646c8048978383.png"
+ delete mode 100644 modelos_prod/PropostaDrone.php
+ delete mode 100644 modelos_prod/debug_modelos.php
+ delete mode 100644 modelos_prod/debug_nome.php
+ delete mode 100644 modelos_prod/~$deloPropostaObraIndustrial.docx
+
+[2026-03-09 18:00:03] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   6fc9799..e07f175  main -> main
+
+[2026-03-09 18:00:03] Backup conclu√≠do com sucesso.
+[2026-03-10 18:00:04] Iniciando backup...
+[2026-03-11 18:00:05] Iniciando backup...

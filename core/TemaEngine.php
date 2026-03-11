@@ -40,9 +40,9 @@ class TemaEngine
 
     private $corAtiva;
 
-    public function __construct($cor = 'verde')
+    public function __construct($cor = 'cinza')
     {
-        $this->corAtiva = isset(self::$CORES[$cor]) ? $cor : 'verde';
+        $this->corAtiva = isset(self::$CORES[$cor]) ? $cor : 'cinza';
     }
 
     public function getCssUrl()

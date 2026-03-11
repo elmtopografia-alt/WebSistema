@@ -89,7 +89,7 @@ abstract class ModeloBase
             case 'dados':   return $this->renderDados($bloco, $contexto);
             case 'lista':   return $this->renderLista($bloco, $contexto);
             case 'tabela':  return $this->renderTabela($bloco, $contexto);
-            case 'html':    return $bloco['conteudo'] ?? '';
+            case 'html':    return $this->substituirVariaveis($bloco['conteudo'] ?? '', $contexto);
             default:        return '';
         }
     }
@@ -137,6 +137,9 @@ abstract class ModeloBase
                 break;
             case 'valor':
                 $classes[] = 'sgt-texto-valor';
+                break;
+            case 'subtitulo':
+                $classes[] = 'sgt-subtitulo';
                 break;
             default:
                 $classes[] = "sgt-texto-{$estilo}";

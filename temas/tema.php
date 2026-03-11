@@ -38,13 +38,17 @@ $p    = $tema->getPaleta();
 
 /* ── Container ─────────────────────────────────────────────── */
 .sgt-proposta {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
     line-height: 1.6;
     color: var(--sgt-cinza-700);
     max-width: 210mm;
     margin: 0 auto;
     padding: 2rem;
     background: var(--sgt-branco);
+}
+
+.sgt-proposta * {
+    font-family: inherit !important;
 }
 
 .sgt-conteudo {
@@ -121,6 +125,12 @@ h3.sgt-titulo {
     margin: 1rem auto;
 }
 
+/* ── Estilos Especiais (Assinaturas e Rodapé) ────────────────── */
+.sgt-texto-assinatura_top { margin-top: 3rem; text-align: center; }
+.sgt-texto-assinatura     { text-align: center; font-weight: 700; margin: 0; }
+.sgt-texto-footer         { font-size: 0.7rem; color: #9ca3af; text-align: center; margin-top: 2rem; border-top: 1px solid var(--sgt-cinza-100); padding-top: 1rem; }
+.sgt-texto-subtitulo      { font-size: 1rem; color: var(--sgt-secundaria); font-weight: 600; text-align: center; margin-top: -1rem; margin-bottom: 1rem; }
+
 /* ── Dados (grid label:valor) ───────────────────────────────── */
 .sgt-dados {
     background: var(--sgt-fundo);
@@ -193,11 +203,79 @@ h3.sgt-titulo {
     font-weight: 700;
 }
 
+/* ── Tabela Financeira Light ────────────────────────────────── */
+.sgt-tabela-financeira {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1.5rem 0;
+}
+
+.sgt-tabela-financeira th {
+    border-bottom: 2px solid var(--sgt-primaria);
+    color: var(--sgt-primaria);
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.sgt-tabela-financeira td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--sgt-cinza-100);
+    color: var(--sgt-texto);
+}
+
+.sgt-tabela-financeira .sgt-total-light {
+    border-top: 2px solid var(--sgt-primaria);
+    border-bottom: none;
+    font-weight: 800;
+    color: var(--sgt-primaria);
+    background: transparent !important;
+}
+
 /* ── Responsivo ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .sgt-proposta { padding: 1rem; }
-    .sgt-linha { flex-direction: column; gap: 0.25rem; }
-    .sgt-label { min-width: auto; }
+    .sgt-proposta { 
+        padding: 1.5rem 1rem; 
+        border: none;
+        max-width: 100vw;
+    }
+    
+    .sgt-linha { 
+        flex-direction: column; 
+        gap: 0.15rem; 
+        padding-bottom: 0.75rem;
+    }
+    
+    .sgt-label { 
+        min-width: auto; 
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+
+    .sgt-valor {
+        font-size: 0.9rem;
+    }
+
+    /* Tabelas Responsivas: Scroll horizontal para não quebrar o layout */
+    .sgt-tabela, .sgt-tabela-financeira {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap; /* Evita quebra de linha em colunas curtas */
+    }
+
+    .sgt-titulo-1 { font-size: 1.75rem; }
+    .sgt-titulo-2 { font-size: 1.4rem; }
+    
+    .sgt-logo-dinamica {
+        max-width: 180px;
+        margin: 0 auto 2rem;
+        display: block;
+    }
 }
 
 /* ── Impressão ──────────────────────────────────────────────── */
