@@ -650,3 +650,60 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 [2026-03-09 18:00:03] Backup conclu√≠do com sucesso.
 [2026-03-10 18:00:04] Iniciando backup...
 [2026-03-11 18:00:05] Iniciando backup...
+[2026-03-11 18:00:05] GIT ADD: git : warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2026-03-11 18:00:05] GIT COMMIT: [main 9411e7a] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-11 18:00:05
+ 43 files changed, 550 insertions(+), 376 deletions(-)
+ delete mode 100644 modelos_gerados/BaseModeloDOCX.php
+ rename modelos_prod/{ => BK-Modelos}/Documento1.docx (100%)
+ rename modelos_prod/{ModeloPropostaAvulso.docx => BK-Modelos/PropostaAvulso.docx} (100%)
+ rename modelos_prod/{ModeloPropostaConferencia.docx => BK-Modelos/PropostaConferencia.docx} (100%)
+ rename modelos_prod/{ModeloPropostaDesdobramento.docx => BK-Modelos/PropostaDesdobramento.docx} (100%)
+ rename modelos_prod/{ModeloPropostaDrone.docx => BK-Modelos/PropostaDrone.docx} (100%)
+ rename modelos_prod/{ModeloPropostaGeorreferenciamentoINCRA.docx => BK-Modelos/PropostaGeorreferenciamentoINCRA.docx} (100%)
+ rename modelos_prod/{ModeloPropostaLocacaoTerraplenagem.docx => BK-Modelos/PropostaLocacaoTerraplenagem.docx} (100%)
+ rename modelos_prod/{ModeloPropostaLocacaodeObra.docx => BK-Modelos/PropostaLocacaodeObra.docx} (100%)
+ rename modelos_prod/{ModeloPropostaObraCivil.docx => BK-Modelos/PropostaObraCivil.docx} (100%)
+ rename modelos_prod/{ModeloPropostaObraIndustrial.docx => BK-Modelos/PropostaObraIndustrial.docx} (100%)
+ rename modelos_prod/{ModeloPropostaObraTerraplanagem.docx => BK-Modelos/PropostaObraTerraplanagem.docx} (100%)
+ rename modelos_prod/{ModeloPropostaPlanialtimetrico.docx => BK-Modelos/PropostaPlanialtimetrico.docx} (100%)
+ rename modelos_prod/{ModeloPropostaPlanimetrico.docx => BK-Modelos/PropostaPlanimetrico.docx} (100%)
+ rename modelos_prod/{ModeloPropostaRetificacaodeArea.docx => BK-Modelos/PropostaRetificacaodeArea.docx} (100%)
+ rename modelos_prod/{ModeloPropostaRevisaoeAdequacaodeServico.docx => BK-Modelos/PropostaRevisaoeAdequacaodeServico.docx} (100%)
+ rename modelos_prod/{ModeloPropostaUsucapiao.docx => BK-Modelos/PropostaUsucapiao.docx} (100%)
+ create mode 100644 modelos_prod/PropostaAvulso.docx
+ create mode 100644 modelos_prod/PropostaConferencia.docx
+ create mode 100644 modelos_prod/PropostaDesdobramento.docx
+ create mode 100644 modelos_prod/PropostaDrone.docx
+ create mode 100644 modelos_prod/PropostaGeorreferenciamentoINCRA-I.docx
+ rename modelos_prod/{ModeloPropostaGeorreferenciamentoINCRA-II.docx => PropostaGeorreferenciamentoINCRA-II.docx} (100%)
+ create mode 100644 modelos_prod/PropostaGeorreferenciamentoINCRA.docx
+ create mode 100644 modelos_prod/PropostaLocacaoTerraplenagem.docx
+ create mode 100644 modelos_prod/PropostaLocacaodeObra.docx
+ create mode 100644 modelos_prod/PropostaObraCivil.docx
+ create mode 100644 modelos_prod/PropostaObraIndustrial.docx
+ create mode 100644 modelos_prod/PropostaObraTerraplanagem.docx
+ create mode 100644 modelos_prod/PropostaPlanialtimetrico.docx
+ create mode 100644 modelos_prod/PropostaPlanimetrico.docx
+ create mode 100644 modelos_prod/PropostaPlantaMemorialART.docx
+ create mode 100644 modelos_prod/PropostaRetificacaodeArea.docx
+ create mode 100644 modelos_prod/PropostaRevisaoeAdequacaodeServico.docx
+ create mode 100644 modelos_prod/PropostaUsucapiao.docx
+
+[2026-03-11 18:00:05] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   e07f175..9411e7a  main -> main
+
+[2026-03-11 18:00:05] Backup conclu√≠do com sucesso.
+[2026-03-12 18:00:06] Iniciando backup...
