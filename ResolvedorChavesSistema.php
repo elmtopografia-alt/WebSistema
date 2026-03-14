@@ -26,26 +26,40 @@ class ResolvedorChavesSistema
                 case 'Empresa':
                 case 'empresa':
                 case 'nome_empresa':
-                    $resolvidas[$chave] = $empresa['Empresa'] ?? 'SGT Topografia';
+                case 'empresa_nome':
+                case 'empresa_proponente_nome':
+                    $val = $d['empresa_proponente_nome'] ?? $d['Empresa'] ?? $empresa['Empresa'] ?? 'SGT Topografia';
+                    $resolvidas[$chave] = $val;
                     break;
                 case 'CNPJ':
                 case 'cnpj':
+                case 'empresa_cnpj':
+                case 'empresa_proponente_cnpj':
                     $resolvidas[$chave] = $empresa['CNPJ'] ?? '';
                     break;
                 case 'whatsapp':
+                case 'empresa_whatsapp':
                     $resolvidas[$chave] = $empresa['WhatsApp'] ?? $empresa['Telefone'] ?? '';
                     break;
                 case 'Cidade':
                 case 'cidade_empresa':
-                    $resolvidas[$chave] = $empresa['Cidade'] ?? 'Belo Horizonte';
+                case 'empresa_proponente_cidade':
+                    $resolvidas[$chave] = $empresa['Cidade'] ?? $d['empresa_proponente_cidade'] ?? 'Belo Horizonte';
                     break;
-                case 'logo_empresa':
-                case 'logomarca':
+                case 'Logo':
                 case 'logo':
-                    // Para HTML, se estivermos no ModeloBase, as imagens podem ser injetadas
-                    // mas ModeloBase usa htmlspecialchars. 
-                    // No entanto, podemos retornar o URL da imagem aqui.
-                    $resolvidas[$chave] = $empresa['logo_url'] ?? 'assets/logo_sgt.png';
+                case 'logo_empresa':
+                case 'empresa_logo':
+                case 'logomarca':
+                case 'logotipo':
+                    $val = trim($empresa['logo_url'] ?? 'assets/logo_sgt.png');
+                    // Garante caminho absoluto para o navegador no ambiente local
+                    if (!empty($val) && !preg_match('/^https?:\/\//', $val) && !str_starts_with($val, '/')) {
+                        // Detecta se estamos no SistemaWeb ou SistemaSaaS para o prefixo
+                        $prefixo = strpos($_SERVER['REQUEST_URI'] ?? '', 'SistemaWeb') !== false ? '/SistemaWeb/' : '/SistemaSaaS/';
+                        $val = $prefixo . $val;
+                    }
+                    $resolvidas[$chave] = $val;
                     break;
                 
                 // CLIENTE - CORREÇÃO: Priorizar $dadosExtras
@@ -56,6 +70,9 @@ class ResolvedorChavesSistema
                 case 'email_salvo':
                 case 'email_cliente':
                     $resolvidas[$chave] = $d['email_salvo'] ?? $d['email_cliente'] ?? '';
+                    break;
+                case 'contato':
+                    $resolvidas[$chave] = $d['contato_obra'] ?? $d['contato_salvo'] ?? $d['contato'] ?? 'NÃO';
                     break;
                 case 'telefone_salvo':
                 case 'telefone_cliente':
@@ -134,7 +151,16 @@ class ResolvedorChavesSistema
                 
                 // DATAS
                 case 'DataExtenso':
-                    $resolvidas[$chave] = $d['DataExtenso'] ?? $this->dataPorExtenso(time());
+                case 'DExtenso':
+                case 'DExrenso':
+                case 'extenso_data':
+                case 'data_extenso':
+                    $val = $d['data_extenso'] ?? $d['DataExtenso'] ?? $d['DExtenso'] ?? $d['DExrenso'] ?? '';
+                    $resolvidas[$chave] = !empty($val) ? $val : $this->dataPorExtenso($d['data_criacao'] ?? null);
+                    break;
+                case 'Data':
+                case 'data_hoje':
+                    $resolvidas[$chave] = date('d/m/Y', strtotime($d['data_criacao'] ?? 'now'));
                     break;
                 case 'numero_proposta':
                     $resolvidas[$chave] = $d['numero_proposta'] ?? '';
@@ -186,14 +212,31 @@ class ResolvedorChavesSistema
             $stmt->execute();
             $res = $stmt->get_result();
             if ($row = $res->fetch_assoc()) {
-                // Checa logo
+                // Checa logo e verifica existência do arquivo
+                $logoEncontrada = false;
+                $caminhoBase = __DIR__ . '/'; 
+                
                 if (!empty($row['logo_caminho'])) {
-                    $row['logo_url'] = $row['logo_caminho'];
-                } elseif (!empty($row['logo_url'])) {
-                    // Mantem a logo_url externa
-                } elseif (!empty($row['logo_empresa'])) {
-                    $row['logo_url'] = 'uploads/' . $row['logo_empresa'];
-                } else {
+                    $caminhoFisico = $caminhoBase . $row['logo_caminho'];
+                    if (file_exists($caminhoFisico)) {
+                        $row['logo_url'] = $row['logo_caminho'];
+                        $logoEncontrada = true;
+                    }
+                } 
+                
+                if (!$logoEncontrada && !empty($row['logo_empresa'])) {
+                    $caminhoFisico = $caminhoBase . 'uploads/' . $row['logo_empresa'];
+                    if (file_exists($caminhoFisico)) {
+                        $row['logo_url'] = 'uploads/' . $row['logo_empresa'];
+                        $logoEncontrada = true;
+                    }
+                }
+
+                if (!$logoEncontrada && !empty($row['logo_url']) && str_starts_with($row['logo_url'], 'http')) {
+                    $logoEncontrada = true; // URL externa
+                }
+
+                if (!$logoEncontrada) {
                     $row['logo_url'] = 'assets/logo_sgt.png';
                 }
                 return $row;

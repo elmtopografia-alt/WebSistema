@@ -197,19 +197,35 @@ abstract class ModeloBase
 
     protected function substituirVariaveis(string $texto, array $contexto): string
     {
-        return preg_replace_callback('/\$\{(\w+)\}/', function ($matches) use ($contexto) {
-            $var = $matches[1];
-            if (isset($contexto[$var])) {
-                $valor = (string)$contexto[$var];
+        // 1. Substitui variáveis mágicas ${var} (suporta espaços extras e etiquetas de estilo)
+        $texto = preg_replace_callback('/\$\{\s*([^}]+)\s*\}/', function ($matches) use ($contexto) {
+            $rawVar = $matches[1];
+            $var = trim(strip_tags($rawVar));
+            $varBusca = strtolower($var);
+
+            if (isset($contexto[$var]) || isset($contexto[$varBusca])) {
+                $valor = (string)($contexto[$var] ?? $contexto[$varBusca]);
+                
                 // Se for chave de logo, renderiza como imagem
-                if (in_array($var, ['logo_empresa', 'logomarca', 'logo', 'logotipo'])) {
-                    $url = htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
-                    return "<img src='{$url}' alt='Logo' class='sgt-logo-dinamica' style='max-height: 80px; vertical-align: middle;'>";
+                if (in_array($varBusca, ['logo_empresa', 'logomarca', 'logo', 'logotipo', 'empresa_logo'])) {
+                    $url = trim($valor);
+                    if (empty($url) || $url === 'NÃO' || $url === '[logo_empresa]') return '';
+                    
+                    // Garante prefixo do projeto se não for URL absoluta ou caminho absoluto
+                    if (!preg_match('/^https?:\/\//', $url) && !str_starts_with($url, '/')) {
+                        $prefixo = strpos($_SERVER['REQUEST_URI'] ?? '', 'SistemaWeb') !== false ? '/SistemaWeb/' : '/SistemaSaaS/';
+                        $url = $prefixo . $url;
+                    }
+                    
+                    $urlEscaped = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+                    return "<img src='{$urlEscaped}' alt='Logo' class='sgt-logo-dinamica' style='max-height: 80px; vertical-align: middle;'>";
                 }
                 return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
             }
-            return "[{$var}]";
+            return "";
         }, $texto);
+
+        return $texto;
     }
 
     // ─── Contexto e variáveis ─────────────────────────────────────────────────
@@ -224,8 +240,12 @@ abstract class ModeloBase
     {
         $vars = [];
         $json = json_encode($this->blocos);
-        preg_match_all('/\$\{(\w+)\}/', $json, $matches);
-        return array_unique($matches[1]);
+        // Regex robusto para pegar variáveis dentro das chaves, mesmo com espaços
+        preg_match_all('/\$\{\s*([^}]+)\s*\}/', $json, $matches);
+        foreach ($matches[1] as $m) {
+            $vars[] = trim(strip_tags($m));
+        }
+        return array_unique($vars);
     }
 
     // ─── Helper builders ─────────────────────────────────────────────────────

@@ -72,6 +72,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         $novoCodigo = gerarCodigoPHP($dados, $nomeModelo);
         
         if (file_put_contents($caminhoFinal, $novoCodigo)) {
+            // Sincronização espelhada local (Web -> SaaS)
+            $diretorioEspelho = 'c:/xampp/htdocs/SistemaSaaS/modelos_gerados/';
+            if (is_dir($diretorioEspelho)) {
+                @file_put_contents($diretorioEspelho . 'Modelo' . $nomeModelo . '.php', $novoCodigo);
+            }
             echo json_encode(array('sucesso' => true, 'mensagem' => 'Modelo atualizado'));
         } else {
             echo json_encode(array('erro' => 'Erro ao atualizar arquivo'));
@@ -124,6 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
 
     if (file_put_contents($caminhoFinal, $codigo)) {
         
+        // NOVO: Sincronização espelhada local (Web -> SaaS)
+        $diretorioEspelho = 'c:/xampp/htdocs/SistemaSaaS/modelos_gerados/';
+        if (is_dir($diretorioEspelho)) {
+            @file_put_contents($diretorioEspelho . 'Modelo' . $nomeModelo . '.php', $codigo);
+        }
+
         // --- INÍCIO: ENVIAR PARA SERVIDOR WEB (FTP AUTOMÁTICO VIA POST) ---
         if (function_exists('curl_init') && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
             $ch = curl_init();

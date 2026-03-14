@@ -96,7 +96,8 @@ if ($id_proposta_ativo > 0) {
 }
 
 // Detecta modelo DOCX (URL > Banco > Null)
-$modeloDocxAtivo = $_GET['modelo_docx'] ?? $incomingData['modelo_docx'] ?? null;
+$rawIdModelo = $_GET['id_modelo'] ?? $incomingData['id_modelo'] ?? 0;
+$modeloDocxAtivo = $_GET['modelo_docx'] ?? ( (!empty($rawIdModelo) && !is_numeric($rawIdModelo)) ? $rawIdModelo : null ) ?? $incomingData['modelo_docx'] ?? null;
 
 // Cor do tema: URL > Banco > Padrão
 $corAtiva = $_GET['cor'] ?? $incomingData['cor'] ?? 'verde';
@@ -181,8 +182,21 @@ class VariableResolver {
     private $data;
     private $map;
     
-    public function __construct($data) {
+    public function __construct($data, $conn = null) {
         $this->data = $data;
+        // Se a logo não vier nos dados da proposta, tenta buscar da empresa (Sincronização Local)
+        if (empty($this->data['logo_empresa']) && $conn) {
+             $id_usuario = $_SESSION['usuario_id'] ?? 0;
+             $stmt = $conn->prepare("SELECT logo_caminho, logo_url, logo_empresa FROM DadosEmpresa WHERE id_criador = ? LIMIT 1");
+             if ($stmt) {
+                 $stmt->bind_param("i", $id_usuario);
+                 $stmt->execute();
+                 $emp = $stmt->get_result()->fetch_assoc();
+                 if ($emp) {
+                     $this->data['logo_empresa'] = $emp['logo_caminho'] ?: ($emp['logo_url'] ?: ('uploads/' . $emp['logo_empresa']));
+                 }
+             }
+        }
         $this->buildMap();
     }
     
@@ -284,7 +298,22 @@ class VariableResolver {
             $chave = trim($matches[2] ?? $matches[3] ?? '');
             if (empty($chave)) return $matches[0];
             $valor = $this->resolve($chave);
-            return $valor !== "[{$chave}]" ? $valor : $matches[0];
+            
+            if ($valor !== "[{$chave}]") {
+                // Se for chave de logo, renderiza como imagem para o editor
+                if (in_array(strtolower($chave), ['logo_empresa', 'logomarca', 'logo', 'logotipo', 'empresa_logo'])) {
+                    $url = trim($valor);
+                    if (empty($url) || $url === 'NÃO') return '';
+                    
+                    if (!preg_match('/^https?:\/\//', $url) && !str_starts_with($url, '/')) {
+                        $prefixo = strpos($_SERVER['REQUEST_URI'] ?? '', 'SistemaWeb') !== false ? '/SistemaWeb/' : '/SistemaSaaS/';
+                        $url = $prefixo . $url;
+                    }
+                    return "<img src='{$url}' alt='Logo' style='max-height: 60px; vertical-align: middle;'>";
+                }
+                return $valor;
+            }
+            return $matches[0];
         }, $conteudo);
     }
     
@@ -351,8 +380,8 @@ class GenericBlockRenderer {
     private $resolver;
     private $theme;
     
-    public function __construct($data, $theme) {
-        $this->resolver = new VariableResolver($data);
+    public function __construct($data, $theme, $repoConn = null) {
+        $this->resolver = new VariableResolver($data, $repoConn); // Adicionada conexão para buscar logo
         $this->theme = $theme;
     }
     
@@ -580,7 +609,7 @@ try {
     }
     
     // Inicializa o resolvedor de variáveis
-    $varResolver = new VariableResolver($incomingData);
+    $varResolver = new VariableResolver($incomingData, $repo->getConn());
     $variaveis = $varResolver->getAll();
     
     // Detecta modo de operação: DOCX ou LEGACY
@@ -1069,7 +1098,7 @@ try {
                         </div>
                         
                         <?php
-                        $renderer = new GenericBlockRenderer($incomingData, $theme);
+                        $renderer = new GenericBlockRenderer($incomingData, $theme, $repo->getConn());
                         
                         // [V3.0] Prepara os blocos com o conteúdo salvo anteriormente
                         $blocosSalvosParaDocx = [];

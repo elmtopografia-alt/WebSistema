@@ -48,6 +48,11 @@ if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
         $db_path = 'uploads/logos/' . $newFileName;
 
         if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            // Sincronização espelhada local (Web -> SaaS)
+            $diretorioEspelho = 'c:/xampp/htdocs/SistemaSaaS/uploads/logos/';
+            if (is_dir($diretorioEspelho)) {
+                @copy($dest_path, $diretorioEspelho . $newFileName);
+            }
             
             // Remove logo antigo se existir (para não encher o servidor)
             // 1. Busca antigo
