@@ -769,3 +769,17 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-03-14 18:00:03] Backup concluÃ­do com sucesso.
 [2026-03-15 18:00:03] Iniciando backup...
+[2026-03-15 18:00:03] GIT ADD: git : warning: in the working copy of 'gerador_upload_docx.php', LF will be replaced by CRLF the next time Git touches 
+it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+
+[2026-03-15 18:00:03] GIT COMMIT: [main 4706cf2] Backup Di+â-írio Autom+â-ítico: 2026-03-15 18:00:03
+ 3 files changed, 312 insertions(+), 279 deletions(-)
+
+[2026-03-16 18:00:03] Iniciando backup...
