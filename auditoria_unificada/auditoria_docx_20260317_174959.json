@@ -1,0 +1,467 @@
+{
+    "metadata": {
+        "gerado_em": "2026-03-17T17:49:59+01:00",
+        "total_arquivos": 1,
+        "diretorio_origem": "modelos_unificados",
+        "versao_auditor": "1.0"
+    },
+    "modelos": [
+        {
+            "nome_arquivo": "PropostaObraCivil",
+            "tamanho_bytes": 17510610,
+            "tamanho_kb": 17100.21,
+            "titulo_detectado": "Atenciosamente,",
+            "campos_placeholders": [
+                {
+                    "nome": "tipo_levantamento",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " tipo_levantamento "
+                },
+                {
+                    "nome": "numero_proposta",
+                    "tipo_detectado": "numero",
+                    "exemplo_original": "numero_proposta"
+                },
+                {
+                    "nome": "cidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Cidade"
+                },
+                {
+                    "nome": "data_extenso",
+                    "tipo_detectado": "data",
+                    "exemplo_original": "data_extenso"
+                },
+                {
+                    "nome": "nome_cliente",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "nome_cliente"
+                },
+                {
+                    "nome": "email_cliente",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "email_cliente"
+                },
+                {
+                    "nome": "telefone_cliente",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "telefone_cliente"
+                },
+                {
+                    "nome": "celular_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " celular_salvo "
+                },
+                {
+                    "nome": "whatsapp_cliente_cliente",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "whatsapp_cliente_cliente"
+                },
+                {
+                    "nome": "endereco_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "endereco_obra"
+                },
+                {
+                    "nome": "bairro_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "bairro_obra"
+                },
+                {
+                    "nome": "cidade_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "cidade_obra"
+                },
+                {
+                    "nome": "estado_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "estado_obra"
+                },
+                {
+                    "nome": "empresa",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "empresa"
+                },
+                {
+                    "nome": "finalidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "finalidade"
+                },
+                {
+                    "nome": "area_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " area_obra "
+                },
+                {
+                    "nome": "veiculo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Veiculo"
+                },
+                {
+                    "nome": "estacao_total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Estacao_Total "
+                },
+                {
+                    "nome": "gps",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "GPS"
+                },
+                {
+                    "nome": "drone",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Drone"
+                },
+                {
+                    "nome": "valor_total",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": "valor_total"
+                },
+                {
+                    "nome": "valor_extenso",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": "valor_extenso"
+                },
+                {
+                    "nome": "mobilizacao_percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " mobilizacao_percentual "
+                },
+                {
+                    "nome": "valor_entrada",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": "valor_entrada"
+                },
+                {
+                    "nome": "restante_percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " restante_percentual "
+                },
+                {
+                    "nome": "valor_restante",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": "valor_restante"
+                },
+                {
+                    "nome": "banco",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Banco"
+                },
+                {
+                    "nome": "agencia",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Agencia"
+                },
+                {
+                    "nome": "conta",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Conta"
+                },
+                {
+                    "nome": "cnpj",
+                    "tipo_detectado": "cnpj",
+                    "exemplo_original": "cnpj"
+                },
+                {
+                    "nome": "chave_pix",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "chave_pix"
+                },
+                {
+                    "nome": "nome",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "nome:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "endereço",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "endereço:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "bairro",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "bairro:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "estado",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "estado:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "telefone",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "telefone:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "celular",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "celular:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "whatsapp",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "whatsapp:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "contato",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "contato:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "total:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "serviço",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "serviço:",
+                    "detectado_por": "label"
+                }
+            ],
+            "secoes_detectadas": [
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Apresentação",
+                    "slug": "1_apresenta_o",
+                    "posicao": 19
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Finalidade",
+                    "slug": "2_finalidade",
+                    "posicao": 24
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Escopo Detalhado dos Serviços",
+                    "slug": "3_escopo_detalhado_dos_servi_os",
+                    "posicao": 27
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "4. Metodologia de Trabalho",
+                    "slug": "4_metodologia_de_trabalho",
+                    "posicao": 50
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "5. Equipamentos Previstos",
+                    "slug": "5_equipamentos_previstos",
+                    "posicao": 65
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "6. Investimento",
+                    "slug": "6_investimento",
+                    "posicao": 71
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "7. Condições de Pagamento",
+                    "slug": "7_condi_es_de_pagamento",
+                    "posicao": 74
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "8. Dados Bancários",
+                    "slug": "8_dados_banc_rios",
+                    "posicao": 77
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "9. Considerações Finais",
+                    "slug": "9_considera_es_finais",
+                    "posicao": 85
+                }
+            ],
+            "tabelas": 0,
+            "imagens": 0,
+            "paragrafos": 90,
+            "estimativa_paginas": 2,
+            "categoria_sugerida": "construcao",
+            "texto_amostra": "Proposta de Serviços – ${ tipo_levantamento } Proposta Nº: ${ ${numero_proposta} } ${Cidade} ${ ${data_extenso} } 📌  Dados do Cliente Nome:  ${ ${nome_cliente} } E-${e${email_cliente}_cliente}:...",
+            "tempo_analise_ms": 11.22,
+            "status": "sucesso"
+        }
+    ],
+    "analise_agrupada": {
+        "por_categoria": {
+            "construcao": [
+                "PropostaObraCivil"
+            ]
+        },
+        "por_status": {
+            "sucesso": 1,
+            "erro": 0
+        },
+        "campos_frequencia_global": {
+            "tipo_levantamento": 1,
+            "numero_proposta": 1,
+            "cidade": 1,
+            "data_extenso": 1,
+            "nome_cliente": 1,
+            "email_cliente": 1,
+            "telefone_cliente": 1,
+            "celular_salvo": 1,
+            "whatsapp_cliente_cliente": 1,
+            "endereco_obra": 1,
+            "bairro_obra": 1,
+            "cidade_obra": 1,
+            "estado_obra": 1,
+            "empresa": 1,
+            "finalidade": 1,
+            "area_obra": 1,
+            "veiculo": 1,
+            "estacao_total": 1,
+            "gps": 1,
+            "drone": 1,
+            "valor_total": 1,
+            "valor_extenso": 1,
+            "mobilizacao_percentual": 1,
+            "valor_entrada": 1,
+            "restante_percentual": 1,
+            "valor_restante": 1,
+            "banco": 1,
+            "agencia": 1,
+            "conta": 1,
+            "cnpj": 1,
+            "chave_pix": 1,
+            "nome": 1,
+            "endereço": 1,
+            "bairro": 1,
+            "estado": 1,
+            "telefone": 1,
+            "celular": 1,
+            "whatsapp": 1,
+            "contato": 1,
+            "total": 1,
+            "serviço": 1
+        },
+        "campos_por_categoria": {
+            "construcao": {
+                "tipo_levantamento": 1,
+                "numero_proposta": 1,
+                "cidade": 1,
+                "data_extenso": 1,
+                "nome_cliente": 1,
+                "email_cliente": 1,
+                "telefone_cliente": 1,
+                "celular_salvo": 1,
+                "whatsapp_cliente_cliente": 1,
+                "endereco_obra": 1,
+                "bairro_obra": 1,
+                "cidade_obra": 1,
+                "estado_obra": 1,
+                "empresa": 1,
+                "finalidade": 1,
+                "area_obra": 1,
+                "veiculo": 1,
+                "estacao_total": 1,
+                "gps": 1,
+                "drone": 1,
+                "valor_total": 1,
+                "valor_extenso": 1,
+                "mobilizacao_percentual": 1,
+                "valor_entrada": 1,
+                "restante_percentual": 1,
+                "valor_restante": 1,
+                "banco": 1,
+                "agencia": 1,
+                "conta": 1,
+                "cnpj": 1,
+                "chave_pix": 1,
+                "nome": 1,
+                "endereço": 1,
+                "bairro": 1,
+                "estado": 1,
+                "telefone": 1,
+                "celular": 1,
+                "whatsapp": 1,
+                "contato": 1,
+                "total": 1,
+                "serviço": 1
+            }
+        },
+        "secoes_frequencia": {
+            "1_apresenta_o": {
+                "titulo": "1. Apresentação",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "2_finalidade": {
+                "titulo": "2. Finalidade",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "3_escopo_detalhado_dos_servi_os": {
+                "titulo": "3. Escopo Detalhado dos Serviços",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "4_metodologia_de_trabalho": {
+                "titulo": "4. Metodologia de Trabalho",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "5_equipamentos_previstos": {
+                "titulo": "5. Equipamentos Previstos",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "6_investimento": {
+                "titulo": "6. Investimento",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "7_condi_es_de_pagamento": {
+                "titulo": "7. Condições de Pagamento",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "8_dados_banc_rios": {
+                "titulo": "8. Dados Bancários",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "9_considera_es_finais": {
+                "titulo": "9. Considerações Finais",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            }
+        },
+        "estatisticas": {
+            "total_paginas_estimadas": 2,
+            "total_tabelas": 0,
+            "total_imagens": 0,
+            "tamanho_medio_kb": 17100.21
+        }
+    }
+}

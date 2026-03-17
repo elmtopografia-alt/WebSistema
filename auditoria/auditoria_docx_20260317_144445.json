@@ -1,0 +1,1262 @@
+{
+    "metadata": {
+        "gerado_em": "2026-03-17T14:44:45+01:00",
+        "total_arquivos": 3,
+        "diretorio_origem": "modelos_docx_originais",
+        "versao_auditor": "1.0"
+    },
+    "modelos": [
+        {
+            "nome_arquivo": "ModeloPropostaDrone",
+            "tamanho_bytes": 45086,
+            "tamanho_kb": 44.03,
+            "titulo_detectado": "Atenciosamente,",
+            "campos_placeholders": [
+                {
+                    "nome": "tipo_levantamento",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " tipo_levantamento "
+                },
+                {
+                    "nome": "numero_proposta",
+                    "tipo_detectado": "numero",
+                    "exemplo_original": " numero_proposta "
+                },
+                {
+                    "nome": "cidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Cidade"
+                },
+                {
+                    "nome": "dexrenso",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " DExrenso "
+                },
+                {
+                    "nome": "nome_cliente_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " nome_cliente_salvo "
+                },
+                {
+                    "nome": "email_salvo",
+                    "tipo_detectado": "email",
+                    "exemplo_original": " email_salvo "
+                },
+                {
+                    "nome": "telefone_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " telefone_salvo "
+                },
+                {
+                    "nome": "celular_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " celular_salvo "
+                },
+                {
+                    "nome": "whatsapp_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp_salvo "
+                },
+                {
+                    "nome": "endereco_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " endereco_obra "
+                },
+                {
+                    "nome": "bairro_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " bairro_obra "
+                },
+                {
+                    "nome": "cidade_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " cidade_obra "
+                },
+                {
+                    "nome": "estado_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " estado_obra "
+                },
+                {
+                    "nome": "empresa",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Empresa"
+                },
+                {
+                    "nome": "finalidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "finalidade"
+                },
+                {
+                    "nome": "area_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " area_obra "
+                },
+                {
+                    "nome": "veiculo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Veiculo"
+                },
+                {
+                    "nome": "estacao__total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Estacao _Total "
+                },
+                {
+                    "nome": "gps",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "GPS"
+                },
+                {
+                    "nome": "drone",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Drone"
+                },
+                {
+                    "nome": "valorproposta",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorProposta "
+                },
+                {
+                    "nome": "valorextenso",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorExtenso "
+                },
+                {
+                    "nome": "mobilizacao__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " mobilizacao_ percentual "
+                },
+                {
+                    "nome": "mobilizacao_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " mobilizacao_valor "
+                },
+                {
+                    "nome": "restante__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " restante_ percentual "
+                },
+                {
+                    "nome": "restante_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " restante_valor "
+                },
+                {
+                    "nome": "banco",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Banco"
+                },
+                {
+                    "nome": "agencia",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Agencia"
+                },
+                {
+                    "nome": "conta",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Conta"
+                },
+                {
+                    "nome": "cnpj",
+                    "tipo_detectado": "cnpj",
+                    "exemplo_original": "CNPJ"
+                },
+                {
+                    "nome": "pix",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "PIX"
+                },
+                {
+                    "nome": "whatsapp",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp "
+                },
+                {
+                    "nome": "______________________________",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "______________________________"
+                },
+                {
+                    "nome": "nome",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "nome:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "endereço",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "endereço:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "bairro",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "bairro:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "estado",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "estado:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "e-mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "e-mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "telefone",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "telefone:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "celular",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "celular:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "contato",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "contato:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "total:",
+                    "detectado_por": "label"
+                }
+            ],
+            "secoes_detectadas": [
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Apresentação",
+                    "slug": "1_apresenta_o",
+                    "posicao": 18
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Finalidade",
+                    "slug": "2_finalidade",
+                    "posicao": 21
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Escopo do Serviço",
+                    "slug": "3_escopo_do_servi_o",
+                    "posicao": 24
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "4. Metodologia",
+                    "slug": "4_metodologia",
+                    "posicao": 41
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "ART-CREA\/MG.",
+                    "slug": "art_crea_mg",
+                    "posicao": 54
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "5. Equipamentos Previsto",
+                    "slug": "5_equipamentos_previsto",
+                    "posicao": 58
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "GPS: ${GPS}",
+                    "slug": "gps_gps",
+                    "posicao": 61
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "6. Investimento",
+                    "slug": "6_investimento",
+                    "posicao": 64
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "7. Condições de Pagamento",
+                    "slug": "7_condi_es_de_pagamento",
+                    "posicao": 68
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "8. Dados Bancários",
+                    "slug": "8_dados_banc_rios",
+                    "posicao": 73
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "CNPJ: ${CNPJ}",
+                    "slug": "cnpj_cnpj",
+                    "posicao": 78
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "9. Considerações Finais",
+                    "slug": "9_considera_es_finais",
+                    "posicao": 85
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "________________________________",
+                    "slug": "",
+                    "posicao": 89
+                }
+            ],
+            "tabelas": 0,
+            "imagens": 0,
+            "paragrafos": 92,
+            "estimativa_paginas": 2,
+            "categoria_sugerida": "construcao",
+            "texto_amostra": "Proposta de Serviços – ${ tipo_levantamento } Proposta Nº: ${ numero_proposta } ${ Cidade}     $ { DExrenso } 📌  Dados do Cliente Nome:  ${ nome_cliente_salvo } E-mail:  ${ email_salvo } Telefo...",
+            "tempo_analise_ms": 9.07,
+            "status": "sucesso"
+        },
+        {
+            "nome_arquivo": "ModeloPropostaObraCivil",
+            "tamanho_bytes": 44155,
+            "tamanho_kb": 43.12,
+            "titulo_detectado": "________________________________",
+            "campos_placeholders": [
+                {
+                    "nome": "tipo_levantamento",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " tipo_levantamento "
+                },
+                {
+                    "nome": "numero_proposta",
+                    "tipo_detectado": "numero",
+                    "exemplo_original": " numero_proposta "
+                },
+                {
+                    "nome": "cidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Cidade"
+                },
+                {
+                    "nome": "dexrenso",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " DExrenso "
+                },
+                {
+                    "nome": "nome_cliente_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " nome_cliente_salvo "
+                },
+                {
+                    "nome": "email_salvo",
+                    "tipo_detectado": "email",
+                    "exemplo_original": " email_salvo "
+                },
+                {
+                    "nome": "telefone_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " telefone_salvo "
+                },
+                {
+                    "nome": "celular_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " celular_salvo "
+                },
+                {
+                    "nome": "whatsapp_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp_salvo "
+                },
+                {
+                    "nome": "endereco_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " endereco_obra "
+                },
+                {
+                    "nome": "bairro_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " bairro_obra "
+                },
+                {
+                    "nome": "cidade_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " cidade_obra "
+                },
+                {
+                    "nome": "estado_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " estado_obra "
+                },
+                {
+                    "nome": "empresa",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Empresa"
+                },
+                {
+                    "nome": "finalidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "finalidade"
+                },
+                {
+                    "nome": "area_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " area_obra "
+                },
+                {
+                    "nome": "veiculo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Veiculo"
+                },
+                {
+                    "nome": "estacao__total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Estacao _Total "
+                },
+                {
+                    "nome": "gps",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "GPS"
+                },
+                {
+                    "nome": "drone",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Drone"
+                },
+                {
+                    "nome": "valorproposta",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorProposta "
+                },
+                {
+                    "nome": "valorextenso",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorExtenso "
+                },
+                {
+                    "nome": "mobilizacao__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " mobilizacao_ percentual "
+                },
+                {
+                    "nome": "mobilizacao_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " mobilizacao_valor "
+                },
+                {
+                    "nome": "restante__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " restante_ percentual "
+                },
+                {
+                    "nome": "restante_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " restante_valor "
+                },
+                {
+                    "nome": "banco",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Banco"
+                },
+                {
+                    "nome": "agencia",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Agencia"
+                },
+                {
+                    "nome": "conta",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Conta"
+                },
+                {
+                    "nome": "cnpj",
+                    "tipo_detectado": "cnpj",
+                    "exemplo_original": "CNPJ"
+                },
+                {
+                    "nome": "pix",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "PIX"
+                },
+                {
+                    "nome": "whatsapp",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp "
+                },
+                {
+                    "nome": "______________________________",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "______________________________"
+                },
+                {
+                    "nome": "nome",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "nome:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "endereço",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "endereço:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "bairro",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "bairro:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "estado",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "estado:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "e-mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "e-mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "telefone",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "telefone:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "celular",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "celular:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "contato",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "contato:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "total:",
+                    "detectado_por": "label"
+                }
+            ],
+            "secoes_detectadas": [
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Apresentação",
+                    "slug": "1_apresenta_o",
+                    "posicao": 18
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Finalidade",
+                    "slug": "2_finalidade",
+                    "posicao": 20
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Escopo do Serviço",
+                    "slug": "3_escopo_do_servi_o",
+                    "posicao": 23
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "4. Metodologia",
+                    "slug": "4_metodologia",
+                    "posicao": 36
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Levantamento e Locação de Campo",
+                    "slug": "1_levantamento_e_loca_o_de_campo",
+                    "posicao": 37
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Processamento e Análise",
+                    "slug": "2_processamento_e_an_lise",
+                    "posicao": 42
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Documentação Gerada",
+                    "slug": "3_documenta_o_gerada",
+                    "posicao": 46
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "ART-CREA\/MG.",
+                    "slug": "art_crea_mg",
+                    "posicao": 50
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "5. Equipamentos Previsto",
+                    "slug": "5_equipamentos_previsto",
+                    "posicao": 52
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "GPS: ${GPS}",
+                    "slug": "gps_gps",
+                    "posicao": 55
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "6. Investimento",
+                    "slug": "6_investimento",
+                    "posicao": 58
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "7. Condições de Pagamento",
+                    "slug": "7_condi_es_de_pagamento",
+                    "posicao": 63
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "8. Dados Bancários",
+                    "slug": "8_dados_banc_rios",
+                    "posicao": 67
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "CNPJ: ${CNPJ}",
+                    "slug": "cnpj_cnpj",
+                    "posicao": 72
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "9. Considerações Finais",
+                    "slug": "9_considera_es_finais",
+                    "posicao": 75
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "________________________________",
+                    "slug": "",
+                    "posicao": 80
+                }
+            ],
+            "tabelas": 0,
+            "imagens": 0,
+            "paragrafos": 82,
+            "estimativa_paginas": 2,
+            "categoria_sugerida": "construcao",
+            "texto_amostra": "Proposta de Serviços – ${ tipo_levantamento } Proposta Nº: ${ numero_proposta } ${ Cidade}     $ { DExrenso } 📌  Dados do Cliente Nome:  ${ nome_cliente_salvo } E-mail:  ${ email_salvo } Telefo...",
+            "tempo_analise_ms": 3.66,
+            "status": "sucesso"
+        },
+        {
+            "nome_arquivo": "ModeloPropostaUsucapiao",
+            "tamanho_bytes": 44269,
+            "tamanho_kb": 43.23,
+            "titulo_detectado": "________________________________",
+            "campos_placeholders": [
+                {
+                    "nome": "tipo_levantamento",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " tipo_levantamento "
+                },
+                {
+                    "nome": "numero_proposta",
+                    "tipo_detectado": "numero",
+                    "exemplo_original": " numero_proposta "
+                },
+                {
+                    "nome": "cidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Cidade"
+                },
+                {
+                    "nome": "dexrenso",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " DExrenso "
+                },
+                {
+                    "nome": "nome_cliente_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " nome_cliente_salvo "
+                },
+                {
+                    "nome": "email_salvo",
+                    "tipo_detectado": "email",
+                    "exemplo_original": " email_salvo "
+                },
+                {
+                    "nome": "telefone_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " telefone_salvo "
+                },
+                {
+                    "nome": "celular_salvo",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": " celular_salvo "
+                },
+                {
+                    "nome": "whatsapp_salvo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp_salvo "
+                },
+                {
+                    "nome": "endereco_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " endereco_obra "
+                },
+                {
+                    "nome": "bairro_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " bairro_obra "
+                },
+                {
+                    "nome": "cidade_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " cidade_obra "
+                },
+                {
+                    "nome": "estado_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " estado_obra "
+                },
+                {
+                    "nome": "empresa",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Empresa"
+                },
+                {
+                    "nome": "finalidade",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "finalidade"
+                },
+                {
+                    "nome": "area_obra",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " area_obra "
+                },
+                {
+                    "nome": "veiculo",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Veiculo"
+                },
+                {
+                    "nome": "estacao__total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " Estacao _Total "
+                },
+                {
+                    "nome": "gps",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "GPS"
+                },
+                {
+                    "nome": "drone",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Drone"
+                },
+                {
+                    "nome": "valorproposta",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorProposta "
+                },
+                {
+                    "nome": "valorextenso",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " ValorExtenso "
+                },
+                {
+                    "nome": "mobilizacao__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " mobilizacao_ percentual "
+                },
+                {
+                    "nome": "mobilizacao_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " mobilizacao_valor "
+                },
+                {
+                    "nome": "restante__percentual",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " restante_ percentual "
+                },
+                {
+                    "nome": "restante_valor",
+                    "tipo_detectado": "moeda",
+                    "exemplo_original": " restante_valor "
+                },
+                {
+                    "nome": "banco",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Banco"
+                },
+                {
+                    "nome": "agencia",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Agencia"
+                },
+                {
+                    "nome": "conta",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "Conta"
+                },
+                {
+                    "nome": "cnpj",
+                    "tipo_detectado": "cnpj",
+                    "exemplo_original": "CNPJ"
+                },
+                {
+                    "nome": "pix",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "PIX"
+                },
+                {
+                    "nome": "whatsapp",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": " whatsapp "
+                },
+                {
+                    "nome": "______________________________",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "______________________________"
+                },
+                {
+                    "nome": "nome",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "nome:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "endereço",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "endereço:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "bairro",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "bairro:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "estado",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "estado:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "e-mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "e-mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "mail",
+                    "tipo_detectado": "email",
+                    "exemplo_original": "mail:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "telefone",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "telefone:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "celular",
+                    "tipo_detectado": "telefone",
+                    "exemplo_original": "celular:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "contato",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "contato:",
+                    "detectado_por": "label"
+                },
+                {
+                    "nome": "total",
+                    "tipo_detectado": "texto",
+                    "exemplo_original": "total:",
+                    "detectado_por": "label"
+                }
+            ],
+            "secoes_detectadas": [
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Apresentação",
+                    "slug": "1_apresenta_o",
+                    "posicao": 18
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Finalidade",
+                    "slug": "2_finalidade",
+                    "posicao": 20
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Escopo do Serviço",
+                    "slug": "3_escopo_do_servi_o",
+                    "posicao": 23
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "4. Metodologia",
+                    "slug": "4_metodologia",
+                    "posicao": 35
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "1. Aquisição de Dados em Campo",
+                    "slug": "1_aquisi_o_de_dados_em_campo",
+                    "posicao": 36
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "2. Processamento e Análise",
+                    "slug": "2_processamento_e_an_lise",
+                    "posicao": 40
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "3. Documentação Gerada",
+                    "slug": "3_documenta_o_gerada",
+                    "posicao": 44
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "5. Equipamentos Previsto",
+                    "slug": "5_equipamentos_previsto",
+                    "posicao": 50
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "GPS: ${GPS}",
+                    "slug": "gps_gps",
+                    "posicao": 53
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "6. Investimento",
+                    "slug": "6_investimento",
+                    "posicao": 56
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "7. Condições de Pagamento",
+                    "slug": "7_condi_es_de_pagamento",
+                    "posicao": 62
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "8. Dados Bancários",
+                    "slug": "8_dados_banc_rios",
+                    "posicao": 66
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "CNPJ: ${CNPJ}",
+                    "slug": "cnpj_cnpj",
+                    "posicao": 71
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "9. Considerações Finais",
+                    "slug": "9_considera_es_finais",
+                    "posicao": 74
+                },
+                {
+                    "nivel": 2,
+                    "titulo_original": "________________________________",
+                    "slug": "",
+                    "posicao": 78
+                }
+            ],
+            "tabelas": 0,
+            "imagens": 0,
+            "paragrafos": 80,
+            "estimativa_paginas": 2,
+            "categoria_sugerida": "construcao",
+            "texto_amostra": "Proposta de Serviços – ${ tipo_levantamento } Proposta Nº: ${ numero_proposta } ${ Cidade}     $ { DExrenso } 📌  Dados do Cliente Nome:  ${ nome_cliente_salvo } E-mail:  ${ email_salvo } Telefo...",
+            "tempo_analise_ms": 3.44,
+            "status": "sucesso"
+        }
+    ],
+    "analise_agrupada": {
+        "por_categoria": {
+            "construcao": [
+                "ModeloPropostaDrone",
+                "ModeloPropostaObraCivil",
+                "ModeloPropostaUsucapiao"
+            ]
+        },
+        "por_status": {
+            "sucesso": 3,
+            "erro": 0
+        },
+        "campos_frequencia_global": {
+            "tipo_levantamento": 3,
+            "numero_proposta": 3,
+            "cidade": 3,
+            "dexrenso": 3,
+            "nome_cliente_salvo": 3,
+            "email_salvo": 3,
+            "telefone_salvo": 3,
+            "celular_salvo": 3,
+            "whatsapp_salvo": 3,
+            "endereco_obra": 3,
+            "bairro_obra": 3,
+            "cidade_obra": 3,
+            "estado_obra": 3,
+            "empresa": 3,
+            "finalidade": 3,
+            "area_obra": 3,
+            "veiculo": 3,
+            "estacao__total": 3,
+            "gps": 3,
+            "drone": 3,
+            "valorproposta": 3,
+            "valorextenso": 3,
+            "mobilizacao__percentual": 3,
+            "mobilizacao_valor": 3,
+            "restante__percentual": 3,
+            "restante_valor": 3,
+            "banco": 3,
+            "agencia": 3,
+            "conta": 3,
+            "cnpj": 3,
+            "pix": 3,
+            "whatsapp": 3,
+            "______________________________": 3,
+            "nome": 3,
+            "endereço": 3,
+            "bairro": 3,
+            "estado": 3,
+            "e-mail": 3,
+            "mail": 3,
+            "telefone": 3,
+            "celular": 3,
+            "contato": 3,
+            "total": 3
+        },
+        "campos_por_categoria": {
+            "construcao": {
+                "tipo_levantamento": 3,
+                "numero_proposta": 3,
+                "cidade": 3,
+                "dexrenso": 3,
+                "nome_cliente_salvo": 3,
+                "email_salvo": 3,
+                "telefone_salvo": 3,
+                "celular_salvo": 3,
+                "whatsapp_salvo": 3,
+                "endereco_obra": 3,
+                "bairro_obra": 3,
+                "cidade_obra": 3,
+                "estado_obra": 3,
+                "empresa": 3,
+                "finalidade": 3,
+                "area_obra": 3,
+                "veiculo": 3,
+                "estacao__total": 3,
+                "gps": 3,
+                "drone": 3,
+                "valorproposta": 3,
+                "valorextenso": 3,
+                "mobilizacao__percentual": 3,
+                "mobilizacao_valor": 3,
+                "restante__percentual": 3,
+                "restante_valor": 3,
+                "banco": 3,
+                "agencia": 3,
+                "conta": 3,
+                "cnpj": 3,
+                "pix": 3,
+                "whatsapp": 3,
+                "______________________________": 3,
+                "nome": 3,
+                "endereço": 3,
+                "bairro": 3,
+                "estado": 3,
+                "e-mail": 3,
+                "mail": 3,
+                "telefone": 3,
+                "celular": 3,
+                "contato": 3,
+                "total": 3
+            }
+        },
+        "secoes_frequencia": {
+            "1_apresenta_o": {
+                "titulo": "1. Apresentação",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "2_finalidade": {
+                "titulo": "2. Finalidade",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "3_escopo_do_servi_o": {
+                "titulo": "3. Escopo do Serviço",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "4_metodologia": {
+                "titulo": "4. Metodologia",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "5_equipamentos_previsto": {
+                "titulo": "5. Equipamentos Previsto",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "gps_gps": {
+                "titulo": "GPS: ${GPS}",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "6_investimento": {
+                "titulo": "6. Investimento",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "7_condi_es_de_pagamento": {
+                "titulo": "7. Condições de Pagamento",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "8_dados_banc_rios": {
+                "titulo": "8. Dados Bancários",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "cnpj_cnpj": {
+                "titulo": "CNPJ: ${CNPJ}",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "9_considera_es_finais": {
+                "titulo": "9. Considerações Finais",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "": {
+                "titulo": "________________________________",
+                "ocorrencias": 3,
+                "niveis": [
+                    2,
+                    2,
+                    2
+                ]
+            },
+            "art_crea_mg": {
+                "titulo": "ART-CREA\/MG.",
+                "ocorrencias": 2,
+                "niveis": [
+                    2,
+                    2
+                ]
+            },
+            "2_processamento_e_an_lise": {
+                "titulo": "2. Processamento e Análise",
+                "ocorrencias": 2,
+                "niveis": [
+                    2,
+                    2
+                ]
+            },
+            "3_documenta_o_gerada": {
+                "titulo": "3. Documentação Gerada",
+                "ocorrencias": 2,
+                "niveis": [
+                    2,
+                    2
+                ]
+            },
+            "1_levantamento_e_loca_o_de_campo": {
+                "titulo": "1. Levantamento e Locação de Campo",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            },
+            "1_aquisi_o_de_dados_em_campo": {
+                "titulo": "1. Aquisição de Dados em Campo",
+                "ocorrencias": 1,
+                "niveis": [
+                    2
+                ]
+            }
+        },
+        "estatisticas": {
+            "total_paginas_estimadas": 6,
+            "total_tabelas": 0,
+            "total_imagens": 0,
+            "tamanho_medio_kb": 43.46
+        }
+    }
+}

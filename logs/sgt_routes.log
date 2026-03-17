@@ -756,3 +756,33 @@
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.84MB
 [2026-03-16 14:02:09] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
   └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.89MB
+[2026-03-17 07:38:04] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.57MB
+[2026-03-17 07:40:00] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.57MB
+[2026-03-17 08:04:55] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:07:26] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:09:13] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:09:55] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:10:28] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:14:21] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:20:20] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_upload_docx.php (Root: gerador_upload_docx.php)
+  └─ [SHUTDOWN] Arquivos: 4 | Memória: 0.6MB
+[2026-03-17 08:21:43] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.63MB
+[2026-03-17 08:40:49] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.64MB
+[2026-03-17 08:42:35] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.64MB
+[2026-03-17 08:42:49] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.87MB
+[2026-03-17 08:49:20] [::1] [ENV:unknown] [UID:guest] GET /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.61MB
+[2026-03-17 08:52:15] [::1] [ENV:unknown] [UID:guest] POST /SistemaWeb/gerador_update_docs.php (Root: gerador_update_docs.php)
+  └─ [SHUTDOWN] Arquivos: 5 | Memória: 0.61MB

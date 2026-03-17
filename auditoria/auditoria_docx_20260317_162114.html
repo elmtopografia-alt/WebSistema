@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoria de Modelos DOCX - SGT Propostas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-box { background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #2980b9; }
+        .stat-label { color: #7f8c8d; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; }
+        tr:hover { background: #f5f5f5; }
+        .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; margin: 2px; }
+        .tag-cat { background: #3498db; color: white; }
+        .tag-campo { background: #2ecc71; color: white; }
+        .tag-secao { background: #9b59b6; color: white; }
+        .erro { color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 4px; }
+        .sucesso { color: #27ae60; }
+        .progress-bar { background: #ecf0f1; border-radius: 10px; overflow: hidden; height: 20px; }
+        .progress-fill { background: #3498db; height: 100%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Auditoria de Modelos DOCX</h1>
+        <p><strong>Gerado em:</strong> 2026-03-17T16:21:14+01:00</p>
+        <p><strong>Diretório:</strong> modelos_docx_originais</p>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">81</div>
+                <div class="stat-label">Total de Modelos</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Categorias Detectadas</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">81</div>
+                <div class="stat-label">Campos Diferentes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">79</div>
+                <div class="stat-label">Análises Bem-sucedidas</div>
+            </div>
+        </div><h2>📁 Distribuição por Categoria</h2><table>
+            <tr><th>Categoria</th><th>Quantidade</th><th>Modelos</th></tr><tr><td><span class='tag tag-cat'>drone</span></td>
+                <td>27</td>
+                <td>AdminSystem-2025-001, DolarFraicaLtda-2025-004, DolarFraicaLtda-2025-008...</td></tr><tr><td><span class='tag tag-cat'>ti</span></td>
+                <td>15</td>
+                <td>AdministradoraELMLtda-2025-001, Documento1, DolarFraicaLtda-2025-002...</td></tr><tr><td><span class='tag tag-cat'>construcao</span></td>
+                <td>36</td>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-002, GeoMetropoleEngenhariaeTopografiaLtda-2025-003, GeoMetropoleEngenhariaeTopografiaLtda-2025-133240...</td></tr><tr><td><span class='tag tag-cat'>geral</span></td>
+                <td>1</td>
+                <td>ModeloPropostaRevisaoeAdequacaodeServico</td></tr></table><h2>🔑 Campos Mais Frequentes (Globais)</h2><table>
+            <tr><th>Campo</th><th>Ocorrências</th><th>%</th><th>Tipo Sugerido</th></tr><tr>
+                <td><span class='tag tag-campo'>mail</span></td>
+                <td>74</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 91%'></div></div> 91%</td>
+                <td>email</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>endereço</span></td>
+                <td>72</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 89%'></div></div> 89%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>cnpj</span></td>
+                <td>71</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 88%'></div></div> 88%</td>
+                <td>cnpj</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>e-mail</span></td>
+                <td>71</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 88%'></div></div> 88%</td>
+                <td>email</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>bairro</span></td>
+                <td>70</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 86%'></div></div> 86%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>estado</span></td>
+                <td>70</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 86%'></div></div> 86%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>nome</span></td>
+                <td>69</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 85%'></div></div> 85%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>celular</span></td>
+                <td>63</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 78%'></div></div> 78%</td>
+                <td>telefone</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>cidade</span></td>
+                <td>60</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 74%'></div></div> 74%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>whatsapp</span></td>
+                <td>60</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 74%'></div></div> 74%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>contato</span></td>
+                <td>57</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 70%'></div></div> 70%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>total</span></td>
+                <td>55</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 68%'></div></div> 68%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>telefone</span></td>
+                <td>53</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 65%'></div></div> 65%</td>
+                <td>telefone</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>nome_cliente_salvo</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>email_salvo</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>email</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>whatsapp_salvo</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>endereco_obra</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>empresa</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>valorproposta</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>moeda</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>valorextenso</span></td>
+                <td>33</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 41%'></div></div> 41%</td>
+                <td>moeda</td>
+            </tr></table><h2>🏷️ Campos Específicos por Categoria</h2><h3>drone</h3><div style='margin: 10px 0;'><span class='tag tag-campo'>nome (26)</span> <span class='tag tag-campo'>cnpj (26)</span> <span class='tag tag-campo'>endereço (26)</span> <span class='tag tag-campo'>bairro (26)</span> <span class='tag tag-campo'>estado (26)</span> <span class='tag tag-campo'>e-mail (26)</span> <span class='tag tag-campo'>mail (26)</span> <span class='tag tag-campo'>celular (24)</span> <span class='tag tag-campo'>metodologia (16)</span> <span class='tag tag-campo'>procedimento (16)</span> </div><h3>ti</h3><div style='margin: 10px 0;'><span class='tag tag-campo'>cidade (14)</span> <span class='tag tag-campo'>mail (14)</span> <span class='tag tag-campo'>whatsapp (14)</span> <span class='tag tag-campo'>total (14)</span> <span class='tag tag-campo'>e-mail (13)</span> <span class='tag tag-campo'>contato (13)</span> <span class='tag tag-campo'>cnpj (12)</span> <span class='tag tag-campo'>endereço (12)</span> <span class='tag tag-campo'>bairro (11)</span> <span class='tag tag-campo'>estado (11)</span> </div><h3>construcao</h3><div style='margin: 10px 0;'><span class='tag tag-campo'>cidade (36)</span> <span class='tag tag-campo'>whatsapp (36)</span> <span class='tag tag-campo'>endereço (34)</span> <span class='tag tag-campo'>mail (34)</span> <span class='tag tag-campo'>contato (34)</span> <span class='tag tag-campo'>nome (33)</span> <span class='tag tag-campo'>cnpj (33)</span> <span class='tag tag-campo'>bairro (33)</span> <span class='tag tag-campo'>estado (33)</span> <span class='tag tag-campo'>e-mail (32)</span> </div><h2>📑 Seções Mais Comuns</h2><table>
+            <tr><th>Seção</th><th>Ocorrências</th><th>Níveis</th></tr><tr>
+                <td><span class='tag tag-secao'>2. Finalidade</span></td>
+                <td>48</td>
+                <td>H2:48</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>3. Escopo do Serviço</span></td>
+                <td>42</td>
+                <td>H2:42</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>9. Dados Bancários</span></td>
+                <td>31</td>
+                <td>H2:31</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>7. Investimento</span></td>
+                <td>30</td>
+                <td>H2:30</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>8. Condições de Pagamento</span></td>
+                <td>30</td>
+                <td>H2:30</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>10. Considerações Finais</span></td>
+                <td>30</td>
+                <td>H2:30</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>6. Equipamentos Previstos</span></td>
+                <td>29</td>
+                <td>H2:29</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>1. Apresentação</span></td>
+                <td>26</td>
+                <td>H2:26</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>5. Investimento</span></td>
+                <td>23</td>
+                <td>H2:23</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>CNPJ: ${CNPJ}</span></td>
+                <td>23</td>
+                <td>H2:23</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>4. Documentação Gerada (Entregáveis)</span></td>
+                <td>21</td>
+                <td>H2:21</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>4. Metodologia</span></td>
+                <td>20</td>
+                <td>H2:20</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>6. Condições de Pagamento</span></td>
+                <td>19</td>
+                <td>H2:19</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>8. Considerações Finais</span></td>
+                <td>19</td>
+                <td>H2:19</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>7. Condições de Pagamento</span></td>
+                <td>18</td>
+                <td>H2:18</td>
+            </tr></table><h2>📄 Detalhes por Modelo</h2><table>
+            <tr><th>Arquivo</th><th>Categoria</th><th>Págs</th><th>Campos</th><th>Seções</th><th>Status</th></tr><tr>
+                <td>AdminSystem-2025-001</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>14</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>AdministradoraELMLtda-2025-001</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>Documento1</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-001</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="erro">✗ Não é um ZIP válido (código: 19)</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-002</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-003</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-004</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-005</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>7</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-006</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-008</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-009</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-010</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>DolarFraicaLtda-2025-015</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELM-Katia-Drone-ELM-2026-001-Rv01</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServicosTopograficosLtda-2025-015</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-005</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-006</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-007</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>13</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-008</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-009</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-010</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMServiosTopogrficosLtda-2025-011</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ELMTopografia-2025-004</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-001 (Reparado)</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-001</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>14</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-002</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-003</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>14</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-004</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-005</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-006</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-007</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-008</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-133240</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>13</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetropoleEngenhariaeTopografiaLtda-2025-134016</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpole-Jardel-Drone-GEOMETRPOLE-2026-007</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-002</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>14</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-003</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>14</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-004</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-005</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-006</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-007</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-008</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>10</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-009</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-010</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>3</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-2025-011</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>13</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>GeoMetrpoleEngenhariaeTopografiaLtda-GEOMETRPOLE-2025-010-Rv01</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="erro">✗ Arquivo muito pequeno (possivelmente corrompido)</span></td>
+            </tr><tr>
+                <td>ModeloProfissionalV2</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>6</td>
+                <td>37</td>
+                <td>24</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaConferencia</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>16</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaDesdobramento</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaDrone</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>38</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaGeorreferenciamentoINCRA</td>
+                <td><span class='tag tag-cat'>drone</span></td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaLocacaoTerraplenagem</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaLocacaodeObra</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>1</td>
+                <td>28</td>
+                <td>7</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaObraCivil</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaObraIndustrial</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>41</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaObraTerraplanagem</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>41</td>
+                <td>12</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaPlanialtimetrico (2)</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>16</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaPlanialtimetrico</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>41</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaPlanimetrico</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>42</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaRetificacaodeArea</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>42</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaRevisaoeAdequacaodeServico</td>
+                <td><span class='tag tag-cat'>geral</span></td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>ModeloPropostaUsucapiao</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>40</td>
+                <td>11</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaAvulso</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>44</td>
+                <td>17</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaConferencia</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>16</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaDesdobramento</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaDrone</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>8</td>
+                <td>48</td>
+                <td>12</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaGeorreferenciamentoINCRA-I</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>35</td>
+                <td>18</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaGeorreferenciamentoINCRA-II</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>3</td>
+                <td>33</td>
+                <td>15</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaGeorreferenciamentoINCRA</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>37</td>
+                <td>13</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaLocacaoTerraplenagem</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaLocacaodeObra</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>29</td>
+                <td>7</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaObraCivil</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaObraIndustrial</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>41</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaObraTerraplanagem</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>41</td>
+                <td>12</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaPlanialtimetrico</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>41</td>
+                <td>10</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaPlanimetrico</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>43</td>
+                <td>12</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaPlantaMemorialART</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>1</td>
+                <td>23</td>
+                <td>7</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaRetificacaodeArea</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>42</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaRevisaoeAdequacaodeServico</td>
+                <td><span class='tag tag-cat'>ti</span></td>
+                <td>2</td>
+                <td>33</td>
+                <td>14</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>PropostaUsucapiao</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>3</td>
+                <td>43</td>
+                <td>12</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr><tr>
+                <td>_ModeloProfissionalV2</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>6</td>
+                <td>37</td>
+                <td>22</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr></table></div></body></html>

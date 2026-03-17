@@ -67,23 +67,24 @@ class ResolvedorChavesSistema
                 case 'nome_cliente':
                     $resolvidas[$chave] = $d['nome_cliente_salvo'] ?? $d['nome_cliente'] ?? 'Cliente não informado';
                     break;
-                case 'email_salvo':
                 case 'email_cliente':
+                case 'email_salvo':
                     $resolvidas[$chave] = $d['email_salvo'] ?? $d['email_cliente'] ?? '';
                     break;
+                case 'nome_contato':
                 case 'contato':
                     $resolvidas[$chave] = $d['contato_obra'] ?? $d['contato_salvo'] ?? $d['contato'] ?? 'NÃO';
                     break;
-                case 'telefone_salvo':
                 case 'telefone_cliente':
+                case 'telefone_salvo':
                     $resolvidas[$chave] = $d['telefone_salvo'] ?? $d['telefone_cliente'] ?? '';
                     break;
-                case 'celular_salvo':
                 case 'celular_cliente':
+                case 'celular_salvo':
                     $resolvidas[$chave] = $d['celular_salvo'] ?? $d['celular_cliente'] ?? '';
                     break;
-                case 'whatsapp_salvo':
                 case 'whatsapp_cliente':
+                case 'whatsapp_salvo':
                     $resolvidas[$chave] = $d['whatsapp_salvo'] ?? $d['whatsapp_cliente'] ?? '';
                     break;
                 
@@ -113,6 +114,13 @@ class ResolvedorChavesSistema
                 case 'finalidade':
                     $resolvidas[$chave] = $d['finalidade'] ?? '';
                     break;
+                case 'escopo':
+                case 'escopo_servico':
+                    $resolvidas[$chave] = $d['escopo_servico'] ?? $d['escopo_obra'] ?? '';
+                    break;
+                case 'metodologia':
+                    $resolvidas[$chave] = $d['metodologia'] ?? '';
+                    break;
                 case 'TipoTerreno':
                     $resolvidas[$chave] = $d['TipoTerreno'] ?? $d['tipo_terreno'] ?? 'Não informado';
                     break;
@@ -127,16 +135,19 @@ class ResolvedorChavesSistema
                     break;
                 
                 // VALORES - CORREÇÃO: Usar valor direto do extras
+                case 'valor_total':
                 case 'ValorProposta':
                     $valor = $d['valor_final_proposta'] ?? $d['ValorProposta'] ?? 0;
                     $resolvidas[$chave] = $this->formatarMoeda($valor);
                     break;
+                case 'valor_extenso':
                 case 'ValorExtenso':
-                    $resolvidas[$chave] = $d['ValorExtenso'] ?? '';
+                    $resolvidas[$chave] = $d['ValorExtenso'] ?? $this->valorPorExtenso($d['valor_final_proposta'] ?? 0);
                     break;
                 case 'mobilizacao_percentual':
                     $resolvidas[$chave] = $d['mobilizacao_percentual'] ?? '30';
                     break;
+                case 'valor_entrada':
                 case 'mobilizacao_valor':
                     $valor = $d['mobilizacao_valor'] ?? 0;
                     $resolvidas[$chave] = $this->formatarMoeda($valor);
@@ -144,6 +155,7 @@ class ResolvedorChavesSistema
                 case 'restante_percentual':
                     $resolvidas[$chave] = $d['restante_percentual'] ?? '70';
                     break;
+                case 'valor_restante':
                 case 'restante_valor':
                     $valor = $d['restante_valor'] ?? 0;
                     $resolvidas[$chave] = $this->formatarMoeda($valor);
@@ -177,7 +189,8 @@ class ResolvedorChavesSistema
                     $resolvidas[$chave] = $d['Conta'] ?? '';
                     break;
                 case 'PIX':
-                    $resolvidas[$chave] = $d['PIX'] ?? '';
+                case 'chave_pix':
+                    $resolvidas[$chave] = $d['PIX'] ?? $empresa['PIX'] ?? '';
                     break;
                 
                 // EQUIPAMENTOS

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoria de Modelos DOCX - SGT Propostas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-box { background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #2980b9; }
+        .stat-label { color: #7f8c8d; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; }
+        tr:hover { background: #f5f5f5; }
+        .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; margin: 2px; }
+        .tag-cat { background: #3498db; color: white; }
+        .tag-campo { background: #2ecc71; color: white; }
+        .tag-secao { background: #9b59b6; color: white; }
+        .erro { color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 4px; }
+        .sucesso { color: #27ae60; }
+        .progress-bar { background: #ecf0f1; border-radius: 10px; overflow: hidden; height: 20px; }
+        .progress-fill { background: #3498db; height: 100%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Auditoria de Modelos DOCX</h1>
+        <p><strong>Gerado em:</strong> 2026-03-17T17:50:35+01:00</p>
+        <p><strong>Diretório:</strong> modelos_unificados</p>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Total de Modelos</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Categorias Detectadas</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">41</div>
+                <div class="stat-label">Campos Diferentes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Análises Bem-sucedidas</div>
+            </div>
+        </div><h2>📁 Distribuição por Categoria</h2><table>
+            <tr><th>Categoria</th><th>Quantidade</th><th>Modelos</th></tr><tr><td><span class='tag tag-cat'>construcao</span></td>
+                <td>1</td>
+                <td>PropostaObraCivil</td></tr></table><h2>🔑 Campos Mais Frequentes (Globais)</h2><table>
+            <tr><th>Campo</th><th>Ocorrências</th><th>%</th><th>Tipo Sugerido</th></tr><tr>
+                <td><span class='tag tag-campo'>tipo_levantamento</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>numero_proposta</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>numero</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>cidade</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>data_extenso</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>data</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>nome_cliente</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>email_cliente</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>email</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>telefone_cliente</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>telefone</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>celular_cliente</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>telefone</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>whatsapp_cliente</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>endereco_obra</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>bairro_obra</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>cidade_obra</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>estado_obra</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>empresa</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>finalidade</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>area_obra</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>veiculo</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>estacao_total</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>gps</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr><tr>
+                <td><span class='tag tag-campo'>drone</span></td>
+                <td>1</td>
+                <td><div class='progress-bar'><div class='progress-fill' style='width: 100%'></div></div> 100%</td>
+                <td>texto</td>
+            </tr></table><h2>🏷️ Campos Específicos por Categoria</h2><h3>construcao</h3><div style='margin: 10px 0;'><span class='tag tag-campo'>tipo_levantamento (1)</span> <span class='tag tag-campo'>numero_proposta (1)</span> <span class='tag tag-campo'>cidade (1)</span> <span class='tag tag-campo'>data_extenso (1)</span> <span class='tag tag-campo'>nome_cliente (1)</span> <span class='tag tag-campo'>email_cliente (1)</span> <span class='tag tag-campo'>telefone_cliente (1)</span> <span class='tag tag-campo'>celular_cliente (1)</span> <span class='tag tag-campo'>whatsapp_cliente (1)</span> <span class='tag tag-campo'>endereco_obra (1)</span> </div><h2>📑 Seções Mais Comuns</h2><table>
+            <tr><th>Seção</th><th>Ocorrências</th><th>Níveis</th></tr><tr>
+                <td><span class='tag tag-secao'>1. Apresentação</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>2. Finalidade</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>3. Escopo Detalhado dos Serviços</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>4. Metodologia de Trabalho</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>5. Equipamentos Previstos</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>6. Investimento</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>7. Condições de Pagamento</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>8. Dados Bancários</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr><tr>
+                <td><span class='tag tag-secao'>9. Considerações Finais</span></td>
+                <td>1</td>
+                <td>H2:1</td>
+            </tr></table><h2>📄 Detalhes por Modelo</h2><table>
+            <tr><th>Arquivo</th><th>Categoria</th><th>Págs</th><th>Campos</th><th>Seções</th><th>Status</th></tr><tr>
+                <td>PropostaObraCivil</td>
+                <td><span class='tag tag-cat'>construcao</span></td>
+                <td>2</td>
+                <td>41</td>
+                <td>9</td>
+                <td><span class="sucesso">✓ OK</span></td>
+            </tr></table></div></body></html>
