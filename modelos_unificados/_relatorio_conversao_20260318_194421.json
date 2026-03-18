@@ -1,0 +1,366 @@
+[
+    {
+        "arquivo": "PropostaAvulso.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaConferencia.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaDesdobramento.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 14,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (2x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaDrone.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 17,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (3x)",
+            "${estado_obra} (3x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA-I.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 14,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${Estacao_Total} (1x)",
+            "${tabela_cronograma} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA-II.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 14,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${Estacao_Total} (1x)",
+            "${tabela_cronograma} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaLocacaoTerraplenagem.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaLocacaodeObra.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 4,
+        "chaves_trocadas": [
+            "${Data} (1x)",
+            "${Cidade} (1x)",
+            "${Empresa} (2x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaObraCivil.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaObraIndustrial.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 14,
+        "chaves_trocadas": [
+            "${finalidade} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${PIX} (1x)",
+            "${Cidade} (1x)",
+            "${CNPJ} (1x)",
+            "${Empresa} (4x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaObraTerraplanagem.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 13,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaPlanialtimetrico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 13,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaPlanimetrico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 13,
+        "chaves_trocadas": [
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${PIX} (1x)",
+            "${Cidade} (1x)",
+            "${CNPJ} (1x)",
+            "${Empresa} (4x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaPlantaMemorialART.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 5,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaRetificacaodeArea.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 13,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaRevisaoeAdequacaodeServico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 7,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    },
+    {
+        "arquivo": "PropostaUsucapiao.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 13,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${valor_extenso} (1x)",
+            "${Banco} (1x)",
+            "${Agencia} (1x)",
+            "${Conta} (1x)",
+            "${data_extenso} (1x)",
+            "${Cidade} (1x)",
+            "${Veiculo} (1x)",
+            "${GPS} (1x)",
+            "${Drone} (1x)",
+            "${celular_cliente} (1x)"
+        ],
+        "chaves_nao_mapeadas": [],
+        "aviso": "OK"
+    }
+]

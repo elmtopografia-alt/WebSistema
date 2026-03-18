@@ -1,0 +1,435 @@
+[
+    {
+        "arquivo": "PropostaAvulso.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${data_extenso}",
+            "6": "${celular_cliente}",
+            "9": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaConferencia.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${data_extenso}",
+            "6": "${celular_cliente}",
+            "9": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaDesdobramento.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "7": "${celular_cliente}",
+            "10": "${bairro_obra}",
+            "15": "${GPS}",
+            "16": "${Veiculo}",
+            "18": "${Drone}",
+            "20": "${valor_extenso}",
+            "23": "${Banco}",
+            "24": "${Agencia}",
+            "25": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaDrone.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 7,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (3x)",
+            "${estado_obra} (3x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${data_extenso}",
+            "2": "${numero_proposta}",
+            "5": "${nome_contato}",
+            "9": "${celular_cliente}",
+            "12": "${bairro_obra}",
+            "21": "${Drone}",
+            "22": "${GPS}",
+            "23": "${Veiculo}",
+            "25": "${valor_extenso}",
+            "28": "${Banco}",
+            "29": "${Agencia}",
+            "30": "${Conta}",
+            "34": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA-I.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${data_extenso}",
+            "2": "${numero_proposta}",
+            "11": "${area_obra}",
+            "13": "${Veiculo}",
+            "14": "${GPS}",
+            "15": "${Estacao_Total}",
+            "16": "${Drone}",
+            "17": "${tabela_cronograma}",
+            "19": "${valor_extenso}",
+            "20": "${mobilizacao_percentual}",
+            "22": "${restante_percentual}",
+            "24": "${Banco}",
+            "25": "${Agencia}",
+            "26": "${Conta}",
+            "30": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA-II.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${data_extenso}",
+            "2": "${numero_proposta}",
+            "10": "${area_obra}",
+            "13": "${Veiculo}",
+            "14": "${GPS}",
+            "15": "${Estacao_Total}",
+            "16": "${Drone}",
+            "17": "${tabela_cronograma}",
+            "19": "${valor_extenso}",
+            "20": "${mobilizacao_percentual}",
+            "22": "${restante_percentual}",
+            "24": "${Banco}",
+            "25": "${Agencia}",
+            "26": "${Conta}",
+            "30": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaGeorreferenciamentoINCRA.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${data_extenso}",
+            "2": "${numero_proposta}",
+            "12": "${Veiculo}",
+            "13": "${GPS}",
+            "14": "${Drone}",
+            "16": "${valor_extenso}",
+            "19": "${Banco}",
+            "20": "${Agencia}",
+            "21": "${Conta}",
+            "25": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaLocacaoTerraplenagem.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${data_extenso}",
+            "6": "${celular_cliente}",
+            "9": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaLocacaodeObra.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 0,
+        "chaves_trocadas": [],
+        "chaves_nao_mapeadas": [
+            "${Cidade}",
+            "${Data}",
+            "${Empresa}"
+        ],
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaObraCivil.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 12,
+        "chaves_trocadas": [
+            "${empresa} (6x)",
+            "${cnpj} (2x)",
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)",
+            "${finalidade} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "9": "${bairro_obra}",
+            "16": "${Veiculo}",
+            "17": "${GPS}",
+            "18": "${Drone}",
+            "20": "${valor_extenso}",
+            "23": "${Banco}",
+            "24": "${Agencia}",
+            "25": "${Conta}",
+            "29": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaObraIndustrial.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 1,
+        "chaves_trocadas": [
+            "${finalidade} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${Empresa}",
+            "4": "${Veiculo}",
+            "5": "${GPS}",
+            "6": "${Drone}",
+            "7": "${Banco}",
+            "8": "${Agencia}",
+            "9": "${Conta}",
+            "11": "${CNPJ}",
+            "12": "${PIX}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaObraTerraplanagem.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "7": "${celular_cliente}",
+            "10": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaPlanialtimetrico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "4": "${nome_contato}",
+            "8": "${celular_cliente}",
+            "11": "${bairro_obra}",
+            "16": "${Veiculo}",
+            "17": "${GPS}",
+            "18": "${Drone}",
+            "20": "${valor_extenso}",
+            "23": "${Banco}",
+            "24": "${Agencia}",
+            "25": "${Conta}",
+            "29": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaPlanimetrico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 1,
+        "chaves_trocadas": [
+            "${finalidade} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${Empresa}",
+            "4": "${Veiculo}",
+            "5": "${GPS}",
+            "6": "${Drone}",
+            "7": "${Banco}",
+            "8": "${Agencia}",
+            "9": "${Conta}",
+            "11": "${CNPJ}",
+            "12": "${PIX}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaPlantaMemorialART.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 2,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${Cidade}",
+            "1": "${data_extenso}",
+            "7": "${bairro_obra}",
+            "11": "${valor_extenso}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaRetificacaodeArea.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "7": "${celular_cliente}",
+            "10": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaRevisaoeAdequacaodeServico.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 1,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "8": "${bairro_obra}",
+            "12": "${valor_extenso}",
+            "15": "${Banco}",
+            "16": "${Agencia}",
+            "17": "${Conta}",
+            "21": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    },
+    {
+        "arquivo": "PropostaUsucapiao.docx",
+        "status": "CONVERTIDO",
+        "substituicoes": 3,
+        "chaves_trocadas": [
+            "${endereco_obra} (1x)",
+            "${cidade_obra} (1x)",
+            "${estado_obra} (1x)"
+        ],
+        "chaves_nao_mapeadas": {
+            "0": "${numero_proposta}",
+            "1": "${Cidade}",
+            "2": "${data_extenso}",
+            "7": "${celular_cliente}",
+            "10": "${bairro_obra}",
+            "15": "${Veiculo}",
+            "16": "${GPS}",
+            "17": "${Drone}",
+            "19": "${valor_extenso}",
+            "22": "${Banco}",
+            "23": "${Agencia}",
+            "24": "${Conta}",
+            "28": "${chave_pix}"
+        },
+        "aviso": "REQUER_REVISAO"
+    }
+]

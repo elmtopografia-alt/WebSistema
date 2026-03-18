@@ -805,3 +805,125 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-03-16 18:00:03] Backup conclu√≠do com sucesso.
 [2026-03-17 18:00:04] Iniciando backup...
+[2026-03-17 18:00:04] GIT ADD: git : warning: in the working copy of 'ResolvedorChavesSistema.php', LF will be replaced by CRLF the next time Git 
+touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'logs/sgt_routes.log', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'CONTRATO_VARIAVEIS_DOCX.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README_AUDITORIA.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_144445.html', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_144445.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_162114.html', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_162114.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_164216.html', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_164216.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_174456.html', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/auditoria_docx_20260317_174456.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria_final/auditoria_docx_20260317_180040.html', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'auditoria_final/auditoria_docx_20260317_180040.json', LF will be replaced by CRLF the 
+next time Git touches it
+warning: in the working copy of 'auditoria_unificada/auditoria_docx_20260317_174959.html', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'auditoria_unificada/auditoria_docx_20260317_174959.json', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'auditoria_unificada/auditoria_docx_20260317_175035.html', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'auditoria_unificada/auditoria_docx_20260317_175035.json', LF will be replaced by CRLF 
+the next time Git touches it
+warning: in the working copy of 'funcoes_gerador_docs.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gerador_update_docs.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/auditor_docx.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/unificador_docx.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/unificador_massa.php', LF will be replaced by CRLF the next time Git touches 
+it
+
+[2026-03-17 18:00:04] GIT COMMIT: [main becee6f] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-17 18:00:04
+ 67 files changed, 44650 insertions(+), 275 deletions(-)
+ create mode 100644 CONTRATO_VARIAVEIS_DOCX.md
+ create mode 100644 README_AUDITORIA.md
+ create mode 100644 auditoria/auditoria_docx_20260317_144445.html
+ create mode 100644 auditoria/auditoria_docx_20260317_144445.json
+ create mode 100644 auditoria/auditoria_docx_20260317_162114.html
+ create mode 100644 auditoria/auditoria_docx_20260317_162114.json
+ create mode 100644 auditoria/auditoria_docx_20260317_164216.html
+ create mode 100644 auditoria/auditoria_docx_20260317_164216.json
+ create mode 100644 auditoria/auditoria_docx_20260317_174456.html
+ create mode 100644 auditoria/auditoria_docx_20260317_174456.json
+ create mode 100644 auditoria_final/auditoria_docx_20260317_180040.html
+ create mode 100644 auditoria_final/auditoria_docx_20260317_180040.json
+ create mode 100644 auditoria_unificada/auditoria_docx_20260317_174959.html
+ create mode 100644 auditoria_unificada/auditoria_docx_20260317_174959.json
+ create mode 100644 auditoria_unificada/auditoria_docx_20260317_175035.html
+ create mode 100644 auditoria_unificada/auditoria_docx_20260317_175035.json
+ create mode 100644 funcoes_gerador_docs.php
+ create mode 100644 gerador_update_docs.php
+ create mode 100644 modelos_docx_originais/Documento1.docx
+ create mode 100644 modelos_docx_originais/PropostaAvulso.docx
+ create mode 100644 modelos_docx_originais/PropostaConferencia.docx
+ create mode 100644 modelos_docx_originais/PropostaDesdobramento.docx
+ create mode 100644 modelos_docx_originais/PropostaDrone.docx
+ create mode 100644 modelos_docx_originais/PropostaGeorreferenciamentoINCRA-I.docx
+ create mode 100644 modelos_docx_originais/PropostaGeorreferenciamentoINCRA-II.docx
+ create mode 100644 modelos_docx_originais/PropostaGeorreferenciamentoINCRA.docx
+ create mode 100644 modelos_docx_originais/PropostaLocacaoTerraplenagem.docx
+ create mode 100644 modelos_docx_originais/PropostaLocacaodeObra.docx
+ create mode 100644 modelos_docx_originais/PropostaObraCivil.docx
+ create mode 100644 modelos_docx_originais/PropostaObraIndustrial.docx
+ create mode 100644 modelos_docx_originais/PropostaObraTerraplanagem.docx
+ create mode 100644 modelos_docx_originais/PropostaPlanialtimetrico.docx
+ create mode 100644 modelos_docx_originais/PropostaPlanimetrico.docx
+ create mode 100644 modelos_docx_originais/PropostaPlantaMemorialART.docx
+ create mode 100644 modelos_docx_originais/PropostaRetificacaodeArea.docx
+ create mode 100644 modelos_docx_originais/PropostaRevisaoeAdequacaodeServico.docx
+ create mode 100644 modelos_docx_originais/PropostaUsucapiao.docx
+ create mode 100644 modelos_unificados/PropostaAvulso.docx
+ create mode 100644 modelos_unificados/PropostaConferencia.docx
+ create mode 100644 modelos_unificados/PropostaDesdobramento.docx
+ create mode 100644 modelos_unificados/PropostaDrone.docx
+ create mode 100644 modelos_unificados/PropostaGeorreferenciamentoINCRA-I.docx
+ create mode 100644 modelos_unificados/PropostaGeorreferenciamentoINCRA-II.docx
+ create mode 100644 modelos_unificados/PropostaGeorreferenciamentoINCRA.docx
+ create mode 100644 modelos_unificados/PropostaLocacaoTerraplenagem.docx
+ create mode 100644 modelos_unificados/PropostaLocacaodeObra.docx
+ create mode 100644 modelos_unificados/PropostaLocacaodeObra.docx.06b8de1d
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.06b8ed6f
+ create mode 100644 modelos_unificados/PropostaObraIndustrial.docx
+ create mode 100644 modelos_unificados/PropostaObraIndustrial.docx.06b8f7a0
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx
+ create mode 100644 modelos_unificados/PropostaPlanialtimetrico.docx
+ create mode 100644 modelos_unificados/PropostaPlanimetrico.docx
+ create mode 100644 modelos_unificados/PropostaPlanimetrico.docx.06b91039
+ create mode 100644 modelos_unificados/PropostaPlantaMemorialART.docx
+ create mode 100644 modelos_unificados/PropostaRetificacaodeArea.docx
+ create mode 100644 modelos_unificados/PropostaRevisaoeAdequacaodeServico.docx
+ create mode 100644 modelos_unificados/PropostaUsucapiao.docx
+ create mode 100644 scripts/auditor_docx.php
+ create mode 100644 scripts/unificador_docx.php
+ create mode 100644 scripts/unificador_massa.php
+
+[2026-03-17 18:00:04] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   9d9b741..becee6f  main -> main
+
+[2026-03-17 18:00:04] Backup conclu√≠do com sucesso.
+[2026-03-18 18:00:02] Iniciando backup...
