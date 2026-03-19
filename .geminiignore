@@ -1,0 +1,37 @@
+# Ignorar pastas de ambiente e builds
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+vendor/
+
+# Ignorar Assets pesados (consomem centenas de tokens e a IA no os le)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.mp4
+*.pdf
+*.zip
+*.docx
+*.xlsx
+*.rar
+
+# Ignorar Logs e Dados
+*.log
+*.sql
+*.sqlite
+.env
+auth.json
+
+# Ignorar arquivos temporarios do Antigravity
+artifacts/
+.gemini/
+.system_generated/
+tmp/
+
+# Ignorar arquivos de sistema
+.DS_Store
+Thumbs.db

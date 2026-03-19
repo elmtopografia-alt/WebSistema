@@ -927,3 +927,138 @@ No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caracte
 
 [2026-03-17 18:00:04] Backup conclu√≠do com sucesso.
 [2026-03-18 18:00:02] Iniciando backup...
+[2026-03-18 18:00:02] GIT ADD: git : warning: in the working copy of 'auditoria/validacao_v3_20260317_233645.json', LF will be replaced by CRLF the 
+next time Git touches it
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:27 caractere:5
++     git add . 2>&1 | Out-String | ForEach-Object { Log-Message "GIT A ...
++     ~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'auditoria/validacao_v3_20260318_193736.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/validacao_v3_20260318_194337.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'auditoria/validacao_v3_20260318_194429.json', LF will be replaced by CRLF the next 
+time Git touches it
+warning: in the working copy of 'config/mapeamento_v3.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core/PropostaRepositoryV3.php', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'core/TemplateEngineV3.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'executar_v3.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_193729.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_193736.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_194137.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_194226.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_194317.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_194400.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'modelos_unificados/_relatorio_conversao_20260318_194421.json', LF will be replaced by 
+CRLF the next time Git touches it
+warning: in the working copy of 'scripts/migracao_banco_v3.sql', LF will be replaced by CRLF the next time Git touches 
+it
+warning: in the working copy of 'scripts/testar_renderizacao.php', LF will be replaced by CRLF the next time Git 
+touches it
+warning: in the working copy of 'scripts/validador_v3.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/Service/TemplateEngine.php', LF will be replaced by CRLF the next time Git 
+touches it
+
+[2026-03-18 18:00:02] GIT COMMIT: [main 17b3a0c] Backup Di+‚-Ìrio Autom+‚-Ìtico: 2026-03-18 18:00:02
+ 116 files changed, 6660 insertions(+)
+ create mode 100644 auditoria/validacao_v3_20260317_233645.json
+ create mode 100644 auditoria/validacao_v3_20260318_193736.json
+ create mode 100644 auditoria/validacao_v3_20260318_194337.json
+ create mode 100644 auditoria/validacao_v3_20260318_194429.json
+ create mode 100644 config/mapeamento_v3.php
+ create mode 100644 core/PropostaRepositoryV3.php
+ create mode 100644 core/TemplateEngineV3.php
+ create mode 100644 executar_migracao_v3.bat
+ create mode 100644 executar_v3.php
+ rename {modelos_unificados => modelos_prod}/PropostaLocacaodeObra.docx.06b8de1d (100%)
+ create mode 100644 modelos_prod/PropostaObraCivil.docx.0054e98c
+ rename {modelos_unificados => modelos_prod}/PropostaObraCivil.docx.06b8ed6f (100%)
+ create mode 100644 modelos_prod/PropostaObraIndustrial.docx.00550717
+ create mode 100644 modelos_prod/PropostaObraIndustrial.docx.00554911
+ rename {modelos_unificados => modelos_prod}/PropostaObraIndustrial.docx.06b8f7a0 (100%)
+ create mode 100644 modelos_prod/PropostaObraTerraplanagem.docx.00554d38
+ create mode 100644 modelos_prod/PropostaPlanimetrico.docx.005535a8
+ rename {modelos_unificados => modelos_prod}/PropostaPlanimetrico.docx.06b91039 (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/Documento1.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaAvulso.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaConferencia.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaDesdobramento.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaDrone.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaGeorreferenciamentoINCRA.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaLocacaoTerraplenagem.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaLocacaodeObra.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaObraCivil.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaObraIndustrial.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaObraTerraplanagem.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaPlanialtimetrico.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaPlanimetrico.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaRetificacaodeArea.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaRevisaoeAdequacaodeServico.docx (100%)
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/BK-Modelos/PropostaUsucapiao.docx (100%)
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaAvulso.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaConferencia.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaDesdobramento.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaDrone.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaGeorreferenciamentoINCRA-I.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaGeorreferenciamentoINCRA-II.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaGeorreferenciamentoINCRA.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaLocacaoTerraplenagem.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaLocacaodeObra.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaObraCivil.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaObraIndustrial.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaObraTerraplanagem.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaPlanialtimetrico.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaPlanimetrico.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaPlantaMemorialART.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaRetificacaodeArea.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaRevisaoeAdequacaodeServico.docx
+ create mode 100644 modelos_prod_LEGACY_20260317/PropostaUsucapiao.docx
+ rename {modelos_prod => modelos_prod_LEGACY_20260317}/~$deloPropostaDrone.docx (100%)
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.00550429
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.0055471d
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.0058f0eb
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.00599ab8
+ create mode 100644 modelos_unificados/PropostaObraCivil.docx.005b0d15
+ create mode 100644 modelos_unificados/PropostaObraIndustrial.docx.005510cb
+ create mode 100644 modelos_unificados/PropostaObraIndustrial.docx.00554b05
+ create mode 100644 modelos_unificados/PropostaObraIndustrial.docx.0058f8ac
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx.005523f5
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx.005550e1
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx.005900ba
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx.005a8007
+ create mode 100644 modelos_unificados/PropostaObraTerraplanagem.docx.005b21c5
+ create mode 100644 modelos_unificados/PropostaPlanialtimetrico.docx.00553124
+ create mode 100644 modelos_unificados/PropostaUsucapiao.docx.0059c487
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_193729.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_193736.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_194137.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_194226.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_194317.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_194400.json
+ create mode 100644 modelos_unificados/_relatorio_conversao_20260318_194421.json
+ create mode 100644 scripts/conversor_docx_v3.php
+ create mode 100644 scripts/migracao_banco_v3.sql
+ create mode 100644 scripts/testar_renderizacao.php
+ create mode 100644 scripts/validador_v3.php
+ create mode 100644 src/Service/TemplateEngine.php
+
+[2026-03-18 18:00:02] GIT PUSH: git : To https://github.com/elmtopografia-alt/WebSistema.git
+No F:\Site\Sistema Proposta\SistemaWeb\.agent\scripts\auto_backup.ps1:40 caractere:5
++     git push 2>&1 | Out-String | ForEach-Object { Log-Message "GIT PU ...
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith.../WebSistema.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   becee6f..17b3a0c  main -> main
+
+[2026-03-18 18:00:02] Backup conclu√≠do com sucesso.
+[2026-03-19 18:00:05] Iniciando backup...

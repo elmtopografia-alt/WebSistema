@@ -69,3 +69,22 @@ Como estamos lidando com um sistema existente (`SistemaWeb`), você deve seguir 
    * **Ação:** Para consultas ao banco, use scripts PHP de diagnóstico (como `diagnostico_tabelas.php`) enviados via SFTP para execução no servidor.
 4. **Sincronização SFTP:** Todas as alterações locais são espelhadas instantaneamente para o servidor. Confie na leitura dos arquivos locais como fonte da verdade do servidor.
 5. **Zero Latência Local:** Nunca tente rodar servidores PHP locais (Apache/Nginx/MySQL) para este projeto.
+
+---
+
+## 💡 6. ECONOMIA DE TOKENS E EFICIÊNCIA (VÍDEO ANTIGRAVITY)
+
+**ESTE PROJETO SEGUE O PROTOCOLO DE ECONOMIA DE TOKENS EXTENSA:**
+
+1. **Protocolo "Resumo de Comentários":** 
+   - Ao propor mudanças, gere **planos de implementação (Task Lists)** e **Walkthroughs** extremamente resumidos.
+   - Evite repetir blocos de código que não foram alterados.
+   - Se uma explicação for muito longa, ofereça um resumo em tópicos primeiro.
+2. **Uso do `.geminiignore`:** 
+   - Sempre respeite o arquivo `.geminiignore` para não processar assets pesados (imagens, PDFs, SQLs).
+3. **Foco no "Plus (+)" Mental:**
+   - Adicione comentários curtos e diretos no código para guiar a lógica, evitando que a IA precise re-analisar o arquivo inteiro em cada turno.
+4. **Prototipagem Externa (Sugestão ao Usuário):** 
+   - Para lógicas extremamente densas, sugira ao usuário usar o Google AI Studio para o "rascunho bruto" e trazer para cá apenas para o refino final.
+5. **Seleção de Modelos:** 
+   - Use o modelo **Flash** para tarefas de leitura e diagnósticos simples e os modelos **Pro/Claude** apenas para codificação crítica.
