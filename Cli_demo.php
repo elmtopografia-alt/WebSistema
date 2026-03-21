@@ -189,7 +189,7 @@ try {
                         <i class="ph ph-rocket-launch"></i> Contratar PRO
                     </a>
 
-                    <a href="criar_proposta.php?nova=1" class="ml-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-yellow-500/25 flex items-center gap-2 transform hover:-translate-y-0.5">
+                    <a href="criar_proposta_dinamica.php?nova=1" class="ml-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-yellow-500/25 flex items-center gap-2 transform hover:-translate-y-0.5">
                         <i class="ph ph-plus-bold"></i> Nova Proposta
                     </a>
 
@@ -230,7 +230,7 @@ try {
             <div class="p-4 space-y-2">
                 <a href="painel.php" class="block px-4 py-3 rounded-lg hover:bg-white/5 text-slate-300">Dashboard</a>
                 <a href="contratar.php" class="block px-4 py-3 rounded-lg bg-green-600/20 text-green-400 font-bold">Contratar PRO</a>
-                <a href="criar_proposta.php?nova=1" class="block px-4 py-3 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold">Nova Proposta</a>
+                <a href="criar_proposta_dinamica.php?nova=1" class="block px-4 py-3 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold">Nova Proposta</a>
                 <a href="meus_clientes.php" class="block px-4 py-3 rounded-lg hover:bg-white/5 text-slate-300">Clientes</a>
                 <a href="logout.php" class="block px-4 py-3 rounded-lg hover:bg-red-500/10 text-red-400">Sair</a>
             </div>
@@ -337,7 +337,7 @@ try {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <!-- Criar Nova -->
-            <a href="criar_proposta.php?nova=1" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center hover:bg-surface/80 group border-dashed border-2 border-white/10 hover:border-yellow-500/50">
+            <a href="criar_proposta_dinamica.php?nova=1" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center hover:bg-surface/80 group border-dashed border-2 border-white/10 hover:border-yellow-500/50">
                 <div class="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400 mb-4 group-hover:scale-110 transition-transform">
                     <i class="ph ph-plus text-3xl"></i>
                 </div>

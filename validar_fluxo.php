@@ -101,7 +101,7 @@ try {
     echo "<div class='box'>";
     echo "<h3>Próximos Passos (Ações Manuais):</h3>";
     echo "<a href='painel.php' class='btn btn-blue'>Verificar no Painel</a>";
-    echo "<a href='criar_proposta.php' class='btn btn-green'>Ir para Wizard (Criar Proposta)</a>";
+    echo "<a href='criar_proposta_dinamica.php' class='btn btn-green'>Ir para Wizard (Criar Proposta)</a>";
     
     echo "<form method='POST' style='display:inline-block;'>";
     echo "<input type='hidden' name='delete_test' value='1'>";

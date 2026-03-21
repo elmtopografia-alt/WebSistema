@@ -1,5 +1,5 @@
 <?php
-// Nome da página: criar_proposta.php
+// Nome da página: criar_proposta_dinamica.php
 // VERSÃO: FINAL E COMPATÍVEL COM O NOVO BACKEND
 
 require_once 'db.php';
@@ -86,4 +86,4 @@ try {
     </script>
 </body>
 </html>
-*Fim arquivo criar_proposta.php*
+*Fim arquivo criar_proposta_dinamica.php*

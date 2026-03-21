@@ -146,7 +146,7 @@ try {
                         <i class="ph ph-rocket"></i> Contratar PRO
                     </a>
 
-                    <a href="criar_proposta.php" class="px-4 py-2 bg-brand-accent hover:bg-brand-action text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-brand-accent/20 flex items-center gap-2">
+                    <a href="criar_proposta_dinamica.php" class="px-4 py-2 bg-brand-accent hover:bg-brand-action text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-brand-accent/20 flex items-center gap-2">
                         <i class="ph ph-plus-bold"></i> Nova Proposta
                     </a>
 
@@ -247,7 +247,7 @@ try {
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <a href="criar_proposta.php" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center group">
+            <a href="criar_proposta_dinamica.php" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center group">
                 <div class="w-14 h-14 mb-4 rounded-xl bg-brand-accent/10 flex items-center justify-center text-brand-accent border border-brand-accent/20 group-hover:scale-110 transition-transform">
                     <i class="ph ph-plus-circle text-3xl"></i>
                 </div>

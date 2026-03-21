@@ -553,7 +553,7 @@ try {
                 <i class="ph ph-lightning"></i> Ações Rápidas
             </h2>
             <div class="quick-actions" style="grid-template-columns: repeat(5, 1fr);">
-                <a href="criar_proposta.php" class="quick-action-btn group">
+                <a href="criar_proposta_dinamica.php" class="quick-action-btn group">
                     <i class="ph ph-plus-circle text-green-400 group-hover:text-green-300"></i>
                     <span>Nova Proposta</span>
                 </a>
@@ -1092,7 +1092,7 @@ try {
             <i class="ph ph-house"></i>
             <span class="dock-label">Início</span>
         </a>
-        <a href="criar_proposta.php" class="dock-item" title="Nova Proposta">
+        <a href="criar_proposta_dinamica.php" class="dock-item" title="Nova Proposta">
             <i class="ph ph-file-plus"></i>
             <span class="dock-label">Proposta</span>
         </a>

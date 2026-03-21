@@ -101,7 +101,7 @@ if ($res_servicos) {
         </div>
 
         <!-- Form Container -->
-        <form id="wizardForm" action="criar_proposta.php" method="GET" class="relative min-h-[400px]">
+        <form id="wizardForm" action="criar_proposta_dinamica.php" method="GET" class="relative min-h-[400px]">
             <input type="hidden" name="nova" value="1">
             <input type="hidden" name="id_cliente" id="input_cliente">
             <input type="hidden" name="id_servico" id="input_servico">

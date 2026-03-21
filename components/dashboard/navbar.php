@@ -30,7 +30,7 @@
 
                 <?php if(isset($nav_extra_content)) echo $nav_extra_content; ?>
 
-                <a href="criar_proposta.php" class="ml-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2 transform hover:-translate-y-0.5">
+                <a href="criar_proposta_dinamica.php" class="ml-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2 transform hover:-translate-y-0.5">
                     <i class="ph ph-plus-bold"></i> Nova Proposta
                 </a>
 
@@ -70,7 +70,7 @@
     <div id="mobile-menu" class="hidden md:hidden glass border-t border-white/10 absolute w-full left-0">
         <div class="p-4 space-y-2">
             <a href="painel.php" class="block px-4 py-3 rounded-lg hover:bg-white/5 text-slate-300">Dashboard</a>
-            <a href="criar_proposta.php?nova=1" class="block px-4 py-3 rounded-lg bg-orange-500/20 text-orange-400 font-bold">Nova Proposta</a>
+            <a href="criar_proposta_dinamica.php?nova=1" class="block px-4 py-3 rounded-lg bg-orange-500/20 text-orange-400 font-bold">Nova Proposta</a>
             <a href="meus_clientes.php" class="block px-4 py-3 rounded-lg hover:bg-white/5 text-slate-300">Clientes</a>
             <a href="minha_empresa.php" class="block px-4 py-3 rounded-lg hover:bg-white/5 text-slate-300">Minha Empresa</a>
             <a href="logout.php" class="block px-4 py-3 rounded-lg hover:bg-red-500/10 text-red-400">Sair</a>

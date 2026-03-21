@@ -169,7 +169,7 @@ function mostrarErroEditor($titulo, $mensagem, $fatal = false, $detalhes = []) {
         </a>
     " : "
         <div style='display:flex;gap:12px;flex-wrap:wrap;justify-content:center;'>
-            <a href='criar_proposta.php?id_proposta={$idPropStr}' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg, {$corPrimaria} 0%, #ea580c 100%);color:white;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(249,115,22,0.4);'>
+            <a href='criar_proposta_dinamica.php?id_proposta={$idPropStr}' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg, {$corPrimaria} 0%, #ea580c 100%);color:white;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(249,115,22,0.4);'>
                 ← Completar Dados
             </a>
             <a href='painel.php' style='display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(255,255,255,0.05);color:#e2e8f0;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.1);'>

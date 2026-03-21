@@ -66,7 +66,7 @@ try {
             
         case 'salvar_nova':
             // Salva e cria nova proposta
-            header("Location: criar_proposta.php?nova=1&msg=atualizado&anterior={$id_proposta}");
+            header("Location: criar_proposta_dinamica.php?nova=1&msg=atualizado&anterior={$id_proposta}");
             break;
             
         case 'salvar':

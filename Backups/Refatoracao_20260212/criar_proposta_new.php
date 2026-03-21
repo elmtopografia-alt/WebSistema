@@ -10,7 +10,7 @@
  * 3. Editor permite refinar textos de cada seção
  * 4. Gera documento final
  * 
- * NOTA: O arquivo criar_proposta.php original continua funcionando normalmente.
+ * NOTA: O arquivo criar_proposta_dinamica.php original continua funcionando normalmente.
  */
 
 require_once 'session_validator.php';
@@ -350,7 +350,7 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
 
         <p style="text-align: center; margin-top: 1.5rem; color: #94a3b8; font-size: 0.8rem;">
-            <a href="criar_proposta.php" style="color: #64748b;">Prefere o método tradicional? Clique aqui</a>
+            <a href="criar_proposta_dinamica.php" style="color: #64748b;">Prefere o método tradicional? Clique aqui</a>
         </p>
     </div>
 </body>

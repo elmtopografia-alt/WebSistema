@@ -93,7 +93,7 @@ if (is_dir($dir_modelos)) {
         
         <hr>
         <a href="painel.php" class="btn btn-voltar">Voltar ao Painel</a>
-        <a href="criar_proposta.php" class="btn btn-voltar" style="background:var(--brand);margin-left:10px;">Ir para Criar Proposta</a>
+        <a href="criar_proposta_dinamica.php" class="btn btn-voltar" style="background:var(--brand);margin-left:10px;">Ir para Criar Proposta</a>
     </div>
 </body>
 </html>

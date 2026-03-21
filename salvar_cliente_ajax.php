@@ -1,6 +1,6 @@
 <?php
 // Nome do Arquivo: salvar_cliente_ajax.php
-// Função: Processa cadastro de cliente via AJAX (para modal em criar_proposta.php)
+// Função: Processa cadastro de cliente via AJAX (para modal em criar_proposta_dinamica.php)
 // Retorna JSON com sucesso ou erro
 
 header('Content-Type: application/json');

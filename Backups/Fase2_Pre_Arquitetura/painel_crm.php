@@ -536,7 +536,7 @@ function getZapLink($numero, $handle) {
             <a href="dashboard_crm.php" class="text-slate-400 hover:text-white p-2 transition-colors flex items-center gap-2 text-sm font-medium mr-2" title="Ver Analytics">
                 <i class="ph ph-chart-line-up text-lg"></i> <span class="hidden md:inline">Analytics</span>
             </a>
-            <a href="criar_proposta.php" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all">+ Nova</a>
+            <a href="criar_proposta_dinamica.php" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all">+ Nova</a>
         </div>
     </nav>
 

@@ -132,7 +132,7 @@ try {
     <meta charset="UTF-8">
     <title>Editar Proposta #<?= $id ?> - SGT Propostas v2</title>
     <style>
-        /* Mesmos estilos do criar_proposta.php */
+        /* Mesmos estilos do criar_proposta_dinamica.php */
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }

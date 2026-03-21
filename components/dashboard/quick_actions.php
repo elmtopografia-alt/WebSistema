@@ -5,7 +5,7 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
     <!-- Criar Nova -->
-    <a href="criar_proposta.php" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center hover:bg-surface/80 group border-dashed border-2 border-white/10 hover:border-orange-500/50">
+    <a href="criar_proposta_dinamica.php" class="glass-card p-6 rounded-2xl flex flex-col items-center text-center hover:bg-surface/80 group border-dashed border-2 border-white/10 hover:border-orange-500/50">
         <div class="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400 mb-4 group-hover:scale-110 transition-transform">
             <i class="ph ph-plus text-3xl"></i>
         </div>

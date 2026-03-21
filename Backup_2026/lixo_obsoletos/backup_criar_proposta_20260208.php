@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ARQUIVO: criar_proposta.php
+ * ARQUIVO: criar_proposta_dinamica.php
  * VERSÃO: Premium Wizard Mobile-First Optimized
  * Performance: Lazy loading, PWA-ready, Touch-optimized
  */
@@ -1558,7 +1558,7 @@ if (empty($_SESSION['csrf_token'])) {
         }
 
 /* ============================================
-   CORREÇÕES MOBILE - KIMI (CRIAR_PROPOSTA.PHP)
+   CORREÇÕES MOBILE - KIMI (criar_proposta_dinamica.php)
    ============================================ */
 
 /* Wrapper do seletor de cliente - layout flexível */

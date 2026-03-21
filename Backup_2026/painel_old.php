@@ -256,7 +256,7 @@ try {
                         </a>
                     <?php endif; ?>
 
-                    <a href="criar_proposta.php" class="px-4 py-2 bg-brand-accent hover:bg-brand-action text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-brand-accent/20 flex items-center gap-2">
+                    <a href="criar_proposta_dinamica.php" class="px-4 py-2 bg-brand-accent hover:bg-brand-action text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-brand-accent/20 flex items-center gap-2">
                         <i class="ph ph-plus-bold"></i> Nova Proposta
                     </a>
 

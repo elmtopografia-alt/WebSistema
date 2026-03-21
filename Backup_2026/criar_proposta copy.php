@@ -1,5 +1,5 @@
 <?php
-// Nome do Arquivo: criar_proposta.php
+// Nome do Arquivo: criar_proposta_dinamica.php
 // Função: Formulário de criação com Design "Azul ELM" (Vivid Blue), Mobile Otimizado e Coluna Fixa.
 
 session_start();

@@ -326,7 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $conn->rollback();
         ob_end_clean();
-        die("<div style='font-family:sans-serif; text-align:center; margin-top:50px;'><h1 style='color:red'>Erro ao Salvar</h1><p>" . $e->getMessage() . "</p><a href='criar_proposta.php'>Voltar</a></div>");
+        die("<div style='font-family:sans-serif; text-align:center; margin-top:50px;'><h1 style='color:red'>Erro ao Salvar</h1><p>" . $e->getMessage() . "</p><a href='criar_proposta_dinamica.php'>Voltar</a></div>");
     }
 }
 ?>

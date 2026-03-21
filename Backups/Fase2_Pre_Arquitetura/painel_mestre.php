@@ -107,7 +107,7 @@ function limparStr($string) { return preg_replace('/[^a-zA-Z0-9]/', '', $string)
                 <h2 class="fw-bold text-dark mb-1">Minhas Propostas</h2>
                 <p class="text-muted mb-0">Gerencie seus orçamentos e revisões.</p>
             </div>
-            <a href="criar_proposta.php" class="btn btn-success shadow-lg rounded-pill px-4 py-2 fw-bold">
+            <a href="criar_proposta_dinamica.php" class="btn btn-success shadow-lg rounded-pill px-4 py-2 fw-bold">
                 <i class="bi bi-plus-lg me-2"></i>Nova Proposta
             </a>
         </div>

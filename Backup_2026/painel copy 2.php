@@ -210,7 +210,7 @@ function getStatusClass($status) {
                     <i class="bi bi-people-fill"></i> Clientes
                 </a>
                 
-                <a href="criar_proposta.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
+                <a href="criar_proposta_dinamica.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
                 <a href="logout.php" class="btn btn-sm btn-outline-danger">Sair</a>
             </div>
         </div>

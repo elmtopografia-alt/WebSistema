@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ARQUIVO: criar_proposta.php (Refatorado v3.0)
+ * ARQUIVO: criar_proposta_dinamica.php (Refatorado v3.0)
  * OBJETIVO: Versão modular com CSS/JS externos e Partials
  */
 

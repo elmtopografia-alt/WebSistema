@@ -60,7 +60,7 @@ function isActive($page, $current) {
                 </a>
                 <?php endif; ?>
                 
-                <a href="criar_proposta.php" class="ml-2 px-4 py-2 bg-[#0066CC] hover:bg-[#0052a3] text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2">
+                <a href="criar_proposta_dinamica.php" class="ml-2 px-4 py-2 bg-[#0066CC] hover:bg-[#0052a3] text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2">
                     <i class="ph ph-plus-bold"></i> NOVA
                 </a>
                 
@@ -98,7 +98,7 @@ function isActive($page, $current) {
             
             <div class="border-t border-white/10 my-2"></div>
             
-            <a href="criar_proposta.php" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#0066CC] text-white font-bold rounded-lg">
+            <a href="criar_proposta_dinamica.php" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#0066CC] text-white font-bold rounded-lg">
                 <i class="ph ph-plus-bold"></i> NOVA PROPOSTA
             </a>
             

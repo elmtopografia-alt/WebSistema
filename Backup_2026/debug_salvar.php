@@ -13,7 +13,7 @@ function gerarNumeroProposta($conn) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    die("Acesse esta página enviando o formulário de criar_proposta.php");
+    die("Acesse esta página enviando o formulário de criar_proposta_dinamica.php");
 }
 
 echo "<h1>--- INÍCIO DO RELATÓRIO DE DEPURAÇÃO ---</h1>\n";

@@ -144,7 +144,7 @@ try {
                     <?php endif; ?>
 
                     <li class="nav-item ms-2">
-                        <a href="criar_proposta.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
+                        <a href="criar_proposta_dinamica.php" class="btn btn-success btn-sm fw-bold shadow-sm px-3"><i class="bi bi-plus-lg me-1"></i> Nova Proposta</a>
                     </li>
 
                     <li class="nav-item dropdown ms-2">

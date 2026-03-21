@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/iniciar_nova_proposta.php',
     '/painel.php',
     '/meus_clientes.php',
-    '/criar_proposta.php',
+    '/criar_proposta_dinamica.php',
     '/calculos.js',
     '/manifest.json',
     '/icons/icon-192x192.png',
